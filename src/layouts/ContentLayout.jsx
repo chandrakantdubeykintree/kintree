@@ -3,7 +3,7 @@ import LeftSidebar from "@/components/leftsidebar";
 import RightSidebar from "@/components/rightsidebar";
 import { useSidebar } from "../context/SidebarContext";
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 export default function ContentLayout({ children }) {
   const { leftSidebarOpen, rightSidebarOpen, setSidebarsForRoute } =

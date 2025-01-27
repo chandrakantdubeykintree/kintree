@@ -6,7 +6,6 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router";
 import { Toaster } from "react-hot-toast";
 
 import RootLayout from "./layouts/RootLayout";
-import ForeroomLayout from "./layouts/ForeroomLayout";
 import ContentLayout from "./layouts/ContentLayout";
 
 import GlobalErrorBoundary from "./errorBoundaries/GlobalErrorBoundary";
@@ -57,7 +56,6 @@ import {
 import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./components/page-not-found";
 import FAQS from "./pages/FAQS";
-import FamilyTreeLayout from "./layouts/FamilyTreeLayout";
 
 const Login = LazyComponents.Login;
 const Register = LazyComponents.Register;
@@ -66,6 +64,8 @@ const ForgotPassword = LazyComponents.ForgotPassword;
 const ForgotUsername = LazyComponents.ForgotUsername;
 
 const Foreroom = LazyComponents.Foreroom;
+const ForeroomLayout = LazyComponents.ForeroomLayout;
+
 const CreatePost = LazyComponents.CreatePost;
 const EditPost = LazyComponents.EditPost;
 const ViewPost = LazyComponents.ViewPost;
@@ -79,25 +79,25 @@ const FamilyTreeAddMember = LazyComponents.FamilyTreeAddMember;
 const FamilyTreeViewMember = LazyComponents.FamilyTreeViewMember;
 const FamilyTreeEditMember = LazyComponents.FamilyTreeEditMember;
 
-const Chats = LazyComponents.Chats;
-const ChatsViewChat = LazyComponents.ChatsViewChat;
-const ChatsCreateChat = LazyComponents.ChatsCreateChat;
-const ChatsEditChat = LazyComponents.ChatsEditChat;
+// const Chats = LazyComponents.Chats;
+// const ChatsViewChat = LazyComponents.ChatsViewChat;
+// const ChatsCreateChat = LazyComponents.ChatsCreateChat;
+// const ChatsEditChat = LazyComponents.ChatsEditChat;
 
-const Events = LazyComponents.Events;
-const EventsCreateEvent = LazyComponents.EventsCreateEvent;
-const EventsViewEvent = LazyComponents.EventsViewEvent;
-const EventsEditEvent = LazyComponents.EventsEditEvent;
+// const Events = LazyComponents.Events;
+// const EventsCreateEvent = LazyComponents.EventsCreateEvent;
+// const EventsViewEvent = LazyComponents.EventsViewEvent;
+// const EventsEditEvent = LazyComponents.EventsEditEvent;
 
-const Kincoins = LazyComponents.Kincoins;
-const Notifications = LazyComponents.Notifications;
-const Will = LazyComponents.Will;
-const CreateWill = LazyComponents.CreateWill;
-const EditWill = LazyComponents.EditWill;
-const ViewWill = LazyComponents.ViewWill;
+// const Kincoins = LazyComponents.Kincoins;
+// const Notifications = LazyComponents.Notifications;
+// const Will = LazyComponents.Will;
+// const CreateWill = LazyComponents.CreateWill;
+// const EditWill = LazyComponents.EditWill;
+// const ViewWill = LazyComponents.ViewWill;
 
-const Settings = LazyComponents.Settings;
-const Profile = LazyComponents.Profile;
+// const Settings = LazyComponents.Settings;
+// const Profile = LazyComponents.Profile;
 
 export default function App() {
   return (

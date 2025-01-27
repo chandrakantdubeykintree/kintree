@@ -2,9 +2,9 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { kintreeApi } from "../services/kintreeApi";
 
 import { tokenService } from "../services/tokenService";
-import { getErrorMessage, determineErrorType } from "../services/authErrors";
+import { getErrorMessage, determineErrorType } from "../services/errorHandling";
 import {
-  API_AUTH_LOGIN,
+  api_auth_login,
   api_auth_send_otp_login_register,
   api_auth_verify_otp_login_register,
 } from "../constants/apiEndpoints";
@@ -76,7 +76,10 @@ export const AuthProvider = ({ children }) => {
 
   const handleSendOtp = async (credentials) => {
     try {
-      const response = await kintreeApi.post(api_auth_send_otp, credentials);
+      const response = await kintreeApi.post(
+        api_auth_send_otp_login_register,
+        credentials
+      );
       if (response.data.status) {
         toast.success(response.data.message);
         return { success: true };
@@ -93,7 +96,7 @@ export const AuthProvider = ({ children }) => {
   const handleVerifyOTP = async (credentials) => {
     try {
       const response = await kintreeApi.post(
-        API_AUTH_LOGIN_OR_REGISTER_VERIFY_OTP_FOR_LOGIN_OR_REGISTER,
+        api_auth_verify_otp_login_register,
         credentials
       );
 
@@ -141,7 +144,7 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (credentials) => {
     try {
       setLoading(true);
-      const response = await kintreeApi.post(API_AUTH_LOGIN, credentials);
+      const response = await kintreeApi.post(api_auth_login, credentials);
       if (response?.data?.success) {
         const { login_token, ...userData } = response.data.data;
         kintreeApi.defaults.headers.common[
