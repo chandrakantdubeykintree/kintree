@@ -22,7 +22,6 @@ import PostEditDeleteDropDown from "./post-edit-dropdown";
 import { ROUTE_VIEW_POST } from "@/constants/routeEndpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
-import { useQueryClient } from "@tanstack/react-query";
 export default function Post({ post, user }) {
   const {
     id,

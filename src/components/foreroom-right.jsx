@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { capitalizeName, formatTimeAgoBirthDay } from "@/utils/stringFormat";
 import ComponentLoading from "./component-loading";
 import EventCard from "./event-card";
+import UpcomingEventsCard from "./upcoming-events-card";
+import ContactsListCard from "./contacts-list-card";
 
 export default function ForeroomRight({
   birthDaysToday = [],
@@ -116,24 +118,6 @@ export default function ForeroomRight({
 
       <Card className="w-full max-w-sm mx-auto shadow-sm rounded-2xl overflow-hidden">
         <CardHeader>
-          <CardTitle>Upcoming Events</CardTitle>
-        </CardHeader>
-        <CardContent className="bg-none border-none shadow-none ">
-          <ul className="overflow-y-scroll min-h-20 max-h-96 no_scrollbar gap-6 flex flex-col">
-            {eventsList.length === 0 && (
-              <div className="flex justify-center items-center h-full">
-                <span className="text-sm font-light">No Upcoming Events</span>
-              </div>
-            )}
-            {eventsList.map((event) => (
-              <EventCard event={event} key={event?.id} />
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-
-      <Card className="w-full max-w-sm mx-auto shadow-sm rounded-2xl overflow-hidden">
-        <CardHeader>
           <CardTitle>Recent Chats</CardTitle>
         </CardHeader>
         <CardContent>
@@ -163,36 +147,8 @@ export default function ForeroomRight({
         </CardContent>
       </Card>
 
-      <Card className="w-full max-w-sm mx-auto shadow-sm rounded-2xl overflow-hidden">
-        <CardHeader>
-          <CardTitle>Contacts</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="overflow-y-scroll min-h-40 max-h-72 no_scrollbar">
-            {contactsList.length === 0 && (
-              <div className="flex justify-center items-center h-full">
-                <span className="text-sm font-light">No Contacts</span>
-              </div>
-            )}
-            {contactsList.map((birthday) => (
-              <li key={birthday?.id} className="flex items-center gap-2 mb-6">
-                <div className="overflow-hidden w-[45px] rounded-full">
-                  <img
-                    src={birthday?.profile_picture}
-                    className="w-[45px] rounded-full transform transition-transform duration-300 ease-in-out hover:scale-125"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <span className="text-sm font-semibold">
-                    {capitalizeName(birthday?.first_name)}{" "}
-                    {capitalizeName(birthday?.last_name)}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+      <UpcomingEventsCard />
+      <ContactsListCard />
     </div>
   );
 }
