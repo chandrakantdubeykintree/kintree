@@ -3,6 +3,7 @@ import { Navigate } from "react-router";
 import { tokenService } from "./services/tokenService";
 import GlobalSpinner from "./components/global-spinner";
 import { route_login } from "./constants/routeEnpoints";
+import { useAuth } from "./context/AuthProvider";
 
 export default function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();

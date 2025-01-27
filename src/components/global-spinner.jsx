@@ -1,6 +1,6 @@
 export default function GlobalSpinner() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-sm z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 backdrop-blur-xs z-50">
       <div className="relative">
         <img
           src="/kintreeLogo.svg"

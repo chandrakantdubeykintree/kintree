@@ -20,6 +20,7 @@ import ProtectedRoutes from "./ProtectedRoutes";
 import GlobalSpinner from "./components/global-spinner";
 
 import RouteNameDisplay from "./RouteNameDisplay";
+
 import {
   route_login,
   route_register,
@@ -57,47 +58,25 @@ import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./components/page-not-found";
 import FAQS from "./pages/FAQS";
 
-const Login = LazyComponents.Login;
-const Register = LazyComponents.Register;
-const RegisterStep = LazyComponents.RegisterStep;
-const ForgotPassword = LazyComponents.ForgotPassword;
-const ForgotUsername = LazyComponents.ForgotUsername;
-
-const Foreroom = LazyComponents.Foreroom;
-const ForeroomLayout = LazyComponents.ForeroomLayout;
-
-const CreatePost = LazyComponents.CreatePost;
-const EditPost = LazyComponents.EditPost;
-const ViewPost = LazyComponents.ViewPost;
-
-const CreatePoll = LazyComponents.CreatePoll;
-const EditPoll = LazyComponents.EditPoll;
-const ViewPoll = LazyComponents.ViewPoll;
-
-const FamilyTree = LazyComponents.FamilyTree;
-const FamilyTreeAddMember = LazyComponents.FamilyTreeAddMember;
-const FamilyTreeViewMember = LazyComponents.FamilyTreeViewMember;
-const FamilyTreeEditMember = LazyComponents.FamilyTreeEditMember;
-
-// const Chats = LazyComponents.Chats;
-// const ChatsViewChat = LazyComponents.ChatsViewChat;
-// const ChatsCreateChat = LazyComponents.ChatsCreateChat;
-// const ChatsEditChat = LazyComponents.ChatsEditChat;
-
-// const Events = LazyComponents.Events;
-// const EventsCreateEvent = LazyComponents.EventsCreateEvent;
-// const EventsViewEvent = LazyComponents.EventsViewEvent;
-// const EventsEditEvent = LazyComponents.EventsEditEvent;
-
-// const Kincoins = LazyComponents.Kincoins;
-// const Notifications = LazyComponents.Notifications;
-// const Will = LazyComponents.Will;
-// const CreateWill = LazyComponents.CreateWill;
-// const EditWill = LazyComponents.EditWill;
-// const ViewWill = LazyComponents.ViewWill;
-
-// const Settings = LazyComponents.Settings;
-// const Profile = LazyComponents.Profile;
+const {
+  Login,
+  Register,
+  RegisterStep,
+  ForgotPassword,
+  ForgotUsername,
+  Foreroom,
+  FamilyTree,
+  CreatePost,
+  EditPost,
+  ViewPost,
+  CreatePoll,
+  EditPoll,
+  ViewPoll,
+  AddMember,
+  ViewMember,
+  EditMember,
+  Chats,
+} = LazyComponents;
 
 export default function App() {
   return (
@@ -106,31 +85,31 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
             <AuthProvider>
-              <GoogleMapsProvider>
-                <Suspense fallback={<GlobalSpinner />}>
-                  <RouteNameDisplay />
-                  <Routes>
-                    <Route errorElement={<RouteErrorBoundary />}>
-                      <Route
-                        path={route_login}
-                        element={
-                          <Suspense fallback={<GlobalSpinner />}>
-                            <Login />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path={route_register}
-                        element={
-                          <Suspense fallback={<GlobalSpinner />}>
-                            <Register />
-                          </Suspense>
-                        }
-                      />
-                      <Route
-                        path=""
-                        element={
-                          <ProtectedRoutes>
+              <Suspense fallback={<GlobalSpinner />}>
+                <RouteNameDisplay />
+                <Routes>
+                  <Route errorElement={<RouteErrorBoundary />}>
+                    <Route
+                      path={route_login}
+                      element={
+                        <Suspense fallback={<GlobalSpinner />}>
+                          <Login />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path={route_register}
+                      element={
+                        <Suspense fallback={<GlobalSpinner />}>
+                          <Register />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path=""
+                      element={
+                        <ProtectedRoutes>
+                          <GoogleMapsProvider>
                             <ThemeLanguageProvider
                               defaultTheme="light"
                               defaultLanguage="en"
@@ -143,69 +122,53 @@ export default function App() {
                                 </Suspense>
                               </SidebarProvider>
                             </ThemeLanguageProvider>
-                          </ProtectedRoutes>
-                        }
-                      >
-                        <Route
-                          index
-                          element={<Navigate to={route_foreroom} replace />}
-                        />
-                        <Route
-                          path={route_foreroom}
-                          element={<ForeroomLayout />}
-                        >
-                          <Route index element={<Foreroom />} />
-                          <Route
-                            path={route_create_post}
-                            element={<CreatePost />}
-                          />
-                          <Route
-                            path={route_create_poll}
-                            element={<CreatePoll />}
-                          />
-                          <Route
-                            path={route_view_post}
-                            element={<ViewPost />}
-                          />
-                          <Route
-                            path={route_view_poll}
-                            element={<ViewPoll />}
-                          />
-                          <Route
-                            path={route_edit_post}
-                            element={<EditPost />}
-                          />
-                          <Route
-                            path={route_edit_poll}
-                            element={<EditPoll />}
-                          />
-                        </Route>
-                        <Route
-                          path={route_family_tree}
-                          element={<FamilyTreeLayout />}
-                        >
-                          <Route index element={<FamilyTree />} />
-                          <Route
-                            path={route_family_tree_add_member}
-                            element={<FamilyTreeAddMember />}
-                          />
-                          <Route
-                            path={route_family_tree_view_member}
-                            element={<FamilyTreeViewMember />}
-                          />
-                          <Route
-                            path={route_family_tree_edit_member}
-                            element={<FamilyTreeEditMember />}
-                          />
-                        </Route>
+                          </GoogleMapsProvider>
+                        </ProtectedRoutes>
+                      }
+                    >
+                      <Route
+                        index
+                        element={<Navigate to={route_foreroom} replace />}
+                      />
+                      <Route path={route_foreroom} element={<Foreroom />} />
+                      <Route
+                        path={route_create_post}
+                        element={<CreatePost />}
+                      />
+                      <Route
+                        path={route_create_poll}
+                        element={<CreatePoll />}
+                      />
+                      <Route path={route_view_post} element={<ViewPost />} />
+                      <Route path={route_view_poll} element={<ViewPoll />} />
+                      <Route path={route_edit_post} element={<EditPost />} />
+                      <Route path={route_edit_poll} element={<EditPoll />} />
 
-                        <Route path="/faqs" element={<FAQS />} />
-                        <Route path="*" element={<PageNotFound />} />
-                      </Route>
+                      <Route
+                        path={route_family_tree}
+                        element={<FamilyTree />}
+                      />
+                      <Route
+                        path={route_family_tree_add_member}
+                        element={<AddMember />}
+                      />
+                      <Route
+                        path={route_family_tree_view_member}
+                        element={<ViewMember />}
+                      />
+                      <Route
+                        path={route_family_tree_edit_member}
+                        element={<EditMember />}
+                      />
+
+                      <Route path={route_chats} element={<Chats />} />
+
+                      <Route path="/faqs" element={<FAQS />} />
+                      <Route path="*" element={<PageNotFound />} />
                     </Route>
-                  </Routes>
-                </Suspense>
-              </GoogleMapsProvider>
+                  </Route>
+                </Routes>
+              </Suspense>
             </AuthProvider>
           </BrowserRouter>
         </QueryClientProvider>

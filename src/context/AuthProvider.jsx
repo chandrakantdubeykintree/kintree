@@ -4,7 +4,7 @@ import { kintreeApi } from "../services/kintreeApi";
 import { tokenService } from "../services/tokenService";
 import { getErrorMessage, determineErrorType } from "../services/errorHandling";
 import {
-  api_auth_login,
+  api_auth_login_password,
   api_auth_send_otp_login_register,
   api_auth_verify_otp_login_register,
 } from "../constants/apiEndpoints";
@@ -144,7 +144,10 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (credentials) => {
     try {
       setLoading(true);
-      const response = await kintreeApi.post(api_auth_login, credentials);
+      const response = await kintreeApi.post(
+        api_auth_login_password,
+        credentials
+      );
       if (response?.data?.success) {
         const { login_token, ...userData } = response.data.data;
         kintreeApi.defaults.headers.common[

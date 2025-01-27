@@ -2,10 +2,6 @@ import { lazy } from "react";
 
 export const RootLayout = lazy(() => import("./layouts/RootLayout"));
 export const ContentLayout = lazy(() => import("./layouts/ContentLayout"));
-export const ForeroomLayout = lazy(() =>
-  import("./layouts/ForeroomLayout.jsx")
-);
-// export const ProfileLayout = lazy(() => import("./layouts/ProfileLayout"));
 
 export const Login = lazy(() => import("./pages/Login"));
 export const Register = lazy(() => import("./pages/Register"));
@@ -28,7 +24,7 @@ export const AddMember = lazy(() => import("./pages/AddMember"));
 export const ViewMember = lazy(() => import("./pages/ViewMember"));
 export const EditMember = lazy(() => import("./pages/EditMember"));
 
-// export const Chats = lazy(() => import("./pages/Chats"));
+export const Chats = lazy(() => import("./pages/Chats"));
 // export const ViewChat = lazy(() => import("./pages/ViewChat"));
 // export const CreateChat = lazy(() => import("./pages/CreateChat"));
 // export const EditChat = lazy(() => import("./pages/EditChat"));

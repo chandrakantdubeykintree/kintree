@@ -1,6 +1,6 @@
 import { useState } from "react";
-import ImageScroller from "../components/ImageScroller";
-import KintreeTermsDialog from "../components/KintreeTermsDialog";
+import ImageScroller from "../components/image-scroller";
+import KintreeTermsDialog from "../components/kintree-term-dialog";
 import { LoginForm } from "@/components/login-form";
 
 export default function Login() {

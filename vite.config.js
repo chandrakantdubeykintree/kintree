@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
@@ -7,6 +8,7 @@ import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
 export default defineConfig({
   plugins: [
     react(),
+    tailwindcss(),
     viteCommonjs({
       include: [path.resolve(__dirname, "src/balkan/familytree.js")],
     }),

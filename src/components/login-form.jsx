@@ -12,15 +12,15 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useEffect, useState } from "react";
-import { loginSchemas } from "@/schemas/loginSchema";
+import { loginSchemas } from "@/schemas/loginSchemas";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { ICON_EDIT2 } from "@/constants/iconUrl";
+import { ICON_EDIT2 } from "@/constants/iconUrls";
 import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
-import { useTheme } from "@/context/ThemeProvider";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 
 export function LoginForm({ setOpenTerms }) {
   const [loginType, setLoginType] = useState("email");
@@ -29,7 +29,7 @@ export function LoginForm({ setOpenTerms }) {
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
   const [showPassword, setShowPassword] = useState(false);
-  const { theme } = useTheme();
+  const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { handleLogin, handleSendOtp, handleVerifyOTP } = useAuthentication();
 
@@ -322,11 +322,11 @@ export function LoginForm({ setOpenTerms }) {
       <CardFooter className="flex flex-col items-center justify-center gap-8">
         {!isOtpSent && (
           <div className="flex items-center justify-center gap-4 w-full">
-            <div className="h-[1px] bg-border flex-grow" />
+            <div className="h-[1px] bg-border grow" />
             <div className="min-w-fit text-center whitespace-nowrap text-gray-600">
               Try another way?
             </div>
-            <div className="h-[1px] bg-border flex-grow" />
+            <div className="h-[1px] bg-border grow" />
           </div>
         )}
         {isOtpSent ? (
@@ -381,7 +381,7 @@ export function LoginForm({ setOpenTerms }) {
           </div>
         )}
 
-        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
           By using Kintree, you agree to the{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
