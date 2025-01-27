@@ -11,6 +11,10 @@ export default defineConfig({
       include: [path.resolve(__dirname, "src/balkan/familytree.js")],
     }),
   ],
+  server: {
+    port: 3000,
+    host: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
