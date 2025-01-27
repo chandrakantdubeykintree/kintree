@@ -31,7 +31,8 @@ export function LoginForm({ setOpenTerms }) {
   const [showPassword, setShowPassword] = useState(false);
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
-  const { handleLogin, handleSendOtp, handleVerifyOTP } = useAuthentication();
+  const { loginPassword, sendOTPLoginRegister, verifyOTPLoginRegister } =
+    useAuthentication();
 
   const {
     register,
@@ -50,7 +51,7 @@ export function LoginForm({ setOpenTerms }) {
   const onSubmit = async (data) => {
     if (loginType === "username") {
       try {
-        const response = await handleLogin(data);
+        const response = await loginPassword(data);
         if (response.success) {
           navigate("/foreroom");
         } else {
@@ -64,10 +65,10 @@ export function LoginForm({ setOpenTerms }) {
       }
     } else if (loginType === "phone_no" || loginType === "email") {
       try {
-        const response = await handleSendOtp({
+        const response = await sendOTPLoginRegister({
           [loginType]: data[loginType],
         });
-        if (response.success) {
+        if (response.status) {
           setIsOtpSent(true);
           setResendOtp(false);
           setResendOTPIn(30);
@@ -76,29 +77,17 @@ export function LoginForm({ setOpenTerms }) {
             const currentPhoneNo = data.phone_no || "";
             setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
           }
-        } else {
-          toast.error(response.error || "Failed to send OTP");
         }
       } catch (error) {
         toast.error(error?.response?.data?.message || "Failed to send OTP");
       }
     } else if (loginType === "otp") {
       try {
-        const response = await handleVerifyOTP({
+        await verifyOTPLoginRegister({
           otp: data.otp,
           [watchedValues.phone_no ? "phone_no" : "email"]:
             watchedValues[watchedValues.phone_no ? "phone_no" : "email"],
         });
-
-        if (response.success) {
-          if (response.isRegistered) {
-            navigate("/foreroom");
-          } else {
-            navigate("/register");
-          }
-        } else {
-          toast.error(response.error || "OTP verification failed");
-        }
       } catch (error) {
         toast.error(
           error?.response?.data?.message || "OTP verification failed"
@@ -244,11 +233,11 @@ export function LoginForm({ setOpenTerms }) {
       return;
     }
     if (watchedValues.email) {
-      handleSendOtp({
+      sendOTPLoginRegister({
         email: watchedValues.email,
       });
     } else if (watchedValues.phone_no) {
-      handleSendOtp({
+      sendOTPLoginRegister({
         phone_no: watchedValues.phone_no,
       });
     }
@@ -373,7 +362,6 @@ export function LoginForm({ setOpenTerms }) {
                 variant="outline"
                 onClick={() => handleLoginTypeChange("phone_no")}
               >
-                {/* <img src={ICON_PHONE} className="h-5 w-5" /> */}
                 <Phone className="h-5 w-5" />
                 <span className="text-[16px]">Login with Phone</span>
               </Button>

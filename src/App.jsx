@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./services/queryClient";
 
-import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { Toaster } from "react-hot-toast";
 
 import RootLayout from "./layouts/RootLayout";
@@ -118,7 +118,9 @@ export default function App() {
                             >
                               <SidebarProvider>
                                 <Suspense fallback={<GlobalSpinner />}>
-                                  <ContentLayout />
+                                  <ContentLayout>
+                                    <Outlet />
+                                  </ContentLayout>
                                 </Suspense>
                               </SidebarProvider>
                             </ThemeLanguageProvider>

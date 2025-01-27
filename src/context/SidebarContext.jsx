@@ -13,9 +13,15 @@ export function SidebarProvider({ children }) {
     // Configure which routes should have which sidebars open
     const routeConfig = {
       "/foreroom": { left: true, right: true },
+      "/createpost": { left: true, right: true },
+      "/createpoll": { left: true, right: true },
+      "/editpost": { left: true, right: true },
+      "/viewpost": { left: true, right: true },
+      "/editpoll": { left: true, right: true },
+      "/viewpoll": { left: true, right: true },
+      "/familytree": { left: true, right: false },
       "/profile": { left: true, right: false },
-      "/chats": { left: false, right: true },
-      // Add more routes as needed
+      "/chats": { left: true, right: false },
     };
 
     const config = routeConfig[path] || { left: true, right: true };

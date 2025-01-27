@@ -43,3 +43,5 @@ export const api_family_tree_members_member = "/family-tree/members/:memberId";
 
 export const api_verify_user = "/send-otp/verify-user";
 export const api_verify_user_otp = "/verify-otp/verify-user";
+
+export const api_user_profile = "/user/profile";

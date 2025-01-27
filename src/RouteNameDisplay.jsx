@@ -4,7 +4,7 @@ import routeTitles from "./constants/routeTitles";
 
 const RouteNameDisplay = () => {
   const location = useLocation();
-  const routeName = routeTitles[location.pathname.split("/")[1]] || "";
+  const routeName = routeTitles["/" + location.pathname.split("/")[1]] || "";
 
   useEffect(() => {
     document.title = `Kintree | ${routeName}`;

@@ -7,6 +7,7 @@ import {
   api_auth_login_password,
   api_auth_send_otp_login_register,
   api_auth_verify_otp_login_register,
+  api_user_profile,
 } from "../constants/apiEndpoints";
 import toast from "react-hot-toast";
 
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async (url = "/user/profile") => {
     try {
       const token =
-        url === "/user/profile"
+        url === api_user_profile
           ? tokenService.getLoginToken()
           : tokenService.getRegistrationToken();
       if (token && tokenService.isLoginTokenValid()) {

@@ -15,6 +15,7 @@ import {
   api_auth_verify_otp_forgot_password,
   api_auth_verify_otp_forgot_username,
   api_auth_verify_otp_login_register,
+  api_user_profile,
 } from "../constants/apiEndpoints";
 import { useNavigate } from "react-router";
 
@@ -33,7 +34,7 @@ const fetchUserProfile = async () => {
   }
 
   kintreeApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  const response = await kintreeApi.get("/user/profile");
+  const response = await kintreeApi.get(api_user_profile);
 
   if (!response.data.success) {
     throw new ApiError(
@@ -138,13 +139,14 @@ export const useAuthentication = () => {
         api_auth_send_otp_login_register,
         credentials
       );
-      if (!response.data.success) {
+      if (!response.data.status) {
         throw new ApiError(
           response.data.message,
           response.data.status,
           response.data.data
         );
       }
+
       return response.data;
     },
     onSuccess: (data) => {
@@ -168,10 +170,12 @@ export const useAuthentication = () => {
           response.data.data
         );
       }
+      console.log(response.data);
       return response.data;
     },
     onSuccess: (data) => {
       // Handle registered users
+      console.log(data.data.is_registration_complete);
       if (data.data.is_registration_complete === 1) {
         const { login_token, ...userData } = data.data;
         kintreeApi.defaults.headers.common[

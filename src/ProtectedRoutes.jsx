@@ -3,13 +3,13 @@ import { Navigate } from "react-router";
 import { tokenService } from "./services/tokenService";
 import GlobalSpinner from "./components/global-spinner";
 import { route_login } from "./constants/routeEnpoints";
-import { useAuth } from "./context/AuthProvider";
+import { useAuthentication } from "./hooks/useAuthentication";
 
 export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuthentication();
   const token = tokenService.getLoginToken();
 
-  if (loading) {
+  if (isLoading) {
     return <GlobalSpinner />;
   }
 
