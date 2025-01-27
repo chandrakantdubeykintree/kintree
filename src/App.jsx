@@ -76,6 +76,23 @@ const {
   ViewMember,
   EditMember,
   Chats,
+  ViewChat,
+  CreateChat,
+  EditChat,
+  Profile,
+  ViewProfile,
+  Settings,
+  EditSettings,
+  Notifications,
+  Events,
+  CreateEvent,
+  EditEvent,
+  ViewEvent,
+  Kincoins,
+  Will,
+  CreateWill,
+  EditWill,
+  ViewWill,
 } = LazyComponents;
 
 export default function App() {
@@ -128,6 +145,7 @@ export default function App() {
                         </ProtectedRoutes>
                       }
                     >
+                      {/* foreroom */}
                       <Route
                         index
                         element={<Navigate to={route_foreroom} replace />}
@@ -145,7 +163,7 @@ export default function App() {
                       <Route path={route_view_poll} element={<ViewPoll />} />
                       <Route path={route_edit_post} element={<EditPost />} />
                       <Route path={route_edit_poll} element={<EditPoll />} />
-
+                      {/* family tree */}
                       <Route
                         path={route_family_tree}
                         element={<FamilyTree />}
@@ -163,9 +181,66 @@ export default function App() {
                         element={<EditMember />}
                       />
 
+                      {/* chats */}
                       <Route path={route_chats} element={<Chats />} />
 
+                      {/* profile */}
+                      <Route path={route_profile} element={<Profile />} />
+                      <Route
+                        path={route_profile_view_profile}
+                        element={<ViewProfile />}
+                      />
+
+                      {/* settings */}
+                      <Route path={route_settings} element={<Settings />} />
+                      <Route
+                        path={route_settings_edit_settings}
+                        element={<EditSettings />}
+                      />
+
+                      {/* notifications */}
+                      <Route
+                        path={route_notifications}
+                        element={<Notifications />}
+                      />
+
+                      {/* events */}
+                      <Route path={route_events} element={<Events />} />
+                      <Route
+                        path={route_events_create_event}
+                        element={<CreateEvent />}
+                      />
+                      <Route
+                        path={route_events_view_event}
+                        element={<ViewEvent />}
+                      />
+                      <Route
+                        path={route_events_edit_event}
+                        element={<EditEvent />}
+                      />
+
+                      {/* kincoins */}
+                      <Route path={route_kincoins} element={<Kincoins />} />
+
+                      {/* will */}
+                      <Route path={route_will} element={<Will />} />
+                      <Route
+                        path={route_will_create_will}
+                        element={<CreateWill />}
+                      />
+                      <Route
+                        path={route_will_view_will}
+                        element={<ViewWill />}
+                      />
+                      <Route
+                        path={route_will_edit_will}
+                        element={<EditWill />}
+                      />
+
+                      {/* faqs */}
                       <Route path="/faqs" element={<FAQS />} />
+
+                      {/* page not found */}
                       <Route path="*" element={<PageNotFound />} />
                     </Route>
                   </Route>

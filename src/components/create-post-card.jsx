@@ -11,7 +11,7 @@ export default function CreatePostCard({ user }) {
 
   return (
     <AsyncComponent>
-      <Card>
+      <Card className="rounded-2xl">
         <CardContent className="flex flex-col sm:flex-row gap-3 px-4 py-6">
           <div className="flex flex-row gap-3 flex-grow">
             <div tabIndex={0} role="button" className="w-10 rounded-full">
