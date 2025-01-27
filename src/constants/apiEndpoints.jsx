@@ -3,6 +3,7 @@ export const api_auth_logout = "/logout";
 export const api_auth_send_otp_login_register = "/send-otp/login-or-register";
 export const api_auth_verify_otp_login_register =
   "/verify-otp/login-or-register";
+export const api_auth_register_step = "/registration/step/:step";
 export const api_auth_send_otp_forgot_password = "/send-otp/forgetten-password";
 export const api_auth_verify_otp_forgot_password =
   "/verify-otp/forgetten-password";
@@ -10,7 +11,7 @@ export const api_auth_send_otp_forgot_username = "/send-otp/forgetten-username";
 export const api_auth_verify_otp_forgot_username =
   "/verify-otp/forgetten-username";
 export const api_auth_reset_password = "/reset-password";
-export const api_auth_register = "/registration/step/";
+export const api_auth_reset_username = "/reset-username";
 
 export const api_attachments = "/attachments";
 export const api_attachment = "/attachments/:attachmentId";

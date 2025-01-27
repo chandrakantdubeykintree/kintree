@@ -5,8 +5,8 @@ import { tokenService } from "../services/tokenService";
 import { getErrorMessage, determineErrorType } from "../services/authErrors";
 import {
   API_AUTH_LOGIN,
-  API_AUTH_LOGIN_OR_REGISTER_SEND_OTP_FOR_LOGIN_OR_REGISTER,
-  API_AUTH_LOGIN_OR_REGISTER_VERIFY_OTP_FOR_LOGIN_OR_REGISTER,
+  api_auth_send_otp_login_register,
+  api_auth_verify_otp_login_register,
 } from "../constants/apiEndpoints";
 import toast from "react-hot-toast";
 
@@ -76,10 +76,7 @@ export const AuthProvider = ({ children }) => {
 
   const handleSendOtp = async (credentials) => {
     try {
-      const response = await kintreeApi.post(
-        API_AUTH_LOGIN_OR_REGISTER_SEND_OTP_FOR_LOGIN_OR_REGISTER,
-        credentials
-      );
+      const response = await kintreeApi.post(api_auth_send_otp, credentials);
       if (response.data.status) {
         toast.success(response.data.message);
         return { success: true };
