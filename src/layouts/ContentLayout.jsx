@@ -16,16 +16,16 @@ export default function ContentLayout({ children }) {
 
   return (
     <div className="mx-auto">
-      <div className="border-b bg-background sticky top-0 z-10 mb-4">
+      <div className="border-b bg-background sticky top-0 z-10 mb-1 md:mb-4">
         <div className="mx-auto max-w-[1370px]">
           <Navbar />
         </div>
       </div>
-      <main className={`max-w-[1370px] mx-auto px-4`}>
-        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-104px)]">
+      <main className={`max-w-[1370px] mx-auto px-1`}>
+        <div className="grid grid-cols-12 gap-4 h-[calc(100vh-88px)] md:h-[calc(100vh-104px)]">
           {/* Left Sidebar - Hidden on mobile, shows on md and up if open */}
           {leftSidebarOpen && (
-            <div className="hidden md:block md:col-span-3 lg:col-span-3 sticky top-[104px] overflow-y-scroll no_scrollbar">
+            <div className="hidden md:block md:col-span-3 lg:col-span-3 sticky top-[88px] md:top-[104px] overflow-y-scroll no_scrollbar">
               <LeftSidebar />
             </div>
           )}
@@ -49,7 +49,7 @@ export default function ContentLayout({ children }) {
 
           {/* Right Sidebar - Hidden on mobile and md, shows on lg and up if open */}
           {rightSidebarOpen && (
-            <div className="hidden lg:block lg:col-span-3 sticky top-[104px] overflow-y-scroll no_scrollbar">
+            <div className="hidden lg:block lg:col-span-3 sticky top-[88px] md:top-[104px] overflow-y-scroll no_scrollbar">
               <RightSidebar />
             </div>
           )}

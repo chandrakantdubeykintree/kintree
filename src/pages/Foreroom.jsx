@@ -37,7 +37,7 @@ export default function Foreroom() {
   if (isLoading) return <GlobalSpinner />;
 
   return (
-    <div className="grid gap-4 grid-cols-1">
+    <div className="grid gap-1 md:gap-4 grid-cols-1">
       <CreatePostCard
         user={{
           profile_pic_url: user?.profile_pic_url,
@@ -50,7 +50,7 @@ export default function Foreroom() {
       <ComponentErrorBoundary>
         <div className="w-full mx-auto">
           <div className="w-full mx-auto">
-            <div className="space-y-4">
+            <div className="space-y-1 md:space-y-4">
               {postsData?.map((post) => (
                 <Posts
                   key={post.id}
