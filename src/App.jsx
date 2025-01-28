@@ -35,6 +35,7 @@ import {
   route_edit_poll,
   route_view_poll,
   route_family_tree,
+  route_family_member,
   route_family_tree_add_member,
   route_family_tree_view_member,
   route_family_tree_edit_member,
@@ -66,6 +67,7 @@ const {
   ForgotUsername,
   Foreroom,
   FamilyTree,
+  FamilyMember,
   CreatePost,
   EditPost,
   ViewPost,
@@ -167,6 +169,10 @@ export default function App() {
                       <Route
                         path={route_family_tree}
                         element={<FamilyTree />}
+                      />
+                      <Route
+                        path={route_family_member + "/:id"}
+                        element={<FamilyMember />}
                       />
                       <Route
                         path={route_family_tree_add_member}

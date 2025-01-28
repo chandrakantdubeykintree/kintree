@@ -88,6 +88,26 @@ export const useProfile = (infoType) => {
     },
   });
 
+  const updateInterestsMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await kintreeApi({
+        method: "POST",
+        url: "/user/store-custom-interests",
+        data,
+      });
+      return response;
+    },
+    onSuccess: (response) => {
+      queryClient.invalidateQueries(["profile", infoType]);
+      toast.success(response.data.message);
+    },
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to update interests"
+      );
+    },
+  });
+
   return {
     profile: data,
     isProfileLoading: isLoading,
@@ -98,5 +118,6 @@ export const useProfile = (infoType) => {
     updateImage: updateImageMutation.mutate,
     isUpdating: updateImageMutation.isPending,
     updateError: updateImageMutation.error,
+    updateInterests: updateInterestsMutation.mutate,
   };
 };

@@ -15,6 +15,7 @@ export const route_edit_poll = "/editpoll";
 export const route_view_poll = "/viewpoll";
 
 export const route_family_tree = "/familytree";
+export const route_family_member = "/family-member";
 export const route_family_tree_add_member = "/familytree/add-member";
 export const route_family_tree_view_member = "/familytree/view-member";
 export const route_family_tree_edit_member = "/familytree/edit-member";

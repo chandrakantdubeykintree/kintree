@@ -170,12 +170,9 @@ export const useAuthentication = () => {
           response.data.data
         );
       }
-      console.log(response.data);
       return response.data;
     },
     onSuccess: (data) => {
-      // Handle registered users
-      console.log(data.data.is_registration_complete);
       if (data.data.is_registration_complete === 1) {
         const { login_token, ...userData } = data.data;
         kintreeApi.defaults.headers.common[

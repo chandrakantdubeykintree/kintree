@@ -12,7 +12,7 @@ export default function ContactsListCard() {
         <CardTitle>Family Members</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="overflow-y-scroll min-h-40 max-h-72 no_scrollbar">
+        <ul className="overflow-y-scroll min-h-40 no_scrollbar">
           {data?.length === 0 && (
             <div className="flex justify-center items-center h-full">
               <span className="text-sm font-light">No Family Members</span>

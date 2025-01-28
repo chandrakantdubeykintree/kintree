@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import AsyncComponent from "./async-component";
-import ComponentLoading from "./ComponentLoading";
+import ComponentLoading from "./component-loading";
 import { Card } from "./ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";

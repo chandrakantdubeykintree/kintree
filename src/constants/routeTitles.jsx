@@ -19,6 +19,7 @@ import {
   route_events,
   route_kincoins,
   route_will,
+  route_family_member,
 } from "./routeEnpoints";
 
 const routeTitles = {
@@ -34,6 +35,7 @@ const routeTitles = {
   [route_family_tree_edit_member]: "Edit Member",
   [route_login]: "Login",
   [route_family_tree]: "Family Tree",
+  [route_family_member]: "Family Member",
   [route_register]: "Register",
   [route_profile]: "Profile",
   [route_chats]: "Chats",

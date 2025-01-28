@@ -5,6 +5,7 @@ import {
 import { kintreeApi } from "@/services/kintreeApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 export const QUERY_KEYS = {
   FAMILY: "family",
@@ -40,6 +41,16 @@ export const fetchFamilyMembers = async () => {
 
 export const fetchMemberById = async (userId) => {
   const response = await kintreeApi.get(`/members-profile/${userId}`);
+  if (!response.data.success) {
+    return handleApiError(response);
+  }
+  return response.data.data;
+};
+
+export const deleteMember = async (memberId) => {
+  const response = await kintreeApi.delete(
+    `${api_family_tree_members}/${memberId}`
+  );
   if (!response.data.success) {
     return handleApiError(response);
   }
@@ -133,19 +144,50 @@ export const useUpdateFamilyMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFamilyMember,
-    onSuccess: () => {
-      toast.success("Family member updated successfully");
+    onSuccess: (data, variables) => {
+      toast.success("Member updated successfully");
+      // Invalidate family tree data
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.FAMILY],
-        // queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
         refetchType: "all",
         refetchFn: () => fetchFamily(1),
       });
+      // Invalidate individual member data
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MEMBER, variables.id],
+      });
+      // Invalidate family members list
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
+      });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Failed to update family member"
-      );
+      toast.error(error.response?.data?.message || "Failed to update member");
+    },
+  });
+};
+
+export const useDeleteMember = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: deleteMember,
+    onSuccess: () => {
+      toast.success("Family member deleted successfully");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FAMILY],
+        refetchType: "all",
+        refetchFn: () => fetchFamily(1),
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
+        refetchType: "all",
+        refetchFn: () => fetchFamilyMembers(),
+      });
+      navigate("/familytree");
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to delete member");
     },
   });
 };

@@ -6,27 +6,71 @@ export function SidebarProvider({ children }) {
   const [leftSidebarOpen, setLeftSidebarOpen] = useState(true);
   const [rightSidebarOpen, setRightSidebarOpen] = useState(true);
 
-  const toggleLeftSidebar = () => setLeftSidebarOpen((prev) => !prev);
-  const toggleRightSidebar = () => setRightSidebarOpen((prev) => !prev);
+  const [routeConfig, setRouteConfig] = useState({
+    "/foreroom": { left: true, right: true },
+    "/createpost": { left: true, right: true },
+    "/editpost": { left: true, right: true },
+    "/viewpost": { left: true, right: true },
+    "/createpoll": { left: true, right: true },
+    "/editpoll": { left: true, right: true },
+    "/viewpoll": { left: true, right: true },
+    "/familytree": { left: true, right: false },
+    "/family-member": { left: true, right: false },
+    "/chats": { left: true, right: false },
+    "/events": { left: true, right: false },
+    "/kincoins": { left: true, right: true },
+    "/notifications": { left: true, right: true },
+    "/will": { left: true, right: false },
+    "/profile": { left: true, right: false },
+    "/settings": { left: true, right: false },
+  });
+
+  const [currentRoute, setCurrentRoute] = useState("/");
+
+  // Update toggle functions to respect route configuration
+  const toggleLeftSidebar = () => {
+    const config = routeConfig[currentRoute] || { left: true, right: true };
+    if (config.left) {
+      setRouteConfig((prev) => ({
+        ...prev,
+        [currentRoute]: { ...prev[currentRoute], left: !leftSidebarOpen },
+      }));
+      setLeftSidebarOpen((prev) => !prev);
+    } else {
+      setLeftSidebarOpen(true);
+      setRouteConfig((prev) => ({
+        ...prev,
+        [currentRoute]: { ...prev[currentRoute], left: true },
+      }));
+    }
+  };
+
+  const toggleRightSidebar = () => {
+    const config = routeConfig[currentRoute] || { left: true, right: true };
+    if (config.right) {
+      setRouteConfig((prev) => ({
+        ...prev,
+        [currentRoute]: { ...prev[currentRoute], right: !rightSidebarOpen },
+      }));
+      setRightSidebarOpen((prev) => !prev);
+    } else {
+      setRightSidebarOpen(true);
+      setRouteConfig((prev) => ({
+        ...prev,
+        [currentRoute]: { ...prev[currentRoute], right: true },
+      }));
+    }
+  };
 
   const setSidebarsForRoute = (path) => {
-    // Configure which routes should have which sidebars open
-    const routeConfig = {
-      "/foreroom": { left: true, right: true },
-      "/createpost": { left: true, right: true },
-      "/createpoll": { left: true, right: true },
-      "/editpost": { left: true, right: true },
-      "/viewpost": { left: true, right: true },
-      "/editpoll": { left: true, right: true },
-      "/viewpoll": { left: true, right: true },
-      "/familytree": { left: true, right: false },
-      "/profile": { left: true, right: false },
-      "/chats": { left: true, right: false },
-    };
-
+    setCurrentRoute(path);
     const config = routeConfig[path] || { left: true, right: true };
-    setLeftSidebarOpen(config.left);
-    setRightSidebarOpen(config.right);
+    if (leftSidebarOpen !== config.left) {
+      setLeftSidebarOpen(config.left);
+    }
+    if (rightSidebarOpen !== config.right) {
+      setRightSidebarOpen(config.right);
+    }
   };
 
   return (
