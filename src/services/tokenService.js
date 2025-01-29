@@ -11,6 +11,7 @@ class TokenService {
     this.loginTokenKey = "login_token";
     this.registrationTokenKey = "complete_registration_token";
     this.expiryKey = "token_expiry";
+    this.resetPasswordTokenKey = "reset_password_token";
   }
 
   setLoginToken(token, remember = false) {
@@ -22,6 +23,14 @@ class TokenService {
       Cookies.set(this.loginTokenKey, token);
       Cookies.set(this.expiryKey, expiry.toString());
     }
+  }
+
+  setResetPasswordToken(token) {
+    Cookies.set(this.resetPasswordTokenKey, token);
+  }
+
+  removeResetPasswordToken() {
+    Cookies.remove(this.resetPasswordTokenKey);
   }
 
   setRegistrationToken(token) {

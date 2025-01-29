@@ -21,6 +21,7 @@ export function SidebarProvider({ children }) {
     "/kincoins": { left: true, right: true },
     "/notifications": { left: true, right: true },
     "/will": { left: true, right: false },
+    "/will/create-will": { left: true, right: false },
     "/profile": { left: true, right: false },
     "/settings": { left: true, right: false },
   });

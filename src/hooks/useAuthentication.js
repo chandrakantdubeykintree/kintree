@@ -8,7 +8,6 @@ import {
   api_auth_logout,
   api_auth_register_step,
   api_auth_reset_password,
-  api_auth_reset_username,
   api_auth_send_otp_forgot_password,
   api_auth_send_otp_forgot_username,
   api_auth_send_otp_login_register,
@@ -123,13 +122,31 @@ export const useAuthentication = () => {
 
   const { data: registrationState } = useQuery({
     queryKey: AUTH_QUERY_KEYS.registrationState,
-    queryFn: () => ({
+    queryFn: () => {
+      const token = tokenService.getRegistrationToken();
+      if (!token) {
+        return {
+          isRegistrationComplete: false,
+          nextStep: 1,
+          completedStep: null,
+          verifiedContact: null,
+        };
+      }
+      return (
+        queryClient.getQueryData(AUTH_QUERY_KEYS.registrationState) || {
+          isRegistrationComplete: false,
+          nextStep: 1,
+          completedStep: null,
+          verifiedContact: null,
+        }
+      );
+    },
+    initialData: {
       isRegistrationComplete: false,
-      nextStep: null,
+      nextStep: 1,
       completedStep: null,
       verifiedContact: null,
-    }),
-    enabled: false, // This query is manually controlled
+    },
   });
 
   // Send OTP for login or register mutation
@@ -181,9 +198,8 @@ export const useAuthentication = () => {
         tokenService.setLoginToken(login_token);
         queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
         navigate("/foreroom");
-      }
-      // Handle users in registration process
-      else {
+      } else {
+        console.log("reached here");
         const { complete_registration_token, next_step, completed_step } =
           data.data;
         tokenService.setRegistrationToken(complete_registration_token);
@@ -191,7 +207,6 @@ export const useAuthentication = () => {
           isRegistrationComplete: 0,
           nextStep: next_step,
           completedStep: completed_step,
-          verifiedContact: credentials.email || credentials.phone_no,
         });
         navigate("/register/step/" + next_step);
       }
@@ -204,52 +219,83 @@ export const useAuthentication = () => {
 
   // Register mutation
   const registerStepMutation = useMutation({
-    mutationFn: async ({ step, data }) => {
+    mutationFn: async (formData) => {
       const token = tokenService.getRegistrationToken();
       if (!token) throw new Error("No registration token found");
 
-      const response = await kintreeApi.post(
-        api_auth_register_step.replace(":step", step),
-        data,
-        {
-          headers: { Authorization: `Bearer ${token}` },
+      const currentStep = registrationState.nextStep;
+
+      let response;
+      if (currentStep === 4 && formData.profile_image) {
+        const formDataToSend = new FormData();
+        if (formData.profile_image instanceof File) {
+          formDataToSend.append("profile_image", formData.profile_image);
+        } else {
+          formDataToSend.append(
+            "preseted_profile_image_id",
+            formData.preseted_profile_image_id || 1
+          );
         }
-      );
+
+        response = await kintreeApi.post(
+          `/registration/step/${currentStep}`,
+          formDataToSend,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+      } else {
+        response = await kintreeApi.post(
+          `/registration/step/${currentStep}`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+      }
 
       if (!response.data.success) {
-        throw new Error(response.data.message);
+        throw new ApiError(
+          response.data.message,
+          response.data.status,
+          response.data.data
+        );
       }
+
       return response.data;
     },
     onSuccess: (data) => {
-      // Final step completed
       if (data.data.is_registration_complete === 1) {
         const { login_token, ...userData } = data.data;
-        tokenService.removeRegistrationToken();
+        // Set login token first
         tokenService.setLoginToken(login_token);
-        kintreeApi.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${login_token}`;
+        // Remove registration token
+        tokenService.removeRegistrationToken();
+        // Update user data in cache
         queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
+        // Clear registration state
         queryClient.removeQueries(AUTH_QUERY_KEYS.registrationState);
-        navigate("/foreroom");
-      }
-      // Move to next step
-      else {
-        const { complete_registration_token, next_step, completed_step } =
-          data.data;
-        tokenService.setRegistrationToken(complete_registration_token);
+        // Navigate to foreroom
+        navigate("/foreroom", { replace: true });
+        return { success: true, isCompleted: true };
+      } else {
+        const { next_step, completed_step } = data.data;
         queryClient.setQueryData(AUTH_QUERY_KEYS.registrationState, (prev) => ({
           ...prev,
           nextStep: next_step,
           completedStep: completed_step,
         }));
-        navigate("/register/step/" + next_step);
+        return { success: true, isCompleted: false };
       }
-      toast.success(data.message);
     },
     onError: (error) => {
-      handleApiError(error, "Failed to register");
+      handleApiError(error, "Failed to save registration data");
     },
   });
 
@@ -260,7 +306,7 @@ export const useAuthentication = () => {
         api_auth_send_otp_forgot_password,
         credentials
       );
-      if (!response.data.success) {
+      if (!response.data.status) {
         throw new ApiError(
           response.data.message,
           response.data.status,
@@ -290,6 +336,9 @@ export const useAuthentication = () => {
           response.data.data
         );
       }
+      const { token } = response.data.data;
+      kintreeApi.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      tokenService.setResetPasswordToken(token);
       return response.data;
     },
     onSuccess: (data) => {
@@ -302,7 +351,7 @@ export const useAuthentication = () => {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async (credentials) => {
-      const response = await kintreeApi.post(
+      const response = await kintreeApi.put(
         api_auth_reset_password,
         credentials
       );
@@ -317,6 +366,7 @@ export const useAuthentication = () => {
     },
     onSuccess: (data) => {
       toast.success(data.message);
+      tokenService.removeResetPasswordToken();
     },
     onError: (error) => {
       handleApiError(error, "Failed to reset password");
@@ -330,7 +380,7 @@ export const useAuthentication = () => {
         api_auth_send_otp_forgot_username,
         credentials
       );
-      if (!response.data.success) {
+      if (!response.data.status) {
         throw new ApiError(
           response.data.message,
           response.data.status,
@@ -370,26 +420,6 @@ export const useAuthentication = () => {
     },
   });
 
-  const resetUsernameMutation = useMutation({
-    mutationFn: async (userData) => {
-      const response = await kintreeApi.post(api_auth_reset_username, userData);
-      if (!response.data.success) {
-        throw new ApiError(
-          response.data.message,
-          response.data.status,
-          response.data.data
-        );
-      }
-      return response.data;
-    },
-    onSuccess: (data) => {
-      toast.success(data.message);
-    },
-    onError: (error) => {
-      handleApiError(error, "Failed to reset username");
-    },
-  });
-
   return {
     user,
     isLoading,
@@ -405,6 +435,5 @@ export const useAuthentication = () => {
     resetPassword: resetPasswordMutation.mutateAsync,
     sendOTPForgotUsername: sendOTPForgotUsernameMutation.mutateAsync,
     verifyOTPForgotUsername: verifyOTPForgotUsernameMutation.mutateAsync,
-    resetUsername: resetUsernameMutation.mutateAsync,
   };
 };

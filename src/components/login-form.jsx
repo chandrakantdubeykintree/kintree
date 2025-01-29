@@ -13,7 +13,7 @@ import "react-phone-number-input/style.css";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useEffect, useState } from "react";
 import { loginSchemas } from "@/schemas/loginSchemas";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import { ICON_EDIT2 } from "@/constants/iconUrls";
 import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
@@ -21,6 +21,10 @@ import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
+import {
+  route_forgot_password,
+  route_forgot_username,
+} from "@/constants/routeEnpoints";
 
 export function LoginForm({ setOpenTerms }) {
   const [loginType, setLoginType] = useState("email");
@@ -114,6 +118,7 @@ export function LoginForm({ setOpenTerms }) {
                 {errors.username.message}
               </div>
             )}
+
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
               <Input
@@ -139,6 +144,22 @@ export function LoginForm({ setOpenTerms }) {
                 {errors.password.message}
               </div>
             )}
+            <div className="flex items-center justify-end text-sm">
+              Forgot&nbsp;
+              <Link
+                to={route_forgot_password}
+                className="underline-offset-4 hover:underline text-primary"
+              >
+                password
+              </Link>
+              &nbsp;or&nbsp;
+              <Link
+                to={route_forgot_username}
+                className="underline-offset-4 hover:underline text-primary"
+              >
+                username?
+              </Link>
+            </div>
           </div>
         );
       case "email":

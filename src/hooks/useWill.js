@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { kintreeApi } from "../services/kintreeApi";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 export function useWill() {
   const queryClient = useQueryClient(); // Get the queryClient instance
-
+  const navigate = useNavigate();
   // Fetch existing will
   const { data: willData, isLoading: isWillLoading } = useQuery({
     queryKey: ["will"],
@@ -147,11 +149,27 @@ export function useWill() {
     },
   });
 
+  const deleteWillMutation = useMutation({
+    mutationFn: async (willId) => {
+      const response = await kintreeApi.delete(`/will/${willId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["will"]);
+      navigate("/will/create-will");
+    },
+    onError: (error) => {
+      toast.error("Error deleting will:", error);
+    },
+  });
+
   return {
     willData,
     isWillLoading,
     createWill: () => createWillMutation.mutateAsync(),
     isCreatingWill: createWillMutation.isPending,
+    deleteWill: (willId) => deleteWillMutation.mutateAsync(willId),
+    isDeletingWill: deleteWillMutation.isPending,
     addPersonalInfo: (data, willId) =>
       addPersonalInfoMutation.mutateAsync({ data, willId }),
     isAddingPersonalInfo: addPersonalInfoMutation.isPending,

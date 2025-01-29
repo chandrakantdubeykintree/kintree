@@ -1,3 +1,5 @@
-export default function ForgotUsername() {
-  return <div>ForgotUsername</div>;
+import { ForgotUsernameForm } from "@/components/forgot-username-form";
+
+export default function ForgotUsername({ setOpenTerms }) {
+  return <ForgotUsernameForm setOpenTerms={setOpenTerms} />;
 }

@@ -58,6 +58,7 @@ import {
 import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./components/page-not-found";
 import FAQS from "./pages/FAQS";
+import AuthLayout from "./layouts/AuthLayout";
 
 const {
   Login,
@@ -108,21 +109,21 @@ export default function App() {
                 <RouteNameDisplay />
                 <Routes>
                   <Route errorElement={<RouteErrorBoundary />}>
+                    <Route element={<AuthLayout />}>
+                      <Route path="/login" element={<Login />} />
+                      <Route path="/register" element={<Register />} />
+                      <Route
+                        path="/forgot-password"
+                        element={<ForgotPassword />}
+                      />
+                      <Route
+                        path="/forgot-username"
+                        element={<ForgotUsername />}
+                      />
+                    </Route>
                     <Route
-                      path={route_login}
-                      element={
-                        <Suspense fallback={<GlobalSpinner />}>
-                          <Login />
-                        </Suspense>
-                      }
-                    />
-                    <Route
-                      path={route_register}
-                      element={
-                        <Suspense fallback={<GlobalSpinner />}>
-                          <Register />
-                        </Suspense>
-                      }
+                      path="/register/step/:step"
+                      element={<RegisterStep />}
                     />
                     <Route
                       path=""

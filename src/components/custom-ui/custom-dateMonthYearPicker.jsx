@@ -48,7 +48,7 @@ export default function CustomDateMonthYearPicker({
   ];
 
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 100 }, (_, i) => currentYear - 50 + i);
+  const years = Array.from({ length: 200 }, (_, i) => currentYear - 150 + i);
 
   const daysInMonth = getDaysInMonth(selectedDate);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -156,12 +156,12 @@ export default function CustomDateMonthYearPicker({
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Select
                 value={selectedDate.getMonth().toString()}
                 onValueChange={(value) => handleMonthChange(parseInt(value))}
               >
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-[100px]">
                   <SelectValue>{months[selectedDate.getMonth()]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -208,7 +208,7 @@ export default function CustomDateMonthYearPicker({
             </Button>
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1">
             {days.map((day) => (
               <Button
                 key={day}
