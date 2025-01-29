@@ -218,7 +218,7 @@ export default function App() {
                         element={<CreateEvent />}
                       />
                       <Route
-                        path={route_events_view_event}
+                        path={route_events_view_event + "/:eventId"}
                         element={<ViewEvent />}
                       />
                       <Route

@@ -18,6 +18,8 @@ export function SidebarProvider({ children }) {
     "/family-member": { left: true, right: false },
     "/chats": { left: true, right: false },
     "/events": { left: true, right: false },
+    "/create-event": { left: true, right: false },
+    "/view-event": { left: true, right: false },
     "/kincoins": { left: true, right: true },
     "/notifications": { left: true, right: true },
     "/will": { left: true, right: false },

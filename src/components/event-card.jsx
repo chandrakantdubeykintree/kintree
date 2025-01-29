@@ -4,7 +4,7 @@ import { NavLink } from "react-router";
 
 export default function EventCard({ event, status }) {
   return (
-    <NavLink to={`/events/view-event/${event?.id}`}>
+    <NavLink to={`/view-event/${event?.id}`}>
       <div className="flex flex-col shadow-sm border rounded-2xl bg-background max-h-[300px] cursor-pointer">
         <div className="w-full relative h-[150px] rounded-lg">
           <img

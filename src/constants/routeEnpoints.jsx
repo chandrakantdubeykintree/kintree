@@ -28,9 +28,9 @@ export const route_chats_edit_chat = "/chats/edit-chat";
 export const route_dna = "/dna";
 
 export const route_events = "/events";
-export const route_events_create_event = "/events/create-event";
-export const route_events_edit_event = "/events/edit-event";
-export const route_events_view_event = "/events/view-event";
+export const route_events_create_event = "/create-event";
+export const route_events_edit_event = "/edit-event";
+export const route_events_view_event = "/view-event";
 
 export const route_kincoins = "/kincoins";
 
