@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +51,6 @@ const executorSchema = z.object({
 });
 
 export default function Executor({ setStep, willId }) {
-  const navigate = useNavigate();
   const { addExecutorInfo, isAddingExecutorInfo, willData } = useWill();
 
   const form = useForm({

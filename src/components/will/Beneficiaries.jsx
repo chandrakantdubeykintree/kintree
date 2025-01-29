@@ -50,6 +50,8 @@ export default function Beneficiaries({ setStep, willId }) {
     );
   }, [activeTab, beneficiaries]);
 
+  console.log(memberBeneficiariesCount, nonMemberBeneficiariesCount);
+
   const handleSaveAndContinue = async () => {
     setStep("allocation");
   };
@@ -160,13 +162,13 @@ export default function Beneficiaries({ setStep, willId }) {
         </div>
       </div>
 
-      {beneficiaries.length === 0 && activeTab === "family" ? (
+      {memberBeneficiariesCount.length === 0 && activeTab === "family" ? (
         <div className="text-center py-8 text-gray-500">
           No beneficiaries added yet. Click the button above to add one.
         </div>
       ) : (
         <div className="space-y-4">
-          {filteredBeneficiaries.map((beneficiary) => (
+          {memberBeneficiariesCount.map((beneficiary) => (
             <BeneficiaryCard
               key={beneficiary.id}
               beneficiary={beneficiary}
@@ -175,6 +177,27 @@ export default function Beneficiaries({ setStep, willId }) {
             />
           ))}
         </div>
+      )}
+
+      {nonMemberBeneficiariesCount.length === 0 &&
+      activeTab === "non-relative" ? (
+        <div className="text-center py-8 text-gray-500">
+          No non member beneficiaries added yet. Click the button above to add
+          one.
+        </div>
+      ) : (
+        activeTab !== "family" && (
+          <div className="space-y-4">
+            {nonMemberBeneficiariesCount.map((beneficiary) => (
+              <BeneficiaryCard
+                key={beneficiary.id}
+                beneficiary={beneficiary}
+                willId={willId}
+                showPercentage={false}
+              />
+            ))}
+          </div>
+        )
       )}
 
       <div className="flex justify-end gap-4">

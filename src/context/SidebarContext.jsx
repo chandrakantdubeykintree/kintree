@@ -22,13 +22,14 @@ export function SidebarProvider({ children }) {
     "/notifications": { left: true, right: true },
     "/will": { left: true, right: false },
     "/will/create-will": { left: true, right: false },
+    "/will/edit-will": { left: true, right: false },
+    "/will/view-will": { left: true, right: false },
     "/profile": { left: true, right: false },
     "/settings": { left: true, right: false },
   });
 
   const [currentRoute, setCurrentRoute] = useState("/");
 
-  // Update toggle functions to respect route configuration
   const toggleLeftSidebar = () => {
     const config = routeConfig[currentRoute] || { left: true, right: true };
     if (config.left) {

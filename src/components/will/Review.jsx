@@ -1,16 +1,12 @@
-import { useNavigate, useParams } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle2, AlertCircle } from "lucide-react";
-import { useState } from "react";
-import WillSubmission from "@/components/will/WillSubmission";
 import ComponentLoading from "../component-loading";
 
 export default function Review({ setStep, willId }) {
   const { willData, isWillLoading, getBeneficiariesQuery } = useWill();
   const { data: beneficiariesData } = getBeneficiariesQuery(willId);
-  const [showSubmission, setShowSubmission] = useState(false);
 
   if (isWillLoading) {
     return <ComponentLoading />;

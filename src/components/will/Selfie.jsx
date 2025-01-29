@@ -115,13 +115,15 @@ export default function Selfie({ setStep, willId }) {
                 </Button>
               </div>
               {capturedImage && (
-                <Button
-                  className="mt-4 w-full rounded-full"
-                  onClick={() => handleSubmit()}
-                  disabled={isUploadingSelfie}
-                >
-                  {isUploadingSelfie ? "Uploading..." : "Use This Photo"}
-                </Button>
+                <div className="flex justify-center w-fit mx-auto">
+                  <Button
+                    className="mt-4 w-full rounded-full h-10 md:h-12 px-4 md:px-6"
+                    onClick={() => handleSubmit()}
+                    disabled={isUploadingSelfie}
+                  >
+                    {isUploadingSelfie ? "Uploading..." : "Use This Photo"}
+                  </Button>
+                </div>
               )}
             </Card>
           </div>
@@ -131,7 +133,7 @@ export default function Selfie({ setStep, willId }) {
       <div className="flex justify-end gap-4">
         <Button
           variant="outline"
-          onClick={() => setStep("executor")}
+          onClick={() => setStep("review")}
           className="rounded-full h-10 md:h-12 px-4 md:px-6"
         >
           Back

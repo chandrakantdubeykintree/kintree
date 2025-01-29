@@ -24,8 +24,7 @@ const NOTARIZATION_STEPS = [
   },
 ];
 
-export default function Notarize() {
-  const { willId } = useParams();
+export default function Notarize({ setStep, willId }) {
   const navigate = useNavigate();
   const {
     generateWill,
@@ -106,6 +105,7 @@ export default function Notarize() {
                         <Button
                           onClick={handleGenerateWill}
                           disabled={isGeneratingWill}
+                          className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
                           {isGeneratingWill ? "Generating..." : "Generate"}
                         </Button>
@@ -116,6 +116,7 @@ export default function Notarize() {
                             window.open(willUrl, "_blank");
                             setCurrentStep(2);
                           }}
+                          className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
                           Download
                         </Button>
@@ -124,6 +125,7 @@ export default function Notarize() {
                         <Button
                           onClick={handleNotarize}
                           disabled={isNotarizingWill}
+                          className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
                           {isNotarizingWill ? "Processing..." : "Notarize"}
                         </Button>
@@ -140,9 +142,10 @@ export default function Notarize() {
       <div className="flex justify-end gap-4">
         <Button
           variant="outline"
-          onClick={() => navigate(`/will/create/${willId}/selfie`)}
+          className="rounded-full h-10 md:h-12 px-4 md:px-6"
+          onClick={() => navigate(`/will`)}
         >
-          Back
+          Go to Will
         </Button>
       </div>
     </div>

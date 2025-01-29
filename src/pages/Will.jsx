@@ -47,14 +47,17 @@ export default function Will() {
               according to your wishes.
             </p>
             <div className="flex gap-2">
-              <Button onClick={handleCreateWill} className="rounded-full">
+              <Button
+                onClick={handleCreateWill}
+                className="rounded-full h-10 md:h-12 px-4 md:px-6"
+              >
                 Create Will
               </Button>
               <Button
                 onClick={() => navigate(`/will/edit-will`)}
                 disabled={!willData?.data?.id}
                 variant="outline"
-                className="rounded-full"
+                className="rounded-full h-10 md:h-12 px-4 md:px-6"
               >
                 Edit Will
               </Button>
@@ -73,7 +76,7 @@ export default function Will() {
               variant={willData?.data ? "default" : "secondary"}
               disabled={!willData?.data || willData?.data?.completed_status < 4}
               onClick={() => navigate(`/will/view-will`)}
-              className="rounded-full"
+              className="rounded-full h-10 md:h-12 px-4 md:px-6"
             >
               View Will
             </Button>
