@@ -25,7 +25,7 @@ export default function EventCard({ event, status }) {
           <div className="flex items-center gap-2">
             <img src="/icons/alarm.svg" className="h-[14px] w-[14px]" />
             <span className="text-xs ml-2 font-medium line-clamp-1 text-ellipsis overflow-hidden break-words">
-              {format(event?.end_at, "MM/dd/yyyy") || "--"} -{" "}
+              {format(event?.start_at, "MM/dd/yyyy") || "--"} -{" "}
               {format(
                 parse(event?.start_at, "yyyy-MM-dd HH:mm:ss", new Date()),
                 "h:mm a"

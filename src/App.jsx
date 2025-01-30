@@ -234,7 +234,7 @@ export default function App() {
                         element={<ViewEvent />}
                       />
                       <Route
-                        path={route_events_edit_event}
+                        path={route_events_edit_event + "/:eventId"}
                         element={<EditEvent />}
                       />
 

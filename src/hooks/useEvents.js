@@ -141,10 +141,10 @@ export const useEditEvent = () => {
 
   return useMutation({
     mutationFn: ({ eventId, updatedEvent }) => editEvent(eventId, updatedEvent),
-    onSuccess: (data) => {
+    onSuccess: (data, { eventId }) => {
       toast.success("Event updated successfully!");
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENT, data.id] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENT, eventId] });
     },
     onError: (error) => {
       console.error("Edit event error:", error);

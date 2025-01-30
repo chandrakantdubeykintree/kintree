@@ -314,7 +314,7 @@ export default function ViewEvent() {
             <>
               <Button
                 className="rounded-full"
-                onClick={() => navigate(`/events/edit-event/${eventId}`)}
+                onClick={() => navigate(`/edit-event/${eventId}`)}
               >
                 Edit Event
               </Button>

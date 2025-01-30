@@ -38,7 +38,8 @@ export default function ContentLayout({ children }) {
                   ? "md:col-span-9 lg:col-span-9"
                   : ""
               } 
-              ${rightSidebarOpen && !leftSidebarOpen ? "lg:col-span-6" : ""} 
+              ${!leftSidebarOpen && rightSidebarOpen ? "lg:col-span-9" : ""} 
+              ${!leftSidebarOpen && !rightSidebarOpen ? "lg:col-span-12" : ""}
               overflow-y-scroll no_scrollbar relative
             `}
           >

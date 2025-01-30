@@ -91,7 +91,7 @@ export default function CustomMultiSelect({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[var(--radix-popover-trigger-width)] p-0 rounded-lg"
+        className="w-[var(--radix-popover-trigger-width)] p-0 rounded-2xl"
         align="start"
       >
         <div className="flex flex-col p-2 gap-2">

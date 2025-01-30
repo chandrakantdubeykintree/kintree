@@ -32,13 +32,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { capitalizeName } from "@/utils/stringFormat";
-import { DateTimeInput } from "@/components/ui/dateTimeInput";
-import { format } from "date-fns";
+import { addHours, format } from "date-fns";
 import { NavLink, useNavigate } from "react-router";
 import { Map } from "@/components/map";
 import { LocationSearchInput } from "@/components/location-search-input";
 import CustomMultiSelect from "@/components/custom-ui/custom-multi-select";
 import { Card } from "@/components/ui/card";
+import CustomDateTimePicker from "@/components/custom-ui/custom-date-time-picker";
 
 const createEventSchema = z.object({
   event_category_id: z.string().min(1, "Event category is required"),
@@ -52,14 +52,14 @@ const createEventSchema = z.object({
     .min(1, "Start date is required")
     .refine(
       (date) => new Date(date) > new Date(),
-      "Start date cannot be in the past"
+      "Start date & time must be in the future"
     ),
   end_at: z
     .string()
     .optional()
     .refine(
-      (date) => !date || new Date(date) >= new Date(form.getValues("start_at")),
-      "End date cannot be earlier than the start date"
+      (date) => !date || new Date(date) > new Date(),
+      "End date & time must be in the future"
     ),
   details: z
     .string()
@@ -88,8 +88,8 @@ export default function CreateEvent() {
       event_category_id: "",
       name: "",
       venue: "",
-      start_at: "",
-      end_at: "",
+      start_at: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
+      end_at: format(addHours(new Date(), 1), "yyyy-MM-dd'T'HH:mm"), // Default end time 1 hour after start
       details: "",
       attachment_ids: [],
       attendee_ids: [],
@@ -149,6 +149,10 @@ export default function CreateEvent() {
       await createEvent({
         ...data,
         event_category_id: parseInt(data.event_category_id),
+        start_at: format(new Date(data.start_at), "yyyy-MM-dd HH:mm:ss"),
+        end_at: data.end_at
+          ? format(new Date(data.end_at), "yyyy-MM-dd HH:mm:ss")
+          : undefined,
       });
       navigate("/events");
     } catch (error) {
@@ -304,10 +308,19 @@ export default function CreateEvent() {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <DateTimeInput
+                            <CustomDateTimePicker
                               {...field}
-                              min={format(new Date(), "yyyy-MM-dd'T'HH:mm")}
-                              className="h-10 md:h-12 rounded-full bg-background"
+                              value={
+                                field.value ? new Date(field.value) : new Date()
+                              }
+                              onChange={(date) => {
+                                field.onChange(
+                                  format(date, "yyyy-MM-dd'T'HH:mm")
+                                );
+                              }}
+                              minDate={new Date()}
+                              className="h-10 md:h-12 rounded-full"
+                              placeholder="Select start date & time"
                             />
                           </FormControl>
                           <FormMessage />
@@ -321,13 +334,37 @@ export default function CreateEvent() {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <DateTimeInput
+                            <CustomDateTimePicker
                               {...field}
-                              min={
-                                form.getValues("start_at") ||
-                                format(new Date(), "yyyy-MM-dd'T'HH:mm")
+                              value={
+                                field.value ? new Date(field.value) : undefined
                               }
-                              className="h-10 md:h-12 rounded-full bg-background"
+                              onChange={(date) => {
+                                const startDate = new Date(
+                                  form.getValues("start_at")
+                                );
+                                if (date && date <= startDate) {
+                                  form.setError("end_at", {
+                                    type: "manual",
+                                    message:
+                                      "End date & time must be after start date & time",
+                                  });
+                                } else {
+                                  form.clearErrors("end_at");
+                                  field.onChange(
+                                    date
+                                      ? format(date, "yyyy-MM-dd'T'HH:mm")
+                                      : ""
+                                  );
+                                }
+                              }}
+                              minDate={
+                                form.watch("start_at")
+                                  ? new Date(form.watch("start_at"))
+                                  : new Date()
+                              }
+                              className="h-10 md:h-12 rounded-full"
+                              placeholder="Select end date & time"
                             />
                           </FormControl>
                           <FormMessage />

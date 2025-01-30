@@ -19,7 +19,8 @@ export function SidebarProvider({ children }) {
     "/chats": { left: true, right: false },
     "/events": { left: true, right: false },
     "/create-event": { left: true, right: false },
-    "/view-event": { left: true, right: false },
+    "/view-event/:id": { left: true, right: false },
+    "/edit-event/:id": { left: true, right: false },
     "/kincoins": { left: true, right: true },
     "/notifications": { left: true, right: true },
     "/will": { left: true, right: false },
@@ -74,6 +75,9 @@ export function SidebarProvider({ children }) {
     }
     if (rightSidebarOpen !== config.right) {
       setRightSidebarOpen(config.right);
+    }
+    if (path?.startsWith("/view-event/") || path?.startsWith("/edit-event/")) {
+      setRightSidebarOpen(false);
     }
   };
 
