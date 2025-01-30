@@ -31,7 +31,7 @@ import { useInterests } from "@/hooks/useMasters";
 import { Badge } from "@/components/ui/badge";
 import ComponentLoading from "@/components/component-loading";
 import toast from "react-hot-toast";
-import { Pen, Plus } from "lucide-react";
+import { Pen, Plus, Trash2 } from "lucide-react";
 
 const interestsSchema = z.object({
   interest_ids: z
@@ -50,6 +50,7 @@ export default function EditInterestsForm() {
   const { profile, updateProfile, isLoading } = useProfile("/user/interests");
   const { data: availableInterests, refetch: refetchInterests } =
     useInterests();
+
   const { width } = useWindowSize();
   const { updateInterests } = useProfile("/user/store-custom-interests");
 
@@ -105,6 +106,9 @@ export default function EditInterestsForm() {
     }
   };
 
+  const handleRemoveAll = () => {
+    form.setValue("interest_ids", []);
+  };
   const handleInterestChange = (interestId) => {
     const currentInterests = form.getValues("interest_ids");
     const index = currentInterests.indexOf(interestId);
@@ -207,6 +211,15 @@ export default function EditInterestsForm() {
         />
 
         <div className="flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleRemoveAll}
+            className="rounded-full"
+          >
+            <Trash2 className="w-4 h-4" />
+            Remove All
+          </Button>
           <Button
             type="button"
             variant="outline"

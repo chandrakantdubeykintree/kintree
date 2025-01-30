@@ -38,6 +38,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useFamily, useFamilyMembers, useMember } from "@/hooks/useFamily";
 
 const PasswordSchema = z
   .object({
@@ -91,6 +92,7 @@ export default function Settings() {
   const [accountAction, setAccountAction] = useState(null);
   const { profile, updateProfile } = useProfile("user/configurations");
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
+  console.log(user);
 
   const [showPassword, setShowPassword] = useState({
     current_password: false,
@@ -739,13 +741,13 @@ export default function Settings() {
                 <DialogDescription>
                   {accountAction?.type === "deactivate" ? (
                     <>
-                      Your account will be deactivated after 30 days. You can't
+                      Your account will be deactivated after 15 days. You can't
                       reactivate your account by logging in during this period.
                     </>
                   ) : (
                     <>
                       Your account and all associated data will be permanently
-                      deleted in 90 days. This action cannot be undone.
+                      deleted in 30 days. This action cannot be undone.
                     </>
                   )}
                 </DialogDescription>

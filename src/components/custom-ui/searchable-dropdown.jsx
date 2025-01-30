@@ -20,7 +20,7 @@ export default function SearchableDropdown({
   const dropdownRef = useRef(null);
 
   const selectedOption = options?.find(
-    (opt) => opt.id.toString() === (value?.toString() || "")
+    (opt) => opt.id?.toString() === (value?.toString() || "")
   );
 
   const filteredOptions = options.filter((option) =>
@@ -80,7 +80,7 @@ export default function SearchableDropdown({
       </Button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-hidden">
+        <div className="absolute z-10 w-full mt-1 bg-background border rounded-2xl shadow-lg max-h-60 overflow-hidden">
           <div className="p-2 border-b sticky top-0 bg-background">
             <div className="relative">
               <Search className="absolute left-2 top-3 h-4 w-4 text-muted-foreground" />

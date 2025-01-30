@@ -66,7 +66,9 @@ export default function EditEducationForm() {
     setSelectedEducation(education);
     setIsEditing(true);
     form.reset({
-      type_id: education.type?.id?.toString() || "",
+      type_id:
+        educationTypeList?.find((type) => type.name === education?.type)?.id ||
+        "",
       institution_name: education.institution_name || "",
       start_year: education.start_year || "",
       end_year: education.end_year || "",
@@ -125,9 +127,8 @@ export default function EditEducationForm() {
                         name: r.name,
                       })) || []
                     }
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
+                    {...field}
+                    isLoading={isLoading}
                     placeholder="Select Education Type"
                     searchPlaceholder="Search education type..."
                     className="w-full rounded-full bg-background text-foreground my-2 shadow-sm px-4 h-10 lg:h-12"

@@ -32,6 +32,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { Pen } from "lucide-react";
 
 const additionalInfoSchema = z.object({
   birth_place: z.string().min(1, "Birth place is required"),
@@ -74,6 +75,8 @@ export default function EditAdditionalInfoForm() {
     },
   });
 
+  console.log(profile?.mother_tongue);
+
   useEffect(() => {
     if (profile) {
       form.reset({
@@ -86,7 +89,9 @@ export default function EditAdditionalInfoForm() {
               (lang) => lang.id?.toString() || lang.toString()
             )
           : [],
-        mother_tongue: profile.mother_tongue || "",
+        mother_tongue:
+          languagesList?.find((lang) => lang.name === profile.mother_tongue)
+            ?.id || "",
         native_place: profile.native_place || "",
         occupation: profile.occupation || "",
         relationship_status: profile.relationship_status || "",
@@ -94,7 +99,6 @@ export default function EditAdditionalInfoForm() {
     }
   }, [profile, form]);
 
-  // Watch relationship status for conditional anniversary field
   const relationshipStatus = form.watch("relationship_status");
 
   const handleEditClick = () => {
