@@ -144,22 +144,29 @@ export const useUpdateFamilyMember = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateFamilyMember,
-    onSuccess: (data, variables) => {
+    onSuccess: async (data, variables) => {
       toast.success("Member updated successfully");
       // Invalidate family tree data
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.FAMILY],
-        refetchType: "all",
-        refetchFn: () => fetchFamily(1),
-      });
-      // Invalidate individual member data
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.MEMBER, variables.id],
-      });
-      // Invalidate family members list
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
-      });
+      try {
+        // First invalidate family tree
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.FAMILY],
+          refetchType: "all",
+          refetchFn: () => fetchFamily(1),
+        });
+
+        // Then invalidate individual member data
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.MEMBER, variables.id],
+        });
+
+        // Finally invalidate family members list
+        await queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
+        });
+      } catch (error) {
+        console.error("Error during query invalidation:", error);
+      }
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || "Failed to update member");

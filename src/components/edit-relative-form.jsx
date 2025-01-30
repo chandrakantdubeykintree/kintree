@@ -24,6 +24,7 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import toast from "react-hot-toast";
 import { useAgeRanges } from "@/hooks/useMasters";
+import { useEffect } from "react";
 
 // Zod schema for form validation
 const editRelativeSchema = z.object({
@@ -92,6 +93,14 @@ export default function EditRelativeForm({
       toast.error("Failed to update member");
     }
   };
+  const watchIsAlive = form.watch("is_alive");
+  useEffect(() => {
+    if (watchIsAlive === 0) {
+      form.setValue("email", "");
+      form.setValue("phone_no", "");
+      form.setValue("age_range", 1);
+    }
+  }, [watchIsAlive, form]);
   return (
     <Form {...form}>
       <form
@@ -157,44 +166,48 @@ export default function EditRelativeForm({
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    {...field}
-                    className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone_no"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <PhoneInput
-                    international
-                    countryCallingCodeEditable={false}
-                    defaultCountry="IN"
-                    value={field.value}
-                    onChange={field.onChange}
-                    limitMaxLength
-                    className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {watchIsAlive === 1 && (
+            <>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        {...field}
+                        className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone_no"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <PhoneInput
+                        international
+                        countryCallingCodeEditable={false}
+                        defaultCountry="IN"
+                        value={field.value}
+                        onChange={field.onChange}
+                        limitMaxLength
+                        className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
           <FormField
             control={form.control}
