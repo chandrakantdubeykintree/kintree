@@ -87,15 +87,15 @@ export default function Beneficiaries({ setStep, willId }) {
                 Add Beneficiary from family
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[500px] overflow-y-scroll no_scrollbar">
+            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[650px] overflow-y-auto no_scrollbar">
               <DialogHeader className="space-y-4">
                 <DialogTitle className="text-xl font-semibold">
                   Add beneficiaries from below family members
                 </DialogTitle>
-                <div className="flex items-center gap-4 border bg-gray-100 rounded-full pl-4">
-                  <Search className="w-5 h-5" />
+                <div className="flex items-center border bg-gray-100 rounded-full relative">
+                  <Search className="w-5 h-5 absolute left-2 z-10" />
                   <Input
-                    className="w-full border-none bg-transparent outline-0 ring-0 focus-visible:ring-0 placeholder:text-gray-500 rounded-r-full h-[48px]"
+                    className="pl-10 w-full border-none bg-transparent outline-0 ring-0 focus-visible:ring-0 placeholder:text-gray-500 rounded-full h-[48px]"
                     placeholder="Search family members"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -167,16 +167,18 @@ export default function Beneficiaries({ setStep, willId }) {
           No beneficiaries added yet. Click the button above to add one.
         </div>
       ) : (
-        <div className="space-y-4">
-          {memberBeneficiariesCount.map((beneficiary) => (
-            <BeneficiaryCard
-              key={beneficiary.id}
-              beneficiary={beneficiary}
-              willId={willId}
-              showPercentage={false}
-            />
-          ))}
-        </div>
+        activeTab === "family" && (
+          <div className="space-y-4">
+            {memberBeneficiariesCount.map((beneficiary) => (
+              <BeneficiaryCard
+                key={beneficiary.id}
+                beneficiary={beneficiary}
+                willId={willId}
+                showPercentage={false}
+              />
+            ))}
+          </div>
+        )
       )}
 
       {nonMemberBeneficiariesCount.length === 0 &&

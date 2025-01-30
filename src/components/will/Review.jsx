@@ -28,30 +28,40 @@ export default function Review({ setStep, willId }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-gray-500">Full Name</label>
-            <p>{willData?.data?.["personal-info"]?.name}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["personal-info"]?.name}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Date of Birth</label>
-            <p>{willData?.data?.["personal-info"]?.date_of_birth}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["personal-info"]?.date_of_birth}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Address</label>
-            <p>{willData?.data?.["personal-info"]?.address}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["personal-info"]?.address}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Pincode</label>
-            <p>{willData?.data?.["personal-info"]?.pincode}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["personal-info"]?.pincode}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Phone Number</label>
-            <p>
+            <p className="text-sm break-all">
               {willData?.data?.["personal-info"]?.phone_country_code}-{" "}
               {willData?.data?.["personal-info"]?.phone_no}
             </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Email</label>
-            <p>{willData?.data?.["personal-info"]?.email}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["personal-info"]?.email}
+            </p>
           </div>
         </div>
       </Card>
@@ -61,26 +71,32 @@ export default function Review({ setStep, willId }) {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-sm text-gray-500">Name</label>
-            <p>{willData?.data?.["executor-info"]?.name}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["executor-info"]?.name}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Date of Birth</label>
-            <p>{willData?.data?.["executor-info"]?.date_of_birth}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["executor-info"]?.date_of_birth}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Email</label>
-            <p>{willData?.data?.["executor-info"]?.email}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["executor-info"]?.email}
+            </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Phone Number</label>
-            <p>
+            <p className="text-sm break-all">
               {willData?.data?.["executor-info"]?.phone_country_code}-{" "}
               {willData?.data?.["executor-info"]?.phone_no}
             </p>
           </div>
           <div>
             <label className="text-sm text-gray-500">Gender</label>
-            <p>
+            <p className="text-sm break-all">
               {willData?.data?.["executor-info"]?.gender === "m"
                 ? "Male"
                 : "Female"}
@@ -88,7 +104,9 @@ export default function Review({ setStep, willId }) {
           </div>
           <div>
             <label className="text-sm text-gray-500">City</label>
-            <p>{willData?.data?.["executor-info"]?.city}</p>
+            <p className="text-sm break-all">
+              {willData?.data?.["executor-info"]?.city}
+            </p>
           </div>
         </div>
       </Card>

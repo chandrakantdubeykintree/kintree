@@ -16,7 +16,7 @@ export const EditPost = lazy(() => import("./pages/EditPost"));
 export const ViewPost = lazy(() => import("./pages/ViewPost"));
 
 export const CreatePoll = lazy(() => import("./pages/CreatePoll"));
-export const EditPoll = lazy(() => import("./pages/EditPoll"));
+// export const EditPoll = lazy(() => import("./pages/EditPoll"));
 export const ViewPoll = lazy(() => import("./pages/ViewPoll"));
 
 export const FamilyTree = lazy(() => import("./pages/FamilyTree"));

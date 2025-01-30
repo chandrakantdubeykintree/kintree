@@ -73,7 +73,7 @@ const {
   EditPost,
   ViewPost,
   CreatePoll,
-  EditPoll,
+  // EditPoll,
   ViewPoll,
   AddMember,
   ViewMember,
@@ -174,10 +174,10 @@ export default function App() {
                         path={route_edit_post + "/:postId"}
                         element={<EditPost />}
                       />
-                      <Route
+                      {/* <Route
                         path={route_edit_poll + "/:pollId"}
                         element={<EditPoll />}
-                      />
+                      /> */}
                       {/* family tree */}
                       <Route
                         path={route_family_tree}

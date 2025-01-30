@@ -1,38 +1,28 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "react-hot-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 import { AlertCircle, CheckCircle2, User } from "lucide-react";
-import { kintreeApi } from "@/services/kintreeApi";
-import { useQueryClient } from "@tanstack/react-query";
+
+import ComponentLoading from "../component-loading";
+import { Checkbox } from "../ui/checkbox";
 
 export default function Allocation({ setStep, willId }) {
   const navigate = useNavigate();
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState({
-    open: false,
-    benificary: null,
-  });
+
+  const [isConsentChecked, setIsConsentChecked] = useState(false);
+
   const {
     getBeneficiariesQuery,
     saveBeneficiaryAllocations,
     isSavingAllocations,
   } = useWill();
   const { data: beneficiariesData, isLoading } = getBeneficiariesQuery(willId);
-  const queryClient = useQueryClient();
 
   const [allocations, setAllocations] = useState({});
   const [totalPercentage, setTotalPercentage] = useState(0);
@@ -85,17 +75,8 @@ export default function Allocation({ setStep, willId }) {
     }
   };
 
-  const handleDelete = async (beneficiaryId) => {
-    try {
-      await kintreeApi.delete(`/will/${willId}/beneficiaries/${beneficiaryId}`);
-      queryClient.invalidateQueries(["beneficiaries", willId]);
-    } catch (error) {
-      console.error("Error deleting beneficiary:", error);
-    }
-  };
-
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <ComponentLoading />;
   }
 
   const beneficiaries = beneficiariesData?.data || [];
@@ -154,56 +135,8 @@ export default function Allocation({ setStep, willId }) {
                     className="text-right text-md text-primary bg-background"
                     suffix="%"
                   />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      console.log(beneficiary);
-                      setIsDeleteDialogOpen({
-                        open: true,
-                        benificary: beneficiary,
-                      });
-                    }}
-                  >
-                    <img
-                      src="/icons/delete.svg"
-                      className="w-5 h-5 text-primary"
-                    />
-                  </Button>
                 </div>
               </div>
-              {isDeleteDialogOpen?.open ? (
-                <AlertDialog
-                  open={isDeleteDialogOpen.open}
-                  onOpenChange={setIsDeleteDialogOpen}
-                >
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Beneficiary</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Are you sure you want to remove{" "}
-                        {isDeleteDialogOpen.benificary.name} from your will?
-                        This action cannot be undone.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => {
-                          handleDelete(isDeleteDialogOpen.benificary.id);
-                          setIsDeleteDialogOpen({
-                            open: false,
-                            benificary: null,
-                          });
-                        }}
-                        className="bg-destructive text-destructive-foreground"
-                      >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              ) : null}
             </Card>
           ))}
         </div>
@@ -237,6 +170,20 @@ export default function Allocation({ setStep, willId }) {
         </div>
       </div>
 
+      <div className="flex items-center gap-2">
+        <Checkbox
+          id="consent"
+          checked={isConsentChecked}
+          onCheckedChange={setIsConsentChecked}
+        />
+        <label
+          htmlFor="consent"
+          className="text-sm text-gray-600 cursor-pointer select-none"
+        >
+          I confirm the allocation of assets to beneficiaries listed above.
+        </label>
+      </div>
+
       <div className="flex justify-end gap-4">
         <Button
           className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
@@ -250,7 +197,8 @@ export default function Allocation({ setStep, willId }) {
           onClick={handleSubmit}
           disabled={
             totalPercentage.toFixed(2).toString() !== "100.00" ||
-            isSavingAllocations
+            isSavingAllocations ||
+            !isConsentChecked
           }
         >
           {isSavingAllocations ? "Saving..." : "Next"}

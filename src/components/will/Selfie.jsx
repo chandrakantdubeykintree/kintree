@@ -42,7 +42,7 @@ export default function Selfie({ setStep, willId }) {
 
   return (
     <div className="space-y-6">
-      <div className="p-6">
+      <div className="">
         <h2 className="text-xl font-semibold mb-2">Self Authentication</h2>
         <p className="text-gray-600 mb-6">
           Please provide a clear selfie for identity verification. You can
@@ -66,28 +66,28 @@ export default function Selfie({ setStep, willId }) {
 
         {showWebcam && (
           <div className="mt-6">
-            <Card className="p-4">
-              <div className="relative">
+            <Card className="p-2 md:p-4 lg:p-6 min-h-[250px]">
+              <div className="relative flex flex-col justify-center items-center">
                 <Webcam
                   ref={webcamRef}
                   screenshotFormat="image/jpeg"
                   className="w-full rounded-lg"
                 />
-                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 space-x-4">
-                  <Button
-                    onClick={handleCapture}
-                    className="rounded-full h-10 md:h-12 px-4 md:px-6"
-                  >
-                    Capture
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowWebcam(false)}
-                    className="rounded-full h-10 md:h-12 px-4 md:px-6"
-                  >
-                    Cancel
-                  </Button>
-                </div>
+              </div>
+              <div className="flex justify-center items-center mt-8 flex-col sm:flex-row gap-2 sm:space-x-4 w-full sm:w-auto px-4 sm:px-0">
+                <Button
+                  onClick={handleCapture}
+                  className="rounded-full h-10 md:h-12 px-4 md:px-6 w-full sm:w-auto"
+                >
+                  Capture
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowWebcam(false)}
+                  className="rounded-full h-10 md:h-12 px-4 md:px-6 w-full sm:w-auto"
+                >
+                  Cancel
+                </Button>
               </div>
             </Card>
           </div>

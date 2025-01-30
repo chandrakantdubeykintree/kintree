@@ -63,6 +63,7 @@ export function useWill() {
     },
     onSuccess: (_, { willId }) => {
       queryClient.invalidateQueries(["beneficiaries", willId]);
+      toast.success("Beneficiary added successfully");
     },
   });
 

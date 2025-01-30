@@ -62,8 +62,12 @@ export default function Executor({ setStep, willId }) {
         willData?.data?.["executor-info"]?.phone_country_code +
           willData?.data?.["executor-info"]?.phone_no || "",
       date_of_birth: willData?.data?.["executor-info"]?.date_of_birth
-        ? new Date(willData?.data?.["executor-info"]?.date_of_birth)
+        ? format(
+            new Date(willData?.data?.["executor-info"]?.date_of_birth),
+            "yyyy-MM-dd"
+          )
         : null,
+      gender: willData?.data?.["executor-info"]?.gender || "m",
     },
   });
 

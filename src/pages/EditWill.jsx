@@ -43,7 +43,7 @@ export default function EditWill() {
     }
   }
   return (
-    <Card className="mx-auto p-6 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
+    <Card className="mx-auto p-2 py-4 md:p-4 lg:p-6 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
       {step !== "acknowledge" && (
         <div className="mb-8 flex justify-between items-center overflow-x-scroll no_scrollbar w-full">
           <Steps
@@ -55,7 +55,7 @@ export default function EditWill() {
           />
         </div>
       )}
-      <div className="bg-brandSecondary p-4 rounded-lg h-full">
+      <div className="bg-brandSecondary p-2 md:p-4 lg:p-6 rounded-lg h-full overflow-y-scroll no_scrollbar">
         {willCreationStep()}
       </div>
 

@@ -39,10 +39,10 @@ const beneficiarySchema = z.object({
         monthDiff < 0 ||
         (monthDiff === 0 && today.getDate() < dob.getDate())
       ) {
-        return age - 1 >= 18;
+        return age - 1 >= 1;
       }
-      return age >= 18;
-    }, "You must be at least 18 years old"),
+      return age >= 1;
+    }, "You must be at least 1 years old"),
   email: z.string().email("Invalid email address").optional(),
   phone_no: z.string().min(10, "Phone number must be at least 10 digits"),
   phone_country_code: z.string().min(1, "Country code is required"),
@@ -105,7 +105,7 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
           )}
         />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
             name="date_of_birth"

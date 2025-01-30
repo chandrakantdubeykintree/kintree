@@ -59,8 +59,8 @@ export default function AddFamilyMemberDialog({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="h-full">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-4 overflow-y-auto no_scrollbar">
         {familyMembers?.map((member) => (
           <Card key={member.id} className="p-4">
             <div className="flex items-start justify-between">
