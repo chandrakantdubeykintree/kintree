@@ -1,22 +1,48 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { NavLink } from "react-router";
 import AsyncComponent from "@/components/async-component";
 import Post from "@/components/post";
 import { getInitials } from "@/utils/stringFormat";
 import { useAuth } from "@/context/AuthProvider";
-import { usePost } from "@/hooks/usePosts";
+import { usePoll, usePost } from "@/hooks/usePosts";
 import ComponentLoading from "@/components/component-loading";
 import PostComments from "@/components/post-comments";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { checkPostAccess } from "@/services/privacyChecks";
 
 export default function ViewPost() {
   const { user } = useAuth();
   const { pollId } = useParams();
-  const { data, isLoading, refetch } = usePost(pollId);
+  const navigate = useNavigate();
+  const { data, isLoading, refetch, error } = usePost(pollId);
+  const { data: pollData } = usePoll(data?.post_data?.id);
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      const hasAccess = checkPostAccess(
+        data.author_details.id,
+        data.post_data.privacy,
+        user
+      );
+
+      if (!hasAccess) {
+        toast.error("You don't have permission to view this post");
+        navigate("/foreroom");
+        return;
+      }
+    }
+  }, [data, isLoading, user, navigate]);
   const handlePostUpdate = () => {
     refetch();
   };
 
   if (isLoading) return <ComponentLoading />;
+  if (error) {
+    toast.error("Failed to load poll");
+    navigate("/foreroom");
+    return null;
+  }
 
   return (
     <AsyncComponent>

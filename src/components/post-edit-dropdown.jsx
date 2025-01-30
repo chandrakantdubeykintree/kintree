@@ -13,21 +13,25 @@ import { NavLink } from "react-router";
 
 export default function PostEditDeleteDropDown({ type, id }) {
   const options = postDropDown?.slice(type === "poll" ? 1 : 0);
-  const { mutate: deletePost } = useDeletePost();
+  const { mutate: deletePost, isPending } = useDeletePost();
   const handleDelete = () => {
-    deletePost({ postId: id, postType: "posts" });
+    deletePost({ postId: id, postType: "posts", type: type });
   };
   return (
-    <DropdownMenu className="w-20">
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <img
           src={ICON_OPTIONS}
           className="w-4 h-4 cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-125"
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-36">
         {options?.map(({ label, icon, path }) => (
-          <DropdownMenuItem className="cursor-pointer" key={path}>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            key={path}
+            disabled={isPending}
+          >
             <NavLink
               key={path}
               to={
@@ -41,7 +45,7 @@ export default function PostEditDeleteDropDown({ type, id }) {
               onClick={path === "delete" ? handleDelete : null}
             >
               <img src={icon} className="h-6 w-6" />
-              <span className="text-sm">{label}</span>
+              <span className="text-sm">{label.toUpperCase()}</span>
             </NavLink>
           </DropdownMenuItem>
         ))}

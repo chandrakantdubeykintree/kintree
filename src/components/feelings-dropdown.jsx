@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { X } from "lucide-react";
+import { capitalizeName } from "@/utils/stringFormat";
 
 export default function FeelingsDropDown({
   selectedFeeling,
@@ -30,7 +31,7 @@ export default function FeelingsDropDown({
                   className="transform transition-transform duration-300 ease-in-out hover:scale-125"
                 />
               </div>
-              <span>{selectedFeeling.name}</span>
+              <span>{capitalizeName(selectedFeeling.name)}</span>
             </Button>
           ) : (
             <Button variant="outline" className="rounded-full">
@@ -65,7 +66,9 @@ export default function FeelingsDropDown({
                     <img src={item.image_url} alt={item.name} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold">{item.name}</h3>
+                    <h3 className="text-sm font-semibold">
+                      {capitalizeName(item.name)}
+                    </h3>
                     <p className="text-xs">{item.desc}</p>
                   </div>
                 </a>

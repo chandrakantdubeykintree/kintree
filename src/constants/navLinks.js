@@ -40,6 +40,6 @@ export const publicLinks = [
 ];
 
 export const postDropDown = [
-  { path: "editpost", label: "edit_post", icon: ICON_EDIT },
-  { path: "delete", label: "delete", icon: ICON_DELETE },
+  { path: "editpost", label: "EDIT", icon: ICON_EDIT },
+  { path: "delete", label: "DELETE", icon: ICON_DELETE },
 ];

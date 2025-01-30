@@ -23,10 +23,28 @@ import FeelingsDropDown from "@/components/feelings-dropdown";
 import { useAlbums } from "@/hooks/useAlbums";
 import PrivacyDropdown from "@/components/privacy-dropdown";
 
+const SUPPORTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
+const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
+const getWordCount = (text) => {
+  if (!text) return 0;
+  return text
+    .trim()
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
+};
+
 export default function CreatePost() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
   const [caption, setCaption] = useState("");
+  const wordCount = getWordCount(caption);
   const { data: albumsList } = useAlbums();
 
   const [isUploading, setIsUploading] = useState(false);
@@ -44,7 +62,9 @@ export default function CreatePost() {
   const isValidCaption = caption.trim().length >= 5;
   const hasMedia = uploadedAttachments.length > 0;
   const isValidPost = isValidCaption || hasMedia;
-  const remainingChars = caption.length;
+  const charCount = caption.length;
+  const isOverLimit = charCount > 1000;
+  const remainingChars = 1000 - charCount;
 
   const {
     mutate: createPost,
@@ -59,11 +79,39 @@ export default function CreatePost() {
 
   const handleFileChange = async (e) => {
     const files = Array.from(e.target.files);
-    const validFiles = files.filter(
-      (file) => file.type.startsWith("image/") || file.type.startsWith("video/")
-    );
+    const validFiles = [];
 
-    setMediaFiles((prev) => [...prev, ...validFiles].slice(0, 10));
+    // Check each file individually
+    for (const file of files) {
+      if (
+        !SUPPORTED_IMAGE_TYPES.includes(file.type) &&
+        !SUPPORTED_VIDEO_TYPES.includes(file.type)
+      ) {
+        toast.error(
+          `"${file.name}" - Unsupported file type. Please use JPG, PNG, GIF, WEBP, MP4, MOV, or WEBM.`
+        );
+        continue;
+      }
+
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error(`"${file.name}" - File size exceeds 10MB limit.`);
+        continue;
+      }
+
+      // Check if adding this file would exceed the 10 file limit
+      if (mediaFiles.length + validFiles.length >= 10) {
+        toast.error("Maximum 10 files allowed");
+        break;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      return;
+    }
+
+    setMediaFiles((prev) => [...prev, ...validFiles]);
 
     setIsUploading(true);
     try {
@@ -177,23 +225,32 @@ export default function CreatePost() {
                     <Label>Caption</Label>
                     <span
                       className={`text-sm ${
-                        remainingChars < 5 ? "text-red-500" : "text-gray-500"
+                        isOverLimit ? "text-red-500" : "text-gray-500"
                       }`}
                     >
-                      {remainingChars} characters{" "}
-                      {remainingChars < 5 ? `(minimum 5)` : ""}
+                      {charCount}/1000 characters
                     </span>
                   </div>
                   <Textarea
                     placeholder="Type your message here."
                     rows="6"
                     value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    className="lg:text-[16px]"
+                    onChange={(e) => {
+                      const newText = e.target.value;
+                      if (newText.length <= 1000) {
+                        setCaption(newText);
+                      }
+                    }}
+                    maxLength={1000}
+                    className={`lg:text-[16px] ${
+                      isOverLimit
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : ""
+                    }`}
                   />
-                  {caption.length > 0 && !isValidCaption && (
+                  {isOverLimit && (
                     <p className="text-sm text-red-500">
-                      Caption must be at least 5 characters long
+                      Caption cannot exceed 1000 characters
                     </p>
                   )}
                 </div>

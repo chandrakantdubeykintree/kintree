@@ -1,4 +1,4 @@
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { NavLink } from "react-router";
 import AsyncComponent from "@/components/async-component";
 import Post from "@/components/post";
@@ -7,16 +7,40 @@ import { useAuth } from "@/context/AuthProvider";
 import { usePost } from "@/hooks/usePosts";
 import ComponentLoading from "@/components/component-loading";
 import PostComments from "@/components/post-comments";
+import toast from "react-hot-toast";
+import { useEffect } from "react";
+import { checkPostAccess } from "@/services/privacyChecks";
 
 export default function ViewPost() {
   const { user } = useAuth();
   const { postId } = useParams();
-  const { data, isLoading, refetch } = usePost(postId);
+  const { data, isLoading, refetch, error } = usePost(postId);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!isLoading && data) {
+      const hasAccess = checkPostAccess(
+        data.author_details.id,
+        data.privacy,
+        user
+      );
+
+      if (!hasAccess) {
+        toast.error("You don't have permission to view this post");
+        navigate("/foreroom");
+        return;
+      }
+    }
+  }, [data, isLoading, user, navigate]);
   const handlePostUpdate = () => {
     refetch();
   };
 
   if (isLoading) return <ComponentLoading />;
+  if (error) {
+    toast.error("Failed to load post");
+    navigate("/foreroom");
+    return null;
+  }
 
   return (
     <AsyncComponent>

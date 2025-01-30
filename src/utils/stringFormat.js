@@ -9,7 +9,7 @@ export function formatTimeAgo(dateString) {
   // Parse the incoming date string (assuming it's in 'YYYY-MM-DD HH:mm:ss' format)
   const date = new Date(dateString?.replace(" ", "T")); // Convert to ISO format
   const now = new Date();
-  const diffInSeconds = Math.floor((now - date) / 1000);
+  const diffInSeconds = Math.max(0, Math.floor((now - date) / 1000));
 
   // Seconds ago
   if (diffInSeconds < 60) return `${diffInSeconds}s ago`;

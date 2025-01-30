@@ -7,12 +7,14 @@ import {
 } from "@tanstack/react-query";
 import { replaceUrlParams } from "../utils/stringFormat";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router";
 
 export const QUERY_KEYS = {
   POSTS: "posts",
   POST: "post",
   REACTIONS: "reactions",
   POLLS: "polls",
+  POLL: "poll",
   COMMENTS: "comments",
   POST_REACTIONS: "post_reactions",
 };
@@ -117,7 +119,7 @@ export const deletePost = async (postId, postType = "post") => {
     const endpoint =
       postType === "poll" ? `/polls/${postId}` : `/posts/${postId}`;
     const response = await kintreeApi.delete(endpoint);
-    return response.data;
+    return response;
   } catch (error) {
     return handleApiError(error);
   }
@@ -229,7 +231,7 @@ export const useCreatePost = () => {
       );
     },
     onSuccess: (data) => {
-      toast.success("Post created successfully!");
+      toast.success(data.message || "Post created successfully!");
       if (data.type === "poll") {
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
       }
@@ -268,14 +270,22 @@ export const useEditPost = () => {
 
 export const useDeletePost = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   return useMutation({
-    mutationFn: ({ postId, postType }) => deletePost(postId, postType),
-    onSuccess: (_, { postType }) => {
-      toast.success("Post deleted successfully!");
+    mutationFn: ({ postId, postType, type }) =>
+      deletePost(postId, postType, type),
+    onSuccess: (_, { postType, type }) => {
+      console.log(postType);
+      toast.success(
+        type === "poll"
+          ? "Poll deleted successfully!"
+          : "Post deleted successfully!"
+      );
       if (postType === "poll") {
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
       }
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
+      navigate("/foreroom");
     },
     onError: (error) => {
       toast.error(
@@ -378,6 +388,32 @@ export const usePollVote = () => {
     onSettled: (_, __, { pollId }) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POST, pollId] });
+    },
+  });
+};
+
+export const fetchPoll = async (pollId) => {
+  try {
+    const url = replaceUrlParams("/polls/:pollId", { pollId });
+    const response = await kintreeApi.get(url);
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const usePoll = (pollId, options = {}) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.POLL, pollId],
+    queryFn: () => fetchPoll(pollId),
+    enabled: Boolean(pollId),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60, // 1 minute
+    retry: 2,
+    ...options,
+    onError: (error) => {
+      toast.error("Failed to fetch poll.");
+      console.error("Poll fetch error:", error);
     },
   });
 };

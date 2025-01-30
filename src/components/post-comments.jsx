@@ -156,7 +156,7 @@ export default function PostComments({ postId, onCommentUpdate }) {
             )}
           </div>
         </div>
-        <div className="sticky bottom-0 p-4 border-t rounded-lg shadow-lg bg-background">
+        <div className="sticky bottom-0 p-4 border-t rounded-b-2xl bg-background">
           <div className="flex flex-col gap-2">
             {replyingTo && (
               <div className="flex items-center justify-between text-sm text-brandPrimary p-2 rounded">

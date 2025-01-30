@@ -29,6 +29,7 @@ import { useState } from "react";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import LikesDialog from "./likes-dialog";
+import { BadgeCheck, Check } from "lucide-react";
 
 export default function Posts({ post, user }) {
   const { width } = useWindowSize();
@@ -130,10 +131,15 @@ export default function Posts({ post, user }) {
               </div>
               <div>
                 <div className="flex items-center gap-1">
-                  <h3 className="font-semibold dark:text-white line-clamp-1 overflow-hidden">
+                  <h3 className="font-semibold dark:text-white line-clamp-1 overflow-hidden flex items-center gap-1">
                     {capitalizeName(author_details?.first_name) +
                       " " +
-                      capitalizeName(author_details?.last_name)}
+                      capitalizeName(author_details?.last_name)}{" "}
+                    {author_details?.is_brand_page && (
+                      <span className="text-brandPrimary">
+                        <BadgeCheck className="w-4 h-4" />
+                      </span>
+                    )}
                   </h3>
                 </div>
                 <div className="flex flex-wrap items-center space-x-2 text-sm">
@@ -150,6 +156,15 @@ export default function Posts({ post, user }) {
                     }
                     className="h-4 w-4"
                   />
+                  {post_data?.feeling && (
+                    <span className="text-sm font-medium flex items-center gap-1 text-primary">
+                      {post_data?.feeling.name}
+                      <img
+                        src={post_data?.feeling.image_url}
+                        className="w-5 h-5"
+                      />
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -204,7 +219,7 @@ export default function Posts({ post, user }) {
                   src={ICON_SHARE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
-                <span className="text-sm">share</span>
+                {/* <span className="text-sm">share</span> */}
               </button>
             </div>
 
@@ -251,7 +266,7 @@ export default function Posts({ post, user }) {
               onClick={() => handleCreateComment()}
               className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer max-w-7"
             />
-            <div className="relative" ref={emojiPickerRef}>
+            <div className="" ref={emojiPickerRef}>
               <img
                 src={ICON_EMOJI}
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}

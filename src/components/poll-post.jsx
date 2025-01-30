@@ -1,6 +1,5 @@
 import AsyncComponent from "@/components/async-component";
 import { ICON_CHECK_BRAND } from "@/constants/iconUrls";
-import { Progress } from "@/components/ui/progress";
 import { usePollVote } from "@/hooks/usePosts";
 import { formatTimeAgo } from "@/utils/stringFormat";
 
@@ -19,24 +18,23 @@ export default function PollPost({ post, user, onReactionUpdate }) {
 
   const isPollEnded = () => {
     const endDate = new Date(post_data.poll_end_date);
-    endDate.setHours(23, 59, 59, 999); // Set to the end of the day
-    const now = new Date(); // Current date and time
-    return now > endDate; // Poll is ended if the current date is past the end date
+    endDate.setHours(23, 59, 59, 999);
+    const now = new Date();
+    return now > endDate;
   };
 
   const isPollActive = () => {
-    const now = new Date(); // Current date and time
+    const now = new Date();
     const startDate = new Date(post_data.poll_start_date);
     const endDate = new Date(post_data.poll_end_date);
-    endDate.setHours(23, 59, 59, 999); // Set to the end of the day
-
-    return startDate <= now && now <= endDate; // Poll is active if current time is between start date and end date
+    endDate.setHours(23, 59, 59, 999);
+    return startDate <= now && now <= endDate;
   };
 
   const getDaysRemaining = (endDate) => {
     const now = new Date();
     const end = new Date(endDate);
-    end.setHours(23, 59, 59, 999); // Set to the end of the day
+    end.setHours(23, 59, 59, 999);
     const diff = end.getTime() - now.getTime();
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
@@ -50,23 +48,26 @@ export default function PollPost({ post, user, onReactionUpdate }) {
           optionId,
         },
         {
+          onSuccess: () => {
+            if (onReactionUpdate) {
+              onReactionUpdate();
+            }
+          },
           onError: (error) => {
             console.error("Error voting:", error);
           },
         }
       );
-      if (onReactionUpdate) {
-        onReactionUpdate();
-      }
     }
   };
 
   const isInteractionDisabled =
     post_data?.is_user_voted || isPollEnded() || !isPollActive();
+
   return (
     <AsyncComponent>
       <h2 className="text-lg font-normal mb-4">{post_data?.question}</h2>
-      <div className="space-y-3 p-5 border rounded-xl">
+      <div className="space-y-3 p-5 border rounded-2xl">
         {post_data?.options?.map((option) => {
           const isVoted = post_data?.user_voted_option_ids?.includes(option.id);
           const votePercentage =
@@ -82,53 +83,71 @@ export default function PollPost({ post, user, onReactionUpdate }) {
           return (
             <div
               key={option.id}
-              className={`p-3 rounded-lg border transition-colors
-                              ${isVoted ? "border-brandPrimary" : ""}
-                              ${isHighestVoted ? "border-brandPrimary" : ""}
-                              ${pollVoteMutation.isPending ? "opacity-50" : ""}
-                              ${
-                                !isInteractionDisabled
-                                  ? "hover:bg-brandPrimary cursor-pointer"
-                                  : "cursor-default"
-                              }
-                            `}
+              className={`relative ${
+                !isInteractionDisabled
+                  ? "hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full"
+                  : ""
+              }`}
               onClick={() => !isInteractionDisabled && handleVote(option.id)}
               role={!isInteractionDisabled ? "button" : "presentation"}
               aria-disabled={isInteractionDisabled}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-medium flex gap-1 items-center">
-                  {option.option}
-                  {isVoted && isHighestVoted && (
-                    <span className="ml-2">
-                      <img src={ICON_CHECK_BRAND} className="h-5 w-5" />
+              {/* Background bar showing vote percentage */}
+              {(post_data.is_user_voted || isPollEnded()) && (
+                <div
+                  className={`absolute rounded-full left-0 top-0 h-full transition-all duration-500 ${
+                    isHighestVoted && option.vote_count > 0
+                      ? "bg-primary/20"
+                      : "bg-gray-400/20"
+                  }`}
+                  style={{ width: `${votePercentage}%` }}
+                />
+              )}
+
+              {/* Content */}
+              <div
+                className={`relative p-3 rounded-full border transition-colors
+                  ${isVoted ? "border-brandPrimary" : "border-gray-200"}
+                  ${isHighestVoted ? "border-brandPrimary" : ""}
+                  ${pollVoteMutation.isPending ? "opacity-50" : ""}
+                  ${
+                    !isInteractionDisabled ? "cursor-pointer" : "cursor-default"
+                  }
+                `}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium flex gap-1 items-center">
+                    {option.option}
+                    {isVoted && (
+                      <span className="ml-2">
+                        <img src={ICON_CHECK_BRAND} className="h-5 w-5" />
+                      </span>
+                    )}
+                  </span>
+                  {(post_data.is_user_voted || isPollEnded()) && (
+                    <span className="text-sm text-gray-600">
+                      {option.vote_count} votes ({votePercentage}%)
                     </span>
                   )}
-                </span>
-                {(post_data.is_user_voted || isPollEnded()) && (
-                  <span className="text-sm">
-                    {option.vote_count} votes ({votePercentage}%)
-                  </span>
-                )}
+                </div>
               </div>
-
-              {(post_data.is_user_voted || isPollEnded()) && (
-                <Progress value={votePercentage} className="h-2" />
-              )}
             </div>
           );
         })}
-        <div className="mt-4 text-sm">
+        <div className="mt-4 text-sm text-gray-600 flex justify-between">
           {isPollEnded() ? (
             <div className="flex gap-2">
               <span>{post_data?.poll_total_votes} total votes</span>
-              <span>-</span>
+              <span>•</span>
               <span>Poll ended {formatTimeAgo(post_data.poll_end_date)}</span>
             </div>
           ) : (
             <span>
               {getDaysRemaining(post_data.poll_end_date)} days remaining
             </span>
+          )}
+          {post_data.polls_creator && (
+            <span className="text-primary cursor-pointer">View results</span>
           )}
         </div>
       </div>

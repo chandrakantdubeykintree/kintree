@@ -1,5 +1,6 @@
 import AsyncComponent from "./async-component";
 import { CardContent } from "./ui/card";
+import LinkPreview from "./link-preview";
 
 import { useState } from "react";
 import PhotoVideoCarousel from "./photo-video-carousel";
@@ -21,16 +22,64 @@ export default function PhotoVideoPost({ post }) {
 
   const renderText = (text) => {
     if (!text) return null;
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const extractUrls = (content) => content.match(urlRegex) || [];
+
+    const renderContent = (content) => {
+      const parts = content.split(urlRegex);
+      const urls = content.match(urlRegex) || [];
+      let urlIndex = 0;
+
+      return parts.map((part, index) => {
+        if (urls.includes(part)) {
+          return (
+            <a
+              key={index}
+              href={part}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brandPrimary hover:text-brandPrimary/80 hover:underline"
+            >
+              {part}
+            </a>
+          );
+        }
+        return part;
+      });
+    };
+
+    const renderParagraphs = (content) => {
+      const paragraphs = content.split("\n");
+      const urls = extractUrls(content);
+
+      return (
+        <>
+          {paragraphs.map((paragraph, index) => (
+            <p key={index} className="mb-2 last:mb-0">
+              {renderContent(paragraph)}
+            </p>
+          ))}
+          {/* Show preview for the first link only */}
+          {urls[0] && <LinkPreview url={urls[0]} />}
+        </>
+      );
+    };
+
     if (text.length < 150) {
-      return <p className="mb-4">{text}</p>;
+      return <div className="mb-4">{renderParagraphs(text)}</div>;
     }
+
     let truncatedText = text.substring(0, 150);
+    truncatedText = truncatedText.substring(0, truncatedText.lastIndexOf(" "));
 
     return (
       <div className="mb-4">
-        <p className="text-md font-normal transition-all duration-300 ease-in-out">
-          {isExpanded ? text : truncatedText + "..."}
-        </p>
+        <div className="text-md font-normal transition-all duration-300 ease-in-out">
+          {isExpanded
+            ? renderParagraphs(text)
+            : renderParagraphs(truncatedText + "...")}
+        </div>
         <button
           onClick={() => setIsExpanded(!isExpanded)}
           className="text-brandPrimary hover:text-brandPrimary/80 text-sm font-medium mt-2 transition-colors duration-200"

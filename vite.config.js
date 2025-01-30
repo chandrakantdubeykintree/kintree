@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
+import { getLinkPreview } from "link-preview-js";
 
 export default defineConfig({
   plugins: [
@@ -9,6 +10,57 @@ export default defineConfig({
     viteCommonjs({
       include: [path.resolve(__dirname, "src/balkan/familytree.js")],
     }),
+    {
+      name: "link-preview-middleware",
+      configureServer(server) {
+        server.middlewares.use("/api/link-preview", async (req, res) => {
+          res.setHeader("Access-Control-Allow-Origin", "*");
+
+          if (req.method === "OPTIONS") {
+            res.setHeader("Access-Control-Allow-Methods", "GET");
+            res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+            res.statusCode = 204;
+            res.end();
+            return;
+          }
+
+          try {
+            const url = new URL(req.url, "http://localhost").searchParams.get(
+              "url"
+            );
+
+            if (!url) {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: "URL is required" }));
+              return;
+            }
+
+            const metadata = await getLinkPreview(url, {
+              timeout: 3000,
+              followRedirects: "follow",
+              headers: {
+                "user-agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
+              },
+            });
+
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({
+                title: metadata.title,
+                description: metadata.description || "",
+                image: metadata.images?.[0] || "",
+                url: url,
+                siteName: metadata.siteName || new URL(url).hostname,
+              })
+            );
+          } catch (error) {
+            console.error("Link preview error:", error);
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: "Failed to fetch link preview" }));
+          }
+        });
+      },
+    },
   ],
   server: {
     port: 3000,
