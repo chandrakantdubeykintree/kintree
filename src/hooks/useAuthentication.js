@@ -114,6 +114,7 @@ export const useAuthentication = () => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, null);
       queryClient.clear();
       toast.success("Logged out successfully");
+      window.location.reload();
     },
     onError: (error) => {
       handleApiError(error, "Failed to logout");

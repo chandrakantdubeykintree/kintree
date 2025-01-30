@@ -162,10 +162,22 @@ export default function App() {
                         path={route_create_poll}
                         element={<CreatePoll />}
                       />
-                      <Route path={route_view_post} element={<ViewPost />} />
-                      <Route path={route_view_poll} element={<ViewPoll />} />
-                      <Route path={route_edit_post} element={<EditPost />} />
-                      <Route path={route_edit_poll} element={<EditPoll />} />
+                      <Route
+                        path={route_view_post + "/:postId"}
+                        element={<ViewPost />}
+                      />
+                      <Route
+                        path={route_view_poll + "/:pollId"}
+                        element={<ViewPoll />}
+                      />
+                      <Route
+                        path={route_edit_post + "/:postId"}
+                        element={<EditPost />}
+                      />
+                      <Route
+                        path={route_edit_poll + "/:pollId"}
+                        element={<EditPoll />}
+                      />
                       {/* family tree */}
                       <Route
                         path={route_family_tree}

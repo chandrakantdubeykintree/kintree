@@ -4,7 +4,12 @@ import { Input } from "./ui/input";
 import { Card, CardContent } from "./ui/card";
 import AsyncComponent from "./async-component";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { route_create_post, route_events } from "@/constants/routeEnpoints";
+import {
+  route_create_poll,
+  route_create_post,
+  route_events,
+  route_events_create_event,
+} from "@/constants/routeEnpoints";
 
 export default function CreatePostCard({ user }) {
   const navigate = useNavigate();
@@ -26,7 +31,7 @@ export default function CreatePostCard({ user }) {
               type="text"
               placeholder="What's on your mind?"
               className="boder rounded-full shadow-none h-10 px-4 flex-grow"
-              onClick={() => navigate("createpost/post")}
+              onClick={() => navigate(route_create_post)}
             />
           </div>
           <div className="flex flex-row items-center gap-3 justify-around w-full sm:w-auto mt-2 sm:mt-0">
@@ -36,13 +41,13 @@ export default function CreatePostCard({ user }) {
                 className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
               />
             </NavLink>
-            <NavLink to={`/${route_events}/create`}>
+            <NavLink to={route_events_create_event}>
               <img
                 src={ICON_EVENTS}
                 className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer hover:opacity-100"
               />
             </NavLink>
-            <NavLink to={`${route_create_post}/poll`}>
+            <NavLink to={route_create_poll}>
               <img
                 src={ICON_POLL}
                 className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"

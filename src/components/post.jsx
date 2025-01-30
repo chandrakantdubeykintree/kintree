@@ -3,7 +3,7 @@ import {
   formatCounts,
   formatTimeAgo,
   getInitials,
-} from "@/services/stringFormat";
+} from "@/utils/stringFormat";
 import PhotoVideoPost from "./photo-video-post";
 import PollPost from "./poll-post";
 import AsyncComponent from "./async-component";
@@ -13,16 +13,15 @@ import {
   ICON_COMMENT,
   ICON_LIKE,
   ICON_LIKEFILLED,
-  ICON_SAVE,
   ICON_SHARE,
-} from "@/constants/iconUrl";
+} from "@/constants/iconUrls";
 import { NavLink, useLocation } from "react-router";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import PostEditDeleteDropDown from "./post-edit-dropdown";
-import { ROUTE_VIEW_POST } from "@/constants/routeEndpoints";
+import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
-export default function Post({ post, user }) {
+export default function Post({ post, user, onReactionUpdate }) {
   const {
     id,
     privacy,
@@ -54,6 +53,9 @@ export default function Post({ post, user }) {
       postId: id,
       type: type,
     });
+    if (onReactionUpdate) {
+      onReactionUpdate();
+    }
   };
 
   const renderPost = (post) => {
@@ -146,7 +148,9 @@ export default function Post({ post, user }) {
               ) : (
                 // Render the clickable NavLink
                 <NavLink
-                  to={`${ROUTE_VIEW_POST + "/" + type + "/" + id}`}
+                  to={`${
+                    type === "normal" ? route_view_post : route_view_poll
+                  }/${id}`}
                   className="flex items-center gap-2 h-18 w-18"
                 >
                   <img
@@ -167,14 +171,14 @@ export default function Post({ post, user }) {
               </button>
             </div>
 
-            <div className="self-end">
+            {/* <div className="self-end">
               <button className="flex items-center gap-2  h-18 w-18 ">
                 <img
                   src={ICON_SAVE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
               </button>
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>

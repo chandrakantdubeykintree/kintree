@@ -1,10 +1,10 @@
 import { useParams } from "react-router";
-import AsyncComponent from "./async-component";
-import ComponentLoading from "./component-loading";
-import { Card } from "./ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { getInitials, formatTimeAgo } from "@/services/stringFormat";
+import AsyncComponent from "@/components/async-component";
+import ComponentLoading from "@/components/component-loading";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { getInitials, formatTimeAgo } from "@/utils/stringFormat";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import {
   ICON_LIKEFILLED,
   ICON_OPTIONS,
   ICON_SEND,
-} from "@/constants/iconUrl";
+} from "@/constants/iconUrls";
 import {
   useComments,
   useCreateComment,
@@ -30,8 +30,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { useRef } from "react";
 import { useEffect } from "react";
 
-export default function PostComments() {
-  const { postId } = useParams();
+export default function PostComments({ postId, onCommentUpdate }) {
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useComments(postId);
 
@@ -54,6 +53,9 @@ export default function PostComments() {
         onSuccess: () => {
           setCommentInput("");
           setReplyingTo(null);
+          if (onCommentUpdate) {
+            onCommentUpdate();
+          }
         },
       }
     );
@@ -107,7 +109,7 @@ export default function PostComments() {
 
   return (
     <AsyncComponent>
-      <Card className="flex flex-col">
+      <Card className="flex flex-col rounded-2xl">
         <div className="flex-1 overflow-y-auto no_scrollbar">
           <div className="space-y-4 p-3">
             {data?.pages?.map((page, pageIndex) => (

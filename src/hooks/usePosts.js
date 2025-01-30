@@ -200,17 +200,19 @@ export const usePosts = (limit = 15) => {
   });
 };
 
-export const usePost = (postId) => {
+export const usePost = (postId, options = {}) => {
   return useQuery({
     queryKey: [QUERY_KEYS.POST, postId],
     queryFn: () => fetchPostById(postId),
     enabled: Boolean(postId),
-    refetchOnWindowFocus: false,
+    ...options,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
     staleTime: 0,
+    cacheTime: 0,
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch post details.");
-      console.error("Post fetch error:", error);
     },
   });
 };
@@ -246,8 +248,16 @@ export const useEditPost = () => {
     mutationFn: ({ postId, updatedPost }) => editPost(postId, updatedPost),
     onSuccess: (data) => {
       toast.success("Post updated successfully!");
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POST, data.id] });
+      // Invalidate and remove from cache
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.POST, data.id] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.POSTS],
+        refetchType: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.POST, data.id],
+        refetchType: "all",
+      });
     },
     onError: (error) => {
       console.error("Edit post error:", error);

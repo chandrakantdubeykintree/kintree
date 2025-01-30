@@ -1,10 +1,10 @@
-import AsyncComponent from "./async-component";
+import AsyncComponent from "@/components/async-component";
 import { ICON_CHECK_BRAND } from "@/constants/iconUrls";
-import { Progress } from "./ui/progress";
+import { Progress } from "@/components/ui/progress";
 import { usePollVote } from "@/hooks/usePosts";
 import { formatTimeAgo } from "@/utils/stringFormat";
 
-export default function PollPost({ post }) {
+export default function PollPost({ post, user, onReactionUpdate }) {
   const {
     id,
     privacy,
@@ -55,6 +55,9 @@ export default function PollPost({ post }) {
           },
         }
       );
+      if (onReactionUpdate) {
+        onReactionUpdate();
+      }
     }
   };
 

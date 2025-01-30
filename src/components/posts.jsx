@@ -23,7 +23,7 @@ import { NavLink } from "react-router";
 import { Input } from "./ui/input";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import PostEditDeleteDropDown from "./post-edit-dropdown";
-import { route_view_post } from "@/constants/routeEnpoints";
+import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { useCreateComment, usePostReactions } from "@/hooks/usePosts";
 import { useState } from "react";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
@@ -53,6 +53,7 @@ export default function Posts({ post, user }) {
     updated_at,
     type,
   } = post;
+
   const [isLikesDialogOpen, setLikesDialogOpen] = useState(false);
   const likeData = reactions?.like || { count: 0, users: [] };
 
@@ -185,7 +186,9 @@ export default function Posts({ post, user }) {
                 </span>
               </button>
               <NavLink
-                to={`${route_view_post + "/" + type + "/" + id}`}
+                to={`${
+                  type === "normal" ? route_view_post : route_view_poll
+                }/${id}`}
                 className="flex items-center gap-2 h-18 w-18"
               >
                 <img
@@ -205,14 +208,14 @@ export default function Posts({ post, user }) {
               </button>
             </div>
 
-            <div className="self-end">
+            {/* <div className="self-end">
               <button className="flex items-center gap-2  h-18 w-18 ">
                 <img
                   src={ICON_SAVE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
               </button>
-            </div>
+            </div> */}
           </div>
         </CardContent>
         <CardFooter className="p-4 flex gap-5 w-full border-t">
@@ -226,7 +229,9 @@ export default function Posts({ post, user }) {
               </div>
             </div>
             <NavLink
-              to={`${route_view_post + "/" + type + "/" + id}`}
+              to={`${
+                type === "normal" ? route_view_post : route_view_poll
+              }/${id}`}
               className="w-full"
             >
               <Input
@@ -264,10 +269,6 @@ export default function Posts({ post, user }) {
                 </div>
               )}
             </div>
-            {/* <img
-              src={ICON_ATTACHMENT}
-              className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer max-w-7"
-            /> */}
           </div>
         </CardFooter>
       </Card>

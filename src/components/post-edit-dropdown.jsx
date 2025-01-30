@@ -7,6 +7,7 @@ import {
 import { ICON_OPTIONS } from "@/constants/iconUrls";
 
 import { postDropDown } from "@/constants/navLinks";
+import { route_edit_poll, route_edit_post } from "@/constants/routeEnpoints";
 import { useDeletePost } from "@/hooks/usePosts";
 import { NavLink } from "react-router";
 
@@ -31,7 +32,9 @@ export default function PostEditDeleteDropDown({ type, id }) {
               key={path}
               to={
                 path !== "delete"
-                  ? "/foreroom/" + path + "/" + type + "/" + id
+                  ? type === "normal"
+                    ? route_edit_post + "/" + id
+                    : route_edit_poll + "/" + id
                   : null
               }
               className="flex gap-4"
