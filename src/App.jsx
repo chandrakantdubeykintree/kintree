@@ -5,9 +5,6 @@ import { queryClient } from "./services/queryClient";
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router";
 import { Toaster } from "react-hot-toast";
 
-import RootLayout from "./layouts/RootLayout";
-import ContentLayout from "./layouts/ContentLayout";
-
 import GlobalErrorBoundary from "./errorBoundaries/GlobalErrorBoundary";
 import RouteErrorBoundary from "./errorBoundaries/RouteErrorBoundary";
 
@@ -61,6 +58,8 @@ import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 
 const {
+  RootLayout,
+  ContentLayout,
   Login,
   Register,
   RegisterStep,
