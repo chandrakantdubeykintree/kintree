@@ -38,6 +38,10 @@ export function LoginForm({ setOpenTerms }) {
   const { loginPassword, sendOTPLoginRegister, verifyOTPLoginRegister } =
     useAuthentication();
 
+  const isValidOtp = (otp) => {
+    return /^\d+$/.test(otp) && otp.length === otpLength;
+  };
+
   const {
     register,
     handleSubmit,
@@ -222,6 +226,21 @@ export function LoginForm({ setOpenTerms }) {
                       key={index}
                       index={index}
                       className="border rounded-full h-8 w-8 lg:h-10 lg:w-10 border-brandPrimary"
+                      onKeyDown={(e) => {
+                        // Prevent the default Enter key behavior
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          return;
+                        }
+                      }}
+                      onBeforeInput={(e) => {
+                        // Cancel any non-numeric input
+                        if (!/^\d$/.test(e.data)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      inputMode="numeric"
+                      pattern="\d*"
                     />
                   ))}
                 </InputOTPGroup>
@@ -326,7 +345,7 @@ export function LoginForm({ setOpenTerms }) {
             disabled={
               isSubmitting ||
               hasErrors ||
-              (loginType === "otp" && !isOtpComplete)
+              (loginType === "otp" && !isValidOtp(watchedValues.otp))
             }
             className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
             variant="outline"

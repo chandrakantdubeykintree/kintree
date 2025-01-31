@@ -30,6 +30,10 @@ export function RegisterForm({ setOpenTerms }) {
   const { sendOTPLoginRegister, verifyOTPLoginRegister } = useAuthentication();
   const { theme } = useThemeLanguage();
 
+  const isValidOtp = (otp) => {
+    return /^\d+$/.test(otp) && otp.length === otpLength;
+  };
+
   const {
     register,
     handleSubmit,
@@ -238,7 +242,11 @@ export function RegisterForm({ setOpenTerms }) {
           {renderForm()}
           <Button
             type="submit"
-            disabled={isSubmitting || Object.keys(errors).length > 0}
+            disabled={
+              isSubmitting ||
+              Object.keys(errors).length > 0 ||
+              (registerType === "otp" && !isValidOtp(watchedValues.otp))
+            }
             className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
             variant="outline"
           >

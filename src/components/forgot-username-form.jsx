@@ -44,6 +44,10 @@ export function ForgotUsernameForm({ setOpenTerms }) {
   const { sendOTPForgotUsername, verifyOTPForgotUsername } =
     useAuthentication();
 
+  const isValidOtp = (otp) => {
+    return /^\d+$/.test(otp) && otp.length === otpLength;
+  };
+
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(username);
@@ -287,7 +291,7 @@ export function ForgotUsernameForm({ setOpenTerms }) {
               disabled={
                 isSubmitting ||
                 hasErrors ||
-                (loginType === "otp" && !isOtpComplete)
+                (loginType === "otp" && !isValidOtp(watchedValues.otp))
               }
               className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
               variant="outline"
