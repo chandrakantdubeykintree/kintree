@@ -400,7 +400,7 @@ export function ForgotUsernameForm({ setOpenTerms }) {
           <div className="flex flex-col items-center gap-6 py-6">
             <div className="flex items-center gap-2 bg-muted p-4 rounded-lg w-fit border-dashed border-[3px] border-brandPrimary">
               <span className="text-md font-semibold select-all line-clamp-1 text-ellipsis max-w-[200px] break-all">
-                {username + username}
+                {username}
               </span>
               <Button
                 size="icon"

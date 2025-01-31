@@ -14,7 +14,6 @@ export const handleApiError = (error, customMessage) => {
   const status = error.response?.status;
   const data = error.response?.data;
 
-  console.error(`API Error (${status}):`, message, data);
   toast.error(message);
 
   return new ApiError(message, status, data);

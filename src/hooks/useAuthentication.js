@@ -91,7 +91,7 @@ export const useAuthentication = () => {
       toast.success(data.message);
     },
     onError: (error) => {
-      handleApiError(error, "Failed to login");
+      handleApiError(error, "Invalid username or password");
     },
   });
 
