@@ -1,7 +1,7 @@
 import { useProfile } from "@/hooks/useProfile";
 import { createContext, useContext, useEffect, useState } from "react";
 import i18n from "@/i18n";
-import { LANGUAGES } from "@/constants/languages";
+import { LANGUAGE_METADATA, LANGUAGES } from "@/constants/languages";
 const initialState = {
   theme: "light",
   language: "en",
@@ -31,10 +31,9 @@ export function ThemeLanguageProvider({
 
   const [language, setLanguage] = useState(() => {
     const savedLanguage = localStorage.getItem(languageStorageKey);
-    if (savedLanguage) return savedLanguage;
-
-    if (configurations?.language) return configurations.language;
-
+    if (savedLanguage && LANGUAGES[savedLanguage]) return savedLanguage;
+    if (configurations?.language && LANGUAGES[configurations.language])
+      return configurations.language;
     return defaultLanguage;
   });
 
@@ -58,19 +57,27 @@ export function ThemeLanguageProvider({
     }
   }, [configurations, languageStorageKey]);
 
-  const changeLanguage = (languageCode) => {
+  const changeLanguage = async (languageCode) => {
     if (LANGUAGES[languageCode]) {
       setLanguage(languageCode);
-      i18n.changeLanguage(languageCode);
+      await i18n.changeLanguage(languageCode);
 
-      // Always update configurations to keep everything in sync
-      updateProfile({
+      // Update document direction
+      const dir = LANGUAGE_METADATA[languageCode]?.dir || "ltr";
+      document.documentElement.dir = dir;
+      document.documentElement.lang = languageCode;
+
+      // Update configurations
+      await updateProfile({
         url: "user/configurations",
         data: {
           language: languageCode,
           theme: configurations?.theme,
         },
       });
+
+      // Update localStorage
+      localStorage.setItem(languageStorageKey, languageCode);
     }
   };
 
@@ -103,9 +110,7 @@ export function ThemeLanguageProvider({
       });
     },
     setLanguage: (newLanguage) => {
-      localStorage.setItem(languageStorageKey, newLanguage);
-      setLanguage(newLanguage);
-      changeLanguage(newLanguage); // Call changeLanguage to update i18n
+      changeLanguage(newLanguage);
     },
   };
 

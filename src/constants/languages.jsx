@@ -1,14 +1,34 @@
 export const LANGUAGES = {
   en: "English",
-  hi: "हिंदी",
-  mr: "मराठी",
-  gu: "ગુજરાતી",
-  pa: "ਪੰਜਾਬੀ",
-  bn: "বাংলা",
-  te: "తెలుగు",
-  kn: "ಕನ್ನಡ",
-  ta: "தமிழ்",
-  ur: "اردو",
-  ml: "മലയാളം",
-  as: "অসমীয়া",
+  zh: "中文", // Mandarin Chinese
+  hi: "हिंदी", // Hindi
+  es: "Español", // Spanish
+  fr: "Français", // French
+  ar: "العربية", // Arabic
+  bn: "বাংলা", // Bengali
+  ur: "اردو", // Urdu
+  mr: "मराठी", // Marathi
+  gu: "ગુજરાતી", // Gujarati
+  te: "తెలుగు", // Telugu
+  ta: "தமிழ்", // Tamil
+  kn: "ಕನ್ನಡ", // Kannada
+  ml: "മലയാളം", // Malayalam
+};
+
+// Optional: You can also export language metadata if needed
+export const LANGUAGE_METADATA = {
+  en: { name: "English", dir: "ltr" },
+  zh: { name: "Mandarin Chinese", dir: "ltr" },
+  hi: { name: "Hindi", dir: "ltr" },
+  es: { name: "Spanish", dir: "ltr" },
+  fr: { name: "French", dir: "ltr" },
+  ar: { name: "Arabic", dir: "rtl" },
+  bn: { name: "Bengali", dir: "ltr" },
+  ur: { name: "Urdu", dir: "rtl" },
+  mr: { name: "Marathi", dir: "ltr" },
+  gu: { name: "Gujarati", dir: "ltr" },
+  te: { name: "Telugu", dir: "ltr" },
+  ta: { name: "Tamil", dir: "ltr" },
+  kn: { name: "Kannada", dir: "ltr" },
+  ml: { name: "Malayalam", dir: "ltr" },
 };

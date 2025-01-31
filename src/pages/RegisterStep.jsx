@@ -2,7 +2,7 @@ import RegisterStepForm from "@/components/register-step-form";
 import { Progress } from "@/components/ui/progress";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Navigate, useNavigate, useParams } from "react-router";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { toast } from "react-hot-toast";
 
@@ -10,10 +10,19 @@ export default function RegisterStep() {
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { step } = useParams();
-  const { registerStep, registrationState } = useAuthentication();
+  const { registerStep, registrationState, login } = useAuthentication();
 
   // Redirect to correct step based on registration state
   useEffect(() => {
+    if (!registrationState) return;
+
+    // If registration is complete, redirect to foreroom
+    if (registrationState.isRegistrationComplete) {
+      navigate("/foreroom", { replace: true });
+      return;
+    }
+
+    // Otherwise handle step navigation
     if (registrationState?.nextStep) {
       const currentStep = parseInt(step);
       if (currentStep !== registrationState.nextStep) {
@@ -22,25 +31,38 @@ export default function RegisterStep() {
         });
       }
     }
-  }, [step, registrationState?.nextStep, navigate]);
+  }, [step, registrationState, navigate]);
 
   const handleStepSubmit = async (data) => {
     try {
       const result = await registerStep(data);
 
-      if (result.success) {
-        if (result.isCompleted) {
+      if (result?.success) {
+        // Check if this is the final step response
+        if (result.data?.is_registration_complete === 1) {
+          // Set the login token if provided
+          if (result.data?.login_token) {
+            // Update auth state with the new token
+            await login(result.data.login_token);
+          }
+          // Redirect to foreroom
           navigate("/foreroom", { replace: true });
+          return;
         }
-        // No need to navigate here as the registration state update will trigger the useEffect
       }
     } catch (error) {
-      toast.error("Failed to save registration data");
+      toast.error(
+        error?.response?.data?.message || "Failed to save registration data"
+      );
     }
   };
 
   if (!registrationState) {
     return null; // or loading state
+  }
+
+  if (registrationState.isRegistrationComplete) {
+    return <Navigate to="/foreroom" replace={true} />;
   }
 
   return (

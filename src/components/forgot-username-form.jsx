@@ -56,6 +56,10 @@ export function ForgotUsernameForm({ setOpenTerms }) {
 
   const watchedValues = watch();
 
+  const watchedOtp = watch("otp");
+  const isOtpComplete = watchedOtp?.length === otpLength;
+  const hasErrors = Object.keys(errors).length > 0;
+
   const onSubmit = async (data) => {
     if (loginType === "phone_no" || loginType === "email") {
       try {
@@ -256,7 +260,11 @@ export function ForgotUsernameForm({ setOpenTerms }) {
             {renderForm()}
             <Button
               type="submit"
-              disabled={isSubmitting || Object.keys(errors).length > 0}
+              disabled={
+                isSubmitting ||
+                hasErrors ||
+                (loginType === "otp" && !isOtpComplete)
+              }
               className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
               variant="outline"
             >

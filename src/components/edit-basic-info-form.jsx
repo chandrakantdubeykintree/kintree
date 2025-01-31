@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -44,6 +44,7 @@ export default function EditBasicInfoForm() {
   const [isEditing, setIsEditing] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile("/user/basic-info");
   const { width } = useWindowSize();
+  // console.log(profile);
 
   const form = useForm({
     resolver: zodResolver(basicInfoSchema),
@@ -57,6 +58,20 @@ export default function EditBasicInfoForm() {
       nickname: profile?.nickname || "",
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      form.reset({
+        first_name: profile.first_name || "",
+        middle_name: profile.middle_name || "",
+        last_name: profile.last_name || "",
+        date_of_birth: profile.date_of_birth || "",
+        gender: profile.gender || "",
+        bio: profile.bio || "",
+        nickname: profile.nickname || "",
+      });
+    }
+  }, [profile, form]);
 
   const handleEditClick = () => {
     setIsEditing(true);

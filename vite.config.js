@@ -68,14 +68,18 @@ export default defineConfig({
     https: false,
     proxy: {
       "/google-places": {
-        target: "https://maps.googleapis.com",
+        target:
+          import.meta.env.VITE_GOOGLE_PLACES_API_URL ||
+          "https://maps.googleapis.com",
         changeOrigin: true,
+        secure: true,
         rewrite: (path) => path.replace(/^\/google-places/, ""),
       },
       "/uploads": {
-        target: "https://api.kintree.com",
+        target:
+          import.meta.env.VITE_KINTREE_BASE_URL || "https://api.kintree.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
         configure: (proxy, _options) => {
           proxy.on("error", (err, _req, _res) => {
             console.log("proxy error", err);
@@ -91,6 +95,13 @@ export default defineConfig({
             );
           });
         },
+      },
+      "/api": {
+        target:
+          import.meta.env.VITE_KINTREE_BASE_URL || "https://api.kintree.com",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },
   },

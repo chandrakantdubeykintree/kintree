@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ICON_LANGUAGES } from "@/constants/iconUrls";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
-import { LANGUAGES } from "@/constants/languages";
+import { LANGUAGE_METADATA, LANGUAGES } from "@/constants/languages";
 
 export default function LanguagesDropDown() {
   const { language, setLanguage } = useThemeLanguage();
@@ -18,32 +18,25 @@ export default function LanguagesDropDown() {
     setLanguage(languageCode);
   };
 
-  const languagesList =
-    Object.entries(LANGUAGES)?.length > 0 ? (
-      Object.entries(LANGUAGES)?.map(([code, name]) => (
-        <DropdownMenuItem
-          key={code}
-          className="cursor-pointer"
-          onClick={() => handleLanguageChange(code)}
-        >
-          <div className="flex flex-col w-full">
-            <div className="flex justify-between">
-              <div>{name}</div>
-              <div>{code}</div>
-            </div>
+  const languagesList = Object.entries(LANGUAGES)?.map(([code, nativeName]) => (
+    <DropdownMenuItem
+      key={code}
+      className="cursor-pointer"
+      onClick={() => handleLanguageChange(code)}
+    >
+      <div className="flex flex-col w-full">
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <span className="font-medium">{nativeName}</span>
+            <span className="text-xs text-muted-foreground">
+              {LANGUAGE_METADATA[code].name}
+            </span>
           </div>
           {language === code && <span className="ml-2">✓</span>}
-        </DropdownMenuItem>
-      ))
-    ) : (
-      <DropdownMenuItem>
-        <div className="flex flex-col h-11">
-          <div className="flex justify-between">
-            <span>Only English is available now</span>
-          </div>
         </div>
-      </DropdownMenuItem>
-    );
+      </div>
+    </DropdownMenuItem>
+  ));
 
   return (
     <DropdownMenu>
@@ -54,10 +47,12 @@ export default function LanguagesDropDown() {
           alt="Change Language"
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48">
-        <DropdownMenuLabel>Languages</DropdownMenuLabel>
+      <DropdownMenuContent className="w-56" align="end" side="bottom">
+        <DropdownMenuLabel>Select Language</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>{languagesList}</DropdownMenuGroup>
+        <div className="max-h-[300px] overflow-y-auto">
+          <DropdownMenuGroup>{languagesList}</DropdownMenuGroup>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );

@@ -7,6 +7,7 @@ import { profileImage } from "@/constants/presetAvatars";
 export function StepFour({ register, errors, setValue, watch }) {
   const [selectedPresetId, setSelectedPresetId] = useState(null);
   const watchedImage = watch("profile_image");
+  const watchedPresetId = watch("preseted_profile_image_id");
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
@@ -18,15 +19,41 @@ export function StepFour({ register, errors, setValue, watch }) {
   };
 
   const handlePresetSelect = (id) => {
-    setSelectedPresetId(id);
-    setValue("preseted_profile_image_id", id);
-    setValue("profile_image", null);
+    if (selectedPresetId === id) {
+      // Deselect if clicking the same preset
+      setSelectedPresetId(null);
+      setValue("preseted_profile_image_id", null);
+    } else {
+      setSelectedPresetId(id);
+      setValue("preseted_profile_image_id", id);
+      setValue("profile_image", null);
+    }
   };
 
   const handleSkip = () => {
     setValue("skipped", 1);
     setValue("profile_image", null);
     setValue("preseted_profile_image_id", null);
+  };
+
+  // Get the current avatar URL based on selection type
+  const getCurrentAvatarUrl = () => {
+    if (watchedImage) {
+      return URL.createObjectURL(watchedImage);
+    }
+    if (watchedPresetId) {
+      const selectedPreset = profileImage("m").find(
+        (avatar) => avatar.id === watchedPresetId
+      );
+      return selectedPreset?.url;
+    }
+    return undefined;
+  };
+
+  const clearSelection = () => {
+    setValue("profile_image", null);
+    setValue("preseted_profile_image_id", null);
+    setSelectedPresetId(null);
   };
 
   return (
@@ -43,12 +70,20 @@ export function StepFour({ register, errors, setValue, watch }) {
           htmlFor="profile_image"
           className="cursor-pointer flex flex-col items-center gap-2"
         >
-          <Avatar className="h-24 w-24">
-            <AvatarImage
-              src={watchedImage ? URL.createObjectURL(watchedImage) : undefined}
-              alt="Profile"
-            />
+          <Avatar className="h-24 w-24 relative group">
+            <AvatarImage src={getCurrentAvatarUrl()} alt="Profile" />
             <AvatarFallback>Upload</AvatarFallback>
+            {(watchedImage || watchedPresetId) && (
+              <div
+                className="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center rounded-full cursor-pointer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  clearSelection();
+                }}
+              >
+                <span className="text-white text-sm">Clear</span>
+              </div>
+            )}
           </Avatar>
           <span className="text-sm text-muted-foreground">
             Click to upload your photo
