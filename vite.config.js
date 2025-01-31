@@ -12,7 +12,7 @@ export default defineConfig(({ command, mode }) => {
       viteCommonjs({
         include: [path.resolve(__dirname, "src/balkan/familytree.js")],
       }),
-      {
+      mode === "development" && {
         name: "link-preview-middleware",
         configureServer(server) {
           server.middlewares.use("/api/link-preview", async (req, res) => {

@@ -78,6 +78,17 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+@layer components {
+  .fallback {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  .fallback-active .fallback {
+    opacity: 1;
+    display: flex !important;
+  }
+}
 @layer base {
   * {
     @apply border-border;
@@ -94,6 +105,13 @@
   .no_scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 
   .scroller__inner {
