@@ -20,7 +20,7 @@ const ProfileCard = () => {
             })`,
           }}
         >
-          <Avatar className="cursor-pointer absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/3 w-20 h-20 rounded-full border-2 border-brandPrimary transition-transform duration-300 ease-in-out hover:scale-105">
+          <Avatar className="cursor-pointer absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/3 w-20 h-20 rounded-full border-2 border-brandPrimary transition-transform duration-300 ease-in-out hover:scale-105 bg-background">
             <AvatarImage src={user?.profile_pic_url} alt="@shadcn" />
             <AvatarFallback className="w-20 h-20 rounded-full text-2xl font-normal text-center">
               {getInitials(user?.basic_info?.first_name) +
