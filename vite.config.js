@@ -119,25 +119,15 @@ export default defineConfig({
             "@radix-ui/react-dialog",
             "@radix-ui/react-alert-dialog",
           ],
-          "radix-navigation": [
-            "@radix-ui/react-navigation-menu",
-            "@radix-ui/react-dropdown-menu",
-          ],
+          "radix-navigation": ["@radix-ui/react-dropdown-menu"],
           "radix-forms": [
             "@radix-ui/react-checkbox",
             "@radix-ui/react-label",
             "@radix-ui/react-select",
             "@radix-ui/react-switch",
           ],
-          "radix-overlay": [
-            "@radix-ui/react-popover",
-            "@radix-ui/react-tooltip",
-          ],
-          "radix-layout": [
-            "@radix-ui/react-accordion",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-separator",
-          ],
+          "radix-overlay": ["@radix-ui/react-popover"],
+          "radix-layout": ["@radix-ui/react-accordion"],
 
           "form-validation": ["zod"],
           "form-hooks": ["@hookform/resolvers", "react-hook-form"],
