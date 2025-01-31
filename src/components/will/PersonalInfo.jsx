@@ -219,6 +219,7 @@ export default function PersonalInfo({ setStep, willId }) {
                     countryCallingCodeEditable={false}
                     defaultCountry="IN"
                     maxLength={15}
+                    limitMaxLength
                     value={field.value}
                     onChange={(value) => {
                       try {

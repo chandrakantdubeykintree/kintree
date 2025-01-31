@@ -184,6 +184,8 @@ export default function EditContactForm() {
                       field.onChange(value);
                       setOtpLength(value?.startsWith("+91") ? 4 : 6);
                     }}
+                    maxLength={15}
+                    limitMaxLength
                     disabled={showOtpInput}
                     className={cn(
                       "border bg-background border-gray-300 rounded-r-full rounded-l-full h-12 px-4",

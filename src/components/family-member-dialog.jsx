@@ -230,6 +230,8 @@ export function FamilyMemberDialog({
                             defaultCountry="IN"
                             value={field.value}
                             onChange={field.onChange}
+                            maxLength={15}
+                            limitMaxLength
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>

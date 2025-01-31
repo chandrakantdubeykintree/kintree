@@ -199,6 +199,7 @@ export default function EditRelativeForm({
                         value={field.value}
                         onChange={field.onChange}
                         limitMaxLength
+                        maxLength={15}
                         className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
                       />
                     </FormControl>

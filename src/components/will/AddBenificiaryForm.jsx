@@ -181,6 +181,7 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
                   defaultCountry="IN"
                   value={field.value}
                   maxLength={15}
+                  limitMaxLength
                   className="rounded-full h-10 md:h-12"
                   onChange={(value) => {
                     field.onChange(value);
