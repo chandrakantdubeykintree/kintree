@@ -50,7 +50,6 @@ export function ForgotPasswordForm({ setOpenTerms }) {
 
   const onSubmit = async (data) => {
     if (loginType === "reset_password") {
-      console.log(data);
       try {
         const response = await resetPassword({
           password: data.new_password,

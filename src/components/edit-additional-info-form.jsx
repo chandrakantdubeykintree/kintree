@@ -75,8 +75,6 @@ export default function EditAdditionalInfoForm() {
     },
   });
 
-  console.log(profile?.mother_tongue);
-
   useEffect(() => {
     if (profile) {
       form.reset({

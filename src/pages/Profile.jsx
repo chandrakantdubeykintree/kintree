@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/card";
 
 export default function Profile() {
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
-  console.log(user);
+
   const [activeTab, setActiveTab] = useState("about");
   function renderTabContent() {
     switch (activeTab) {

@@ -16,21 +16,21 @@ export default function ViewPost() {
   const { postId } = useParams();
   const { data, isLoading, refetch, error } = usePost(postId);
   const navigate = useNavigate();
-  useEffect(() => {
-    if (!isLoading && data) {
-      const hasAccess = checkPostAccess(
-        data.author_details.id,
-        data.privacy,
-        user
-      );
+  // useEffect(() => {
+  //   if (!isLoading && data) {
+  //     const hasAccess = checkPostAccess(
+  //       data.author_details.id,
+  //       data.privacy,
+  //       user
+  //     );
 
-      if (!hasAccess) {
-        toast.error("You don't have permission to view this post");
-        navigate("/foreroom");
-        return;
-      }
-    }
-  }, [data, isLoading, user, navigate]);
+  //     if (!hasAccess) {
+  //       toast.error("You don't have permission to view this post");
+  //       navigate("/foreroom");
+  //       return;
+  //     }
+  //   }
+  // }, [data, isLoading, user, navigate]);
   const handlePostUpdate = () => {
     refetch();
   };

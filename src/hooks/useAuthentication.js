@@ -200,7 +200,6 @@ export const useAuthentication = () => {
         queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
         navigate("/foreroom");
       } else {
-        console.log("reached here");
         const { complete_registration_token, next_step, completed_step } =
           data.data;
         tokenService.setRegistrationToken(complete_registration_token);

@@ -14,7 +14,6 @@ const MemberCard = ({ active, member }) => {
       password: member?.password,
     },
   }));
-  console.log(member, member?.is_active);
 
   return (
     <AsyncComponent>

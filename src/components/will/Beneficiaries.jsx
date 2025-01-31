@@ -50,8 +50,6 @@ export default function Beneficiaries({ setStep, willId }) {
     );
   }, [activeTab, beneficiaries]);
 
-  console.log(memberBeneficiariesCount, nonMemberBeneficiariesCount);
-
   const handleSaveAndContinue = async () => {
     setStep("allocation");
   };

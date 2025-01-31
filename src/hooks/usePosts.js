@@ -275,7 +275,6 @@ export const useDeletePost = () => {
     mutationFn: ({ postId, postType, type }) =>
       deletePost(postId, postType, type),
     onSuccess: (_, { postType, type }) => {
-      console.log(postType);
       toast.success(
         type === "poll"
           ? "Poll deleted successfully!"

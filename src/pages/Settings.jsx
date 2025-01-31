@@ -92,7 +92,6 @@ export default function Settings() {
   const [accountAction, setAccountAction] = useState(null);
   const { profile, updateProfile } = useProfile("user/configurations");
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
-  console.log(user);
 
   const [showPassword, setShowPassword] = useState({
     current_password: false,
