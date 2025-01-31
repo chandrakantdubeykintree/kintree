@@ -1,5 +1,6 @@
 import { LoginForm } from "@/components/login-form";
-
-export default function Login({ setOpenTerms }) {
+import { useOutletContext } from "react-router";
+export default function Login() {
+  const { setOpenTerms } = useOutletContext();
   return <LoginForm setOpenTerms={setOpenTerms} />;
 }

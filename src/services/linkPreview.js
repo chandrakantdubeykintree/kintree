@@ -1,26 +1,47 @@
-import { getLinkPreview } from "link-preview-js";
+import axios from "axios";
 
 export async function fetchLinkPreview(url) {
   try {
-    const metadata = await getLinkPreview(url, {
-      timeout: 5000,
-      followRedirects: "follow",
-      headers: {
-        "user-agent": "Googlebot/2.1 (+http://www.google.com/bot.html)",
-        Accept:
-          "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.5",
-      },
-    });
+    const response = await axios.get(
+      `/api/link-preview?url=${encodeURIComponent(url)}`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
 
     return {
-      title: metadata.title || "No title available",
-      description: metadata.description || "",
-      image: metadata.images?.[0] || "",
+      title: response.data.title || "No title available",
+      description: response.data.description || "",
+      image: response.data.image || "",
       url: url,
-      siteName: metadata.siteName || new URL(url).hostname,
+      siteName: response.data.siteName || new URL(url).hostname,
     };
   } catch (error) {
-    throw new Error(`Failed to fetch link preview: ${error.message}`);
+    return createFallbackPreview(url);
+  }
+}
+
+function createFallbackPreview(url) {
+  try {
+    const domain = new URL(url).hostname.replace("www.", "");
+    return {
+      title: domain,
+      description: "",
+      image: "",
+      url: url,
+      siteName: domain,
+      isError: true,
+    };
+  } catch (e) {
+    return {
+      title: "Link Preview",
+      description: "",
+      image: "",
+      url: url,
+      siteName: "Unknown",
+      isError: true,
+    };
   }
 }

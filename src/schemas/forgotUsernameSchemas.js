@@ -12,6 +12,12 @@ export const forgotUsernameSchemas = {
   }),
 
   otp: z.object({
-    otp: z.string().length(6, "OTP must be 6 digits"),
+    otp: z
+      .string()
+      .refine(
+        (val) => val.length === 4 || val.length === 6,
+        "OTP must be 4 or 6 digits"
+      )
+      .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
   }),
 };

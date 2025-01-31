@@ -1,66 +1,58 @@
 import { useState, useEffect } from "react";
 import { fetchLinkPreview } from "@/services/linkPreview";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ExternalLink, Image as ImageIcon } from "lucide-react";
+import { ExternalLink, Globe, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const LinkPreview = ({ url, className }) => {
   const [preview, setPreview] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const getInitial = (siteName) => {
     return siteName?.charAt(0)?.toUpperCase() || "L";
   };
-  const getRandomColor = (text) => {
-    const colors = [
-      "bg-blue-100 text-blue-600",
-      "bg-green-100 text-green-600",
-      "bg-purple-100 text-purple-600",
-      "bg-yellow-100 text-yellow-600",
-      "bg-pink-100 text-pink-600",
-      "bg-indigo-100 text-indigo-600",
-    ];
-    const index = text?.length % colors.length || 0;
-    return colors[index];
-  };
-  const getLinkPreview = async (targetUrl) => {
-    try {
-      setLoading(true);
-      // For development
-      if (import.meta.env.DEV) {
-        const response = await fetch(
-          `/api/link-preview?url=${encodeURIComponent(targetUrl)}`
-        );
-        if (!response.ok)
-          throw new Error(`HTTP error! status: ${response.status}`);
-        const data = await response.json();
-        setPreview(data);
-        return;
-      }
 
-      // For production
-      const data = await fetchLinkPreview(targetUrl);
-      setPreview(data);
-    } catch (error) {
-      console.error("Error fetching link preview:", error);
-      setError(error.message);
-      // Fallback preview
-      setPreview({
-        title: new URL(targetUrl).hostname,
-        description: "Preview not available",
-        image: "",
-        url: targetUrl,
-        siteName: new URL(targetUrl).hostname,
-      });
-    } finally {
-      setLoading(false);
-    }
+  const getColorByDomain = (domain = "") => {
+    const colors = {
+      "clickup.com": "bg-[#7B68EE] text-white",
+      "amazon.com": "bg-[#FF9900] text-white",
+      "amzn.in": "bg-[#FF9900] text-white",
+      "maps.google.com": "bg-[#4285F4] text-white",
+      default: "bg-gradient-to-br from-gray-100 to-gray-200 text-gray-700",
+    };
+
+    const domainKey = Object.keys(colors).find((key) => domain.includes(key));
+    return colors[domainKey] || colors.default;
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    const loadPreview = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchLinkPreview(url);
+        if (mounted) {
+          setPreview(data);
+        }
+      } catch (error) {
+        if (mounted) {
+          setPreview(createFallbackPreview(url));
+        }
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     if (url) {
-      getLinkPreview(url);
+      loadPreview();
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [url]);
 
   if (loading) {
@@ -75,28 +67,13 @@ const LinkPreview = ({ url, className }) => {
         <div className="space-y-2 flex-1">
           <Skeleton className="h-4 w-[250px]" />
           <Skeleton className="h-4 w-[200px]" />
-          <Skeleton className="h-4 w-[150px]" />
         </div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={cn(
-          "flex items-center gap-2 p-3 text-sm text-muted-foreground hover:text-primary transition-colors rounded-lg border bg-card hover:bg-accent/50",
-          className
-        )}
-      >
-        <ExternalLink className="h-4 w-4" />
-        <span className="truncate">{url}</span>
-      </a>
-    );
-  }
+  const domain = preview?.siteName || new URL(url).hostname;
+  const colorClass = getColorByDomain(domain.toLowerCase());
 
   return (
     <a
@@ -108,58 +85,35 @@ const LinkPreview = ({ url, className }) => {
         className
       )}
     >
-      {preview.image ? (
-        <div className="relative aspect-square w-24 flex-shrink-0 overflow-hidden sm:w-32">
-          <img
-            src={preview.image}
-            alt={preview.title}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={(e) => {
-              e.target.style.display = "none";
-              e.target.parentElement.classList.add("fallback-active");
-            }}
-          />
-          <div
-            className={cn(
-              "absolute inset-0 hidden items-center justify-center",
-              getRandomColor(preview.siteName),
-              "fallback"
-            )}
-          >
-            <span className="text-3xl font-semibold">
-              {getInitial(preview.siteName)}
-            </span>
-          </div>
-        </div>
-      ) : (
-        <div
-          className={cn(
-            "flex aspect-square w-24 flex-shrink-0 items-center justify-center sm:w-32",
-            getRandomColor(preview.siteName)
-          )}
-        >
-          <span className="text-3xl font-semibold">
-            {getInitial(preview.siteName)}
-          </span>
-        </div>
-      )}
+      <div
+        className={cn(
+          "flex aspect-square w-24 flex-shrink-0 items-center justify-center sm:w-32",
+          colorClass,
+          "transition-all duration-300"
+        )}
+      >
+        {preview?.isError ? (
+          <Globe className="h-8 w-8" />
+        ) : (
+          <span className="text-3xl font-semibold">{getInitial(domain)}</span>
+        )}
+      </div>
 
       <div className="flex flex-1 flex-col justify-between p-4">
         <div className="space-y-1">
           <h3 className="font-medium leading-tight text-foreground line-clamp-2">
-            {preview.title}
+            {preview?.title || domain}
           </h3>
-          {preview.description && (
+          {preview?.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">
               {preview.description}
             </p>
           )}
         </div>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-xs text-muted-foreground">
-            {preview.siteName}
-          </span>
-          <ExternalLink className="h-3 w-3 text-muted-foreground" />
+        <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+          <Globe className="h-3 w-3" />
+          <span>{domain}</span>
+          <ExternalLink className="h-3 w-3" />
         </div>
       </div>
     </a>

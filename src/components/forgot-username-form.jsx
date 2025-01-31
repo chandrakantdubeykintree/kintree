@@ -21,6 +21,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { forgotUsernameSchemas } from "@/schemas/forgotUsernameSchemas";
+import { Copy, Check } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ import {
 export function ForgotUsernameForm({ setOpenTerms }) {
   const [loginType, setLoginType] = useState("email");
   const [isOtpSent, setIsOtpSent] = useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
@@ -41,6 +43,28 @@ export function ForgotUsernameForm({ setOpenTerms }) {
   const navigate = useNavigate();
   const { sendOTPForgotUsername, verifyOTPForgotUsername } =
     useAuthentication();
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(username);
+      setHasCopied(true);
+      toast.success("Username copied to clipboard!", {
+        duration: 2000,
+        position: "top-right",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
+      setTimeout(() => setHasCopied(false), 2000);
+    } catch (err) {
+      toast.error("Failed to copy username", {
+        duration: 2000,
+        position: "bottom-center",
+      });
+    }
+  };
 
   const {
     register,
@@ -364,20 +388,37 @@ export function ForgotUsernameForm({ setOpenTerms }) {
           if (!open) navigate("/login");
         }}
       >
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Your Username</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl text-center">
+              Your Username
+            </DialogTitle>
+            <DialogDescription className="text-center">
               Here is your username for logging into Kintree
             </DialogDescription>
           </DialogHeader>
-          <div className="flex items-center justify-center p-4">
-            <span className="text-xl font-semibold">{username}</span>
-          </div>
-          <div className="flex justify-end">
+          <div className="flex flex-col items-center gap-6 py-6">
+            <div className="flex items-center gap-2 bg-muted p-4 rounded-lg w-fit border-dashed border-[3px] border-brandPrimary">
+              <span className="text-md font-semibold select-all line-clamp-1 text-ellipsis max-w-[200px] break-all">
+                {username + username}
+              </span>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 "
+                onClick={copyToClipboard}
+              >
+                {hasCopied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
             <Button
               type="button"
               variant="default"
+              className="w-full rounded-full h-10 md:h-12"
               onClick={() => {
                 setShowUsernameDialog(false);
                 navigate("/login");

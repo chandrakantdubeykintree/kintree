@@ -139,6 +139,13 @@ export default defineConfig(({ command, mode }) => {
           secure: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
         },
+        "/api/link-preview": {
+          target: env.VITE_API_BASE_URL || "https://api.kintree.com",
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) =>
+            path.replace(/^\/api\/link-preview/, "/link-preview"),
+        },
       },
     },
     build: {

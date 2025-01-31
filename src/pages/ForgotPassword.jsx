@@ -1,5 +1,6 @@
 import { ForgotPasswordForm } from "@/components/forgot-password-form";
-
-export default function ForgotPassword({ setOpenTerms }) {
+import { useOutletContext } from "react-router";
+export default function ForgotPassword() {
+  const { setOpenTerms } = useOutletContext();
   return <ForgotPasswordForm setOpenTerms={setOpenTerms} />;
 }
