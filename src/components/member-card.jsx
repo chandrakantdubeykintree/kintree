@@ -5,8 +5,9 @@ import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ShareInviteDialog } from "@/components/share-invite-dialog";
-
+import { useNavigate } from "react-router";
 const MemberCard = ({ active, member }) => {
+  const navigate = useNavigate();
   const [viewShareInviteDialog, setViewShareInviteDialog] = useState(() => ({
     modalOpen: false,
     selectedMemberInfo: {
@@ -64,7 +65,6 @@ const MemberCard = ({ active, member }) => {
                       },
                     }))
                   }
-                  disabled={member?.is_active === 1}
                 >
                   Share Invite
                 </Button>
@@ -72,8 +72,8 @@ const MemberCard = ({ active, member }) => {
                 <Button
                   variant="outline"
                   className="border border-brandPrimary rounded-l-full rounded-r-full text-brandPrimary"
-                  // onClick={() => navigate(`/profile/${member?.username}`)}
-                  disabled
+                  onClick={() => navigate(`/family-member/${member?.id}`)}
+                  // disabled
                 >
                   View Profile
                 </Button>

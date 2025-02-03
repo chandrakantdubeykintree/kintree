@@ -6,13 +6,12 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { route_foreroom } from "@/constants/routeEnpoints";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import { useNavigate } from "react-router";
 import {
   useDeleteAttachment,
   useUploadAttachment,
@@ -20,8 +19,17 @@ import {
 import toast from "react-hot-toast";
 import { useCreatePost } from "@/hooks/usePosts";
 import FeelingsDropDown from "@/components/feelings-dropdown";
-import { useAlbums } from "@/hooks/useAlbums";
 import PrivacyDropdown from "@/components/privacy-dropdown";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -32,47 +40,49 @@ const SUPPORTED_IMAGE_TYPES = [
 const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-const getWordCount = (text) => {
-  if (!text) return 0;
-  return text
-    .trim()
-    .split(/\s+/)
-    .filter((word) => word.length > 0).length;
+export const postSchema = z.object({
+  body: z
+    .string()
+    .min(5, "Caption must be at least 5 characters")
+    .max(1000, "Caption cannot exceed 1000 characters")
+    .optional(),
+  feeling_id: z.number().nullable(),
+  album_id: z.number().nullable(),
+  privacy: z.object({
+    id: z.number(),
+    title: z.string(),
+    desc: z.string(),
+    icon: z.string(),
+  }),
+  attachment_ids: z.array(z.number()).optional(),
+});
+
+const defaultPrivacy = {
+  id: 1,
+  title: "Global",
+  desc: "Anyone on Kintree",
+  icon: "/privacy/web.svg",
 };
 
 export default function CreatePost() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
-  const [caption, setCaption] = useState("");
-  const wordCount = getWordCount(caption);
-  const { data: albumsList } = useAlbums();
-
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
-  const [privacy, setPrivacy] = useState({
-    id: 1,
-    title: "Global",
-    desc: "Anyone on Kintree",
-    icon: "/privacy/web.svg",
-  });
-  const [selectedAlbum, setSelectedAlbum] = useState();
-  const [feelings, setFeelings] = useState();
   const navigate = useNavigate();
 
-  const isValidCaption = caption.trim().length >= 5;
-  const hasMedia = uploadedAttachments.length > 0;
-  const isValidPost = isValidCaption || hasMedia;
-  const charCount = caption.length;
-  const isOverLimit = charCount > 1000;
-  const remainingChars = 1000 - charCount;
+  const form = useForm({
+    resolver: zodResolver(postSchema),
+    defaultValues: {
+      body: "",
+      feeling_id: null,
+      album_id: null,
+      privacy: defaultPrivacy,
+      attachment_ids: [],
+    },
+  });
 
-  const {
-    mutate: createPost,
-    isLoading: isCreatingPost,
-    isError,
-    error,
-  } = useCreatePost();
-
+  const { mutate: createPost, isLoading: isCreatingPost } = useCreatePost();
   const { mutateAsync: uploadAttachment } = useUploadAttachment();
   const { mutate: deleteAttachment, isLoading: isDeleting } =
     useDeleteAttachment();
@@ -81,7 +91,6 @@ export default function CreatePost() {
     const files = Array.from(e.target.files);
     const validFiles = [];
 
-    // Check each file individually
     for (const file of files) {
       if (
         !SUPPORTED_IMAGE_TYPES.includes(file.type) &&
@@ -98,7 +107,6 @@ export default function CreatePost() {
         continue;
       }
 
-      // Check if adding this file would exceed the 10 file limit
       if (mediaFiles.length + validFiles.length >= 10) {
         toast.error("Maximum 10 files allowed");
         break;
@@ -107,13 +115,11 @@ export default function CreatePost() {
       validFiles.push(file);
     }
 
-    if (validFiles.length === 0) {
-      return;
-    }
+    if (validFiles.length === 0) return;
 
     setMediaFiles((prev) => [...prev, ...validFiles]);
-
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       validFiles.forEach((file) => {
@@ -123,6 +129,10 @@ export default function CreatePost() {
       const result = await uploadAttachment(formData);
       const newAttachments = result?.data || [];
       setUploadedAttachments((prev) => [...prev, ...newAttachments]);
+      form.setValue(
+        "attachment_ids",
+        [...uploadedAttachments, ...newAttachments].map((att) => att.id)
+      );
     } catch (error) {
       console.error("Error uploading files:", error);
       toast.error("Failed to upload files");
@@ -134,14 +144,16 @@ export default function CreatePost() {
   const removeFile = async (index) => {
     const attachmentToDelete = uploadedAttachments[index];
 
-    if (!attachmentToDelete) {
-      return;
-    }
+    if (!attachmentToDelete) return;
 
     deleteAttachment(attachmentToDelete.id, {
       onSuccess: () => {
         setMediaFiles((prev) => prev.filter((_, i) => i !== index));
         setUploadedAttachments((prev) => prev.filter((_, i) => i !== index));
+        form.setValue(
+          "attachment_ids",
+          uploadedAttachments.filter((_, i) => i !== index).map((att) => att.id)
+        );
       },
       onError: (error) => {
         toast.error("Failed to delete file");
@@ -150,10 +162,8 @@ export default function CreatePost() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!isValidPost) {
+  const onSubmit = (values) => {
+    if (!values.body?.trim() && !uploadedAttachments.length) {
       toast.error("Please add either a caption or media files");
       return;
     }
@@ -163,16 +173,9 @@ export default function CreatePost() {
       return;
     }
 
-    const postData = {
-      body: caption,
-      feeling_id: feelings?.id || null,
-      album_id: selectedAlbum?.id || null,
-      // shared_post_id: 1,
-      attachment_ids: uploadedAttachments.map((attachment) => attachment.id),
-      privacy: privacy.id,
-    };
+    values.privacy = values.privacy.id;
 
-    createPost(postData, {
+    createPost(values, {
       onSuccess: () => {
         navigate("/", {
           state: { newPost: true },
@@ -183,6 +186,7 @@ export default function CreatePost() {
       },
     });
   };
+
   return (
     <AsyncComponent>
       <div className="w-full mx-auto lg:px-0 pb-6 rounded-2xl">
@@ -209,51 +213,56 @@ export default function CreatePost() {
             Back to Foreroom
           </NavLink>
         </div>
-        <AsyncComponent>
-          <Card className="w-full">
-            <form onSubmit={handleSubmit}>
+        <Card className="w-full">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardHeader className="flex flex-row flex-wrap justify-between items-center">
-                <div className="text-xl font-bold">Create Photo/Video Post</div>
-                <PrivacyDropdown
-                  selectedPrivacy={privacy}
-                  setSelectedPrivacy={setPrivacy}
+                <div className="text-xl font-bold">Create Post</div>
+                <FormField
+                  control={form.control}
+                  name="privacy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <PrivacyDropdown
+                          selectedPrivacy={field.value}
+                          setSelectedPrivacy={(value) => field.onChange(value)}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <Label>Caption</Label>
-                    <span
-                      className={`text-sm ${
-                        isOverLimit ? "text-red-500" : "text-gray-500"
-                      }`}
-                    >
-                      {charCount}/1000 characters
-                    </span>
-                  </div>
-                  <Textarea
-                    placeholder="Type your message here."
-                    rows="6"
-                    value={caption}
-                    onChange={(e) => {
-                      const newText = e.target.value;
-                      if (newText.length <= 1000) {
-                        setCaption(newText);
-                      }
-                    }}
-                    maxLength={1000}
-                    className={`lg:text-[16px] ${
-                      isOverLimit
-                        ? "border-red-500 focus-visible:ring-red-500"
-                        : ""
-                    }`}
-                  />
-                  {isOverLimit && (
-                    <p className="text-sm text-red-500">
-                      Caption cannot exceed 1000 characters
-                    </p>
+                <FormField
+                  control={form.control}
+                  name="body"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex justify-between">
+                        <Label>Caption</Label>
+                        <span
+                          className={`text-sm ${
+                            field.value.length > 1000
+                              ? "text-red-500"
+                              : "text-gray-500"
+                          }`}
+                        >
+                          {field.value.length}/1000 characters
+                        </span>
+                      </div>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Type your message here."
+                          rows="6"
+                          className="lg:text-[16px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                </div>
+                />
 
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -318,19 +327,36 @@ export default function CreatePost() {
               </CardContent>
               <CardFooter className="flex flex-col gap-2">
                 <div className="text-sm text-gray-500 w-full text-center">
-                  {!hasMedia &&
-                    !isValidCaption &&
+                  {!uploadedAttachments.length &&
+                    !form.watch("body")?.trim() &&
                     "Add either a caption or media files"}
                 </div>
                 <div className="flex justify-between items-center w-full">
-                  <FeelingsDropDown
-                    selectedFeeling={feelings}
-                    setSelectedFeeling={setFeelings}
+                  <FormField
+                    control={form.control}
+                    name="feeling_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <FeelingsDropDown
+                            selectedFeeling={field.value}
+                            setSelectedFeeling={(value) =>
+                              field.onChange(value?.id || null)
+                            }
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
                   <Button
                     type="submit"
                     className="rounded-full"
-                    disabled={isUploading || isCreatingPost || !isValidPost}
+                    disabled={
+                      isUploading ||
+                      isCreatingPost ||
+                      (!form.watch("body")?.trim() &&
+                        !uploadedAttachments.length)
+                    }
                   >
                     {isCreatingPost ? (
                       <>
@@ -344,8 +370,8 @@ export default function CreatePost() {
                 </div>
               </CardFooter>
             </form>
-          </Card>
-        </AsyncComponent>
+          </Form>
+        </Card>
       </div>
     </AsyncComponent>
   );

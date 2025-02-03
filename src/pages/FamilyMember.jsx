@@ -338,16 +338,14 @@ export default function FamilyMember() {
 
               {/* Action Buttons */}
               <div className="flex gap-4 mt-8 justify-end">
-                {is_user_added_by_me && (
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 rounded-full"
-                    onClick={handleAddRelative}
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    Add Relative
-                  </Button>
-                )}
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full"
+                  onClick={handleAddRelative}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Add Relative
+                </Button>
                 {is_user_added_by_me && !familyMember?.is_active && (
                   <Button
                     variant="outline"

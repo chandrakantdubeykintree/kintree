@@ -35,7 +35,7 @@ export default function CreatePostCard({ user }) {
             />
           </div>
           <div className="flex flex-row items-center gap-3 justify-around w-full sm:w-auto mt-2 sm:mt-0">
-            <NavLink to={`${route_create_post}/post`}>
+            <NavLink to={`${route_create_post}`}>
               <img
                 src={ICON_PHOTO}
                 className="transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
