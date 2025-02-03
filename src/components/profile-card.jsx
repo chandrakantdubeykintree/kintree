@@ -4,9 +4,11 @@ import AsyncComponent from "./async-component";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { ICON_EDIT2 } from "@/constants/iconUrls";
 import { useProfile } from "@/hooks/useProfile";
+import { useTranslation } from "react-i18next";
 
 const ProfileCard = () => {
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
+  const { t } = useTranslation();
 
   return (
     <AsyncComponent isLoading={isProfileLoading}>
@@ -42,15 +44,15 @@ const ProfileCard = () => {
           <hr className="my-4 h-[1.5px]" />
           <div className="flex justify-around items-center">
             <div className="flex flex-col items-center">
-              <span className="font-medium">Posts</span>
+              <span className="font-medium">{t("posts")}</span>
               <span className="">{user?.post_count || 0}</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-medium">Event</span>
+              <span className="font-medium">{t("events")}</span>
               <span className="">{user?.event_count || 0}</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="font-medium">Members</span>
+              <span className="font-medium">{t("members")}</span>
               <span className="">{user?.family_member_count || 0}</span>
             </div>
           </div>
@@ -59,7 +61,7 @@ const ProfileCard = () => {
 
         <CardFooter className="px-6 pb-8 flex flex-col items-start gap-3 hidden">
           <div className="text-lg font-semibold flex justify-between items-center w-full">
-            <span>Bio</span>
+            <span>{t("bio")}</span>
             <span>
               <img
                 src={ICON_EDIT2}

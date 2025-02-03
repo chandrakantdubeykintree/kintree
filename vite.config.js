@@ -233,13 +233,7 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     optimizeDeps: {
-      include: [
-        "react",
-        "react-dom",
-        "react-router",
-        "@radix-ui/react-dialog",
-        "@radix-ui/react-navigation-menu",
-      ],
+      include: ["react", "react-dom", "react-router"],
     },
   };
 });

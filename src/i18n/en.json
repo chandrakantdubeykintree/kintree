@@ -1,20 +1,11 @@
 {
-  "foreroom": "Foreroom",
-  "family_tree": "Family Tree",
-  "dna": "DNA",
-  "chat": "Chat",
-  "shop": "Shop",
+  "language": "en",
+  "name": "English",
+  "nativeName": "English",
+  "dir": "ltr",
+  "app_name": "Kintree",
+  "posts": "Posts",
   "events": "Events",
-  "kincoins": "Kincoins",
-  "profile": "Profile",
-  "settings": "Settings",
-  "welcome": "Welcome",
-  "language": "Language",
-  "notifications": "Notifications",
-  "logout": "Logout",
-  "login": "Login",
-  "kintree": "Kintree",
-  "will": "Will",
-  "faqs": "FAQs",
-  "page_not_found": "Page Not Found"
+  "members": "Members",
+  "bio": "Bio"
 }

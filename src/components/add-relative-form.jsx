@@ -26,7 +26,7 @@ import {
 import PhoneInput from "react-phone-number-input";
 import { relationshipTypes } from "@/constants/dropDownConstants";
 import toast from "react-hot-toast";
-import { SelectLabel } from "@radix-ui/react-select";
+import { SelectLabel } from "@/components/ui/select";
 import { LocationSearchInput } from "./location-search-input";
 import AsyncComponent from "./async-component";
 import { Map } from "./map";
