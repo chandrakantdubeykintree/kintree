@@ -38,7 +38,6 @@ import { useAuth } from "@/context/AuthProvider";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useFamily, useFamilyMembers, useMember } from "@/hooks/useFamily";
 
 const PasswordSchema = z
   .object({
