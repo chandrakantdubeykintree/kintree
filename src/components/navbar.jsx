@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import ThemeToggle from "./theme-toggle";
 import ProfileDropDown from "./profile-dropdown";
 import NotificationDropDown from "./notification-dropdown";
@@ -22,6 +22,7 @@ import { useFamilyMembers } from "@/hooks/useFamily";
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
   const [recentSearches, setRecentSearches] = useState(() => {
     const saved = localStorage.getItem("recentSearches");
     return saved ? JSON.parse(saved) : [];
@@ -189,6 +190,8 @@ export default function Navbar() {
                         onClick={() => {
                           // Handle member selection
                           handleSearch(searchQuery);
+                          // setShowSearch(false);
+                          navigate(`/family-member/${member.id}`);
                           setShowSearch(false);
                           // Add navigation logic here if needed
                         }}
