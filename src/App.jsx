@@ -56,6 +56,7 @@ import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./components/page-not-found";
 import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
+import Test from "./Test";
 
 const {
   RootLayout,
@@ -254,6 +255,8 @@ export default function App() {
                         path={route_will_edit_will}
                         element={<EditWill />}
                       />
+
+                      <Route path="/test" element={<Test />} />
 
                       {/* faqs */}
                       <Route path="/faqs" element={<FAQS />} />
