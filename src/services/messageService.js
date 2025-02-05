@@ -47,25 +47,21 @@ class MessageService {
     if (!this.socket) return;
 
     this.socket.on("connect", () => {
-      console.log("Socket connected successfully");
       useMessageStore.getState().setConnected(true);
       useMessageStore.getState().setError(null);
     });
 
     this.socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
       useMessageStore.getState().setConnected(false);
     });
 
     this.socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
       useMessageStore.getState().setError(error.message);
       useMessageStore.getState().setConnected(false);
     });
 
     // Channel events
     this.socket.on("channel-joined", (data) => {
-      console.log("Channel joined:", data);
       if (data.channel && data.messages) {
         useMessageStore.getState().setCurrentChannel(data.channel);
         useMessageStore.getState().setMessages(data.messages.data || []);
@@ -79,14 +75,12 @@ class MessageService {
 
     // Message events
     this.socket.on("message-sent", (response) => {
-      console.log("Message sent confirmation:", response);
       if (response.success) {
         useMessageStore.getState().addMessage(response.data);
       }
     });
 
     this.socket.on("new-message", (message) => {
-      console.log("New message received:", message);
       useMessageStore.getState().addMessage(message);
       // Automatically mark as delivered when receiving new messages
       if (!message.message_sent_by_me) {
@@ -96,7 +90,6 @@ class MessageService {
 
     // Message status events
     this.socket.on("message-delivered", (data) => {
-      console.log("Message delivered:", data);
       useMessageStore.getState().updateMessageDeliveryStatus(data);
     });
 
@@ -114,56 +107,43 @@ class MessageService {
 
     // Typing events
     this.socket.on("user-typing", (data) => {
-      console.log("User typing:", data);
       useMessageStore.getState().setUserTyping(data.userId);
     });
 
     this.socket.on("user-stopped-typing", (data) => {
-      console.log("User stopped typing:", data);
       useMessageStore.getState().setUserStoppedTyping(data.userId);
     });
 
     // User presence events
     this.socket.on("user-joined", (data) => {
-      console.log("User joined:", data);
       useMessageStore.getState().addActiveUser(data);
     });
 
     this.socket.on("user-left", (data) => {
-      console.log("User left:", data);
       useMessageStore.getState().removeActiveUser(data);
     });
 
     this.socket.on("channel-error", (data) => {
-      console.error("Channel error:", data.error);
       useMessageStore.getState().setError(data.error);
       useMessageStore.getState().setLoading(false);
     });
 
     this.socket.on("messages-loaded", (data) => {
-      console.log("Messages loaded event received:", data);
-
       try {
         // Check if we have the direct messages and pagination data
         if (data.messages && data.pagination) {
           useMessageStore
             .getState()
             .addMessages(data.messages, data.pagination);
-          console.log("Updated store with new messages and pagination");
         } else if (data.data?.messages && data.data?.pagination) {
           // Alternative format check
           useMessageStore
             .getState()
             .addMessages(data.data.messages, data.data.pagination);
-          console.log(
-            "Updated store with new messages and pagination (alternative format)"
-          );
         } else {
-          console.error("Unexpected messages data format:", data);
           useMessageStore.getState().setError("Invalid message data received");
         }
       } catch (error) {
-        console.error("Error processing messages:", error);
         useMessageStore.getState().setError("Failed to process messages");
       } finally {
         useMessageStore.getState().setLoadingMore(false);
@@ -171,7 +151,6 @@ class MessageService {
     });
 
     this.socket.on("error", (error) => {
-      console.error("Socket error:", error);
       useMessageStore.getState().setError(error?.message || "Connection error");
       useMessageStore.getState().setLoadingMore(false);
     });
@@ -186,14 +165,11 @@ class MessageService {
   // Channel methods
   joinChannel(channelId, page = 1) {
     if (!channelId || isNaN(parseInt(channelId))) {
-      console.error("Invalid channel ID:", channelId);
       useMessageStore.getState().setError("Invalid channel ID");
       return;
     }
 
-    console.log("Joining channel:", channelId, "page:", page);
     if (!this.socket?.connected) {
-      console.log("Socket not connected, connecting first...");
       this.connect();
     }
 
@@ -238,7 +214,6 @@ class MessageService {
         });
       });
     } catch (error) {
-      console.error("Failed to send message:", error);
       useMessageStore.getState().setError("Failed to send message");
       return false;
     } finally {
@@ -299,7 +274,6 @@ class MessageService {
         );
       });
     } catch (error) {
-      console.error("Failed to update message:", error);
       useMessageStore.getState().setError("Failed to update message");
       throw error;
     } finally {
@@ -342,7 +316,6 @@ class MessageService {
       return;
     }
 
-    console.log(`Loading more messages for channel ${channelId}, page ${page}`);
     useMessageStore.getState().setLoadingMore(true);
 
     this.socket.emit("load-more-messages", {
@@ -484,12 +457,6 @@ export const useMessageStore = create((set) => ({
           ? state.messages
           : [];
         const incomingMessages = Array.isArray(newMessages) ? newMessages : [];
-
-        console.log("Adding messages:", {
-          current: currentMessages.length,
-          incoming: incomingMessages.length,
-          pagination,
-        });
 
         // For subsequent pages, prepend messages (since older messages are coming in)
         return {
