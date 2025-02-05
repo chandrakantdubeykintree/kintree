@@ -2,7 +2,7 @@ import { io } from "socket.io-client";
 import { create } from "zustand";
 import { tokenService } from "./tokenService";
 
-const SOCKET_URL = "http://localhost:9000";
+const SOCKET_URL = import.meta.env.VITE_KINTREE_SOCKET_URL;
 
 class MessageService {
   constructor() {
