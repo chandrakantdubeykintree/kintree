@@ -16,6 +16,9 @@ import {
   CheckCheck,
   Trash2,
   Send,
+  X,
+  UserPlus,
+  Users,
 } from "lucide-react";
 import {
   Dialog,
@@ -23,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import {
@@ -52,6 +56,8 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DialogFooter } from "@/components/ui/dialog";
 
 const TYPING_TIMER_LENGTH = 3000;
 
@@ -79,6 +85,8 @@ export default function Chats() {
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [isGroupChatMode, setIsGroupChatMode] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const {
     messages,
@@ -169,42 +177,62 @@ export default function Chats() {
     };
   }, [selectedChannel]);
 
-  const openCreateDialog = (member) => {
-    setIsMembersDialogOpen(false);
-    setTimeout(() => {
-      setNewChannelData((prev) => ({
-        ...prev,
-        selectedUserId: member.id,
-        name: `Chat with ${member.first_name} ${member.last_name}`,
-        thumbnail_image: member.profile_pic_url || "",
-      }));
-      setIsCreateDialogOpen(true);
-    }, 100);
+  const handleMemberSelect = async (member) => {
+    if (isGroupChatMode) {
+      // For group chat, add/remove member from selection
+      setSelectedMembers((prev) =>
+        prev.some((m) => m.id === member.id)
+          ? prev.filter((m) => m.id !== member.id)
+          : [...prev, member]
+      );
+    } else {
+      // For direct chat, create channel immediately
+      setIsMembersDialogOpen(false);
+      try {
+        await createChannel.mutateAsync({
+          is_group: 0,
+          name: member.first_name + " " + member.last_name,
+          description: null,
+          thumbnail_image: null,
+          user_ids: [member.id],
+        });
+      } catch (error) {
+        console.error("Failed to create channel:", error);
+      }
+    }
   };
 
-  const handleCreateChannel = async (e) => {
+  const handleCreateGroupChat = async (e) => {
     e.preventDefault();
-    if (!newChannelData.selectedUserId) return;
+    if (selectedMembers.length < 2) return;
 
     try {
-      await createChannel.mutateAsync({
-        is_group: 0,
-        name: newChannelData.name,
-        description: newChannelData.description,
-        // thumbnail_image: newChannelData.thumbnail_image,
-        thumbnail_image: null,
-        user_ids: [newChannelData.selectedUserId],
+      const formData = new FormData();
+      formData.append("is_group", "1");
+      formData.append("name", newChannelData.name);
+      if (newChannelData.description) {
+        formData.append("description", newChannelData.description);
+      }
+      if (newChannelData.thumbnail_image) {
+        formData.append("thumbnail_image", newChannelData.thumbnail_image);
+      }
+      selectedMembers.forEach((member) => {
+        formData.append("user_ids[]", member.id);
       });
 
+      await createChannel.mutateAsync(formData);
+
       setIsCreateDialogOpen(false);
+      setIsMembersDialogOpen(false);
+      setSelectedMembers([]);
       setNewChannelData({
         name: "",
         description: "",
-        thumbnail_image: "",
-        selectedUserId: null,
+        thumbnail_image: null,
       });
+      setIsGroupChatMode(false);
     } catch (error) {
-      console.error("Failed to create channel:", error);
+      console.error("Failed to create group channel:", error);
     }
   };
 
@@ -241,32 +269,14 @@ export default function Chats() {
   };
 
   // Handle message sending with better error handling
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedChannel) return;
-
-    if (!messageService.socket?.connected) {
-      setSendStatus({ type: "error", message: "Not connected" });
-      return;
-    }
+  const handleSendMessage = async (message) => {
+    if (!selectedChannel || !message.trim()) return;
 
     try {
-      setSendStatus({ type: "sending", message: "Sending..." });
-      const result = await messageService.sendMessage(
-        selectedChannel.id,
-        newMessage.trim()
-      );
-      if (result) {
-        setNewMessage("");
-        setSendStatus({ type: "success", message: "Sent!" });
-        // Clear status after 3 seconds
-        setTimeout(() => setSendStatus(null), 3000);
-      } else {
-        setSendStatus({ type: "error", message: "Not sent!" });
-      }
+      await messageService.sendMessage(selectedChannel.id, message.trim());
+      setNewMessage(""); // Clear input after sending
     } catch (error) {
       console.error("Failed to send message:", error);
-      setSendStatus({ type: "error", message: "Not sent!" });
     }
   };
 
@@ -356,43 +366,28 @@ export default function Chats() {
             {/* Fixed channels header */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-background z-10">
               <h2 className="font-bold text-lg">Chats</h2>
-              <Dialog
-                open={isMembersDialogOpen}
-                onOpenChange={setIsMembersDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Plus className="h-5 w-5" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Select Member to Chat With</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-2 mt-2">
-                    {membersLoading ? (
-                      <p>Loading members...</p>
-                    ) : (
-                      members?.map((member) => (
-                        <div
-                          key={member.id}
-                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
-                          onClick={() => openCreateDialog(member)}
-                        >
-                          <img
-                            src={member.profile_pic_url}
-                            alt={member.first_name}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                          <span>
-                            {member.first_name} {member.last_name}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setIsGroupChatMode(false);
+                    setIsMembersDialogOpen(true);
+                  }}
+                >
+                  <UserPlus className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setIsGroupChatMode(true);
+                    setIsMembersDialogOpen(true);
+                  }}
+                >
+                  <Users className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Scrollable channels list */}
@@ -619,7 +614,13 @@ export default function Chats() {
 
                   {/* Message input */}
                   <div className="p-4">
-                    <form onSubmit={handleSendMessage} className="space-y-1">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSendMessage(newMessage);
+                      }}
+                      className="space-y-1"
+                    >
                       <div className="relative flex items-end gap-2">
                         <div className="relative flex-1">
                           <Textarea
@@ -632,7 +633,7 @@ export default function Chats() {
                             onKeyDown={(e) => {
                               if (e.key === "Enter" && !e.shiftKey) {
                                 e.preventDefault();
-                                handleSendMessage(e);
+                                handleSendMessage(newMessage);
                               }
                             }}
                           />
@@ -775,83 +776,276 @@ export default function Chats() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </Card>
 
-      {/* Create Channel Dialog */}
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Chat</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleCreateChannel}>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  value={newChannelData.name}
-                  onChange={(e) =>
-                    setNewChannelData((prev) => ({
-                      ...prev,
-                      name: e.target.value,
-                    }))
-                  }
-                  placeholder="Chat name"
-                  disabled={createChannel.isPending}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={newChannelData.description}
-                  onChange={(e) =>
-                    setNewChannelData((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="Chat description"
-                  disabled={createChannel.isPending}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="thumbnail">Thumbnail Image URL</Label>
-                <Input
-                  id="thumbnail"
-                  value={newChannelData.thumbnail_image}
-                  onChange={(e) =>
-                    setNewChannelData((prev) => ({
-                      ...prev,
-                      thumbnail_image: e.target.value,
-                    }))
-                  }
-                  placeholder="Image URL"
-                  disabled={createChannel.isPending}
-                />
-              </div>
+        {/* Members Dialog */}
+        <Dialog
+          open={isMembersDialogOpen}
+          onOpenChange={setIsMembersDialogOpen}
+        >
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>
+                {isGroupChatMode
+                  ? "Create Group Chat"
+                  : "Select Member to Chat With"}
+              </DialogTitle>
+              {isGroupChatMode && (
+                <DialogDescription>
+                  Select at least 2 members to create a group chat
+                </DialogDescription>
+              )}
+            </DialogHeader>
+
+            <div className="space-y-2 mt-2 max-h-[60vh] overflow-y-auto">
+              {membersLoading ? (
+                <div className="flex items-center justify-center p-4">
+                  <span className="text-muted-foreground">
+                    Loading members...
+                  </span>
+                </div>
+              ) : members?.length > 0 ? (
+                <div className="space-y-2">
+                  {isGroupChatMode && (
+                    <div className="flex items-center justify-between px-2 py-1 bg-muted rounded-lg">
+                      <span className="text-sm text-muted-foreground">
+                        Selected: {selectedMembers.length} members
+                      </span>
+                      {selectedMembers.length >= 2 ? (
+                        <Button
+                          size="sm"
+                          onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                          Next
+                        </Button>
+                      ) : (
+                        <span className="text-sm text-muted-foreground">
+                          Select {2 - selectedMembers.length} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {members.map((member) => (
+                    <div
+                      key={member.id}
+                      className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
+                        isGroupChatMode &&
+                        selectedMembers.some((m) => m.id === member.id)
+                          ? "bg-accent"
+                          : ""
+                      }`}
+                      onClick={() => {
+                        if (!isGroupChatMode) {
+                          handleMemberSelect(member);
+                        }
+                      }}
+                    >
+                      <img
+                        src={member.profile_pic_url || "/default-avatar.png"}
+                        alt={member.first_name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {member.first_name} {member.last_name}
+                        </div>
+                        {member.email && (
+                          <div className="text-sm text-muted-foreground">
+                            {member.email}
+                          </div>
+                        )}
+                      </div>
+                      {isGroupChatMode && (
+                        <Checkbox
+                          checked={selectedMembers.some(
+                            (m) => m.id === member.id
+                          )}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent parent div click
+                            handleMemberSelect(member);
+                          }}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center p-4">
+                  <span className="text-muted-foreground">
+                    No members found
+                  </span>
+                </div>
+              )}
             </div>
-            <AlertDialogFooter className="mt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsCreateDialogOpen(false)}
-                disabled={createChannel.isPending}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  !newChannelData.selectedUserId || createChannel.isPending
-                }
-              >
-                {createChannel.isPending ? "Creating..." : "Create Chat"}
-              </Button>
-            </AlertDialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+
+        {/* Group Chat Creation Dialog */}
+        <Dialog
+          open={isCreateDialogOpen}
+          onOpenChange={(open) => {
+            setIsCreateDialogOpen(open);
+            if (!open) {
+              setNewChannelData({
+                name: "",
+                description: "",
+                thumbnail_image: null,
+              });
+            }
+          }}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Group Chat</DialogTitle>
+              <DialogDescription>
+                Creating a group chat with {selectedMembers.length} members
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreateGroupChat}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="thumbnail">Group Image</Label>
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="relative group">
+                      <input
+                        id="thumbnail"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setNewChannelData((prev) => ({
+                              ...prev,
+                              thumbnail_image: file,
+                            }));
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor="thumbnail"
+                        className="cursor-pointer block"
+                      >
+                        {newChannelData.thumbnail_image ? (
+                          <div className="relative w-24 h-24">
+                            <img
+                              src={URL.createObjectURL(
+                                newChannelData.thumbnail_image
+                              )}
+                              alt="Thumbnail preview"
+                              className="w-24 h-24 rounded-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <p className="text-white text-xs">Change Image</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                            <div className="flex flex-col items-center">
+                              <Users className="h-8 w-8 text-muted-foreground mb-1" />
+                              <p className="text-xs text-muted-foreground">
+                                Upload Image
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </label>
+                      {newChannelData.thumbnail_image && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          onClick={() =>
+                            setNewChannelData((prev) => ({
+                              ...prev,
+                              thumbnail_image: null,
+                            }))
+                          }
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    {newChannelData.thumbnail_image && (
+                      <p className="text-sm text-muted-foreground">
+                        {newChannelData.thumbnail_image.name}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Group Name</Label>
+                  <Input
+                    id="name"
+                    value={newChannelData.name}
+                    onChange={(e) =>
+                      setNewChannelData((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
+                    placeholder="Enter group name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={newChannelData.description}
+                    onChange={(e) =>
+                      setNewChannelData((prev) => ({
+                        ...prev,
+                        description: e.target.value,
+                      }))
+                    }
+                    placeholder="Group description (optional)"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Selected Members</Label>
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-lg">
+                    {selectedMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center gap-1 bg-accent rounded-full px-3 py-1"
+                      >
+                        <span className="text-sm">
+                          {member.first_name} {member.last_name}
+                        </span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => handleMemberSelect(member)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <DialogFooter className="mt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!newChannelData.name || selectedMembers.length < 2}
+                >
+                  Create Group
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </Card>
     </TooltipProvider>
   );
 }

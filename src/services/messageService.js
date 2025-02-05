@@ -7,10 +7,13 @@ const SOCKET_URL = import.meta.env.VITE_KINTREE_SOCKET_URL;
 class MessageService {
   constructor() {
     this.socket = null;
+    this.socketUrl = SOCKET_URL;
   }
 
   connect() {
     if (this.socket?.connected) return;
+
+    console.log("Connecting to socket:", SOCKET_URL);
 
     const token = tokenService.getLoginToken();
     if (!token) {
@@ -21,17 +24,28 @@ class MessageService {
     const authToken = token.startsWith("Bearer ") ? token : `Bearer ${token}`;
 
     this.socket = io(SOCKET_URL, {
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+      path: "/socket.io/",
+      withCredentials: true,
       auth: { token: authToken },
       extraHeaders: {
         Authorization: authToken,
       },
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
     });
 
     this.setupSocketListeners();
+
+    this.socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+      // Fallback to polling if websocket fails
+      if (error.type === "TransportError") {
+        this.socket.io.opts.transports = ["polling"];
+      }
+    });
   }
 
   disconnect() {
@@ -206,10 +220,12 @@ class MessageService {
 
       return new Promise((resolve, reject) => {
         this.socket.emit("send-message", { channelId, message }, (response) => {
-          if (response.error) {
-            reject(new Error(response.error));
-          } else {
+          if (response.success) {
+            // Add the message to the store immediately
+            useMessageStore.getState().addMessage(response.data);
             resolve(response);
+          } else {
+            reject(new Error(response.error));
           }
         });
       });
@@ -380,9 +396,16 @@ export const useMessageStore = create((set) => ({
     }),
 
   addMessage: (message) =>
-    set((state) => ({
-      messages: [...state.messages, message],
-    })),
+    set((state) => {
+      // Check if message already exists to prevent duplicates
+      const messageExists = state.messages.some((msg) => msg.id === message.id);
+      if (messageExists) {
+        return state;
+      }
+      return {
+        messages: [...state.messages, message],
+      };
+    }),
 
   removeMessage: (messageId) =>
     set((state) => ({
