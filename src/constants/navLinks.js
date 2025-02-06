@@ -17,7 +17,7 @@ import {
 export const mainNavLinks = [
   { path: "/foreroom", label: "foreroom", icon: ICON_FOREROOM },
   { path: "/familytree", label: "family_tree", icon: ICON_FAMILYTREE },
-  { path: "/chats", label: "chat", icon: ICON_CHAT },
+  { path: "/chats", label: "chats", icon: ICON_CHAT },
   { path: "https://kintree.com/dna/", label: "dna", icon: ICON_SHOP },
   { path: "/events", label: "events", icon: ICON_EVENT },
   { path: "/kincoins", label: "kincoins", icon: ICON_KINCOINS },

@@ -18,6 +18,8 @@ export default function LanguagesDropDown() {
     setLanguage(languageCode);
   };
 
+  console.log();
+
   const languagesList = Object.entries(LANGUAGES)?.map(([code, nativeName]) => (
     <DropdownMenuItem
       key={code}
@@ -41,11 +43,14 @@ export default function LanguagesDropDown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <img
-          src={ICON_LANGUAGES}
-          className="w-6 h-6 cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-125"
-          alt="Change Language"
-        />
+        <div className="flex items-center gap-1 md:gap-2">
+          <span className="text-sm">{LANGUAGES[language] || "English"}</span>
+          <img
+            src={ICON_LANGUAGES}
+            className="w-6 h-6 cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-125"
+            alt="Change Language"
+          />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" side="bottom">
         <DropdownMenuLabel>Select Language</DropdownMenuLabel>

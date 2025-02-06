@@ -89,7 +89,7 @@ export default function Navbar() {
             className="w-[60px] h-12 transform transition-transform duration-300 ease-in-out hover:scale-105"
           />
         </NavLink>
-        <div className="hidden md:block max-w-md w-full px-4">
+        <div className="hidden sm:block max-w-md w-full px-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -106,11 +106,12 @@ export default function Navbar() {
             />
           </div>
         </div>
-        <div className="md:hidden">
+        <div className="sm:hidden">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setShowSearch(true)}
+            className="rounded-full p-4 border bg-gray-50 dark:bg-gray-900"
           >
             <Search className="h-5 w-5" />
           </Button>
@@ -131,7 +132,13 @@ export default function Navbar() {
           <ProfileDropDown />
         </div>
       </div>
-      <Dialog open={showSearch} onOpenChange={setShowSearch}>
+      <Dialog
+        open={showSearch}
+        onOpenChange={() => {
+          setShowSearch(false);
+          setSearchQuery("");
+        }}
+      >
         <DialogContent className="sm:max-w-[425px] rounded-2xl">
           <div className="space-y-4 rounded-2xl">
             <div className="relative mt-4">

@@ -5,8 +5,19 @@
   "dir": "ltr",
   "app_name": "किनट्री",
   "posts": "पोस्ट",
-  "events": "घटनाएं",
   "members": "सदस्य",
+  "bio": "बायो",
+  "foreroom": "फॉरेरूम",
+  "family_tree": "परिवार पेड़",
+  "chats": "चैट",
+  "dna": "डीएनए",
+  "events": "घटनाएं",
+  "kincoins": "किनकॉइंस",
+  "notifications": "नोटिफिकेशन्स",
+  "will": "विल",
+  "profile": "प्रोफ़ाइल",
+  "settings": "सेटिंग्स",
+
   "forms": {
     "username": {
       "label": "उपयोगकर्ता नाम",
