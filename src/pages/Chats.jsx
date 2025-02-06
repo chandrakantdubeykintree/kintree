@@ -9,23 +9,27 @@ import {
   useDeleteChannel,
 } from "@/hooks/useChannels";
 import {
-  Plus,
   ArrowLeft,
   MoreVertical,
   Check,
   CheckCheck,
-  Trash2,
   Send,
   X,
   UserPlus,
   Users,
+  Search,
+  PlusIcon,
+  Minus,
+  Camera,
+  Copy,
+  Info,
+  Trash,
 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -58,6 +62,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DialogFooter } from "@/components/ui/dialog";
+import AsyncComponent from "@/components/async-component";
+import ComponentLoading from "@/components/component-loading";
+import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const TYPING_TIMER_LENGTH = 3000;
 
@@ -87,6 +95,20 @@ export default function Chats() {
   const [messageToDelete, setMessageToDelete] = useState(null);
   const [isGroupChatMode, setIsGroupChatMode] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [channelSearchQuery, setChannelSearchQuery] = useState("");
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [messageInfoData, setMessageInfoData] = useState(null);
+
+  // Add this function to handle message selection
+  const handleMessageSelect = (messageId) => {
+    setSelectedMessages((prev) =>
+      prev.includes(messageId)
+        ? prev.filter((id) => id !== messageId)
+        : [...prev, messageId]
+    );
+  };
 
   const {
     messages,
@@ -197,7 +219,7 @@ export default function Chats() {
           user_ids: [member.id],
         });
       } catch (error) {
-        console.error("Failed to create channel:", error);
+        toast.error("Failed to create channel:");
       }
     }
   };
@@ -213,9 +235,10 @@ export default function Chats() {
       if (newChannelData.description) {
         formData.append("description", newChannelData.description);
       }
-      if (newChannelData.thumbnail_image) {
+      if (newChannelData.thumbnail_image instanceof File) {
         formData.append("thumbnail_image", newChannelData.thumbnail_image);
       }
+
       selectedMembers.forEach((member) => {
         formData.append("user_ids[]", member.id);
       });
@@ -231,8 +254,9 @@ export default function Chats() {
         thumbnail_image: null,
       });
       setIsGroupChatMode(false);
+      setIsCreatingChat(false);
     } catch (error) {
-      console.error("Failed to create group channel:", error);
+      toast.error("Failed to create group channel:");
     }
   };
 
@@ -245,6 +269,8 @@ export default function Chats() {
 
     setSelectedChannel(channel);
     setShowMobileList(false);
+    setIsSelectMode(false);
+    setSelectedMessages([]);
 
     // Ensure socket is connected before joining channel
     if (!messageService.socket?.connected) {
@@ -276,7 +302,7 @@ export default function Chats() {
       await messageService.sendMessage(selectedChannel.id, message.trim());
       setNewMessage(""); // Clear input after sending
     } catch (error) {
-      console.error("Failed to send message:", error);
+      toast.error("Failed to send message");
     }
   };
 
@@ -312,7 +338,7 @@ export default function Chats() {
       await messageService.deleteMessage(selectedChannel.id, messageId);
       setMessageToDelete(null);
     } catch (error) {
-      console.error("Failed to delete message:", error);
+      toast.error("Failed to delete message");
     }
   };
 
@@ -333,7 +359,7 @@ export default function Chats() {
       setEditingMessageId(null);
       setEditedMessage("");
     } catch (error) {
-      console.error("Failed to update message:", error);
+      toast.error("Failed to update message");
     }
   };
 
@@ -349,144 +375,433 @@ export default function Chats() {
       setSelectedChannel(null);
       setShowMobileList(true);
     } catch (error) {
-      console.error("Failed to delete chat:", error);
+      toast.error("Failed to delete chat:");
     }
   };
 
   return (
-    <TooltipProvider>
+    <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
-        <div className="grid md:grid-cols-8 h-full">
+        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4">
           {/* Channels list */}
           <div
             className={`${
               showMobileList ? "block" : "hidden"
-            } md:block md:col-span-3 border-r h-full relative`}
+            } md:block md:col-span-3 h-full relative rounded-2xl bg-brandLight`}
           >
             {/* Fixed channels header */}
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-background z-10">
+            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-10 rounded-tl-2xl rounded-tr-2xl">
               <h2 className="font-bold text-lg">Chats</h2>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setIsGroupChatMode(false);
-                    setIsMembersDialogOpen(true);
-                  }}
-                >
-                  <UserPlus className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setIsGroupChatMode(true);
-                    setIsMembersDialogOpen(true);
-                  }}
-                >
-                  <Users className="h-5 w-5" />
-                </Button>
+                {isCreatingChat ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setIsGroupChatMode(false);
+                      setIsCreatingChat(false);
+                    }}
+                    className="rounded-full bg-muted"
+                  >
+                    <Minus className="text-primary w-10 h-10" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setIsGroupChatMode(false);
+                      setIsCreatingChat((prev) => !prev);
+                    }}
+                    className="rounded-full bg-muted"
+                  >
+                    <PlusIcon className="text-primary w-10 h-10" />
+                  </Button>
+                )}
               </div>
             </div>
 
             {/* Scrollable channels list */}
             <div className="absolute top-[73px] bottom-0 left-0 right-0 overflow-y-auto no_scrollbar">
               <div className="p-4 space-y-2">
-                {channelsLoading ? (
-                  <p>Loading chats...</p>
-                ) : channels?.data?.length > 0 ? (
-                  channels?.data?.map((channel) => (
-                    <div
-                      key={channel.id}
-                      className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
-                        selectedChannel?.id === channel.id ? "bg-accent" : ""
-                      }`}
-                      onClick={() => handleChannelSelect(channel)}
-                    >
-                      <img
-                        src={
-                          channel.thumbnail_image_url || "/default-avatar.png"
-                        }
-                        alt={channel.name}
-                        className="w-10 h-10 rounded-full object-cover"
+                {isCreatingChat ? (
+                  <div className="space-y-2">
+                    <div className="px-4 text-sm text-muted-foreground">
+                      {isGroupChatMode
+                        ? `Select members for group chat`
+                        : "Select a person to chat with"}
+                    </div>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
+                      <Input
+                        placeholder="Search chats..."
+                        className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
+                        value={channelSearchQuery}
+                        onChange={(e) => setChannelSearchQuery(e.target.value)}
                       />
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {channel.name || "Direct Message"}
+                    </div>
+                    {isGroupChatMode ? (
+                      <div className="flex items-center justify-between gap-2 cursor-pointer border-b py-4">
+                        <div className="text-sm">
+                          Total Members: {selectedMembers.length}
                         </div>
-                        <div className="text-sm text-muted-foreground">
-                          {channel.last_message || "No messages yet"}
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          Select all:{" "}
+                          <div
+                            className={cn(
+                              "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
+                              selectedMembers.length === members.length
+                                ? "bg-primary"
+                                : "bg-accent"
+                            )}
+                            onClick={() => {
+                              if (selectedMembers.length === members.length) {
+                                setSelectedMembers([]);
+                              } else {
+                                setSelectedMembers(members);
+                              }
+                            }}
+                          >
+                            {selectedMembers.length === members.length && (
+                              <Check className="w-4 h-4 text-white" />
+                            )}
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      <div
+                        className="flex items-center justify-center gap-2 cursor-pointer border-b  py-4"
+                        onClick={() => {
+                          setIsGroupChatMode(true);
+                        }}
+                      >
+                        <Button
+                          variant="outline"
+                          className="w-fit rounded-full h-10"
+                        >
+                          <Users className="w-6 h-6 text-primary" />
+                          <span className="text-md">Create Group</span>
+                        </Button>
+                      </div>
+                    )}
+                    {Array.isArray(members) &&
+                      members
+                        ?.filter((member) => {
+                          const searchTerm = channelSearchQuery.toLowerCase();
+                          if (!searchTerm) return true;
+
+                          return (
+                            member.first_name
+                              ?.toLowerCase()
+                              .includes(searchTerm) ||
+                            member.last_name?.toLowerCase().includes(searchTerm)
+                          );
+                        })
+                        ?.map((member) => (
+                          <div
+                            key={member.id}
+                            className={cn(
+                              "flex items-center gap-3 p-4 cursor-pointer hover:bg-primary/10 transition-colors rounded-lg",
+                              isGroupChatMode &&
+                                selectedMembers.some(
+                                  (m) => m.id === member.id
+                                ) &&
+                                "bg-primary/20"
+                            )}
+                            onClick={() => {
+                              handleMemberSelect(member);
+                              setChannelSearchQuery("");
+                              !isGroupChatMode && setIsCreatingChat(false);
+                            }}
+                          >
+                            <img
+                              src={
+                                member.profile_pic_url || "/default-avatar.png"
+                              }
+                              alt={member.first_name}
+                              className="w-10 h-10 border border-primary rounded-full object-cover"
+                            />
+                            <div className="flex-1">
+                              <div className="font-medium">
+                                {member.first_name} {member.last_name}
+                              </div>
+                              {member.relation && (
+                                <div className="text-sm text-muted-foreground">
+                                  {member.relation}
+                                </div>
+                              )}
+                            </div>
+
+                            {isGroupChatMode ? (
+                              selectedMembers.some(
+                                (m) => m.id === member.id
+                              ) ? (
+                                <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-primary">
+                                  <Check className="w-4 h-4 text-background" />
+                                </div>
+                              ) : (
+                                <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-accent"></div>
+                              )
+                            ) : null}
+                          </div>
+                        ))}
+                    {isGroupChatMode && selectedMembers.length >= 2 && (
+                      <div className="sticky bottom-[-1px] py-4 bg-brandLight flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          className="rounded-full h-10"
+                          onClick={() => {
+                            setIsCreatingChat(false);
+                            setIsGroupChatMode(false);
+                            setSelectedMembers([]);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          className="rounded-full h-10"
+                          onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                          Create Group
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : channelsLoading ? (
+                  <ComponentLoading />
+                ) : channels?.data?.length > 0 ? (
+                  <>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
+                      <Input
+                        placeholder="Search chats..."
+                        className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
+                        value={channelSearchQuery}
+                        onChange={(e) => setChannelSearchQuery(e.target.value)}
+                      />
                     </div>
-                  ))
+                    {channels?.data
+                      ?.filter((channel) => {
+                        const searchTerm = channelSearchQuery.toLowerCase();
+                        if (!searchTerm) return true;
+
+                        if (channel.is_group) {
+                          return channel.name
+                            ?.toLowerCase()
+                            .includes(searchTerm);
+                        }
+                      })
+                      ?.map((channel) => (
+                        <div
+                          key={channel.id}
+                          className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
+                            selectedChannel?.id === channel.id
+                              ? "bg-accent"
+                              : ""
+                          }`}
+                          onClick={() => handleChannelSelect(channel)}
+                        >
+                          <img
+                            src={
+                              channel.thumbnail_image_url ||
+                              "/default-avatar.png"
+                            }
+                            alt={channel.name}
+                            className="w-10 h-10 border border-primary rounded-full object-cover"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium">
+                              {channel.name || "Direct Message"}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {channel.last_message || "No messages yet"}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </>
                 ) : (
-                  <p className="text-muted-foreground text-center">
-                    No chats yet
-                  </p>
+                  <div className="flex flex-col items-center gap-8 justify-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <h2 className="text-2xl font-bold">No chats yet</h2>
+                      <p className="text-muted-foreground text-center">
+                        Start a conversation with a family member.
+                      </p>
+                    </div>
+                    <Button
+                      className="w-[200px] h-10 md:h-12 rounded-full"
+                      onClick={() => {
+                        setIsGroupChatMode(false);
+                        setIsCreatingChat(true);
+                      }}
+                    >
+                      <UserPlus className="h-5 w-5" />
+                      Start Chat
+                    </Button>
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Chat area */}
-          <div
-            className={`${
-              showMobileList ? "hidden" : "block"
-            } md:block md:col-span-5 h-full relative`}
-          >
-            {selectedChannel ? (
-              <>
-                {/* Fixed chat header */}
-                <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-background z-10">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="md:hidden"
-                      onClick={() => setShowMobileList(true)}
-                    >
-                      <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                    <img
-                      src={
-                        selectedChannel.thumbnail_image_url ||
-                        "/default-avatar.png"
-                      }
-                      alt={selectedChannel.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <h3 className="font-medium">
-                      {selectedChannel.name || "Direct Message"}
-                    </h3>
+          <TooltipProvider>
+            <div
+              className={`${
+                showMobileList ? "hidden" : "block"
+              } md:block md:col-span-5 h-full relative bg-brandLight rounded-2xl`}
+            >
+              {selectedChannel ? (
+                <>
+                  {/* Fixed chat header */}
+                  <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-10 rounded-t-2xl">
+                    {isSelectMode ? (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setIsSelectMode(false);
+                              setSelectedMessages([]);
+                            }}
+                          >
+                            <X className="h-5 w-5" />
+                          </Button>
+                          <span className="font-medium">
+                            {selectedMessages.length} selected
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {selectedMessages.length === 1 && (
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  const message = messages.find(
+                                    (m) => m.id === selectedMessages[0]
+                                  );
+                                  if (message) {
+                                    setMessageInfoData(message);
+                                    setIsSelectMode(false);
+                                    setSelectedMessages([]);
+                                  }
+                                }}
+                              >
+                                <Info className="h-5 w-5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  const message = messages.find(
+                                    (m) => m.id === selectedMessages[0]
+                                  );
+                                  if (message) {
+                                    navigator.clipboard.writeText(
+                                      message.message
+                                    );
+                                    toast.success(
+                                      "Message copied to clipboard"
+                                    );
+                                    setIsSelectMode(false);
+                                    setSelectedMessages([]);
+                                  }
+                                }}
+                              >
+                                <Copy className="h-5 w-5" />
+                              </Button>
+                            </>
+                          )}
+                          {/* {selectedMessages.length === 1 &&
+                          messages.find((m) => m.id === selectedMessages[0])
+                            ?.message_sent_by_me ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                // Handle delete
+                                setMessageToDelete(selectedMessages);
+                                setIsSelectMode(false);
+                                setSelectedMessages([]);
+                              }}
+                            >
+                              <Trash className="h-5 w-5 text-destructive" />
+                            </Button>
+                          ) : null} */}
+                          {selectedMessages.length === 1 ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setMessageToDelete(selectedMessages[0]);
+                                setIsSelectMode(false);
+                                setSelectedMessages([]);
+                              }}
+                            >
+                              <Trash className="h-5 w-5 text-destructive" />
+                            </Button>
+                          ) : null}
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="md:hidden"
+                          onClick={() => setShowMobileList(true)}
+                        >
+                          <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <img
+                          src={
+                            selectedChannel.thumbnail_image_url ||
+                            "/default-avatar.png"
+                          }
+                          alt={selectedChannel.name}
+                          className="w-10 h-10 rounded-full object-cover border border-primary"
+                        />
+                        <h3 className="font-medium">
+                          {selectedChannel.name || "Direct Message"}
+                        </h3>
+                      </div>
+                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={() => setIsInfoDialogOpen(true)}
+                        >
+                          View Info
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setIsSelectMode(true);
+                            setSelectedMessages([]);
+                          }}
+                        >
+                          Select Messages
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                        >
+                          Delete Chat
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={() => setIsInfoDialogOpen(true)}
-                      >
-                        View Info
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                      >
-                        Delete Chat
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
 
-                {/* Send status indicator */}
-                {sendStatus && (
-                  <div
-                    className={`absolute top-[73px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
+                  {/* Send status indicator */}
+                  {sendStatus && (
+                    <div
+                      className={`absolute top-[73px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
                       ${
                         sendStatus.type === "success"
                           ? "bg-green-500/10 text-green-500"
@@ -494,182 +809,207 @@ export default function Chats() {
                           ? "bg-red-500/10 text-red-500"
                           : "bg-blue-500/10 text-blue-500"
                       }`}
-                  >
-                    {sendStatus.message}
-                  </div>
-                )}
-
-                {/* Scrollable messages area */}
-                <div
-                  className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
-                  onScroll={handleScroll}
-                >
-                  {isLoadingMore && (
-                    <div className="text-center p-2 text-sm text-muted-foreground">
-                      Loading more messages...
+                    >
+                      {sendStatus.message}
                     </div>
                   )}
 
-                  <div className="p-4 space-y-4">
-                    {messages.map((message) => (
-                      <div
-                        key={`message-${message.id}`}
-                        className={`flex ${
-                          message.message_sent_by_me
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-                        <div className="flex flex-col gap-1 max-w-[80%] group">
-                          {!message.message_sent_by_me &&
-                            message.created_by && (
-                              <span className="text-xs text-muted-foreground ml-2">
-                                {message.created_by.first_name ||
-                                  "Unknown User"}
-                              </span>
-                            )}
+                  {/* Scrollable messages area */}
+                  <div
+                    className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
+                    onScroll={handleScroll}
+                  >
+                    {isLoadingMore && (
+                      <div className="text-center p-2 text-sm text-muted-foreground flex items-center justify-center gap-2">
+                        <ComponentLoading />
+                        Loading more messages...
+                      </div>
+                    )}
 
-                          <div className="flex flex-col gap-1">
+                    {messages.length > 0 ? (
+                      <div className="p-4 space-y-4">
+                        {messages.map((message) => (
+                          <div
+                            key={`message-${message.id}`}
+                            className={`flex ${
+                              message.message_sent_by_me
+                                ? "justify-end"
+                                : "justify-start"
+                            } mb-2 relative group`}
+                          >
+                            {isSelectMode && (
+                              <div
+                                className={cn(
+                                  "absolute top-1/2 -translate-y-1/2 cursor-pointer left-0 -ml-2"
+                                )}
+                                onClick={() => handleMessageSelect(message.id)}
+                              >
+                                <div
+                                  className={cn(
+                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                                    selectedMessages.includes(message.id)
+                                      ? "bg-primary border-primary"
+                                      : "border-muted-foreground"
+                                  )}
+                                >
+                                  {selectedMessages.includes(message.id) && (
+                                    <Check className="h-3 w-3 text-primary-foreground" />
+                                  )}
+                                </div>
+                              </div>
+                            )}
                             <div
-                              className={`relative p-3 rounded-2xl break-words whitespace-pre-wrap ${
-                                message.message_sent_by_me
-                                  ? "bg-primary text-primary-foreground"
-                                  : "bg-muted"
-                              }`}
+                              className={cn(
+                                "flex flex-col gap-1 max-w-[80%] min-w-[150px]",
+                                isSelectMode &&
+                                  !message.message_sent_by_me &&
+                                  "ml-6" // Add margin when selection mode is active
+                              )}
                             >
-                              <div className="overflow-hidden break-words">
-                                {message.message}
+                              {!message.message_sent_by_me &&
+                                message.created_by && (
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    {message.created_by.first_name}
+                                  </span>
+                                )}
+                              <div
+                                className={cn(
+                                  "px-4 py-2 rounded-2xl break-words relative",
+                                  message.message_sent_by_me
+                                    ? "bg-primary text-primary-foreground rounded-br-sm"
+                                    : "bg-muted rounded-bl-sm"
+                                )}
+                              >
+                                <div className="mb-4">{message.message}</div>
+                                <div
+                                  className={cn(
+                                    "flex items-center gap-2 text-xs absolute bottom-1 right-3",
+                                    message.message_sent_by_me
+                                      ? "text-primary-foreground/80"
+                                      : "text-muted-foreground"
+                                  )}
+                                >
+                                  <span>
+                                    {message.created_at
+                                      ? format(
+                                          new Date(message.created_at),
+                                          "HH:mm"
+                                        )
+                                      : ""}
+                                  </span>
+                                  {message.message_sent_by_me && (
+                                    <span>
+                                      {message.read_at ? (
+                                        <CheckCheck className="h-3 w-3" />
+                                      ) : message.delivered_at ? (
+                                        <Check className="h-3 w-3" />
+                                      ) : (
+                                        <Check className="h-3 w-3" />
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                          </div>
+                        ))}
+                        <div ref={messagesEndRef} /> {/* Scroll anchor */}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-4 h-full gap-4">
+                        <img
+                          src="/illustrations/message_red.svg"
+                          alt="Chat Empty"
+                          className="max-w-64 max-h-64"
+                        />
+                        <div className="text-muted-foreground text-center">
+                          Send a message to start the conversation.
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-                            <div
-                              className={`flex items-center gap-2 px-2 text-xs ${
-                                message.message_sent_by_me
-                                  ? "justify-end"
-                                  : "justify-start"
-                              }`}
-                            >
-                              {message.message_sent_by_me && (
-                                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-6 w-6 text-destructive"
-                                        onClick={() =>
-                                          setMessageToDelete(message)
-                                        }
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top">
-                                      <p>Delete message</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </div>
-                              )}
+                  {/* Fixed bottom section */}
+                  <div className="absolute bottom-0 left-0 right-0 border-t bg-brandLight rounded-b-2xl">
+                    {/* Typing indicator */}
+                    {typingUsers.size > 0 && (
+                      <div className="px-4 py-2 text-sm text-muted-foreground">
+                        {Array.from(typingUsers)
+                          .map((user) => user.first_name)
+                          .join(", ")}
+                        {typingUsers.size === 1 ? " is" : " are"} typing...
+                      </div>
+                    )}
 
-                              <span className="text-muted-foreground">
-                                {message.created_at
-                                  ? format(
-                                      new Date(message.created_at),
-                                      "HH:mm"
-                                    )
-                                  : ""}
-                              </span>
-
-                              {message.message_sent_by_me && (
-                                <span>
-                                  {message.read_at ? (
-                                    <CheckCheck className="h-3 w-3 text-primary" />
-                                  ) : message.delivered_at ? (
-                                    <Check className="h-3 w-3" />
-                                  ) : (
-                                    <Check className="h-3 w-3" />
-                                  )}
-                                </span>
-                              )}
+                    {/* Message input */}
+                    <div className="p-4">
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleSendMessage(newMessage);
+                        }}
+                        className="space-y-1"
+                      >
+                        <div className="relative flex items-end gap-2">
+                          <div className="relative flex-1">
+                            <Textarea
+                              value={newMessage}
+                              onChange={handleInputChange}
+                              placeholder="Type a message..."
+                              disabled={!isConnected || isSending}
+                              className="resize-none min-h-[20px] max-h-[120px] pr-3 rounded-2xl bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary no_scrollbar"
+                              rows={2}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleSendMessage(newMessage);
+                                }
+                              }}
+                            />
+                            <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
+                              {newMessage.length}/200
                             </div>
                           </div>
+                          <Button
+                            type="submit"
+                            size="icon"
+                            className="h-10 w-10 shrink-0 rounded-full"
+                            disabled={
+                              !isConnected ||
+                              isSending ||
+                              !newMessage.trim() ||
+                              newMessage.length > 200
+                            }
+                          >
+                            <Send className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} /> {/* Scroll anchor */}
-                  </div>
-                </div>
-
-                {/* Fixed bottom section */}
-                <div className="absolute bottom-0 left-0 right-0 border-t bg-background">
-                  {/* Typing indicator */}
-                  {typingUsers.size > 0 && (
-                    <div className="px-4 py-2 text-sm text-muted-foreground">
-                      {Array.from(typingUsers)
-                        .map((user) => user.first_name)
-                        .join(", ")}
-                      {typingUsers.size === 1 ? " is" : " are"} typing...
+                      </form>
                     </div>
-                  )}
-
-                  {/* Message input */}
-                  <div className="p-4">
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        handleSendMessage(newMessage);
-                      }}
-                      className="space-y-1"
-                    >
-                      <div className="relative flex items-end gap-2">
-                        <div className="relative flex-1">
-                          <Textarea
-                            value={newMessage}
-                            onChange={handleInputChange}
-                            placeholder="Type a message..."
-                            disabled={!isConnected || isSending}
-                            className="resize-none min-h-[20px] max-h-[120px] pr-3 rounded-2xl bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary no_scrollbar"
-                            rows={2}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" && !e.shiftKey) {
-                                e.preventDefault();
-                                handleSendMessage(newMessage);
-                              }
-                            }}
-                          />
-                          <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
-                            {newMessage.length}/200
-                          </div>
-                        </div>
-                        <Button
-                          type="submit"
-                          size="icon"
-                          className="h-10 w-10 shrink-0 rounded-full"
-                          disabled={
-                            !isConnected ||
-                            isSending ||
-                            !newMessage.trim() ||
-                            newMessage.length > 200
-                          }
-                        >
-                          <Send className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </form>
                   </div>
+                </>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                  <div>
+                    <img
+                      src="/illustrations/select_member_to_chat.png"
+                      alt="Chat"
+                      className="max-w-64 max-h-64"
+                    />
+                  </div>
+                  <p className="text-center text-sm max-w-[300px]">
+                    Select the member from the left menu and start the
+                    conversation.
+                  </p>
                 </div>
-              </>
-            ) : (
-              <div className="h-full flex items-center justify-center text-muted-foreground">
-                Select a chat to start messaging
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </TooltipProvider>
         </div>
 
         {/* Chat Info Dialog */}
         <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="max-w-[90%] w-[350px] rounded-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Chat Information</DialogTitle>
             </DialogHeader>
@@ -727,7 +1067,7 @@ export default function Chats() {
           open={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}
         >
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-[90%] w-[350px] rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Chat</AlertDialogTitle>
               <AlertDialogDescription>
@@ -736,10 +1076,12 @@ export default function Chats() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="rounded-full">
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDeleteChat}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
                 disabled={deleteChannelMutation.isPending}
               >
                 {deleteChannelMutation.isPending ? "Deleting..." : "Delete"}
@@ -755,7 +1097,7 @@ export default function Chats() {
             if (!isOpen) setMessageToDelete(null);
           }}
         >
-          <AlertDialogContent className="max-w-[360px]">
+          <AlertDialogContent className="max-w-[90%] w-[350px] rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Message</AlertDialogTitle>
               <AlertDialogDescription>
@@ -764,12 +1106,12 @@ export default function Chats() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel className="rounded-full">
+                Cancel
+              </AlertDialogCancel>
               <AlertDialogAction
-                onClick={() =>
-                  messageToDelete && handleMessageDelete(messageToDelete.id)
-                }
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={() => handleMessageDelete(messageToDelete)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
               >
                 Delete
               </AlertDialogAction>
@@ -842,7 +1184,7 @@ export default function Chats() {
                       <img
                         src={member.profile_pic_url || "/default-avatar.png"}
                         alt={member.first_name}
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="w-10 h-10 rounded-full object-cover border border-primary"
                       />
                       <div className="flex-1">
                         <div className="font-medium">
@@ -893,17 +1235,14 @@ export default function Chats() {
             }
           }}
         >
-          <DialogContent>
+          <DialogContent className="max-w-[90%] w-[450px] rounded-2xl">
             <DialogHeader>
               <DialogTitle>Create Group Chat</DialogTitle>
-              <DialogDescription>
-                Creating a group chat with {selectedMembers.length} members
-              </DialogDescription>
+              <DialogDescription></DialogDescription>
             </DialogHeader>
             <form onSubmit={handleCreateGroupChat}>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="thumbnail">Group Image</Label>
                   <div className="flex flex-col items-center gap-2">
                     <div className="relative group">
                       <input
@@ -932,19 +1271,18 @@ export default function Chats() {
                                 newChannelData.thumbnail_image
                               )}
                               alt="Thumbnail preview"
-                              className="w-24 h-24 rounded-full object-cover"
+                              className="w-24 h-24 rounded-full object-cover border border-primary"
                             />
                             <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                               <p className="text-white text-xs">Change Image</p>
                             </div>
                           </div>
                         ) : (
-                          <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                          <div className="w-24 h-24 rounded-full bg-brandSecondary flex items-center justify-center group-hover:bg-muted/80 transition-colors">
                             <div className="flex flex-col items-center">
-                              <Users className="h-8 w-8 text-muted-foreground mb-1" />
-                              <p className="text-xs text-muted-foreground">
-                                Upload Image
-                              </p>
+                              <div className="bg-primary rounded-full p-3">
+                                <Camera className="h-8 w-8 text-white mb-1" />
+                              </div>
                             </div>
                           </div>
                         )}
@@ -986,6 +1324,7 @@ export default function Chats() {
                     }
                     placeholder="Enter group name"
                     required
+                    className="rounded-full h-10 md:h-12 focus:border-primary outline-none focus:ring-primary focus:ring-2"
                   />
                 </div>
                 <div className="space-y-2">
@@ -999,18 +1338,24 @@ export default function Chats() {
                         description: e.target.value,
                       }))
                     }
+                    maxLength={100}
                     placeholder="Group description (optional)"
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Selected Members</Label>
-                  <div className="flex flex-wrap gap-2 p-2 border rounded-lg">
+                  <div className="flex flex-wrap gap-2 p-2 border rounded-lg overflow-y-scroll max-h-[200px] min-h-[100px] no_scrollbar">
                     {selectedMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="flex items-center gap-1 bg-accent rounded-full px-3 py-1"
+                        className="flex items-center gap-1 rounded-full px-3 py-1 bg-primary/80"
                       >
-                        <span className="text-sm">
+                        <img
+                          src={member.profile_pic_url || "/default-avatar.png"}
+                          alt={member.first_name}
+                          className="w-5 h-5 rounded-full object-cover border border-primary"
+                        />
+                        <span className="text-sm text-white">
                           {member.first_name} {member.last_name}
                         </span>
                         <Button
@@ -1020,24 +1365,26 @@ export default function Chats() {
                           className="h-4 w-4 p-0 hover:bg-transparent"
                           onClick={() => handleMemberSelect(member)}
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-3 w-3 text-white" />
                         </Button>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-              <DialogFooter className="mt-4">
+              <DialogFooter className="mt-4 flex gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsCreateDialogOpen(false)}
+                  className="rounded-full"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
                   disabled={!newChannelData.name || selectedMembers.length < 2}
+                  className="rounded-full"
                 >
                   Create Group
                 </Button>
@@ -1045,7 +1392,125 @@ export default function Chats() {
             </form>
           </DialogContent>
         </Dialog>
+
+        <Dialog
+          open={messageInfoData !== null}
+          onOpenChange={(open) => !open && setMessageInfoData(null)}
+        >
+          <DialogContent className="max-w-[90%] w-[350px] rounded-2xl p-0">
+            <div className="flex items-center justify-between p-4">
+              <DialogTitle className="text-xl font-medium">
+                Message info
+              </DialogTitle>
+            </div>
+
+            <div className="px-4 pb-4">
+              {/* Message Content */}
+              <div className="bg-primary/90 text-primary-foreground rounded-2xl p-4 mb-6 max-w-[90%]">
+                <p className="text-base mb-2">{messageInfoData?.message}</p>
+                <div className="flex justify-end">
+                  <span className="text-sm text-primary-foreground/90">
+                    {messageInfoData?.created_at &&
+                      format(new Date(messageInfoData.created_at), "HH:mm a")}
+                  </span>
+                </div>
+              </div>
+
+              <hr className="border-t border-muted-foreground/20 mb-4" />
+
+              {/* Read/Delivered Status */}
+              {!selectedChannel?.is_group ? (
+                <div className="space-y-4 bg-[#FFF5E8] rounded-xl p-4">
+                  {messageInfoData?.read_at ? (
+                    <div className="flex items-center justify-between border-b">
+                      <div className="flex items-center gap-3">
+                        <CheckCheck className="h-5 w-5 text-primary" />
+                        <span className="text-base">Read</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm text-muted-foreground">
+                          {format(
+                            new Date(messageInfoData.read_at),
+                            "MMM d, HH:mm"
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between border-b pb-4">
+                      <div className="flex items-center gap-3">
+                        <CheckCheck className="h-5 w-5 text-primary" />
+                        <span className="text-base">Read</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {messageInfoData?.delivered_at ? (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Check className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-base">Delivered</span>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <span className="text-sm">
+                          {format(
+                            new Date(messageInfoData.delivered_at),
+                            "HH:mm a"
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Check className="h-5 w-5 text-muted-foreground" />
+                        <span className="text-base">Delivered</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : null}
+
+              {/* For Group Messages - Show read status per member */}
+              {selectedChannel?.is_group && messageInfoData?.read_by ? (
+                <div className="mt-4 pt-4 border-t">
+                  <h4 className="text-sm font-medium mb-3">Read by</h4>
+                  <div className="space-y-3">
+                    {messageInfoData.read_by.map((reader) => (
+                      <div
+                        key={reader.id}
+                        className="flex items-center justify-between"
+                      >
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={
+                              reader.profile_pic_url || "/default-avatar.png"
+                            }
+                            alt={reader.first_name}
+                            className="w-6 h-6 rounded-full"
+                          />
+                          <span className="text-sm">
+                            {reader.first_name} {reader.last_name}
+                          </span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {format(new Date(reader.read_at), "HH:mm")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center p-4">
+                  <span className="text-muted-foreground">
+                    No read status available
+                  </span>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </Card>
-    </TooltipProvider>
+    </AsyncComponent>
   );
 }
