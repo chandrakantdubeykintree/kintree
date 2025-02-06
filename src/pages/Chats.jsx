@@ -400,6 +400,7 @@ export default function Chats() {
                     onClick={() => {
                       setIsGroupChatMode(false);
                       setIsCreatingChat(false);
+                      setSelectedMembers([]);
                     }}
                     className="rounded-full bg-muted"
                   >

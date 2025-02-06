@@ -98,7 +98,6 @@ export default function EditEducationForm() {
       setSelectedEducation(null);
       form.reset();
     } catch (error) {
-      console.error("Submission error:", error);
       toast.error(
         error?.response?.data?.message ||
           "Failed to save education details. Please try again."

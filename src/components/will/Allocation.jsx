@@ -70,7 +70,6 @@ export default function Allocation({ setStep, willId }) {
       toast.success("Allocations saved successfully");
       setStep("executor");
     } catch (error) {
-      console.error("Error saving allocations:", error);
       toast.error("Failed to save allocations");
     }
   };

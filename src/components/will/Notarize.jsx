@@ -46,7 +46,6 @@ export default function Notarize({ setStep, willId }) {
         toast.success("Will document generated successfully");
       }
     } catch (error) {
-      console.error("Error generating will:", error);
       toast.error("Failed to generate will document");
     }
   };
@@ -57,7 +56,6 @@ export default function Notarize({ setStep, willId }) {
       toast.success("Will notarized successfully");
       navigate("/will");
     } catch (error) {
-      console.error("Error notarizing will:", error);
       toast.error("Failed to notarize will");
     }
   };

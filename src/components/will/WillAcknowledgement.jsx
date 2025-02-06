@@ -31,7 +31,6 @@ export default function WillAcknowledgement({ setStep }) {
         toast.error("Failed to create will. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating will:", error);
       toast.error("Failed to create will. Please try again.");
     }
   };

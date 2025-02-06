@@ -13,11 +13,9 @@ class MessageService {
   connect() {
     if (this.socket?.connected) return;
 
-    console.log("Connecting to socket:", SOCKET_URL);
-
     const token = tokenService.getLoginToken();
     if (!token) {
-      console.error("No authentication token found");
+      useMessageStore.getState().setError("No authentication token found");
       return;
     }
 
@@ -40,7 +38,7 @@ class MessageService {
     this.setupSocketListeners();
 
     this.socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
+      useMessageStore.getState().setError("Socket connection error");
       // Fallback to polling if websocket fails
       if (error.type === "TransportError") {
         this.socket.io.opts.transports = ["polling"];
@@ -321,14 +319,14 @@ class MessageService {
         );
       });
     } catch (error) {
-      console.error("Failed to delete message:", error);
+      useMessageStore.getState().setError("Failed to delete message");
       throw error;
     }
   }
 
   loadMoreMessages(channelId, page) {
     if (!this.socket?.connected) {
-      console.error("Socket not connected");
+      useMessageStore.getState().setError("Socket not connected");
       return;
     }
 
@@ -495,7 +493,6 @@ export const useMessageStore = create((set) => ({
           },
         };
       } catch (error) {
-        console.error("Error adding messages:", error);
         return state; // Return unchanged state on error
       }
     }),

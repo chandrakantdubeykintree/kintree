@@ -99,7 +99,6 @@ export const useEvents = (filter = "upcoming") => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch events. Please try again later.");
-      console.error("Events fetch error:", error);
     },
   });
 };
@@ -113,7 +112,6 @@ export const useEvent = (eventId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch event details.");
-      console.error("Event fetch error:", error);
     },
   });
 };
@@ -147,7 +145,6 @@ export const useEditEvent = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENT, eventId] });
     },
     onError: (error) => {
-      console.error("Edit event error:", error);
       toast.error(error.response?.data?.message || "Failed to update event");
     },
   });

@@ -31,7 +31,6 @@ export default function PDFViewer({ url }) {
   }
 
   function onDocumentLoadError(error) {
-    console.error("PDF Load Error:", error);
     setError("Failed to load PDF. Please try again later.");
   }
 

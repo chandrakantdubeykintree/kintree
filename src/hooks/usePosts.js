@@ -435,7 +435,6 @@ export const useComments = (postId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch comments.");
-      console.error("Comments fetch error:", error);
     },
   });
 };

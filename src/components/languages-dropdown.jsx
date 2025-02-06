@@ -18,8 +18,6 @@ export default function LanguagesDropDown() {
     setLanguage(languageCode);
   };
 
-  console.log();
-
   const languagesList = Object.entries(LANGUAGES)?.map(([code, nativeName]) => (
     <DropdownMenuItem
       key={code}

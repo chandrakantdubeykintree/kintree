@@ -44,7 +44,6 @@ export default function EditBasicInfoForm() {
   const [isEditing, setIsEditing] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile("/user/basic-info");
   const { width } = useWindowSize();
-  // console.log(profile);
 
   const form = useForm({
     resolver: zodResolver(basicInfoSchema),

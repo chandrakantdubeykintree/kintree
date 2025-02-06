@@ -35,7 +35,6 @@ export default function Selfie({ setStep, willId }) {
       toast.success("Selfie uploaded successfully");
       setStep("notarize");
     } catch (error) {
-      console.error("Error uploading selfie:", error);
       toast.error("Failed to upload selfie");
     }
   };

@@ -83,7 +83,6 @@ export const useProfile = (infoType) => {
       toast.success(`${imageType} image updated successfully`);
     },
     onError: (error) => {
-      console.error("Image upload error:", error);
       toast.error(error?.response?.data?.message || "Failed to update image");
     },
   });

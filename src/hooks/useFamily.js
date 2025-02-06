@@ -88,7 +88,6 @@ export const useFamily = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch family. Please try again later.");
-      console.error("Family fetch error:", error);
     },
   });
 };
@@ -101,7 +100,6 @@ export const useFamilyMembers = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch family members. Please try again later.");
-      console.error("Family fetch error:", error);
     },
   });
 };
@@ -115,7 +113,6 @@ export const useMember = (memberId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch member details.");
-      console.error("Member fetch error:", error);
     },
   });
 };

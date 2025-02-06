@@ -134,7 +134,6 @@ export default function CreatePost() {
         [...uploadedAttachments, ...newAttachments].map((att) => att.id)
       );
     } catch (error) {
-      console.error("Error uploading files:", error);
       toast.error("Failed to upload files");
     } finally {
       setIsUploading(false);
@@ -157,7 +156,6 @@ export default function CreatePost() {
       },
       onError: (error) => {
         toast.error("Failed to delete file");
-        console.error("Delete error:", error);
       },
     });
   };

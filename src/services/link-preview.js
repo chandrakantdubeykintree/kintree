@@ -37,7 +37,6 @@ export default async function handler(req, res) {
       siteName: metadata.siteName || new URL(url).hostname,
     });
   } catch (error) {
-    console.error("Link preview error:", error);
     res.status(500).json({
       error: "Failed to fetch link preview",
       message: error.message,

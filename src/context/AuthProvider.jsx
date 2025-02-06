@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }) => {
           handleLogout();
         }
       } catch (error) {
-        console.error("Auth check failed:", error);
         handleLogout();
       } finally {
         setLoading(false);
@@ -69,7 +68,6 @@ export const AuthProvider = ({ children }) => {
       }
       return false;
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
       handleLogout();
       return false;
     }

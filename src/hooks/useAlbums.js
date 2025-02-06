@@ -60,7 +60,6 @@ export const useAlbums = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch albums. Please try again later.");
-      console.error("Albums fetch error:", error);
     },
   });
 };
@@ -74,7 +73,6 @@ export const useAlbum = (albumId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch album details.");
-      console.error("Album fetch error:", error);
     },
   });
 };
@@ -108,7 +106,6 @@ export const useEditAlbum = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ALBUM, data.id] });
     },
     onError: (error) => {
-      console.error("Edit album error:", error);
       toast.error(error.response?.data?.message || "Failed to update album");
     },
   });

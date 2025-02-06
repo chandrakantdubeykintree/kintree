@@ -53,7 +53,6 @@ export default function AddFamilyMemberDialog({
         toast.error("Failed to add family members");
       }
     } catch (error) {
-      console.error("Error adding family members:", error);
       toast.error("Failed to add family members");
     }
   };

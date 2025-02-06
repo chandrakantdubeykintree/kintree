@@ -131,7 +131,6 @@ export default function EditEvent() {
       navigate(`/view-event/${eventId}`);
     } catch (error) {
       toast.error("Failed to update event");
-      console.error("Failed to update event:", error);
     }
   };
 
@@ -164,7 +163,6 @@ export default function EditEvent() {
       ]);
     } catch (error) {
       toast.error("Failed to upload attachments");
-      console.error("Upload failed:", error);
     }
   };
 

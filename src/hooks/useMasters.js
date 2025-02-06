@@ -140,7 +140,6 @@ export const useFeelings = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch feelings");
-      console.error("Feelings fetch error:", error);
     },
   });
 };
@@ -161,7 +160,6 @@ export const useEventCategories = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch event categories");
-      console.error("Event categories fetch error:", error);
     },
   });
 };
@@ -175,7 +173,6 @@ export const usePresetProfileImages = (gender) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch profile images");
-      console.error("Profile images fetch error:", error);
     },
   });
 };
@@ -188,7 +185,6 @@ export const useReligions = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch religions");
-      console.error("Religions fetch error:", error);
     },
   });
 };
@@ -201,7 +197,6 @@ export const useReligionsAllInOne = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch religions data");
-      console.error("Religions all-in-one fetch error:", error);
     },
   });
 };
@@ -215,7 +210,6 @@ export const useCastes = (religionId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch castes");
-      console.error("Castes fetch error:", error);
     },
   });
 };
@@ -229,7 +223,6 @@ export const useGotras = (religionId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch gotras");
-      console.error("Gotras fetch error:", error);
     },
   });
 };
@@ -243,7 +236,6 @@ export const useSects = (religionId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch sects");
-      console.error("Sects fetch error:", error);
     },
   });
 };
@@ -256,7 +248,6 @@ export const useRelationshipTypes = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch relationship types");
-      console.error("Relationship types fetch error:", error);
     },
   });
 };
@@ -269,7 +260,6 @@ export const useOccupations = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch occupations");
-      console.error("Occupations fetch error:", error);
     },
   });
 };
@@ -282,7 +272,6 @@ export const useReactionTypes = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch reaction types");
-      console.error("Reaction types fetch error:", error);
     },
   });
 };
@@ -295,7 +284,6 @@ export const useBloodGroups = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch blood groups");
-      console.error("Blood groups fetch error:", error);
     },
   });
 };
@@ -308,7 +296,6 @@ export const useEducationTypes = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch education types");
-      console.error("Education types fetch error:", error);
     },
   });
 };
@@ -321,7 +308,6 @@ export const useInterests = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch interests");
-      console.error("Interests fetch error:", error);
     },
   });
 };
@@ -334,7 +320,6 @@ export const useCountries = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch countries");
-      console.error("Countries fetch error:", error);
     },
   });
 };
@@ -347,7 +332,6 @@ export const useLanguages = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch languages");
-      console.error("Languages fetch error:", error);
     },
   });
 };
@@ -360,7 +344,6 @@ export const useAgeRanges = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch age ranges");
-      console.error("Age ranges fetch error:", error);
     },
   });
 };
@@ -374,7 +357,6 @@ export const useSubCastes = (religionId, casteId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch sub-castes");
-      console.error("Sub-castes fetch error:", error);
     },
   });
 };
