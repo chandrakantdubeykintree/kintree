@@ -14,18 +14,27 @@ import {
   ICON_USERNAME,
   ICON_WILL,
 } from "./iconUrls";
+import FamilyTreeIcon from "@/components/custom-icons/familyTreeIcon";
+import DnaIcon from "@/components/custom-icons/dnaIcon";
+import EventsIcon from "@/components/custom-icons/eventsIcon";
+import NotificationsIcon from "@/components/custom-icons/notificationsIcon";
+import WillIcon from "@/components/custom-icons/willIcon";
+import ProfileIcon from "@/components/custom-icons/profileIcon";
+import SettingsIcon from "@/components/custom-icons/settingsIcon";
+import KincoinsIcon from "@/components/custom-icons/kincoinsIcon";
+import ChatsIcon from "@/components/custom-icons/chatsIcon";
 
 export const mainNavLinks = [
-  { path: "/foreroom", label: "foreroom", icon: ICON_FOREROOM },
-  { path: "/familytree", label: "family_tree", icon: ICON_FAMILYTREE },
-  { path: "/chats", label: "chats", icon: ICON_CHAT },
-  { path: "https://kintree.com/dna/", label: "dna", icon: ICON_SHOP },
-  { path: "/events", label: "events", icon: ICON_EVENT },
-  { path: "/kincoins", label: "kincoins", icon: ICON_KINCOINS },
-  { path: "/notifications", label: "notifications", icon: ICON_NOTIFICATION },
-  { path: "/will", label: "will", icon: ICON_WILL },
-  { path: "/profile", label: "profile", icon: ICON_PROFILE },
-  { path: "/settings", label: "settings", icon: ICON_SETTINGS },
+  { path: "/foreroom", label: "foreroom", Icon: ForeroomIcon },
+  { path: "/familytree", label: "family_tree", Icon: FamilyTreeIcon },
+  { path: "/chats", label: "chats", Icon: ChatsIcon },
+  { path: "https://kintree.com/dna/", label: "dna", Icon: DnaIcon },
+  { path: "/events", label: "events", Icon: EventsIcon },
+  { path: "/kincoins", label: "kincoins", Icon: KincoinsIcon },
+  { path: "/notifications", label: "notifications", Icon: NotificationsIcon },
+  { path: "/will", label: "will", Icon: WillIcon },
+  { path: "/profile", label: "profile", Icon: ProfileIcon },
+  { path: "/settings", label: "settings", Icon: SettingsIcon },
 ];
 
 export const profileMenuItems = [
