@@ -72,6 +72,30 @@ class MessageService {
       useMessageStore.getState().setConnected(false);
     });
 
+    this.socket.on("channel-delivered", (data) => {
+      if (data.success) {
+        const messages = useMessageStore.getState().messages;
+        const updatedMessages = messages.map((msg) =>
+          !msg.message_sent_by_me && !msg.delivered_at
+            ? { ...msg, delivered_at: new Date().toISOString() }
+            : msg
+        );
+        useMessageStore.getState().setMessages(updatedMessages);
+      }
+    });
+
+    this.socket.on("channel-read", (data) => {
+      if (data.success) {
+        const messages = useMessageStore.getState().messages;
+        const updatedMessages = messages.map((msg) =>
+          !msg.message_sent_by_me && !msg.read_at
+            ? { ...msg, read_at: new Date().toISOString() }
+            : msg
+        );
+        useMessageStore.getState().setMessages(updatedMessages);
+      }
+    });
+
     // Channel events
     this.socket.on("channel-joined", (data) => {
       if (data.channel && data.messages) {
@@ -110,6 +134,30 @@ class MessageService {
         const messages = useMessageStore.getState().messages;
         const updatedMessages = messages.map((msg) =>
           msg.id === data.messageId
+            ? { ...msg, read_at: new Date().toISOString() }
+            : msg
+        );
+        useMessageStore.getState().setMessages(updatedMessages);
+      }
+    });
+
+    this.socket.on("messages-delivered", (data) => {
+      if (data.channelId === useMessageStore.getState().currentChannel?.id) {
+        const messages = useMessageStore.getState().messages;
+        const updatedMessages = messages.map((msg) =>
+          msg.message_sent_by_me && !msg.delivered_at
+            ? { ...msg, delivered_at: new Date().toISOString() }
+            : msg
+        );
+        useMessageStore.getState().setMessages(updatedMessages);
+      }
+    });
+
+    this.socket.on("messages-read", (data) => {
+      if (data.channelId === useMessageStore.getState().currentChannel?.id) {
+        const messages = useMessageStore.getState().messages;
+        const updatedMessages = messages.map((msg) =>
+          msg.message_sent_by_me && !msg.read_at
             ? { ...msg, read_at: new Date().toISOString() }
             : msg
         );
@@ -188,6 +236,12 @@ class MessageService {
     useMessageStore.getState().setLoading(true);
     useMessageStore.getState().setError(null);
 
+    // First mark all messages as delivered
+    this.markChannelAsDelivered(channelId);
+
+    // Then mark all messages as read
+    this.markChannelAsRead(channelId);
+
     this.socket.emit(
       "join-channel",
       {
@@ -204,31 +258,101 @@ class MessageService {
     );
   }
 
+  markChannelAsDelivered(channelId) {
+    if (!this.socket?.connected) return;
+
+    this.socket.emit(
+      "mark-channel-delivered",
+      {
+        channelId: parseInt(channelId),
+      },
+      (response) => {
+        if (!response.success) {
+          console.error("Failed to mark channel as delivered:", response.error);
+        }
+      }
+    );
+  }
+
+  markChannelAsRead(channelId) {
+    if (!this.socket?.connected) return;
+
+    this.socket.emit(
+      "mark-channel-read",
+      {
+        channelId: parseInt(channelId),
+      },
+      (response) => {
+        if (!response.success) {
+          console.error("Failed to mark channel as read:", response.error);
+        }
+      }
+    );
+  }
+
   leaveChannel(channelId) {
     if (!this.socket?.connected) return;
     this.socket.emit("leave-channel", channelId);
   }
 
   // Message methods
-  async sendMessage(channelId, message) {
+  async sendMessage(channelId, message, attachment = null) {
     if (!this.socket?.connected) return false;
 
     try {
       useMessageStore.getState().setSending(true);
 
-      return new Promise((resolve, reject) => {
-        this.socket.emit("send-message", { channelId, message }, (response) => {
-          if (response.success) {
-            // Add the message to the store immediately
-            useMessageStore.getState().addMessage(response.data);
-            resolve(response);
-          } else {
-            reject(new Error(response.error));
-          }
+      // If there's an attachment, convert it to base64
+      let attachmentData = null;
+      if (attachment) {
+        // Validate file type
+        const allowedTypes = [".jpg", ".jpeg", ".png", ".gif", ".svg"];
+        const fileExt = attachment.name
+          .substring(attachment.name.lastIndexOf("."))
+          .toLowerCase();
+
+        if (!allowedTypes.includes(fileExt)) {
+          throw new Error(
+            `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
+          );
+        }
+
+        // Convert file to base64
+        const reader = new FileReader();
+        attachmentData = await new Promise((resolve, reject) => {
+          reader.onload = () =>
+            resolve({
+              data: reader.result,
+              name: attachment.name,
+              type: attachment.type,
+            });
+          reader.onerror = reject;
+          reader.readAsDataURL(attachment);
         });
+      }
+
+      return new Promise((resolve, reject) => {
+        this.socket.emit(
+          "send-message",
+          {
+            channelId,
+            message,
+            attachment: attachmentData,
+          },
+          (response) => {
+            if (response.success) {
+              useMessageStore.getState().addMessage(response.data);
+              resolve(response);
+            } else {
+              reject(new Error(response.error));
+            }
+          }
+        );
       });
     } catch (error) {
-      useMessageStore.getState().setError("Failed to send message");
+      useMessageStore
+        .getState()
+        .setError(error.message || "Failed to send message");
       return false;
     } finally {
       useMessageStore.getState().setSending(false);

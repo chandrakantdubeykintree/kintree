@@ -24,6 +24,8 @@ import {
   Copy,
   Info,
   Trash,
+  ImageIcon,
+  File,
 } from "lucide-react";
 import {
   Dialog,
@@ -94,6 +96,35 @@ export default function Chats() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [messageInfoData, setMessageInfoData] = useState(null);
+
+  const [attachment, setAttachment] = useState(null);
+
+  // Add this function to handle file selection
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("File size should not exceed 5MB");
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = [".jpg", ".jpeg", ".png", ".gif", ".svg"];
+      const fileExt = file.name
+        .substring(file.name.lastIndexOf("."))
+        .toLowerCase();
+
+      if (!allowedTypes.includes(fileExt)) {
+        toast.error(
+          `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
+        );
+        return;
+      }
+
+      setAttachment(file);
+    }
+  };
 
   // Add this function to handle message selection
   const handleMessageSelect = (messageId) => {
@@ -290,14 +321,24 @@ export default function Chats() {
 
   // Handle message sending with better error handling
   const handleSendMessage = async (message) => {
-    if (!selectedChannel || !message.trim()) return;
+    if (!selectedChannel || (!message.trim() && !attachment)) return;
 
     try {
-      await messageService.sendMessage(selectedChannel.id, message.trim());
+      await messageService.sendMessage(
+        selectedChannel.id,
+        message.trim(),
+        attachment
+      );
       setNewMessage(""); // Clear input after sending
+      setAttachment(null); // Clear attachment
     } catch (error) {
       toast.error("Failed to send message");
     }
+  };
+
+  // Add this to clear attachment
+  const clearAttachment = () => {
+    setAttachment(null);
   };
 
   const handleInputChange = (e) => {
@@ -319,12 +360,6 @@ export default function Chats() {
     }
   };
 
-  const handleMessageRead = (messageId) => {
-    if (selectedChannel) {
-      messageService.markAsRead(selectedChannel.id, messageId);
-    }
-  };
-
   const handleMessageDelete = async (messageId) => {
     if (!messageId || !selectedChannel?.id) return;
 
@@ -334,32 +369,6 @@ export default function Chats() {
     } catch (error) {
       toast.error("Failed to delete message");
     }
-  };
-
-  const handleStartEdit = (message) => {
-    setEditingMessageId(message.id);
-    setEditedMessage(message.message);
-  };
-
-  const handleSaveEdit = async (messageId) => {
-    if (!editedMessage.trim() || editedMessage.length > 200) return;
-
-    try {
-      await messageService.updateMessage(
-        selectedChannel.id,
-        messageId,
-        editedMessage
-      );
-      setEditingMessageId(null);
-      setEditedMessage("");
-    } catch (error) {
-      toast.error("Failed to update message");
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditingMessageId(null);
-    setEditedMessage("");
   };
 
   const handleDeleteChat = async () => {
@@ -481,6 +490,7 @@ export default function Chats() {
                     )}
                     {Array.isArray(members) &&
                       members
+                        ?.filter((member) => member.is_active)
                         ?.filter((member) => {
                           const searchTerm = channelSearchQuery.toLowerCase();
                           if (!searchTerm) return true;
@@ -579,10 +589,9 @@ export default function Chats() {
                       ?.filter((channel) => {
                         const searchTerm = channelSearchQuery.toLowerCase();
                         if (!searchTerm) return true;
-
                         return (
                           channel.name?.toLowerCase().includes(searchTerm) ||
-                          channel.last_message
+                          channel.latest_message?.message
                             ?.toLowerCase()
                             .includes(searchTerm)
                         );
@@ -590,27 +599,74 @@ export default function Chats() {
                       ?.map((channel) => (
                         <div
                           key={channel.id}
-                          className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
+                          className={`flex items-center gap-3 p-4 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
                             selectedChannel?.id === channel.id
                               ? "bg-accent"
                               : ""
                           }`}
                           onClick={() => handleChannelSelect(channel)}
                         >
-                          <img
-                            src={
-                              channel.thumbnail_image_url ||
-                              "/default-avatar.png"
-                            }
-                            alt={channel.name}
-                            className="w-10 h-10 border border-primary rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="font-medium">
-                              {channel.name || "Direct Message"}
+                          <div className="relative">
+                            <img
+                              src={
+                                channel.thumbnail_image_url ||
+                                "/default-avatar.png"
+                              }
+                              alt={channel.name}
+                              className="w-12 h-12 border border-primary rounded-full object-cover"
+                            />
+                            {channel.is_online && (
+                              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between gap-2">
+                              <h4 className="font-medium truncate">
+                                {channel.name || "Direct Message"}
+                              </h4>
+                              <div className="flex items-center gap-2 shrink-0">
+                                {channel.unread_message_count > 0 ? (
+                                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                    <span className="text-xs text-primary-foreground">
+                                      {channel.unread_message_count || 0}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <div className="shrink-0">
+                                    {channel?.latest_message?.read_at ? (
+                                      <CheckCheck className="h-4 w-4 text-primary" />
+                                    ) : channel?.latest_message
+                                        ?.delivered_at ? (
+                                      <Check className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                      <Check className="h-4 w-4 text-muted-foreground/50" />
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {channel.last_message || "No messages yet"}
+                            <div className="flex items-center justify-between gap-2 mt-1">
+                              <div className="flex items-center gap-1 flex-1 min-w-0">
+                                {channel.latest_message?.message_sent_by_me && (
+                                  <span className="text-sm text-muted-foreground shrink-0">
+                                    You:{" "}
+                                  </span>
+                                )}
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {channel.latest_message?.message ||
+                                    "No messages yet"}
+                                </p>
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {channel.latest_message?.created_at
+                                  ? format(
+                                      new Date(
+                                        channel.latest_message.created_at
+                                      ),
+                                      "HH:mm"
+                                    )
+                                  : ""}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -873,7 +929,59 @@ export default function Chats() {
                                   : "bg-muted rounded-bl-sm"
                               )}
                             >
-                              <div className="mb-4">{message.message}</div>
+                              {/* <div className="mb-4">{message.message}</div> */}
+                              {message.message && (
+                                <div className="mb-2">{message.message}</div>
+                              )}
+                              {message.attachments &&
+                                message.attachments.length > 0 && (
+                                  <div className="mb-4">
+                                    {message.attachments[0].mime.startsWith(
+                                      "image/"
+                                    ) ? (
+                                      <div className="relative max-w-[300px] min-w-[200px]">
+                                        <img
+                                          src={message.attachments[0].url}
+                                          alt={message.attachments[0].name}
+                                          className="w-full h-auto object-contain rounded-lg"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            // Optionally: Add image preview/lightbox functionality here
+                                            window.open(
+                                              message.attachments[0].url,
+                                              "_blank"
+                                            );
+                                          }}
+                                        />
+                                        <div className="absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded-md">
+                                          <span className="text-xs text-white">
+                                            {(
+                                              message.attachments[0].size /
+                                              (1024 * 1024)
+                                            ).toFixed(1)}
+                                            MB
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-2 bg-background/50 p-2 rounded-lg">
+                                        <File className="h-5 w-5 text-primary" />
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-sm truncate">
+                                            {message.attachments[0].name}
+                                          </p>
+                                          <span className="text-xs text-muted-foreground">
+                                            {(
+                                              message.attachments[0].size /
+                                              (1024 * 1024)
+                                            ).toFixed(1)}
+                                            MB
+                                          </span>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               <div
                                 className={cn(
                                   "flex items-center gap-2 text-xs absolute bottom-1 right-3",
@@ -935,15 +1043,47 @@ export default function Chats() {
                   )}
 
                   {/* Message input */}
-                  <div className="p-4">
+                  <div className="p-2 md:p-4">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
                         handleSendMessage(newMessage);
                       }}
-                      className="space-y-1"
+                      className="space-y-2"
                     >
+                      {attachment && (
+                        <div className="flex items-center gap-2 p-2 bg-muted rounded-lg">
+                          <ImageIcon className="h-5 w-5 text-primary" />
+                          <span className="text-sm truncate">
+                            {attachment.name}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={clearAttachment}
+                            className="ml-auto"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+
                       <div className="relative flex items-end gap-2">
+                        <input
+                          type="file"
+                          id="attachment"
+                          accept=".jpg,.jpeg,.png,.gif,.svg"
+                          className="hidden"
+                          onChange={handleFileSelect}
+                        />
+                        <label
+                          htmlFor="attachment"
+                          className="cursor-pointer p-2 hover:bg-muted rounded-full transition-colors"
+                        >
+                          <Camera className="h-8 w-8 text-primary" />
+                        </label>
+
                         <div className="relative flex-1">
                           <Textarea
                             value={newMessage}
@@ -963,6 +1103,7 @@ export default function Chats() {
                             {newMessage.length}/200
                           </div>
                         </div>
+
                         <Button
                           type="submit"
                           size="icon"
@@ -970,7 +1111,7 @@ export default function Chats() {
                           disabled={
                             !isConnected ||
                             isSending ||
-                            !newMessage.trim() ||
+                            (!newMessage.trim() && !attachment) ||
                             newMessage.length > 200
                           }
                         >

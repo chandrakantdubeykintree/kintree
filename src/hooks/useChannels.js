@@ -13,6 +13,16 @@ const handleApiError = (error) => {
   return Promise.reject(error);
 };
 
+// fetch unread messages
+const fetchUnreadMessages = async () => {
+  try {
+    const response = await kintreeApi.get("/user/unreaded-message-count");
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
 // Fetch all channels
 const fetchChannels = async () => {
   try {
@@ -64,6 +74,15 @@ const deleteChannel = async (channelId) => {
 };
 
 // Hooks
+export const useUnreadMessages = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.UNREAD_MESSAGES],
+    queryFn: fetchUnreadMessages,
+    refetchOnWindowFocus: true,
+    staleTime: 1000 * 60,
+  });
+};
+
 export const useChannels = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.CHANNELS],

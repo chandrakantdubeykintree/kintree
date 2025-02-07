@@ -3,11 +3,14 @@ import { mainNavLinks } from "../constants/navLinks";
 import { Card } from "./ui/card";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { useUnreadMessages } from "@/hooks/useChannels";
 
 export default function SecondaryNavigation() {
   const location = useLocation();
   const { t } = useTranslation();
   const [hoveredPath, setHoveredPath] = useState(null);
+  const { data: unreadMessages } = useUnreadMessages();
+  const unreadedMessageCount = unreadMessages?.data?.unreaded_message_count;
 
   return (
     <Card className="w-full max-w-sm mx-auto shadow-sm border-0 rounded-2xl overflow-hidden">
@@ -18,24 +21,34 @@ export default function SecondaryNavigation() {
             to={path}
             onMouseEnter={() => setHoveredPath(path)}
             onMouseLeave={() => setHoveredPath(null)}
-            className={`flex items-center gap-4 h-12 font-medium pl-4 rounded-xl text-base ${
+            className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base ${
               location?.pathname.includes(path)
                 ? "bg-brandPrimary text-white hover:bg-brandPrimary"
                 : "hover:bg-primary/90 hover:text-white"
             } `}
           >
-            {/* <img src={icon} className="h-6 w-6" /> */}
-            {Icon && (
-              <Icon
-                className="h-6 w-6"
-                strokeColor={
-                  location?.pathname.includes(path) || hoveredPath === path
-                    ? "#ffffff"
-                    : undefined
-                }
-              />
+            <div className="flex items-center gap-2">
+              {Icon && (
+                <Icon
+                  className="h-6 w-6"
+                  strokeColor={
+                    location?.pathname.includes(path) || hoveredPath === path
+                      ? "#ffffff"
+                      : undefined
+                  }
+                />
+              )}
+              <span className="text-sm">{t(label)}</span>
+            </div>
+            {path === "/chats" && (
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500 p-2">
+                <span className="text-xs text-white">
+                  {unreadedMessageCount > 99
+                    ? "99+"
+                    : unreadedMessageCount || 0}
+                </span>
+              </div>
             )}
-            <span className="text-sm">{t(label)}</span>
           </NavLink>
         ))}
       </div>
