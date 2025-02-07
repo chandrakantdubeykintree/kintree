@@ -20,6 +20,7 @@ export default function SecondaryNavigation() {
             } `}
           >
             <img src={icon} className="h-6 w-6" />
+            {/* {icon && <icon className="stroke-black" />} */}
             <span className="text-sm">{t(label)}</span>
           </NavLink>
         ))}

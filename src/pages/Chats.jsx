@@ -47,12 +47,6 @@ import {
 import { messageService, useMessageStore } from "@/services/messageService";
 import { format } from "date-fns";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -67,7 +61,7 @@ import ComponentLoading from "@/components/component-loading";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 
-const TYPING_TIMER_LENGTH = 3000;
+const TYPING_TIMER_LENGTH = 1500;
 
 export default function Chats() {
   const { data: members, isLoading: membersLoading } = useFamilyMembers();
@@ -375,7 +369,7 @@ export default function Chats() {
       setSelectedChannel(null);
       setShowMobileList(true);
     } catch (error) {
-      toast.error("Failed to delete chat:");
+      toast.error("Failed to delete chat.");
     }
   };
 
@@ -586,11 +580,12 @@ export default function Chats() {
                         const searchTerm = channelSearchQuery.toLowerCase();
                         if (!searchTerm) return true;
 
-                        if (channel.is_group) {
-                          return channel.name
+                        return (
+                          channel.name?.toLowerCase().includes(searchTerm) ||
+                          channel.last_message
                             ?.toLowerCase()
-                            .includes(searchTerm);
-                        }
+                            .includes(searchTerm)
+                        );
                       })
                       ?.map((channel) => (
                         <div
@@ -646,76 +641,73 @@ export default function Chats() {
           </div>
 
           {/* Chat area */}
-          <TooltipProvider>
-            <div
-              className={`${
-                showMobileList ? "hidden" : "block"
-              } md:block md:col-span-5 h-full relative bg-brandLight rounded-2xl`}
-            >
-              {selectedChannel ? (
-                <>
-                  {/* Fixed chat header */}
-                  <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-10 rounded-t-2xl">
-                    {isSelectMode ? (
-                      <>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setIsSelectMode(false);
-                              setSelectedMessages([]);
-                            }}
-                          >
-                            <X className="h-5 w-5" />
-                          </Button>
-                          <span className="font-medium">
-                            {selectedMessages.length} selected
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {selectedMessages.length === 1 && (
-                            <>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  const message = messages.find(
-                                    (m) => m.id === selectedMessages[0]
+          <div
+            className={`${
+              showMobileList ? "hidden" : "block"
+            } md:block md:col-span-5 h-full relative bg-brandLight rounded-2xl`}
+          >
+            {selectedChannel ? (
+              <>
+                {/* Fixed chat header */}
+                <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-10 rounded-t-2xl">
+                  {isSelectMode ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setIsSelectMode(false);
+                            setSelectedMessages([]);
+                          }}
+                        >
+                          <X className="h-5 w-5" />
+                        </Button>
+                        <span className="font-medium">
+                          {selectedMessages.length} selected
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {selectedMessages.length === 1 && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const message = messages.find(
+                                  (m) => m.id === selectedMessages[0]
+                                );
+                                if (message) {
+                                  setMessageInfoData(message);
+                                  setIsSelectMode(false);
+                                  setSelectedMessages([]);
+                                }
+                              }}
+                            >
+                              <Info className="h-5 w-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                const message = messages.find(
+                                  (m) => m.id === selectedMessages[0]
+                                );
+                                if (message) {
+                                  navigator.clipboard.writeText(
+                                    message.message
                                   );
-                                  if (message) {
-                                    setMessageInfoData(message);
-                                    setIsSelectMode(false);
-                                    setSelectedMessages([]);
-                                  }
-                                }}
-                              >
-                                <Info className="h-5 w-5" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => {
-                                  const message = messages.find(
-                                    (m) => m.id === selectedMessages[0]
-                                  );
-                                  if (message) {
-                                    navigator.clipboard.writeText(
-                                      message.message
-                                    );
-                                    toast.success(
-                                      "Message copied to clipboard"
-                                    );
-                                    setIsSelectMode(false);
-                                    setSelectedMessages([]);
-                                  }
-                                }}
-                              >
-                                <Copy className="h-5 w-5" />
-                              </Button>
-                            </>
-                          )}
-                          {/* {selectedMessages.length === 1 &&
+                                  toast.success("Message copied to clipboard");
+                                  setIsSelectMode(false);
+                                  setSelectedMessages([]);
+                                }
+                              }}
+                            >
+                              <Copy className="h-5 w-5" />
+                            </Button>
+                          </>
+                        )}
+                        {/* {selectedMessages.length === 1 &&
                           messages.find((m) => m.id === selectedMessages[0])
                             ?.message_sent_by_me ? (
                             <Button
@@ -731,78 +723,78 @@ export default function Chats() {
                               <Trash className="h-5 w-5 text-destructive" />
                             </Button>
                           ) : null} */}
-                          {selectedMessages.length === 1 ? (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                setMessageToDelete(selectedMessages[0]);
-                                setIsSelectMode(false);
-                                setSelectedMessages([]);
-                              }}
-                            >
-                              <Trash className="h-5 w-5 text-destructive" />
-                            </Button>
-                          ) : null}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="md:hidden"
-                          onClick={() => setShowMobileList(true)}
-                        >
-                          <ArrowLeft className="h-5 w-5" />
-                        </Button>
-                        <img
-                          src={
-                            selectedChannel.thumbnail_image_url ||
-                            "/default-avatar.png"
-                          }
-                          alt={selectedChannel.name}
-                          className="w-10 h-10 rounded-full object-cover border border-primary"
-                        />
-                        <h3 className="font-medium">
-                          {selectedChannel.name || "Direct Message"}
-                        </h3>
+                        {selectedMessages.length === 1 ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setMessageToDelete(selectedMessages[0]);
+                              setIsSelectMode(false);
+                              setSelectedMessages([]);
+                            }}
+                          >
+                            <Trash className="h-5 w-5 text-destructive" />
+                          </Button>
+                        ) : null}
                       </div>
-                    )}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreVertical className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() => setIsInfoDialogOpen(true)}
-                        >
-                          View Info
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setIsSelectMode(true);
-                            setSelectedMessages([]);
-                          }}
-                        >
-                          Select Messages
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                        >
-                          Delete Chat
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden"
+                        onClick={() => setShowMobileList(true)}
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </Button>
+                      <img
+                        src={
+                          selectedChannel.thumbnail_image_url ||
+                          "/default-avatar.png"
+                        }
+                        alt={selectedChannel.name}
+                        className="w-10 h-10 rounded-full object-cover border border-primary"
+                      />
+                      <h3 className="font-medium">
+                        {selectedChannel.name || "Direct Message"}
+                      </h3>
+                    </div>
+                  )}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => setIsInfoDialogOpen(true)}
+                      >
+                        View Info
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setIsSelectMode(true);
+                          setSelectedMessages([]);
+                        }}
+                      >
+                        Select Messages
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => setIsDeleteDialogOpen(true)}
+                      >
+                        Delete Chat
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
 
-                  {/* Send status indicator */}
-                  {sendStatus && (
-                    <div
-                      className={`absolute top-[73px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
+                {/* Send status indicator */}
+                {sendStatus && (
+                  <div
+                    className={`absolute top-[73px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
                       ${
                         sendStatus.type === "success"
                           ? "bg-green-500/10 text-green-500"
@@ -810,202 +802,201 @@ export default function Chats() {
                           ? "bg-red-500/10 text-red-500"
                           : "bg-blue-500/10 text-blue-500"
                       }`}
-                    >
-                      {sendStatus.message}
+                  >
+                    {sendStatus.message}
+                  </div>
+                )}
+
+                {/* Scrollable messages area */}
+                <div
+                  className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
+                  onScroll={handleScroll}
+                >
+                  {isLoadingMore && (
+                    <div className="text-center p-2 text-sm text-muted-foreground flex items-center justify-center gap-2">
+                      <ComponentLoading />
+                      Loading more messages...
                     </div>
                   )}
 
-                  {/* Scrollable messages area */}
-                  <div
-                    className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
-                    onScroll={handleScroll}
-                  >
-                    {isLoadingMore && (
-                      <div className="text-center p-2 text-sm text-muted-foreground flex items-center justify-center gap-2">
-                        <ComponentLoading />
-                        Loading more messages...
-                      </div>
-                    )}
-
-                    {messages.length > 0 ? (
-                      <div className="p-4 space-y-4">
-                        {messages.map((message) => (
-                          <div
-                            key={`message-${message.id}`}
-                            className={`flex ${
-                              message.message_sent_by_me
-                                ? "justify-end"
-                                : "justify-start"
-                            } mb-2 relative group`}
-                          >
-                            {isSelectMode && (
-                              <div
-                                className={cn(
-                                  "absolute top-1/2 -translate-y-1/2 cursor-pointer left-0 -ml-2"
-                                )}
-                                onClick={() => handleMessageSelect(message.id)}
-                              >
-                                <div
-                                  className={cn(
-                                    "w-5 h-5 rounded-full border-2 flex items-center justify-center",
-                                    selectedMessages.includes(message.id)
-                                      ? "bg-primary border-primary"
-                                      : "border-muted-foreground"
-                                  )}
-                                >
-                                  {selectedMessages.includes(message.id) && (
-                                    <Check className="h-3 w-3 text-primary-foreground" />
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                  {messages.length > 0 ? (
+                    <div className="p-4 space-y-4">
+                      {messages.map((message) => (
+                        <div
+                          key={`message-${message.id}`}
+                          className={`flex ${
+                            message.message_sent_by_me
+                              ? "justify-end"
+                              : "justify-start"
+                          } mb-2 relative group`}
+                        >
+                          {isSelectMode && (
                             <div
                               className={cn(
-                                "flex flex-col gap-1 max-w-[80%] min-w-[150px]",
-                                isSelectMode &&
-                                  !message.message_sent_by_me &&
-                                  "ml-6" // Add margin when selection mode is active
+                                "absolute top-1/2 -translate-y-1/2 cursor-pointer left-0 -ml-2"
                               )}
+                              onClick={() => handleMessageSelect(message.id)}
                             >
-                              {!message.message_sent_by_me &&
-                                message.created_by && (
-                                  <span className="text-xs text-muted-foreground ml-2">
-                                    {message.created_by.first_name}
-                                  </span>
-                                )}
                               <div
                                 className={cn(
-                                  "px-4 py-2 rounded-2xl break-words relative",
-                                  message.message_sent_by_me
-                                    ? "bg-primary text-primary-foreground rounded-br-sm"
-                                    : "bg-muted rounded-bl-sm"
+                                  "w-5 h-5 rounded-full border-2 flex items-center justify-center",
+                                  selectedMessages.includes(message.id)
+                                    ? "bg-primary border-primary"
+                                    : "border-muted-foreground"
                                 )}
                               >
-                                <div className="mb-4">{message.message}</div>
-                                <div
-                                  className={cn(
-                                    "flex items-center gap-2 text-xs absolute bottom-1 right-3",
-                                    message.message_sent_by_me
-                                      ? "text-primary-foreground/80"
-                                      : "text-muted-foreground"
-                                  )}
-                                >
+                                {selectedMessages.includes(message.id) && (
+                                  <Check className="h-3 w-3 text-primary-foreground" />
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          <div
+                            className={cn(
+                              "flex flex-col gap-1 max-w-[80%] min-w-[150px]",
+                              isSelectMode &&
+                                !message.message_sent_by_me &&
+                                "ml-6" // Add margin when selection mode is active
+                            )}
+                          >
+                            {!message.message_sent_by_me &&
+                              message.created_by && (
+                                <span className="text-xs text-muted-foreground ml-2">
+                                  {message.created_by.first_name}
+                                </span>
+                              )}
+                            <div
+                              className={cn(
+                                "px-4 py-2 rounded-2xl break-words relative",
+                                message.message_sent_by_me
+                                  ? "bg-primary text-primary-foreground rounded-br-sm"
+                                  : "bg-muted rounded-bl-sm"
+                              )}
+                            >
+                              <div className="mb-4">{message.message}</div>
+                              <div
+                                className={cn(
+                                  "flex items-center gap-2 text-xs absolute bottom-1 right-3",
+                                  message.message_sent_by_me
+                                    ? "text-primary-foreground/80"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                <span>
+                                  {message.created_at
+                                    ? format(
+                                        new Date(message.created_at),
+                                        "HH:mm"
+                                      )
+                                    : ""}
+                                </span>
+                                {message.message_sent_by_me && (
                                   <span>
-                                    {message.created_at
-                                      ? format(
-                                          new Date(message.created_at),
-                                          "HH:mm"
-                                        )
-                                      : ""}
+                                    {message.read_at ? (
+                                      <CheckCheck className="h-3 w-3" />
+                                    ) : message.delivered_at ? (
+                                      <Check className="h-3 w-3" />
+                                    ) : (
+                                      <Check className="h-3 w-3" />
+                                    )}
                                   </span>
-                                  {message.message_sent_by_me && (
-                                    <span>
-                                      {message.read_at ? (
-                                        <CheckCheck className="h-3 w-3" />
-                                      ) : message.delivered_at ? (
-                                        <Check className="h-3 w-3" />
-                                      ) : (
-                                        <Check className="h-3 w-3" />
-                                      )}
-                                    </span>
-                                  )}
-                                </div>
+                                )}
                               </div>
                             </div>
                           </div>
-                        ))}
-                        <div ref={messagesEndRef} /> {/* Scroll anchor */}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center p-4 h-full gap-4">
-                        <img
-                          src="/illustrations/message_red.svg"
-                          alt="Chat Empty"
-                          className="max-w-64 max-h-64"
-                        />
-                        <div className="text-muted-foreground text-center">
-                          Send a message to start the conversation.
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Fixed bottom section */}
-                  <div className="absolute bottom-0 left-0 right-0 border-t bg-brandLight rounded-b-2xl">
-                    {/* Typing indicator */}
-                    {typingUsers.size > 0 && (
-                      <div className="px-4 py-2 text-sm text-muted-foreground">
-                        {Array.from(typingUsers)
-                          .map((user) => user.first_name)
-                          .join(", ")}
-                        {typingUsers.size === 1 ? " is" : " are"} typing...
-                      </div>
-                    )}
-
-                    {/* Message input */}
-                    <div className="p-4">
-                      <form
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          handleSendMessage(newMessage);
-                        }}
-                        className="space-y-1"
-                      >
-                        <div className="relative flex items-end gap-2">
-                          <div className="relative flex-1">
-                            <Textarea
-                              value={newMessage}
-                              onChange={handleInputChange}
-                              placeholder="Type a message..."
-                              disabled={!isConnected || isSending}
-                              className="resize-none min-h-[20px] max-h-[120px] pr-3 rounded-2xl bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary no_scrollbar"
-                              rows={2}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter" && !e.shiftKey) {
-                                  e.preventDefault();
-                                  handleSendMessage(newMessage);
-                                }
-                              }}
-                            />
-                            <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
-                              {newMessage.length}/200
-                            </div>
-                          </div>
-                          <Button
-                            type="submit"
-                            size="icon"
-                            className="h-10 w-10 shrink-0 rounded-full"
-                            disabled={
-                              !isConnected ||
-                              isSending ||
-                              !newMessage.trim() ||
-                              newMessage.length > 200
-                            }
-                          >
-                            <Send className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </form>
+                      ))}
+                      <div ref={messagesEndRef} /> {/* Scroll anchor */}
                     </div>
-                  </div>
-                </>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                  <div>
-                    <img
-                      src="/illustrations/select_member_to_chat.png"
-                      alt="Chat"
-                      className="max-w-64 max-h-64"
-                    />
-                  </div>
-                  <p className="text-center text-sm max-w-[300px]">
-                    Select the member from the left menu and start the
-                    conversation.
-                  </p>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center p-4 h-full gap-4">
+                      <img
+                        src="/illustrations/message_red.svg"
+                        alt="Chat Empty"
+                        className="max-w-64 max-h-64"
+                      />
+                      <div className="text-muted-foreground text-center">
+                        Send a message to start the conversation.
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </TooltipProvider>
+
+                {/* Fixed bottom section */}
+                <div className="absolute bottom-0 left-0 right-0 border-t bg-brandLight rounded-b-2xl">
+                  {/* Typing indicator */}
+                  {typingUsers.size > 0 && (
+                    <div className="px-4 py-2 text-sm text-muted-foreground">
+                      {Array.from(typingUsers)
+                        .map((user) => user.first_name)
+                        .join(", ")}
+                      {typingUsers.size === 1 ? " is" : " are"} typing...
+                    </div>
+                  )}
+
+                  {/* Message input */}
+                  <div className="p-4">
+                    <form
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        handleSendMessage(newMessage);
+                      }}
+                      className="space-y-1"
+                    >
+                      <div className="relative flex items-end gap-2">
+                        <div className="relative flex-1">
+                          <Textarea
+                            value={newMessage}
+                            onChange={handleInputChange}
+                            placeholder="Type a message..."
+                            disabled={!isConnected || isSending}
+                            className="resize-none min-h-[20px] max-h-[120px] pr-3 rounded-2xl bg-muted border-0 focus-visible:ring-1 focus-visible:ring-primary no_scrollbar"
+                            rows={2}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && !e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage(newMessage);
+                              }
+                            }}
+                          />
+                          <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
+                            {newMessage.length}/200
+                          </div>
+                        </div>
+                        <Button
+                          type="submit"
+                          size="icon"
+                          className="h-10 w-10 shrink-0 rounded-full"
+                          disabled={
+                            !isConnected ||
+                            isSending ||
+                            !newMessage.trim() ||
+                            newMessage.length > 200
+                          }
+                        >
+                          <Send className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                <div>
+                  <img
+                    src="/illustrations/select_member_to_chat.png"
+                    alt="Chat"
+                    className="max-w-64 max-h-64"
+                  />
+                </div>
+                <p className="text-center text-sm max-w-[300px]">
+                  Select the member from the left menu and start the
+                  conversation.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Chat Info Dialog */}

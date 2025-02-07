@@ -1,3 +1,4 @@
+import ForeroomIcon from "@/components/custom-icons/foreroomIcon";
 import {
   ICON_CHAT,
   ICON_DELETE,
