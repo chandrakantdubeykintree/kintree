@@ -22,7 +22,8 @@
     "username": {
       "placeholder": "Enter your username",
       "required": "Username is required",
-      "minLength": "Username must be at least 2 characters"
+      "minLength": "Username must be at least 3 characters",
+      "invalid": "Please enter a valid username"
     },
     "email": {
       "placeholder": "Enter your email",
@@ -32,7 +33,14 @@
     "password": {
       "placeholder": "Enter your password",
       "required": "Password is required",
-      "minLength": "Password must be at least 6 characters"
+      "invalid": "Please enter a valid password",
+      "minLength": "Password must be at least 5 characters"
+    },
+    "phone_no": {
+      "placeholder": "Enter your phone number",
+      "minLength": "Phone number must be at least 10 characters",
+      "required": "Phone number is required",
+      "invalid": "Please enter a valid phone number"
     },
     "buttons": {
       "submit": "Submit",
@@ -51,6 +59,19 @@
       "email": "Email",
       "password": "Password",
       "login": "Login"
+    },
+    "otp": {
+      "errors": {
+        "length": "OTP must be 4 or 6 digits",
+        "tooShort": "OTP must be at least 4 digits",
+        "tooLong": "OTP cannot be more than 6 digits",
+        "invalidLength": "OTP must be either 4 or 6 digits",
+        "numbers": "Please enter numbers only",
+        "required": "OTP is required",
+        "invalid": "OTP is invalid",
+        "verify": "OTP verification failed",
+        "send": "OTP sent successfully"
+      }
     }
   },
   "headings": {
@@ -63,16 +84,9 @@
     "welcome": "Welcome to our application",
     "description": "This is a description text",
     "error": "Error message goes here",
-    "info": "Information message"
-  },
-  "otp": {
-    "errors": {
-      "length": "OTP must be 4 or 6 digits",
-      "tooShort": "OTP must be at least 4 digits",
-      "tooLong": "OTP cannot be more than 6 digits",
-      "invalidLength": "OTP must be either 4 or 6 digits",
-      "numbers": "Please enter numbers only",
-      "required": "OTP is required"
-    }
+    "info": "Information message",
+    "forgot": "Forgot",
+    "password": "Password",
+    "username": "Username"
   }
 }

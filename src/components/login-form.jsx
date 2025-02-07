@@ -12,11 +12,10 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useEffect, useState } from "react";
-import { loginSchemas } from "@/schemas/loginSchemas";
+import { z } from "zod";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { ICON_EDIT2 } from "@/constants/iconUrls";
-import { Eye, EyeOff, Lock, Mail, Pen, Phone, User } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,18 +24,52 @@ import {
   route_forgot_password,
   route_forgot_username,
 } from "@/constants/routeEnpoints";
+import { CustomInput } from "./custom-ui/custom_input";
+import { useTranslation } from "react-i18next";
+import { CustomPasswordInput } from "./custom-ui/custom_pasword_input";
+import { CustomPhoneInput } from "./custom-ui/custom_phone_input";
+import { countriesList } from "@/constants/countriesList";
+import { CustomOTPInput } from "./custom-ui/custom_otp_input";
 
 export function LoginForm({ setOpenTerms }) {
+  const { t } = useTranslation();
   const [loginType, setLoginType] = useState("email");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
-  const [showPassword, setShowPassword] = useState(false);
+  const [countryCode, setCountryCode] = useState("");
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { loginPassword, sendOTPLoginRegister, verifyOTPLoginRegister } =
     useAuthentication();
+
+  const loginSchemas = {
+    username: z.object({
+      username: z.string().min(3, t("forms.username.minLength")),
+      password: z.string().min(5, t("forms.password.minLength")),
+    }),
+
+    email: z.object({
+      email: z.string().email(t("forms.email.invalid")),
+    }),
+
+    phone_no: z.object({
+      phone_no: z
+        .string()
+        .refine((val) => val.length >= 10, t("forms.phone_no.minLength")),
+    }),
+
+    otp: z.object({
+      otp: z
+        .string()
+        .refine(
+          (val) => val.length === 4 || val.length === 6,
+          t("forms.otp.errors.length")
+        )
+        .refine((val) => /^\d+$/.test(val), t("forms.otp.errors.numbers")),
+    }),
+  };
 
   const isValidOtp = (otp) => {
     return /^\d+$/.test(otp) && otp.length === otpLength;
@@ -55,8 +88,6 @@ export function LoginForm({ setOpenTerms }) {
   });
 
   const watchedValues = watch();
-  const watchedOtp = watch("otp");
-  const isOtpComplete = watchedOtp?.length === otpLength;
   const hasErrors = Object.keys(errors).length > 0;
 
   const onSubmit = async (data) => {
@@ -66,7 +97,7 @@ export function LoginForm({ setOpenTerms }) {
         if (response.success) {
           navigate("/foreroom");
         } else {
-          toast.error(response.error || "Login Failed");
+          toast.error(t("forms.username.invalid"));
           if (response.error === "User not found") {
             handleLoginTypeChange("email");
           }
@@ -77,7 +108,7 @@ export function LoginForm({ setOpenTerms }) {
     } else if (loginType === "phone_no" || loginType === "email") {
       try {
         const response = await sendOTPLoginRegister({
-          [loginType]: data[loginType],
+          [loginType]: countryCode + data[loginType],
         });
         if (response.status) {
           setIsOtpSent(true);
@@ -90,7 +121,13 @@ export function LoginForm({ setOpenTerms }) {
           }
         }
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to send OTP");
+        toast.error(
+          t(
+            loginType === "phone_no"
+              ? "forms.phone_no.invalid"
+              : "forms.email.invalid"
+          )
+        );
       }
     } else if (loginType === "otp") {
       try {
@@ -100,9 +137,7 @@ export function LoginForm({ setOpenTerms }) {
             watchedValues[watchedValues.phone_no ? "phone_no" : "email"],
         });
       } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "OTP verification failed"
-        );
+        toast.error(t("forms.otp.errors.verify"));
       }
     }
   };
@@ -112,59 +147,35 @@ export function LoginForm({ setOpenTerms }) {
       case "username":
         return (
           <div className="flex flex-col gap-4 mb-4">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
-              <Input
-                {...register("username")}
-                placeholder="Username"
-                className="md:h-10 rounded-l-full rounded-r-full pl-10"
-              />
-            </div>
-            {errors.username && (
-              <div className="text-red-500 text-sm">
-                {errors.username.message}
-              </div>
-            )}
+            <CustomInput
+              placeholder={t("forms.username.placeholder")}
+              icon={User}
+              {...register("username")}
+              error={errors.username}
+            />
+            <CustomPasswordInput
+              // label={t("forms.password.placeholder")}
+              icon={Lock}
+              placeholder={t("forms.password.placeholder")}
+              translationKey="password"
+              error={errors.password}
+              {...register("password")}
+            />
 
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
-              <Input
-                {...register("password")}
-                placeholder="Password"
-                type={showPassword ? "text" : "password"}
-                className="md:h-10 rounded-l-full rounded-r-full pl-10"
-              />
-              {showPassword ? (
-                <Eye
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer h-4"
-                  onClick={() => setShowPassword(false)}
-                />
-              ) : (
-                <EyeOff
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer h-4"
-                  onClick={() => setShowPassword(true)}
-                />
-              )}
-            </div>
-            {errors.password && (
-              <div className="text-red-500 text-sm">
-                {errors.password.message}
-              </div>
-            )}
             <div className="flex items-center justify-end text-sm">
-              Forgot&nbsp;
+              {t("text.forgot")}&nbsp;
               <Link
                 to={route_forgot_password}
                 className="underline-offset-4 hover:underline text-primary"
               >
-                password
+                {t("text.password")}
               </Link>
               &nbsp;or&nbsp;
               <Link
                 to={route_forgot_username}
                 className="underline-offset-4 hover:underline text-primary"
               >
-                username?
+                {t("text.username")}
               </Link>
             </div>
           </div>
@@ -175,21 +186,14 @@ export function LoginForm({ setOpenTerms }) {
           <div className="flex flex-col gap-2 mb-2">
             {loginType === "phone_no" ? (
               <>
-                <PhoneInput
-                  international
-                  countryCallingCodeEditable={false}
-                  defaultCountry="IN"
-                  onChange={(value) => setValue("phone_no", value)}
-                  value={watchedValues.phone_no}
-                  limitMaxLength
-                  maxLength={15}
-                  className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                <CustomPhoneInput
+                  translationKey="phone_no"
+                  placeholder={t("forms.phone_no.placeholder")}
+                  error={errors.phone_no}
+                  {...register("phone_no")}
+                  countries={countriesList}
+                  setCountryCode={setCountryCode}
                 />
-                {errors.phone_no && (
-                  <div className="text-red-500 text-sm">
-                    {errors.phone_no.message}
-                  </div>
-                )}
               </>
             ) : (
               <>
@@ -214,42 +218,12 @@ export function LoginForm({ setOpenTerms }) {
       case "otp":
         return (
           isOtpSent && (
-            <div className="mb-4 flex flex-col gap-4 items-center justify-center">
-              <InputOTP
-                maxLength={otpLength}
-                onChange={(value) => setValue("otp", value)}
-                value={watchedValues.otp}
-                className="rounded-full"
-              >
-                <InputOTPGroup className="gap-2 rounded-full w-full">
-                  {[...Array(otpLength)].map((_, index) => (
-                    <InputOTPSlot
-                      key={index}
-                      index={index}
-                      className="border rounded-full h-8 w-8 lg:h-10 lg:w-10 border-brandPrimary"
-                      onKeyDown={(e) => {
-                        // Prevent the default Enter key behavior
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          return;
-                        }
-                      }}
-                      onBeforeInput={(e) => {
-                        // Cancel any non-numeric input
-                        if (!/^\d$/.test(e.data)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      inputMode="numeric"
-                      pattern="\d*"
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-              {errors.otp && (
-                <div className="text-red-500 text-sm">{errors.otp.message}</div>
-              )}
-            </div>
+            <CustomOTPInput
+              onlyNumbers={true}
+              error={errors.otp}
+              length={countryCode === "+91" ? 4 : 6}
+              {...register("otp")}
+            />
           )
         );
       default:
