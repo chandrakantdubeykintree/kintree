@@ -51,6 +51,7 @@ import {
   route_profile_view_profile,
   route_settings,
   route_settings_edit_settings,
+  route_kintree_member,
 } from "./constants/routeEnpoints";
 import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./components/page-not-found";
@@ -69,6 +70,7 @@ const {
   Foreroom,
   FamilyTree,
   FamilyMember,
+  KintreeMember,
   CreatePost,
   EditPost,
   ViewPost,
@@ -194,6 +196,10 @@ export default function App() {
                       <Route
                         path={route_family_tree_view_member}
                         element={<ViewMember />}
+                      />
+                      <Route
+                        path={route_kintree_member + "/:id"}
+                        element={<KintreeMember />}
                       />
                       <Route
                         path={route_family_tree_edit_member}

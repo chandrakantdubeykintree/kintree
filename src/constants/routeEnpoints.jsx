@@ -19,6 +19,7 @@ export const route_family_member = "/family-member";
 export const route_family_tree_add_member = "/familytree/add-member";
 export const route_family_tree_view_member = "/familytree/view-member";
 export const route_family_tree_edit_member = "/familytree/edit-member";
+export const route_kintree_member = "/kintree-member";
 
 export const route_chats = "/chats";
 export const route_chats_view_chat = "/chats/view-chat";

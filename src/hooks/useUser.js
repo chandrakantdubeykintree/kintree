@@ -1,5 +1,5 @@
 import { kintreeApi } from "@/services/kintreeApi";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useInfiniteQuery } from "@tanstack/react-query";
 
 export function useSendOTPVerifyUser() {
   return useMutation({
@@ -22,5 +22,24 @@ export function useVerifyOTPVerifyUser() {
       });
       return response.data;
     },
+  });
+}
+
+export function useSearchUser(searchTerm, limit = 10) {
+  return useInfiniteQuery({
+    queryKey: ["search-user", searchTerm, limit],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await kintreeApi.get(
+        `/search-users?q=${searchTerm}&limit=${limit}&page=${pageParam}`
+      );
+      return response.data;
+    },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.data.current_page < lastPage.data.last_page) {
+        return lastPage.data.current_page + 1;
+      }
+      return undefined;
+    },
+    enabled: Boolean(searchTerm),
   });
 }

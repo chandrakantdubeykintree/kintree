@@ -11,6 +11,8 @@ export default function RightSidebar() {
         return <ForeroomRight />;
       case "family-member":
         return <FamilyMemberRight />;
+      case "kintree-member":
+        return <FamilyMemberRight />;
       // return null;
       case "notifications":
         return <ForeroomRight />;

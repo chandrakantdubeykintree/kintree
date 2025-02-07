@@ -15,9 +15,10 @@ import { route_foreroom } from "@/constants/routeEnpoints";
 import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "./ui/dialog";
-import { useFamilyMembers } from "@/hooks/useFamily";
+import { useSearchUser } from "@/hooks/useUser";
+import { useInView } from "react-intersection-observer";
 
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
@@ -27,28 +28,6 @@ export default function Navbar() {
     const saved = localStorage.getItem("recentSearches");
     return saved ? JSON.parse(saved) : [];
   });
-
-  const { data, isLoading } = useFamilyMembers();
-  const searchFamilyMembers = (query) => {
-    if (!data || !Array.isArray(data)) return [];
-
-    const searchTerms = query.toLowerCase().split(" ");
-
-    return data.filter((member) => {
-      const searchableFields = [
-        member.first_name,
-        member.middle_name,
-        member.last_name,
-        member.relation,
-        member.username,
-      ].map((field) => field?.toLowerCase() || "");
-
-      // Check if all search terms are found in any of the fields
-      return searchTerms.every((term) =>
-        searchableFields.some((field) => field.includes(term))
-      );
-    });
-  };
 
   const handleSearchInput = (e) => {
     const value = e.target.value;
@@ -74,10 +53,24 @@ export default function Navbar() {
   };
 
   // Get search results based on current query
-  const searchResults = searchQuery ? searchFamilyMembers(searchQuery) : [];
   const { theme } = useThemeLanguage();
   const { width } = useWindowSize();
   const { profile: user, isProfileLoading } = useProfile(api_user_profile);
+
+  const { ref, inView } = useInView();
+
+  const {
+    data: searchData,
+    fetchNextPage,
+    hasNextPage,
+    isLoading: isSearchLoading,
+  } = useSearchUser(searchQuery, 10);
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage]);
 
   return (
     <AsyncComponent isLoading={isProfileLoading}>
@@ -189,37 +182,45 @@ export default function Navbar() {
                   Search Results
                 </h4>
                 <div className="space-y-2 max-h-[60vh] overflow-y-scroll no_scrollbar">
-                  {searchResults.length > 0 ? (
-                    searchResults.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
-                        onClick={() => {
-                          // Handle member selection
-                          handleSearch(searchQuery);
-                          // setShowSearch(false);
-                          navigate(`/family-member/${member.id}`);
-                          setShowSearch(false);
-                          // Add navigation logic here if needed
-                        }}
-                      >
-                        <img
-                          src={member.profile_pic_url}
-                          alt={member.first_name}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="font-medium">
-                            {`${member.first_name} ${
-                              member.middle_name || ""
-                            } ${member.last_name}`}
+                  {searchData?.pages?.flatMap((page) => page.data.users)
+                    .length > 0 ? (
+                    <>
+                      {searchData.pages.map((page) =>
+                        page.data.users.map((user) => (
+                          <div
+                            key={user.user_id}
+                            className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
+                            onClick={() => {
+                              handleSearch(searchQuery);
+                              navigate(`/kintree-member/${user.user_id}`);
+                              setShowSearch(false);
+                            }}
+                          >
+                            <img
+                              src={user.profile_pic_url}
+                              alt={user.first_name}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                            <div className="flex-1">
+                              <div className="font-medium">
+                                {`${user.first_name} ${
+                                  user.middle_name || ""
+                                } ${user.last_name}`}
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                @{user.username}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-muted-foreground">
-                            {member.relation} • @{member.username}
-                          </div>
-                        </div>
+                        ))
+                      )}
+                      {/* Infinite scroll trigger */}
+                      <div ref={ref} className="h-10">
+                        {isSearchLoading && (
+                          <div className="text-center py-2">Loading...</div>
+                        )}
                       </div>
-                    ))
+                    </>
                   ) : (
                     <div className="text-center text-muted-foreground py-4">
                       No results found

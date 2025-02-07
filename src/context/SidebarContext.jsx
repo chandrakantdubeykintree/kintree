@@ -16,6 +16,7 @@ export function SidebarProvider({ children }) {
     "/viewpoll": { left: true, right: true },
     "/familytree": { left: true, right: false },
     "/family-member": { left: true, right: true },
+    "/kintree-member": { left: true, right: true },
     "/chats": { left: true, right: false },
     "/events": { left: true, right: false },
     "/create-event": { left: true, right: false },
