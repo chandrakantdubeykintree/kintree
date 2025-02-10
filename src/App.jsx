@@ -263,14 +263,15 @@ export default function App() {
                         element={<EditWill />}
                       />
 
-                      <Route path="/test" element={<Test />} />
-
                       {/* faqs */}
                       <Route path="/faqs" element={<FAQS />} />
 
                       {/* page not found */}
                       <Route path="*" element={<PageNotFound />} />
                     </Route>
+
+                    <Route path="/test" element={<Test />} />
+
                   </Route>
                 </Routes>
               </Suspense>

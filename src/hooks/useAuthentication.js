@@ -17,6 +17,7 @@ import {
   api_user_profile,
 } from "../constants/apiEndpoints";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 // Query keys
 export const AUTH_QUERY_KEYS = {
@@ -47,6 +48,7 @@ const fetchUserProfile = async () => {
 };
 
 export const useAuthentication = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   // Query for checking auth status and getting user data
@@ -91,7 +93,7 @@ export const useAuthentication = () => {
       toast.success(data.message);
     },
     onError: (error) => {
-      handleApiError(error, "Invalid username or password");
+      handleApiError(t("text.invalid_credentials"));
     },
   });
 
@@ -213,7 +215,7 @@ export const useAuthentication = () => {
       toast.success(data.message);
     },
     onError: (error) => {
-      handleApiError(error, "Failed to verify OTP");
+      handleApiError(t("forms.otp.errors.invalid_otp"));
     },
   });
 
@@ -283,7 +285,7 @@ export const useAuthentication = () => {
         queryClient.removeQueries(AUTH_QUERY_KEYS.registrationState);
         // Navigate to foreroom
         navigate("/foreroom", { replace: true });
-        return { success: true, isCompleted: true };
+        // return { success: true, isCompleted: true };
       } else {
         const { next_step, completed_step } = data.data;
         queryClient.setQueryData(AUTH_QUERY_KEYS.registrationState, (prev) => ({

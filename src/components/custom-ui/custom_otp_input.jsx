@@ -124,7 +124,7 @@ const CustomOTPInput = React.forwardRef(
               autoFocus={autoFocus && index === 0}
               className={cn(
                 // Base styles
-                "w-10 h-10 rounded-full text-center text-2xl",
+                "w-10 h-10 rounded-full text-center text-lg",
                 "border-2 border-primary",
                 "bg-background text-foreground",
                 // Focus styles

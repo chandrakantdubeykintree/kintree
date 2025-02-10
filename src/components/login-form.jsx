@@ -7,15 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
+import { Lock, Mail, Phone, User } from "lucide-react";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,23 +60,31 @@ export function LoginForm({ setOpenTerms }) {
     otp: z.object({
       otp: z
         .string()
+        .nonempty(t("forms.otp.errors.required"))
+        .regex(/^\d+$/, t("forms.otp.errors.numbers"))
         .refine(
           (val) => val.length === 4 || val.length === 6,
-          t("forms.otp.errors.length")
-        )
-        .refine((val) => /^\d+$/.test(val), t("forms.otp.errors.numbers")),
+          (val) => ({
+            message:
+              val.length < 4
+                ? t("forms.otp.errors.tooShort")
+                : val.length > 6
+                ? t("forms.otp.errors.tooLong")
+                : t("forms.otp.errors.invalidLength"),
+          })
+        ),
     }),
   };
 
   const isValidOtp = (otp) => {
-    return /^\d+$/.test(otp) && otp.length === otpLength;
+    const requiredLength = countryCode === "+91" ? 4 : 6;
+    return /^\d+$/.test(otp) && otp.length === requiredLength;
   };
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
     watch,
     reset,
   } = useForm({
@@ -103,7 +108,7 @@ export function LoginForm({ setOpenTerms }) {
           }
         }
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Login Failed");
+        toast.error(t("text.login_failed"));
       }
     } else if (loginType === "phone_no" || loginType === "email") {
       try {
@@ -134,7 +139,9 @@ export function LoginForm({ setOpenTerms }) {
         await verifyOTPLoginRegister({
           otp: data.otp,
           [watchedValues.phone_no ? "phone_no" : "email"]:
-            watchedValues[watchedValues.phone_no ? "phone_no" : "email"],
+            watchedValues.phone_no
+              ? `${countryCode}${watchedValues.phone_no}`
+              : watchedValues.email,
         });
       } catch (error) {
         toast.error(t("forms.otp.errors.verify"));
@@ -154,7 +161,6 @@ export function LoginForm({ setOpenTerms }) {
               error={errors.username}
             />
             <CustomPasswordInput
-              // label={t("forms.password.placeholder")}
               icon={Lock}
               placeholder={t("forms.password.placeholder")}
               translationKey="password"
@@ -170,7 +176,7 @@ export function LoginForm({ setOpenTerms }) {
               >
                 {t("text.password")}
               </Link>
-              &nbsp;or&nbsp;
+              &nbsp;{t("text.or")}&nbsp;
               <Link
                 to={route_forgot_username}
                 className="underline-offset-4 hover:underline text-primary"
@@ -199,9 +205,10 @@ export function LoginForm({ setOpenTerms }) {
               <>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
-                  <Input
+                  <CustomInput
+                    icon={Mail}
                     {...register("email")}
-                    placeholder="Email"
+                    placeholder={t("forms.email.placeholder")}
                     type="email"
                     className="md:h-10 rounded-r-full rounded-l-full pl-10"
                   />
@@ -220,9 +227,9 @@ export function LoginForm({ setOpenTerms }) {
           isOtpSent && (
             <CustomOTPInput
               onlyNumbers={true}
-              error={errors.otp}
               length={countryCode === "+91" ? 4 : 6}
               {...register("otp")}
+              error={errors.otp}
             />
           )
         );
@@ -256,7 +263,7 @@ export function LoginForm({ setOpenTerms }) {
       });
     } else if (watchedValues.phone_no) {
       sendOTPLoginRegister({
-        phone_no: watchedValues.phone_no,
+        phone_no: countryCode + watchedValues.phone_no,
       });
     }
     setResendOtp(false);
@@ -290,20 +297,22 @@ export function LoginForm({ setOpenTerms }) {
           height={60}
         />
         <CardTitle className="text-[24px] font-semibold">
-          {isOtpSent ? "OTP incoming!" : "Welcome to Kintree"}
+          {isOtpSent ? t("text.enter_otp") : t("text.welcome")}
         </CardTitle>
         <CardDescription>
           {isOtpSent && (
             <div className="text-[16px] text-gray-500 text-center">
-              Enter the {watchedValues.phone_no ? "4" : "6"} digit OTP sent to{" "}
+              {t("text.otp_sent_to")}{" "}
             </div>
           )}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
-          <div className="text-center text-[16px] mb-8 font-normal flex items-center gap-2 justify-center">
-            <span>{watchedValues.email || watchedValues.phone_no}</span>
+          <div className="text-center text-[16px] mb-4 font-normal flex items-center gap-2 justify-center">
+            <span>
+              {watchedValues.email || countryCode + watchedValues.phone_no}
+            </span>
             <span
               className="h-4 w-4 cursor-pointer"
               onClick={() => {
@@ -335,7 +344,7 @@ export function LoginForm({ setOpenTerms }) {
             </span>
           </div>
         )}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {renderForm()}
           <Button
             type="submit"
@@ -347,7 +356,7 @@ export function LoginForm({ setOpenTerms }) {
             className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
             variant="outline"
           >
-            {isOtpSent ? "Verify OTP" : "Continue"}
+            {isOtpSent ? t("text.verify_otp") : t("continue")}
           </Button>
         </form>
       </CardContent>
@@ -357,7 +366,7 @@ export function LoginForm({ setOpenTerms }) {
           <div className="flex items-center justify-center gap-4 w-full">
             <div className="h-[1px] bg-border grow" />
             <div className="min-w-fit text-center whitespace-nowrap text-gray-600">
-              Try another way?
+              {t("text.try_another_way")}
             </div>
             <div className="h-[1px] bg-border grow" />
           </div>
@@ -365,14 +374,16 @@ export function LoginForm({ setOpenTerms }) {
         {isOtpSent ? (
           <div className="flex flex-col justify-center items-center">
             <div className="flex flex-col justify-center items-center gap-2 text-gray-500">
-              <p>Didn’t receive OTP?</p>
+              <p>{t("text.didnt_receive_otp")}</p>
               <Button
                 variant="ghost"
                 onClick={handleResendOtp}
                 disabled={!resendOtp}
                 className="font-semibold text-[16px] cursor-pointer hover:underline text-brandPrimary hover:text-brandPrimary"
               >
-                {resendOtp ? "Resend Code" : `Resend Code in ${resendOTPIn}'s`}
+                {resendOtp
+                  ? t("text.resend_otp")
+                  : `${t("text.resend_otp")} ${resendOTPIn}'s`}
               </Button>
             </div>
           </div>
@@ -384,9 +395,10 @@ export function LoginForm({ setOpenTerms }) {
                 variant="outline"
                 onClick={() => handleLoginTypeChange("email")}
               >
-                {/* <img src={ICON_EMAIL} className="h-5 w-5" /> */}
                 <Mail className="h-5 w-5" />
-                <span className="text-[16px]">Login with Email</span>
+                <span className="text-[16px]">
+                  {t("text.login_with_email")}
+                </span>
               </Button>
             )}
             {loginType !== "username" && (
@@ -395,9 +407,10 @@ export function LoginForm({ setOpenTerms }) {
                 variant="outline"
                 onClick={() => handleLoginTypeChange("username")}
               >
-                {/* <img src={ICON_USERNAME} className="h-5 w-5" /> */}
                 <User className="h-5 w-5" />
-                <span className="text-[16px]">Login with Username</span>
+                <span className="text-[16px]">
+                  {t("text.login_with_username")}
+                </span>
               </Button>
             )}
             {loginType !== "phone_no" && (
@@ -407,14 +420,16 @@ export function LoginForm({ setOpenTerms }) {
                 onClick={() => handleLoginTypeChange("phone_no")}
               >
                 <Phone className="h-5 w-5" />
-                <span className="text-[16px]">Login with Phone</span>
+                <span className="text-[16px]">
+                  {t("text.login_with_phone")}
+                </span>
               </Button>
             )}
           </div>
         )}
 
         <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
-          By using Kintree, you agree to the{" "}
+          {t("text.agree_to_terms_privacy")}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -425,9 +440,9 @@ export function LoginForm({ setOpenTerms }) {
               })
             }
           >
-            Terms
+            {t("text.terms")}
           </span>{" "}
-          and{" "}
+          {t("text.and")}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -438,7 +453,7 @@ export function LoginForm({ setOpenTerms }) {
               })
             }
           >
-            Privacy Policy.
+            {t("text.privacy")}
           </span>
         </div>
       </CardFooter>

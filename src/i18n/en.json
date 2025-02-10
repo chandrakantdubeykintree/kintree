@@ -74,19 +74,31 @@
       }
     }
   },
-  "headings": {
-    "main": "Main Heading",
-    "secondary": "Secondary Heading",
-    "tertiary": "Tertiary Heading",
-    "section": "Section Heading"
-  },
+  "headings": {},
   "text": {
-    "welcome": "Welcome to our application",
-    "description": "This is a description text",
-    "error": "Error message goes here",
-    "info": "Information message",
+    "welcome": "Welcome to Kintree",
     "forgot": "Forgot",
     "password": "Password",
-    "username": "Username"
+    "username": "Username",
+    "login_failed": "Login failed",
+    "otp_sent": "OTP sent successfully",
+    "otp_verified": "OTP verified successfully",
+    "otp_incoiming": "OTP incoming!",
+    "enter_otp": "Enter OTP",
+    "verify_otp": "Verify OTP",
+    "otp_sent_to": "Otp sent to:",
+    "resend_otp": "Resend OTP",
+    "or": "or",
+    "continue": "Continue",
+    "login_with_email": "Login with email",
+    "login_with_phone": "Login with phone",
+    "login_with_username": "Login with username",
+    "try_another_way": "Try another way",
+    "didnt_receive_otp": "Didn't receive OTP?",
+    "agree_to_terms_privacy": "By using Kintree, you agree to the",
+    "and": "and",
+    "terms": "Terms",
+    "privacy": "Privacy Policy",
+    "invalid_credentials": "Invalid credentials"
   }
 }

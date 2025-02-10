@@ -136,7 +136,7 @@ export function SignupForm() {
   const onSubmit = async (data) => {
     try {
       console.log("Form submitted:", data);
-      // Handle form submission
+      // handle form submission
     } catch (error) {
       console.error(error);
     }
