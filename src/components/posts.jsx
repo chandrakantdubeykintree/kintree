@@ -29,10 +29,13 @@ import { useState } from "react";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import LikesDialog from "./likes-dialog";
-import { BadgeCheck, Check } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 
 export default function Posts({ post, user }) {
   const { width } = useWindowSize();
+  const { t } = useTranslation();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const onEmojiClick = (emojiData) => {
@@ -143,13 +146,17 @@ export default function Posts({ post, user }) {
                   </h3>
                 </div>
                 <div className="flex flex-wrap items-center space-x-2 text-sm">
-                  <span>{formatTimeAgo(created_at)}</span>
+                  {/* <span>{formatTimeAgo(created_at)}</span> */}
+                  <span>{format(created_at, "dd MMM yyyy 'at' h:mmaaa")}</span>
                   {updated_at && created_at !== updated_at && (
                     <>
                       <span>•</span>
-                      <span>Edited {formatTimeAgo(updated_at)}</span>
+                      <span>
+                        {t("text.edited")} {format(updated_at, "dd MMM yyyy")}
+                      </span>
                     </>
                   )}
+                  <span>•</span>
                   <img
                     src={
                       PRIVACYDROPDOWN?.find((item) => item.id === privacy)?.icon
@@ -158,7 +165,8 @@ export default function Posts({ post, user }) {
                   />
                   {post_data?.feeling && (
                     <span className="text-sm font-medium flex items-center gap-1 text-primary">
-                      {post_data?.feeling.name}
+                      <span>•</span>
+                      {t("feelings." + post_data?.feeling.name)}
                       <img
                         src={post_data?.feeling.image_url}
                         className="w-5 h-5"
@@ -196,8 +204,10 @@ export default function Posts({ post, user }) {
                   className="text-sm cursor-pointer"
                   onClick={handleLikesClick}
                 >
-                  {" "}
-                  {formatCounts("like", getReactionCount("like"), width)}
+                  {reactions?.["like"]?.count || 0} &nbsp;
+                  {reactions?.["like"]?.count > 1
+                    ? t("text.likes")
+                    : t("text.like")}
                 </span>
               </button>
               <NavLink
@@ -211,7 +221,10 @@ export default function Posts({ post, user }) {
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
                 <span className="text-sm">
-                  {formatCounts("comment", comment_counts || 0, width)}
+                  {comment_counts || 0} &nbsp;
+                  {comment_counts > 1
+                    ? t("text.comments").toLowerCase()
+                    : t("text.comment").toLowerCase()}
                 </span>
               </NavLink>
               <button className="flex items-center gap-2  h-18 w-18">
@@ -251,7 +264,7 @@ export default function Posts({ post, user }) {
             >
               <Input
                 type="text"
-                placeholder="Add a comment..."
+                placeholder={t("text.add_comment")}
                 className="boder rounded-full shadow-none h-10 px-4"
                 style={{ width: "100%" }}
                 value={commentInput}

@@ -2,8 +2,10 @@ import AsyncComponent from "@/components/async-component";
 import { ICON_CHECK_BRAND } from "@/constants/iconUrls";
 import { usePollVote } from "@/hooks/usePosts";
 import { formatTimeAgo } from "@/utils/stringFormat";
+import { useTranslation } from "react-i18next";
 
 export default function PollPost({ post, user, onReactionUpdate }) {
+  const { t } = useTranslation();
   const {
     id,
     privacy,
@@ -126,7 +128,9 @@ export default function PollPost({ post, user, onReactionUpdate }) {
                   </span>
                   {(post_data.is_user_voted || isPollEnded()) && (
                     <span className="text-sm text-gray-600">
-                      {option.vote_count} votes ({votePercentage}%)
+                      {option.vote_count}{" "}
+                      {option.vote_count > 1 ? t("text.votes") : t("text.vote")}{" "}
+                      ({votePercentage}%)
                     </span>
                   )}
                 </div>
@@ -137,17 +141,24 @@ export default function PollPost({ post, user, onReactionUpdate }) {
         <div className="mt-4 text-sm text-gray-600 flex justify-between">
           {isPollEnded() ? (
             <div className="flex gap-2">
-              <span>{post_data?.poll_total_votes} total votes</span>
+              <span>
+                {post_data?.poll_total_votes} {} {t("text.total_votes")}
+              </span>
               <span>•</span>
-              <span>Poll ended {formatTimeAgo(post_data.poll_end_date)}</span>
+              <span>
+                {t("text.poll_ended")} {formatTimeAgo(post_data.poll_end_date)}
+              </span>
             </div>
           ) : (
             <span>
-              {getDaysRemaining(post_data.poll_end_date)} days remaining
+              {getDaysRemaining(post_data.poll_end_date)}{" "}
+              {t("text.days_remaining")}
             </span>
           )}
           {post_data.polls_creator && (
-            <span className="text-primary cursor-pointer">View results</span>
+            <span className="text-primary cursor-pointer">
+              {t("text.view_result")}
+            </span>
           )}
         </div>
       </div>

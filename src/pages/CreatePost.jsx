@@ -30,6 +30,7 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
+import { useTranslation } from "react-i18next";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -59,13 +60,14 @@ export const postSchema = z.object({
 
 const defaultPrivacy = {
   id: 1,
-  title: "Global",
-  desc: "Anyone on Kintree",
+  title: "privacy.title.global",
+  desc: "privacy.desc.global",
   icon: "/privacy/web.svg",
 };
 
 export default function CreatePost() {
   const [mediaFiles, setMediaFiles] = useState([]);
+  const { t } = useTranslation();
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -208,14 +210,14 @@ export default function CreatePost() {
                 />
               </svg>
             </span>
-            Back to Foreroom
+            {t("text.back_to_foreroom")}
           </NavLink>
         </div>
         <Card className="w-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardHeader className="flex flex-row flex-wrap justify-between items-center">
-                <div className="text-xl font-bold">Create Post</div>
+                <div className="text-xl font-bold">{t("text.create_post")}</div>
                 <FormField
                   control={form.control}
                   name="privacy"
@@ -238,7 +240,7 @@ export default function CreatePost() {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex justify-between">
-                        <Label>Caption</Label>
+                        <Label>{t("text.caption")}</Label>
                         <span
                           className={`text-sm ${
                             field.value.length > 1000
@@ -246,12 +248,12 @@ export default function CreatePost() {
                               : "text-gray-500"
                           }`}
                         >
-                          {field.value.length}/1000 characters
+                          {field.value.length}/1000 {t("text.characters")}
                         </span>
                       </div>
                       <FormControl>
                         <Textarea
-                          placeholder="Type your message here."
+                          placeholder={t("text.whats_on_your_mind")}
                           rows="6"
                           className="lg:text-[16px]"
                           {...field}
@@ -324,11 +326,6 @@ export default function CreatePost() {
                 </div>
               </CardContent>
               <CardFooter className="flex flex-col gap-2">
-                <div className="text-sm text-gray-500 w-full text-center">
-                  {!uploadedAttachments.length &&
-                    !form.watch("body")?.trim() &&
-                    "Add either a caption or media files"}
-                </div>
                 <div className="flex justify-between items-center w-full">
                   <FormField
                     control={form.control}
@@ -362,7 +359,7 @@ export default function CreatePost() {
                         Creating Post...
                       </>
                     ) : (
-                      "Create Post"
+                      t("text.create_post")
                     )}
                   </Button>
                 </div>

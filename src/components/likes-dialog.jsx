@@ -9,9 +9,14 @@ import {
 import { useFetchPostReactions } from "@/hooks/usePosts";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { getInitials } from "@/utils/stringFormat";
+import ComponentLoading from "./component-loading";
 
 export default function LikesDialog({ isOpen, onClose, postId }) {
   const { data: likesData, isLoading } = useFetchPostReactions(postId);
+
+  if (isLoading) {
+    <ComponentLoading />;
+  }
 
   return (
     <AsyncComponent>

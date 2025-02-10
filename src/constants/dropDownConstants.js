@@ -1,26 +1,26 @@
 export const PRIVACYDROPDOWN = [
   {
     id: 1,
-    title: "Global",
-    desc: "Anyone on Kintree",
+    title: "privacy.title.global",
+    desc: "privacy.desc.global",
     icon: "/privacy/web.svg",
   },
   {
     id: 2,
-    title: "Family Tree",
-    desc: "Your Family Tree on Kintree",
+    title: "privacy.title.family_tree",
+    desc: "privacy.desc.family_tree",
     icon: "/privacy/familytree.svg",
   },
   {
     id: 3,
-    title: "Primary Family",
-    desc: "Your Primary Family Members",
+    title: "privacy.title.primary_family",
+    desc: "privacy.desc.primary_family",
     icon: "/privacy/family.svg",
   },
   {
     id: 4,
-    title: "Only Me",
-    desc: "Only me",
+    title: "privacy.title.only_me",
+    desc: "privacy.desc.only_me",
     icon: "/privacy/private.svg",
   },
 ];
@@ -28,90 +28,90 @@ export const PRIVACYDROPDOWN = [
 export const FEELINGSDROPDOWN = [
   {
     id: 1,
-    name: "angry",
+    name: "feelings.angry",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/angry.svg",
   },
   {
     id: 2,
-    name: "annoyed",
+    name: "feelings.annoyed",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/annoyed.svg",
   },
   {
     id: 3,
-    name: "awesome",
+    name: "feelings.awesome",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/awesome.svg",
   },
   {
     id: 4,
-    name: "blessed",
+    name: "feelings.blessed",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/blessed.svg",
   },
   {
     id: 5,
-    name: "cool",
+    name: "feelings.cool",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/cool.svg",
   },
   {
     id: 6,
-    name: "crazy",
+    name: "feelings.crazy",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/crazy.svg",
   },
   {
     id: 7,
-    name: "excited",
+    name: "feelings.excited",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/excited.svg",
   },
   {
     id: 8,
-    name: "happy",
+    name: "feelings.happy",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/happy.svg",
   },
   {
     id: 9,
-    name: "hungry",
+    name: "feelings.hungry",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/hungry.svg",
   },
   {
     id: 10,
-    name: "in love",
+    name: "feelings.in_love",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/in love.svg",
   },
   {
     id: 11,
-    name: "lovely",
+    name: "feelings.lovely",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/lovely.svg",
   },
   {
     id: 12,
-    name: "relaxed",
+    name: "feelings.relaxed",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/relaxed.svg",
   },
   {
     id: 13,
-    name: "sad",
+    name: "feelings.sad",
     image_url: "https://api.kintree.com/kintree-assets/images/feelings/sad.svg",
   },
   {
     id: 14,
-    name: "shocked",
+    name: "feelings.shocked",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/shocked.svg",
   },
   {
     id: 15,
-    name: "thinking",
+    name: "feelings.thinking",
     image_url:
       "https://api.kintree.com/kintree-assets/images/feelings/thinking.svg",
   },

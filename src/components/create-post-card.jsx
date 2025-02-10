@@ -10,10 +10,11 @@ import {
   route_events,
   route_events_create_event,
 } from "@/constants/routeEnpoints";
+import { useTranslation } from "react-i18next";
 
 export default function CreatePostCard({ user }) {
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   return (
     <AsyncComponent>
       <Card className="rounded-2xl">
@@ -29,7 +30,7 @@ export default function CreatePostCard({ user }) {
             </div>
             <Input
               type="text"
-              placeholder="What's on your mind?"
+              placeholder={t("text.whats_on_your_mind")}
               className="boder rounded-full shadow-none h-10 px-4 flex-grow"
               onClick={() => navigate(route_create_post)}
             />

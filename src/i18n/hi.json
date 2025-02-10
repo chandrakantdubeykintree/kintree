@@ -35,7 +35,7 @@
       "required": "पासवर्ड आवश्यक है",
       "minLength": "पासवर्ड कम से कम 6 अक्षर का होना चाहिए"
     },
-    "phone_no":{
+    "phone_no": {
       "placeholder": "अपना फ़ोन नंबर दर्ज करें",
       "minLength": "फ़ोन नंबर कम से कम 10 अक्षर का होना चाहिए",
       "required": "फ़ोन नंबर आवश्यक है",
@@ -70,8 +70,7 @@
       "login": "लॉग इन करें"
     }
   },
-  "headings": {
-  },
+  "headings": {},
   "text": {
     "welcome": "किनट्री में आपका स्वागत है",
     "forgot": "भूल गए?",
@@ -95,6 +94,62 @@
     "agree_to_terms_privacy": "किनट्री का उपयोग करके, आप सहमत होते हैं",
     "and": "और",
     "terms": "शर्तें",
-    "privacy": "गोपनीयता नीति"
+    "privacy": "गोपनीयता नीति",
+    "whats_on_your_mind": "आपके दिमाग में क्या है?",
+    "edited": "संपादित",
+    "add_comment": "टिप्पणी जोड़ें",
+    "comment": "टिप्पणी",
+    "comments": "टिप्पणियाँ",
+    "create_post": "पोस्ट बनाएं",
+    "edit_post": "पोस्ट संपादित करें",
+    "create_poll": "पोल बनाएं",
+    "edit_poll": "पोल संपादित करें",
+    "caption": "कैप्शन",
+    "characters": "अक्षर",
+    "total votes": "कुल वोट",
+    "days_remaining": "बचे हुए दिन",
+    "view_result": "परिणाम देखें",
+    "like": "पसंद",
+    "likes": "पसंदें",
+    "poll_ended": "पोल समाप्त हो गई है",
+    "no_posts": "कोई पोस्ट नहीं",
+    "vote": "वोट",
+    "votes": "वोट",
+    "back_to_foreroom": "फॉरेरूम पर वापस जाएं",
+    "who_can_see_this_post": "कौन इस पोस्ट को देख सकता है?",
+    "default_public": "आपका डिफ़ॉल्ट दर्शक सार्वजनिक पर सेट किया गया है, लेकिन आप इस विशेष पोस्ट के दर्शक को बदल सकते हैं",
+    "add_feelings": "भावनाएं जोड़ें",
+    "how_are_you_feeling": "आप कैसा महसूस कर रहे हैं?"
+  },
+  "feelings": {
+    "angry": "नाराज",
+    "annoyed": "परेशान",
+    "awesome": "बहुत बढ़िया",
+    "blessed": "धन्य",
+    "cool": "ठंडा",
+    "crazy": "पागल",
+    "excited": "उत्साहित",
+    "happy": "खुश",
+    "hungry": "भूखा",
+    "in_love": "प्यार में",
+    "lovely": "प्यारा",
+    "relaxed": "आराम से",
+    "sad": "उदास",
+    "shocked": "चौंका हुआ",
+    "thinking": "सोच रहा हूँ"
+  },
+  "privacy": {
+    "title": {
+      "global": "वैश्विक",
+      "family_tree": "परिवार पेड़",
+      "primary_family": "मुख्य परिवार",
+      "only_me": "केवल मैं"
+    },
+    "desc": {
+      "global": "किन्ट्री पर कोई भी",
+      "family_tree": "किन्ट्री पर आपका परिवार वृक्ष",
+      "primary_family": "आपके मुख्य परिवार के सदस्य",
+      "only_me": "केवल मैं"
+    }
   }
 }

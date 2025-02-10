@@ -7,11 +7,13 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { capitalizeName } from "@/utils/stringFormat";
+import { useTranslation } from "react-i18next";
 
 export default function PrivacyDropdown({
   selectedPrivacy,
   setSelectedPrivacy,
 }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -21,7 +23,7 @@ export default function PrivacyDropdown({
               <div className="w-4 h-4 flex items-center justify-center">
                 <img src={selectedPrivacy.icon} alt={selectedPrivacy.title} />
               </div>
-              <span>{capitalizeName(selectedPrivacy.title)}</span>
+              <span>{capitalizeName(t(selectedPrivacy.title))}</span>
             </>
           ) : (
             "Privacy"
@@ -30,11 +32,8 @@ export default function PrivacyDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-64">
-        <DropdownMenuLabel>Who can see this post?</DropdownMenuLabel>
-        <p className="py-1 px-2">
-          Your default audience is set to Public, but you can change the
-          audience of this specific post.
-        </p>
+        <DropdownMenuLabel>{t("text.who_can_see_this_post")}</DropdownMenuLabel>
+        <p className="py-1 px-2">{t("text.default_public")}</p>
         <ul className="flex flex-col gap-2">
           {PRIVACYDROPDOWN.map((item) => (
             <DropdownMenuItem
@@ -46,8 +45,8 @@ export default function PrivacyDropdown({
                   <img src={item.icon} alt={item.title} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold">{item.title}</h3>
-                  <p className="text-xs">{item.desc}</p>
+                  <h3 className="text-sm font-semibold">{t(item.title)}</h3>
+                  <p className="text-xs">{t(item.desc)}</p>
                 </div>
               </a>
             </DropdownMenuItem>

@@ -99,6 +99,63 @@
     "and": "and",
     "terms": "Terms",
     "privacy": "Privacy Policy",
-    "invalid_credentials": "Invalid credentials"
+    "invalid_credentials": "Invalid credentials",
+    "whats_on_your_mind": "What's on your mind?",
+    "edited": "Edited",
+    "add_comment": "Add a comment",
+    "comment": "Comment",
+    "comments": "Comments",
+    "create_post": "Create post",
+    "edit_post": "Edit post",
+    "create_poll": "Create poll",
+    "edit_poll": "Edit poll",
+    "caption": "Caption",
+    "characters": "characters",
+
+    "total_votes": "total votes",
+    "days_remaining": "days remaining",
+    "view_result": "View result",
+    "like": "like",
+    "likes": "likes",
+    "poll_ended": "Poll ended",
+    "no_posts": "No posts",
+    "vote": "vote",
+    "votes": "votes",
+    "back_to_foreroom": "Back to Foreroom",
+    "who_can_see_this_post": "Who can see this post?",
+    "default_public": "Your default audience is set to Public, but you can change the audience of this specific post.",
+    "add_feelings": "Add feelings",
+    "how_are_you_feeling": "How are you feeling?"
+  },
+  "feelings": {
+    "angry": "Angry",
+    "annoyed": "Annoyed",
+    "awesome": "Awesome",
+    "blessed": "Blessed",
+    "cool": "Cool",
+    "crazy": "Crazy",
+    "excited": "Excited",
+    "happy": "Happy",
+    "hungry": "Hungry",
+    "in_love": "In Love",
+    "lovely": "Lovely",
+    "relaxed": "Relaxed",
+    "sad": "Sad",
+    "shocked": "Shocked",
+    "thinking": "Thinking"
+  },
+  "privacy": {
+    "tile": {
+      "global": "Global",
+      "family_tree": "Family Tree",
+      "primary_family": "Primary Family",
+      "only_me": "Only Me"
+    },
+    "desc": {
+      "global": "Anyone on Kintree",
+      "family_tree": "Your Family Tree on Kintree",
+      "primary_family": "Your Primary Family Members",
+      "only_me": "Only me"
+    }
   }
 }
