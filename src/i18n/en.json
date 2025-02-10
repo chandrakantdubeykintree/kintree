@@ -125,7 +125,9 @@
     "who_can_see_this_post": "Who can see this post?",
     "default_public": "Your default audience is set to Public, but you can change the audience of this specific post.",
     "add_feelings": "Add feelings",
-    "how_are_you_feeling": "How are you feeling?"
+    "how_are_you_feeling": "How are you feeling?",
+    "change_password": "Change Password",
+    "update_account_password": "Update your account password"
   },
   "feelings": {
     "angry": "Angry",

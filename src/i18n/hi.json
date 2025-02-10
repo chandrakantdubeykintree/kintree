@@ -119,7 +119,9 @@
     "who_can_see_this_post": "कौन इस पोस्ट को देख सकता है?",
     "default_public": "आपका डिफ़ॉल्ट दर्शक सार्वजनिक पर सेट किया गया है, लेकिन आप इस विशेष पोस्ट के दर्शक को बदल सकते हैं",
     "add_feelings": "भावनाएं जोड़ें",
-    "how_are_you_feeling": "आप कैसा महसूस कर रहे हैं?"
+    "how_are_you_feeling": "आप कैसा महसूस कर रहे हैं?",
+    "change_password": "",
+    "update_account_password": ""
   },
   "feelings": {
     "angry": "नाराज",

@@ -38,6 +38,8 @@ import { useAuth } from "@/context/AuthProvider";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
+import { CustomPasswordInput } from "@/components/custom-ui/custom_pasword_input";
 
 const PasswordSchema = z
   .object({
@@ -84,6 +86,7 @@ const AccountSchema = z.object({
 });
 
 export default function Settings() {
+  const { t } = useTranslation();
   const [activeForm, setActiveForm] = useState(null);
   const { setTheme, setLanguage } = useThemeLanguage();
   const { handleLogout } = useAuth();
@@ -279,8 +282,10 @@ export default function Settings() {
           {/* Password Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle>Change Password</CardTitle>
-              <CardDescription>Update your account password</CardDescription>
+              <CardTitle>{t("text.change_password")}</CardTitle>
+              <CardDescription>
+                {t("text.update_account_password")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {activeForm === "password" ? (
@@ -302,6 +307,9 @@ export default function Settings() {
                         }
                         className="bg-background text-foreground h-10 lg:h-12 pl-10 rounded-full"
                       />
+                      {/* <CustomPasswordInput
+                        {...passwordRegister("current_password")}
+                      /> */}
                       {showPassword.current_password ? (
                         <EyeIcon
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
@@ -739,7 +747,7 @@ export default function Settings() {
                 <DialogDescription>
                   {accountAction?.type === "deactivate" ? (
                     <>
-                      Your account will be deactivated after 15 days. You can't
+                      Your account will be deactivated after 90 days. You can
                       reactivate your account by logging in during this period.
                     </>
                   ) : (
