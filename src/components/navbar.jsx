@@ -88,7 +88,7 @@ export default function Navbar() {
             <Input
               placeholder="Search..."
               className="w-full pl-10 pr-4 h-10 rounded-full"
-              value={searchQuery}
+              // value={searchQuery}
               onChange={handleSearchInput} // Updated to use new handler
               onFocus={() => setShowSearch(true)} // Also open on focus
               onKeyDown={(e) => {

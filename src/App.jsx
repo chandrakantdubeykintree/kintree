@@ -1,4 +1,4 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./services/queryClient";
 
@@ -101,6 +101,7 @@ const {
 } = LazyComponents;
 
 export default function App() {
+
   return (
     <RootLayout>
       <GlobalErrorBoundary>

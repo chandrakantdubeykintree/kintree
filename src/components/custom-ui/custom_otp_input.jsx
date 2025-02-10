@@ -124,7 +124,7 @@ const CustomOTPInput = React.forwardRef(
               autoFocus={autoFocus && index === 0}
               className={cn(
                 // Base styles
-                "w-12 h-12 rounded-full text-center text-2xl",
+                "w-10 h-10 rounded-full text-center text-2xl",
                 "border-2 border-primary",
                 "bg-background text-foreground",
                 // Focus styles
@@ -142,7 +142,7 @@ const CustomOTPInput = React.forwardRef(
                 // Active/Filled styles
                 digit && "border-primary/90 bg-primary/5",
                 // Additional animation for focused state
-                focusedIndex === index && "scale-110"
+                focusedIndex === index && "scale-105"
               )}
               aria-label={t("otp.digit", { digit: index + 1 })}
             />

@@ -1,22 +1,24 @@
 import { useFamily, useMember } from "@/hooks/useFamily";
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import AsyncComponent from "@/components/async-component";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { useAuth } from "@/context/AuthProvider";
+import {  useState, useEffect } from "react";
 import EditRelativeForm from "@/components/edit-relative-form";
 import AddRelativeForm from "@/components/add-relative-form";
+import { toast } from 'react-hot-toast';
+
+import ComponentLoading from "@/components/component-loading";
 
 export default function KintreeMember() {
   const { id } = useParams();
   const { data: familyMember, isLoading } = useMember(id);
-  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
+  const navigate = useNavigate()
 
   const { data: familyTree } = useFamily();
 
@@ -41,8 +43,15 @@ export default function KintreeMember() {
     );
   };
 
+  // Remove the direct navigation
+  if (isLoading) {
+    return <ComponentLoading />;
+  }
+  
+  
+
   return (
-    <AsyncComponent isLoading={isLoading}>
+    <AsyncComponent>
       <div className="w-full">
         <Card className="w-full shadow-sm border-0 rounded-2xl overflow-hidden">
           {/* Cover Image */}
@@ -174,12 +183,7 @@ export default function KintreeMember() {
                 </div>
               </div>
 
-              {/* Contact Information */}
-              <InfoSection title="Contact Information">
-                <InfoItem label="Email" value={familyMember?.email} />
-                <InfoItem label="Phone" value={familyMember?.phone_no} />
-                <InfoItem label="Username" value={familyMember?.username} />
-              </InfoSection>
+              
 
               {/* Additional Information */}
               <InfoSection title="Additional Information">
@@ -213,37 +217,15 @@ export default function KintreeMember() {
                 />
                 {familyMember?.additional_info?.known_languages?.length > 0 && (
                   <InfoItem
-                    label="Known Languages"
-                    value={familyMember.additional_info.known_languages.join(
-                      ", "
-                    )}
-                  />
+                  label="Known Languages"
+                  value={familyMember.additional_info.known_languages
+                    .map(lang => lang.name)
+                    .join(", ")}
+                />
                 )}
               </InfoSection>
 
-              {/* Regional Information */}
-              <InfoSection title="Regional Information">
-                <InfoItem
-                  label="Religion"
-                  value={familyMember?.regional_info?.religion}
-                />
-                <InfoItem
-                  label="Caste"
-                  value={familyMember?.regional_info?.caste}
-                />
-                <InfoItem
-                  label="Sub Caste"
-                  value={familyMember?.regional_info?.sub_caste}
-                />
-                <InfoItem
-                  label="Gotra"
-                  value={familyMember?.regional_info?.gotra}
-                />
-                <InfoItem
-                  label="Sect"
-                  value={familyMember?.regional_info?.sect}
-                />
-              </InfoSection>
+             
             </div>
           )}
         </Card>
