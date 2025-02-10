@@ -33,6 +33,7 @@ class MessageService {
       extraHeaders: {
         Authorization: authToken,
       },
+      "Access-Control-Allow-Origin": "*",
     });
 
     this.setupSocketListeners();
