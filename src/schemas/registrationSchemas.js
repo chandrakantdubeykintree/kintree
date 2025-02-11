@@ -19,13 +19,23 @@ export const registrationStepSchemas = {
 
   4: z
     .object({
-      profile_image: z.any().optional(),
-      preseted_profile_image_id: z.number().optional(),
+      profile_image: z
+        .any()
+        .optional()
+        .refine((val) => {
+          if (!val) return true;
+          return val instanceof File;
+        }, "Invalid file format"),
+      preseted_profile_image_id: z.number().nullable().optional(),
       skipped: z.number().optional(),
     })
     .refine((data) => {
-      if (data.skipped) return true;
-      return data.profile_image || data.preseted_profile_image_id;
+      // If skipped, validation passes
+      if (data.skipped === 1) return true;
+      // Otherwise, either profile_image or preseted_profile_image_id must be present
+      return (
+        Boolean(data.profile_image) || Boolean(data.preseted_profile_image_id)
+      );
     }, "Please select a profile image or skip this step"),
 
   5: z.object({

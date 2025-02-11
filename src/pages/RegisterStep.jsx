@@ -5,55 +5,49 @@ import { useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { toast } from "react-hot-toast";
+import { tokenService } from "@/services/tokenService";
 
 export default function RegisterStep() {
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { step } = useParams();
-  const { registerStep, registrationState, login } = useAuthentication();
+  const { registerStep, registrationState } = useAuthentication();
 
   // Redirect to correct step based on registration state
   useEffect(() => {
-    if (!registrationState) return;
-
-    // If registration is complete, redirect to foreroom
-    if (registrationState.isRegistrationComplete) {
-      navigate("/foreroom", { replace: true });
-      return;
-    }
-
-    // Otherwise handle step navigation
-    if (registrationState?.nextStep) {
-      const currentStep = parseInt(step);
-      if (currentStep !== registrationState.nextStep) {
-        navigate(`/register/step/${registrationState.nextStep}`, {
-          replace: true,
-        });
+    const handleNavigation = async () => {
+      // Check if we have a registration token
+      const hasRegistrationToken = tokenService.getRegistrationToken();
+      if (hasRegistrationToken && !registrationState?.isRegistrationComplete) {
+        tokenService.removeLoginToken();
       }
-    }
+      // Check if we have an auth token (logged in)
+      const hasAuthToken = tokenService.getLoginToken();
+
+      // If user is already logged in and registration is complete
+      if (hasAuthToken && registrationState?.isRegistrationComplete) {
+        navigate("/foreroom", { replace: true });
+        return;
+      }
+
+      // If no registration token and not logged in
+      if (!hasRegistrationToken && !hasAuthToken) {
+        toast.error(
+          "Session expired use your email/phone to start registration."
+        );
+        navigate("/register", { replace: true });
+        return;
+      }
+    };
+
+    handleNavigation();
   }, [step, registrationState, navigate]);
 
   const handleStepSubmit = async (data) => {
     try {
-      const result = await registerStep(data);
-
-      if (result?.success) {
-        // Check if this is the final step response
-        if (result.data?.is_registration_complete === 1) {
-          // Set the login token if provided
-          if (result.data?.login_token) {
-            // Update auth state with the new token
-            await login(result.data.login_token);
-          }
-          // Redirect to foreroom
-          navigate("/foreroom", { replace: true });
-          return;
-        }
-      }
+      await registerStep(data);
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to save registration data"
-      );
+      toast.error("Failed to save registration data");
     }
   };
 
@@ -89,6 +83,7 @@ export default function RegisterStep() {
             <RegisterStepForm
               currentStep={registrationState.nextStep}
               onStepSubmit={handleStepSubmit}
+              gender={registrationState?.gender || null}
             />
           </div>
         </div>

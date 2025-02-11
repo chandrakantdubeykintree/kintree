@@ -10,13 +10,12 @@ import { StepFour } from "./registerationSteps/StepFour";
 import { StepFive } from "./registerationSteps/StepFive";
 import { StepSix } from "./registerationSteps/StepSix";
 import { useEffect } from "react";
-import { useNavigate } from "react-router";
-import { useAuthentication } from "@/hooks/useAuthentication";
 
-export default function RegisterStepForm({ currentStep, onStepSubmit }) {
-  const navigate = useNavigate();
-  const { registrationState } = useAuthentication();
-
+export default function RegisterStepForm({
+  currentStep,
+  onStepSubmit,
+  gender,
+}) {
   const {
     register,
     handleSubmit,
@@ -40,7 +39,7 @@ export default function RegisterStepForm({ currentStep, onStepSubmit }) {
   };
 
   const renderStepContent = () => {
-    const props = { register, errors, watch, setValue };
+    const props = { register, errors, watch, setValue, gender };
 
     switch (currentStep) {
       case 1:

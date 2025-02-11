@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { profileImage } from "@/constants/presetAvatars";
 
-export function StepFour({ register, errors, setValue, watch }) {
+export function StepFour({ register, errors, setValue, watch, gender }) {
   const [selectedPresetId, setSelectedPresetId] = useState(null);
   const watchedImage = watch("profile_image");
   const watchedPresetId = watch("preseted_profile_image_id");
@@ -70,7 +70,7 @@ export function StepFour({ register, errors, setValue, watch }) {
           htmlFor="profile_image"
           className="cursor-pointer flex flex-col items-center gap-2"
         >
-          <Avatar className="h-24 w-24 relative group">
+          <Avatar className="h-24 w-24 relative group border">
             <AvatarImage src={getCurrentAvatarUrl()} alt="Profile" />
             <AvatarFallback>Upload</AvatarFallback>
             {(watchedImage || watchedPresetId) && (
@@ -86,18 +86,19 @@ export function StepFour({ register, errors, setValue, watch }) {
             )}
           </Avatar>
           <span className="text-sm text-muted-foreground">
-            Click to upload your photo
+            Click to upload your photo or select an avatar.
           </span>
         </label>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
-        {profileImage("m").map((avatar) => (
+        {profileImage(gender?.toLowerCase() || "m").map((avatar) => (
           <Button
             key={avatar.id}
             type="button"
             variant="outline"
             className={cn(
+              "rounded-full",
               "p-0 h-auto aspect-square",
               selectedPresetId === avatar.id && "ring-2 ring-brandPrimary"
             )}
@@ -106,7 +107,7 @@ export function StepFour({ register, errors, setValue, watch }) {
             <img
               src={avatar.url}
               alt={`Avatar ${avatar.id}`}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-full"
             />
           </Button>
         ))}

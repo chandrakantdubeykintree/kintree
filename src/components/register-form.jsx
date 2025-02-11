@@ -12,9 +12,8 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
 import { useEffect, useState } from "react";
-import { registerSchemas } from "@/schemas/registerSchemas";
+import { z } from "zod";
 import toast from "react-hot-toast";
-import { ICON_EDIT2 } from "@/constants/iconUrls";
 import { Mail, Phone } from "lucide-react";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
@@ -29,6 +28,28 @@ export function RegisterForm({ setOpenTerms }) {
   const [otpLength, setOtpLength] = useState(6);
   const { sendOTPLoginRegister, verifyOTPLoginRegister } = useAuthentication();
   const { theme } = useThemeLanguage();
+
+  const registerSchemas = {
+    email: z.object({
+      email: z.string().email("Please enter a valid email address"),
+    }),
+
+    phone_no: z.object({
+      phone_no: z
+        .string()
+        .regex(/^\+[1-9]\d{1,14}$/, "Please enter a valid phone number"),
+    }),
+
+    otp: z.object({
+      otp: z
+        .string()
+        .refine(
+          (val) => val.length === 4 || val.length === 6,
+          "OTP must be 4 or 6 digits"
+        )
+        .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
+    }),
+  };
 
   const isValidOtp = (otp) => {
     return /^\d+$/.test(otp) && otp.length === otpLength;

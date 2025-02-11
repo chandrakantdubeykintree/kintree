@@ -141,6 +141,7 @@ export const useAuthentication = () => {
           nextStep: 1,
           completedStep: null,
           verifiedContact: null,
+          gender: null,
         }
       );
     },
@@ -260,6 +261,8 @@ export const useAuthentication = () => {
             },
           }
         );
+
+        console.log("response from the step submit", response);
       }
 
       if (!response.data.success) {
@@ -272,31 +275,45 @@ export const useAuthentication = () => {
 
       return response.data;
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
+      console.log("data from the step submit success", data);
       if (data.data.is_registration_complete === 1) {
+        console.log("i executed at start");
+
         const { login_token, ...userData } = data.data;
-        // Set login token first
         tokenService.setLoginToken(login_token);
-        // Remove registration token
-        tokenService.removeRegistrationToken();
+        kintreeApi.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${login_token}`;
+
         // Update user data in cache
         queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
+
+        // Only remove registration token after everything else is set
+        tokenService.removeRegistrationToken();
+
         // Clear registration state
         queryClient.removeQueries(AUTH_QUERY_KEYS.registrationState);
+        console.log("i executed till here");
+
         // Navigate to foreroom
         navigate("/foreroom", { replace: true });
-        // return { success: true, isCompleted: true };
       } else {
-        const { next_step, completed_step } = data.data;
+        const { next_step, completed_step, gender } = data.data;
+
         queryClient.setQueryData(AUTH_QUERY_KEYS.registrationState, (prev) => ({
           ...prev,
           nextStep: next_step,
           completedStep: completed_step,
+          gender: gender,
         }));
-        return { success: true, isCompleted: false };
       }
+
+      return data;
     },
     onError: (error) => {
+      console.error("Registration step error:", error);
+      navigate("/register", { replace: true });
       handleApiError(error, "Failed to save registration data");
     },
   });
