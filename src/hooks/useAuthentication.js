@@ -261,8 +261,6 @@ export const useAuthentication = () => {
             },
           }
         );
-
-        console.log("response from the step submit", response);
       }
 
       if (!response.data.success) {
@@ -276,10 +274,7 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: async (data) => {
-      console.log("data from the step submit success", data);
       if (data.data.is_registration_complete === 1) {
-        console.log("i executed at start");
-
         const { login_token, ...userData } = data.data;
         tokenService.setLoginToken(login_token);
         kintreeApi.defaults.headers.common[
@@ -294,7 +289,6 @@ export const useAuthentication = () => {
 
         // Clear registration state
         queryClient.removeQueries(AUTH_QUERY_KEYS.registrationState);
-        console.log("i executed till here");
 
         // Navigate to foreroom
         navigate("/foreroom", { replace: true });

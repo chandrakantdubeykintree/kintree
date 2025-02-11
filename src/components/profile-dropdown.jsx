@@ -21,14 +21,20 @@ import { useProfile } from "@/hooks/useProfile";
 import { useState } from "react";
 import { api_user_profile } from "@/constants/apiEndpoints";
 import { useAuthentication } from "@/hooks/useAuthentication";
+import { useTranslation } from "react-i18next";
+import { useUnreadMessages } from "@/hooks/useChannels";
 
 export default function ProfileDropDown() {
   const { width } = useWindowSize();
+  const { t } = useTranslation();
+  const [hoveredPath, setHoveredPath] = useState(null);
   const { profile: user } = useProfile(api_user_profile);
   const location = useLocation();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const navigate = useNavigate();
   const { logout } = useAuthentication();
+  const { data: unreadMessages } = useUnreadMessages();
+  const unreadedMessageCount = unreadMessages?.data?.unreaded_message_count;
   const handleNavLinkClick = () => {
     setIsSheetOpen(false); // Close the sheet
   };
@@ -56,7 +62,7 @@ export default function ProfileDropDown() {
             <DropdownMenuItem key={path} className="cursor-pointer">
               <NavLink key={path} to={path} className="flex gap-4 items-center">
                 <img src={icon} className="h-6 w-6" />
-                <span className="text-sm">{label}</span>
+                <span className="text-sm">{t(label)}</span>
               </NavLink>
             </DropdownMenuItem>
           );
@@ -105,18 +111,41 @@ export default function ProfileDropDown() {
         </SheetHeader>
         <SheetDescription className="hidden"></SheetDescription>
 
-        <div className="flex flex-col gap-4 overflow-y-scroll h-full">
-          {mainNavLinks.map(({ path, label, icon }) => (
+        <div className="flex flex-col gap-4 overflow-y-scroll h-full no_scrollbar">
+          {mainNavLinks.map(({ path, label, Icon }) => (
             <NavLink
               key={path}
               to={path}
-              className={`flex items-center gap-4 h-12 font-medium pl-2 rounded-xl text-base ${
-                location?.pathname === path ? "bg-brandPrimary text-white" : ""
-              } hover:bg-brandPrimary`}
-              onClick={handleNavLinkClick}
+              onMouseEnter={() => setHoveredPath(path)}
+              onMouseLeave={() => setHoveredPath(null)}
+              className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base ${
+                location?.pathname.includes(path)
+                  ? "bg-brandPrimary text-white hover:bg-brandPrimary"
+                  : "hover:bg-primary/90 hover:text-white"
+              } `}
             >
-              <img src={icon} className="h-6 w-6" />
-              <span className="text-sm">{label}</span>
+              <div className="flex items-center gap-2">
+                {Icon && (
+                  <Icon
+                    className="h-6 w-6"
+                    strokeColor={
+                      location?.pathname.includes(path) || hoveredPath === path
+                        ? "#ffffff"
+                        : undefined
+                    }
+                  />
+                )}
+                <span className="text-sm">{t(label)}</span>
+              </div>
+              {path === "/chats" && (
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500 p-2">
+                  <span className="text-xs text-white">
+                    {unreadedMessageCount > 99
+                      ? "99+"
+                      : unreadedMessageCount || 0}
+                  </span>
+                </div>
+              )}
             </NavLink>
           ))}
           <div

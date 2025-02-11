@@ -82,7 +82,7 @@ export default function Navbar() {
             className="w-[60px] h-12 transform transition-transform duration-300 ease-in-out hover:scale-105"
           />
         </NavLink>
-        <div className="hidden sm:block max-w-md w-full px-4">
+        <div className="hidden sm:block max-w-sm px-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
