@@ -22,7 +22,7 @@ export function SidebarProvider({ children }) {
     "/create-event": { left: true, right: false },
     "/view-event/:id": { left: true, right: false },
     "/edit-event/:id": { left: true, right: false },
-    "/kincoins": { left: true, right: true },
+    "/kincoins": { left: true, right: false },
     "/notifications": { left: true, right: true },
     "/will": { left: true, right: false },
     "/will/create-will": { left: true, right: false },

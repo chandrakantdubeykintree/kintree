@@ -101,7 +101,6 @@ const {
 } = LazyComponents;
 
 export default function App() {
-
   return (
     <RootLayout>
       <GlobalErrorBoundary>
@@ -271,7 +270,6 @@ export default function App() {
                     </Route>
 
                     <Route path="/test" element={<Test />} />
-
                   </Route>
                 </Routes>
               </Suspense>

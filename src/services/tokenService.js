@@ -1,8 +1,10 @@
 import Cookies from "js-cookie";
 
 const cookieOptions = {
-  secure: true,
-  sameSite: "strict",
+  // secure: true,
+  // sameSite: "strict",
+  // secure: window.location.protocol === "https:",
+  sameSite: "lax",
   path: "/",
 };
 

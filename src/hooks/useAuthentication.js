@@ -111,9 +111,9 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: () => {
-      tokenService.removeAllTokens();
-      kintreeApi.defaults.headers.common["Authorization"] = null;
-      queryClient.setQueryData(AUTH_QUERY_KEYS.profile, null);
+      // tokenService.removeAllTokens();
+      // kintreeApi.defaults.headers.common["Authorization"] = null;
+      // queryClient.setQueryData(AUTH_QUERY_KEYS.profile, null);
       queryClient.clear();
       toast.success("Logged out successfully");
       window.location.reload();
