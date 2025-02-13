@@ -10,6 +10,36 @@ class MessageService {
     this.socketUrl = SOCKET_URL;
   }
 
+  setupHeartbeat() {
+    this.socket.on("start-heartbeat", ({ interval }) => {
+      // Clear existing interval if any
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+      }
+
+      // Start sending heartbeats
+      this.heartbeatInterval = setInterval(() => {
+        this.socket.emit("heartbeat");
+      }, interval);
+    });
+
+    // Clear heartbeat on disconnect
+    this.socket.on("disconnect", () => {
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+      }
+    });
+  }
+
+  // Handle user status changes
+  handleUserStatus() {
+    this.socket.on("user-status-changed", ({ userId, isOnline }) => {
+      // Update UI to reflect user's online status
+      console.log(`User ${userId} is ${isOnline ? "online" : "offline"}`);
+    });
+  }
+
   connect() {
     if (this.socket?.connected) return;
 
@@ -36,6 +66,10 @@ class MessageService {
       "Access-Control-Allow-Origin": "*",
     });
 
+    // Setup heartbeat and status handlers first
+    this.setupHeartbeat();
+    this.handleUserStatus();
+
     this.setupSocketListeners();
 
     this.socket.on("connect_error", (error) => {
@@ -49,6 +83,12 @@ class MessageService {
 
   disconnect() {
     if (this.socket) {
+      // Clear heartbeat before disconnecting
+      if (this.heartbeatInterval) {
+        clearInterval(this.heartbeatInterval);
+        this.heartbeatInterval = null;
+      }
+
       this.socket.disconnect();
       this.socket = null;
       useMessageStore.getState().setConnected(false);
@@ -653,6 +693,20 @@ export const useMessageStore = create((set) => ({
     filteredRecords: 0,
   },
   typingUsers: new Set(),
+  onlineUsers: new Set(),
+  addOnlineUser: (userId) =>
+    set((state) => ({
+      onlineUsers: new Set([...state.onlineUsers, userId]),
+    })),
+
+  removeOnlineUser: (userId) =>
+    set((state) => ({
+      onlineUsers: new Set(
+        [...state.onlineUsers].filter((id) => id !== userId)
+      ),
+    })),
+
+  isUserOnline: (userId) => set((state) => state.onlineUsers.has(userId)),
   setFamilyMembers: (familyMembers) => set({ familyMembers: familyMembers }),
   setFamilyMembersLoading: (loading) => set({ familyMembersLoading: loading }),
   setChannels: (channels) => set({ channelsList: channels }),
