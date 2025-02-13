@@ -62,7 +62,23 @@ class MessageService {
     this.socket.on("connect", () => {
       useMessageStore.getState().setConnected(true);
       useMessageStore.getState().setError(null);
+      useMessageStore.getState().setChannelsLoading(true);
+
+      this.socket.emit("get-channels", (response) => {
+        if (response.success) {
+          useMessageStore.getState().setChannels(response.channels);
+        } else {
+          console.error("Error fetching channels:", response.error);
+        }
+        useMessageStore.getState().setChannelsLoading(false);
+      });
     });
+
+    // this.socket.on("family-members-list", (data) => {
+    //   useMessageStore.getState().setFamilyMembers(data);
+    // });
+
+    this.getFamilyMembers();
 
     this.socket.on("disconnect", (reason) => {
       useMessageStore.getState().setConnected(false);
@@ -275,6 +291,18 @@ class MessageService {
     );
   }
 
+  getFamilyMembers() {
+    this.socket.emit("get-family-members", (response) => {
+      useMessageStore.getState().setFamilyMembersLoading(true);
+      if (response.success) {
+        useMessageStore.getState().setFamilyMembers(response.family_members);
+      } else {
+        console.error("Error fetching family members:", response.error);
+      }
+      useMessageStore.getState().setFamilyMembersLoading(false);
+    });
+  }
+
   markChannelAsRead(channelId) {
     if (!this.socket?.connected) return;
 
@@ -482,6 +510,10 @@ class MessageService {
 // Zustand store
 export const useMessageStore = create((set) => ({
   currentChannel: null,
+  channelsLoading: false,
+  channelsList: [],
+  familyMembersLoading: false,
+  familyMembers: [],
   messages: [],
   isConnected: false,
   isLoading: false,
@@ -496,7 +528,10 @@ export const useMessageStore = create((set) => ({
     filteredRecords: 0,
   },
   typingUsers: new Set(),
-
+  setFamilyMembers: (familyMembers) => set({ familyMembers: familyMembers }),
+  setFamilyMembersLoading: (loading) => set({ familyMembersLoading: loading }),
+  setChannels: (channels) => set({ channelsList: channels }),
+  setChannelsLoading: (loading) => set({ channelsLoading: loading }),
   setCurrentChannel: (channel) => set({ currentChannel: channel }),
   setConnected: (isConnected) => set({ isConnected }),
   setLoading: (isLoading) => set({ isLoading }),

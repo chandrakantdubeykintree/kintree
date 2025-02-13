@@ -1,5 +1,4 @@
 import { Card } from "@/components/ui/card";
-import { useFamilyMembers } from "@/hooks/useFamily";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -66,8 +65,6 @@ import toast from "react-hot-toast";
 const TYPING_TIMER_LENGTH = 1500;
 
 export default function Chats() {
-  const { data: members, isLoading: membersLoading } = useFamilyMembers();
-  const { data: channels = [], isLoading: channelsLoading } = useChannels();
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [showMobileList, setShowMobileList] = useState(true);
@@ -82,8 +79,6 @@ export default function Chats() {
   });
   const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const [editingMessageId, setEditingMessageId] = useState(null);
-  const [editedMessage, setEditedMessage] = useState("");
   const [sendStatus, setSendStatus] = useState(null);
   const [typingUsers, setTypingUsers] = useState(new Set());
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false);
@@ -137,6 +132,10 @@ export default function Chats() {
 
   const {
     messages,
+    channelsLoading,
+    familyMembers,
+    familyMembersLoading,
+    channelsList,
     isConnected,
     isLoading: messagesLoading,
     isLoadingMore,
@@ -145,7 +144,11 @@ export default function Chats() {
     error: socketError,
   } = useMessageStore();
 
+  console.log(familyMembers, "familyMembers");
+
   const deleteChannelMutation = useDeleteChannel();
+
+  console.log(channelsList);
 
   // Initialize socket connection
   useEffect(() => {
@@ -454,19 +457,22 @@ export default function Chats() {
                           <div
                             className={cn(
                               "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
-                              selectedMembers.length === members.length
+                              selectedMembers.length === familyMembers.length
                                 ? "bg-primary"
                                 : "bg-accent"
                             )}
                             onClick={() => {
-                              if (selectedMembers.length === members.length) {
+                              if (
+                                selectedMembers.length === familyMembers.length
+                              ) {
                                 setSelectedMembers([]);
                               } else {
-                                setSelectedMembers(members);
+                                setSelectedMembers(familyMembers);
                               }
                             }}
                           >
-                            {selectedMembers.length === members.length && (
+                            {selectedMembers.length ===
+                              familyMembers.length && (
                               <Check className="w-4 h-4 text-white" />
                             )}
                           </div>
@@ -488,8 +494,8 @@ export default function Chats() {
                         </Button>
                       </div>
                     )}
-                    {Array.isArray(members) &&
-                      members
+                    {Array.isArray(familyMembers) &&
+                      familyMembers
                         ?.filter((member) => member.is_active)
                         ?.filter((member) => {
                           const searchTerm = channelSearchQuery.toLowerCase();
@@ -574,7 +580,7 @@ export default function Chats() {
                   </div>
                 ) : channelsLoading ? (
                   <ComponentLoading />
-                ) : channels?.data?.length > 0 ? (
+                ) : channelsList?.length > 0 ? (
                   <>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
@@ -585,7 +591,7 @@ export default function Chats() {
                         onChange={(e) => setChannelSearchQuery(e.target.value)}
                       />
                     </div>
-                    {channels?.data
+                    {channelsList
                       ?.filter((channel) => {
                         const searchTerm = channelSearchQuery.toLowerCase();
                         if (!searchTerm) return true;
@@ -1272,13 +1278,9 @@ export default function Chats() {
             </DialogHeader>
 
             <div className="space-y-2 mt-2 max-h-[60vh] overflow-y-auto">
-              {membersLoading ? (
-                <div className="flex items-center justify-center p-4">
-                  <span className="text-muted-foreground">
-                    Loading members...
-                  </span>
-                </div>
-              ) : members?.length > 0 ? (
+              {familyMembersLoading ? (
+                <ComponentLoading />
+              ) : familyMembers?.length > 0 ? (
                 <div className="space-y-2">
                   {isGroupChatMode && (
                     <div className="flex items-center justify-between px-2 py-1 bg-muted rounded-lg">
@@ -1299,7 +1301,7 @@ export default function Chats() {
                       )}
                     </div>
                   )}
-                  {members.map((member) => (
+                  {familyMembers.map((member) => (
                     <div
                       key={member.id}
                       className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
