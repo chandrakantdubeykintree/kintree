@@ -61,11 +61,20 @@ import AsyncComponent from "@/components/async-component";
 import ComponentLoading from "@/components/component-loading";
 import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 const TYPING_TIMER_LENGTH = 1500;
 
 export default function Chats() {
   const [selectedChannel, setSelectedChannel] = useState(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [showMobileList, setShowMobileList] = useState(true);
   const createChannel = useCreateChannel();
@@ -144,11 +153,7 @@ export default function Chats() {
     error: socketError,
   } = useMessageStore();
 
-  console.log(familyMembers, "familyMembers");
-
   const deleteChannelMutation = useDeleteChannel();
-
-  console.log(channelsList);
 
   // Initialize socket connection
   useEffect(() => {
@@ -399,186 +404,25 @@ export default function Chats() {
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-10 rounded-tl-2xl rounded-tr-2xl">
               <h2 className="font-bold text-lg">Chats</h2>
               <div className="flex items-center gap-2">
-                {isCreatingChat ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setIsGroupChatMode(false);
-                      setIsCreatingChat(false);
-                      setSelectedMembers([]);
-                    }}
-                    className="rounded-full bg-muted"
-                  >
-                    <Minus className="text-primary w-10 h-10" />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => {
-                      setIsGroupChatMode(false);
-                      setIsCreatingChat((prev) => !prev);
-                    }}
-                    className="rounded-full bg-muted"
-                  >
-                    <PlusIcon className="text-primary w-10 h-10" />
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    setIsGroupChatMode(false);
+                    setIsCreatingChat((prev) => !prev);
+                    setIsSheetOpen(true);
+                  }}
+                  className="rounded-full bg-muted"
+                >
+                  <PlusIcon className="text-primary w-10 h-10" />
+                </Button>
               </div>
             </div>
 
             {/* Scrollable channels list */}
             <div className="absolute top-[73px] bottom-0 left-0 right-0 overflow-y-auto no_scrollbar">
               <div className="p-4 space-y-2">
-                {isCreatingChat ? (
-                  <div className="space-y-2">
-                    <div className="px-4 text-sm text-muted-foreground">
-                      {isGroupChatMode
-                        ? `Select members for group chat`
-                        : "Select a person to chat with"}
-                    </div>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
-                      <Input
-                        placeholder="Search chats..."
-                        className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
-                        value={channelSearchQuery}
-                        onChange={(e) => setChannelSearchQuery(e.target.value)}
-                      />
-                    </div>
-                    {isGroupChatMode ? (
-                      <div className="flex items-center justify-between gap-2 cursor-pointer border-b py-4">
-                        <div className="text-sm">
-                          Total Members: {selectedMembers.length}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          Select all:{" "}
-                          <div
-                            className={cn(
-                              "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
-                              selectedMembers.length === familyMembers.length
-                                ? "bg-primary"
-                                : "bg-accent"
-                            )}
-                            onClick={() => {
-                              if (
-                                selectedMembers.length === familyMembers.length
-                              ) {
-                                setSelectedMembers([]);
-                              } else {
-                                setSelectedMembers(familyMembers);
-                              }
-                            }}
-                          >
-                            {selectedMembers.length ===
-                              familyMembers.length && (
-                              <Check className="w-4 h-4 text-white" />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        className="flex items-center justify-center gap-2 cursor-pointer border-b  py-4"
-                        onClick={() => {
-                          setIsGroupChatMode(true);
-                        }}
-                      >
-                        <Button
-                          variant="outline"
-                          className="w-fit rounded-full h-10"
-                        >
-                          <Users className="w-6 h-6 text-primary" />
-                          <span className="text-md">Create Group</span>
-                        </Button>
-                      </div>
-                    )}
-                    {Array.isArray(familyMembers) &&
-                      familyMembers
-                        ?.filter((member) => member.is_active)
-                        ?.filter((member) => {
-                          const searchTerm = channelSearchQuery.toLowerCase();
-                          if (!searchTerm) return true;
-
-                          return (
-                            member.first_name
-                              ?.toLowerCase()
-                              .includes(searchTerm) ||
-                            member.last_name?.toLowerCase().includes(searchTerm)
-                          );
-                        })
-                        ?.map((member) => (
-                          <div
-                            key={member.id}
-                            className={cn(
-                              "flex items-center gap-3 p-4 cursor-pointer hover:bg-primary/10 transition-colors rounded-lg",
-                              isGroupChatMode &&
-                                selectedMembers.some(
-                                  (m) => m.id === member.id
-                                ) &&
-                                "bg-primary/20"
-                            )}
-                            onClick={() => {
-                              handleMemberSelect(member);
-                              setChannelSearchQuery("");
-                              !isGroupChatMode && setIsCreatingChat(false);
-                            }}
-                          >
-                            <img
-                              src={
-                                member.profile_pic_url || "/default-avatar.png"
-                              }
-                              alt={member.first_name}
-                              className="w-10 h-10 border border-primary rounded-full object-cover"
-                            />
-                            <div className="flex-1">
-                              <div className="font-medium">
-                                {member.first_name} {member.last_name}
-                              </div>
-                              {member.relation && (
-                                <div className="text-sm text-muted-foreground">
-                                  {member.relation}
-                                </div>
-                              )}
-                            </div>
-
-                            {isGroupChatMode ? (
-                              selectedMembers.some(
-                                (m) => m.id === member.id
-                              ) ? (
-                                <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-primary">
-                                  <Check className="w-4 h-4 text-background" />
-                                </div>
-                              ) : (
-                                <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-accent"></div>
-                              )
-                            ) : null}
-                          </div>
-                        ))}
-                    {isGroupChatMode && selectedMembers.length >= 2 && (
-                      <div className="sticky bottom-[-1px] py-4 bg-brandLight flex items-center justify-end gap-2">
-                        <Button
-                          variant="outline"
-                          className="rounded-full h-10"
-                          onClick={() => {
-                            setIsCreatingChat(false);
-                            setIsGroupChatMode(false);
-                            setSelectedMembers([]);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          className="rounded-full h-10"
-                          onClick={() => setIsCreateDialogOpen(true)}
-                        >
-                          Create Group
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : channelsLoading ? (
+                {channelsLoading ? (
                   <ComponentLoading />
                 ) : channelsList?.length > 0 ? (
                   <>
@@ -1646,6 +1490,152 @@ export default function Chats() {
           </DialogContent>
         </Dialog>
       </Card>
+
+      <Sheet
+        className={`block md:hidden ${isSheetOpen ? "open" : "closed"}`}
+        open={isSheetOpen}
+        onOpenChange={setIsSheetOpen}
+      >
+        <SheetTrigger></SheetTrigger>
+        <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetHeader>
+            <SheetTitle className="py-4 flex flex-col gap-2 items-center"></SheetTitle>
+          </SheetHeader>
+          <SheetDescription className="hidden"></SheetDescription>
+          <div className="space-y-2">
+            <div className="px-4 text-sm text-muted-foreground">
+              {isGroupChatMode
+                ? `Select members for group chat`
+                : "Select a person to chat with"}
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
+              <Input
+                placeholder="Search chats..."
+                className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
+                value={channelSearchQuery}
+                onChange={(e) => setChannelSearchQuery(e.target.value)}
+              />
+            </div>
+            {isGroupChatMode ? (
+              <div className="flex items-center justify-between gap-2 cursor-pointer border-b py-4">
+                <div className="text-sm">
+                  Total Members: {selectedMembers.length}
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  Select all:{" "}
+                  <div
+                    className={cn(
+                      "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
+                      selectedMembers.length === familyMembers.length
+                        ? "bg-primary"
+                        : "bg-accent"
+                    )}
+                    onClick={() => {
+                      if (selectedMembers.length === familyMembers.length) {
+                        setSelectedMembers([]);
+                      } else {
+                        setSelectedMembers(familyMembers);
+                      }
+                    }}
+                  >
+                    {selectedMembers.length === familyMembers.length && (
+                      <Check className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                className="flex items-center justify-center gap-2 cursor-pointer border-b  py-4"
+                onClick={() => {
+                  setIsGroupChatMode(true);
+                }}
+              >
+                <Button variant="outline" className="w-fit rounded-full h-10">
+                  <Users className="w-6 h-6 text-primary" />
+                  <span className="text-md">Create Group</span>
+                </Button>
+              </div>
+            )}
+            {Array.isArray(familyMembers) &&
+              familyMembers
+                ?.filter((member) => member.is_active)
+                ?.filter((member) => {
+                  const searchTerm = channelSearchQuery.toLowerCase();
+                  if (!searchTerm) return true;
+
+                  return (
+                    member.first_name?.toLowerCase().includes(searchTerm) ||
+                    member.last_name?.toLowerCase().includes(searchTerm)
+                  );
+                })
+                ?.map((member) => (
+                  <div
+                    key={member.id}
+                    className={cn(
+                      "flex items-center gap-3 p-4 cursor-pointer hover:bg-primary/10 transition-colors rounded-lg",
+                      isGroupChatMode &&
+                        selectedMembers.some((m) => m.id === member.id) &&
+                        "bg-primary/20"
+                    )}
+                    onClick={() => {
+                      handleMemberSelect(member);
+                      setChannelSearchQuery("");
+                      !isGroupChatMode && setIsCreatingChat(false);
+                    }}
+                  >
+                    <img
+                      src={member.profile_pic_url || "/default-avatar.png"}
+                      alt={member.first_name}
+                      className="w-10 h-10 border border-primary rounded-full object-cover"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">
+                        {member.first_name} {member.last_name}
+                      </div>
+                      {member.relation && (
+                        <div className="text-sm text-muted-foreground">
+                          {member.relation}
+                        </div>
+                      )}
+                    </div>
+
+                    {isGroupChatMode ? (
+                      selectedMembers.some((m) => m.id === member.id) ? (
+                        <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-primary">
+                          <Check className="w-4 h-4 text-background" />
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-accent"></div>
+                      )
+                    ) : null}
+                  </div>
+                ))}
+            {isGroupChatMode && selectedMembers.length >= 2 && (
+              <div className="sticky bottom-[-1px] py-4 bg-brandLight flex items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-full h-10"
+                  onClick={() => {
+                    setIsCreatingChat(false);
+                    setIsGroupChatMode(false);
+                    setSelectedMembers([]);
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className="rounded-full h-10"
+                  onClick={() => setIsCreateDialogOpen(true)}
+                >
+                  Create Group
+                </Button>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </AsyncComponent>
   );
 }

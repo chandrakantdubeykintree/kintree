@@ -10,6 +10,7 @@ import {
   api_user_profile,
 } from "../constants/apiEndpoints";
 import toast from "react-hot-toast";
+import { useLocation, useNavigate } from "react-router";
 
 const AuthContext = createContext();
 
@@ -24,6 +25,8 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [registrationState, setRegistrationState] = useState({
     isRegistrationComplete: null,
@@ -36,19 +39,40 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       try {
         setLoading(true);
-        const success = await fetchUserProfile();
-        if (!success) {
+        const token = tokenService.getLoginToken();
+
+        if (token && tokenService.isLoginTokenValid()) {
+          const success = await fetchUserProfile();
+          if (success) {
+            // If we're on the login page or root, redirect to foreroom
+            if (location.pathname === "/login" || location.pathname === "/") {
+              navigate("/foreroom");
+            }
+            // Otherwise stay on the current route
+          } else {
+            handleLogout();
+            if (!location.pathname.startsWith("/login")) {
+              navigate("/login");
+            }
+          }
+        } else {
           handleLogout();
+          if (!location.pathname.startsWith("/login")) {
+            navigate("/login");
+          }
         }
       } catch (error) {
         handleLogout();
+        if (!location.pathname.startsWith("/login")) {
+          navigate("/login");
+        }
       } finally {
         setLoading(false);
       }
     };
 
     checkAuth();
-  }, []);
+  }, [navigate, location.pathname]);
 
   const fetchUserProfile = async (url = "/user/profile") => {
     try {

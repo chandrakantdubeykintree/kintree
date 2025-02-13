@@ -74,10 +74,6 @@ class MessageService {
       });
     });
 
-    // this.socket.on("family-members-list", (data) => {
-    //   useMessageStore.getState().setFamilyMembers(data);
-    // });
-
     this.getFamilyMembers();
 
     this.socket.on("disconnect", (reason) => {
