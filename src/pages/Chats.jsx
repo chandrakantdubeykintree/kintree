@@ -3,11 +3,6 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  useChannels,
-  useCreateChannel,
-  useDeleteChannel,
-} from "@/hooks/useChannels";
-import {
   ArrowLeft,
   MoreVertical,
   Check,
@@ -18,7 +13,6 @@ import {
   Users,
   Search,
   PlusIcon,
-  Minus,
   Camera,
   Copy,
   Info,
@@ -26,18 +20,9 @@ import {
   ImageIcon,
   File,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
+
 import { Label } from "@/components/ui/label";
-import {
-  AlertDialogFooter,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+
 import { Textarea } from "@/components/ui/textarea";
 import {
   DropdownMenu,
@@ -47,16 +32,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { messageService, useMessageStore } from "@/services/messageService";
 import { format } from "date-fns";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-} from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DialogFooter } from "@/components/ui/dialog";
 import AsyncComponent from "@/components/async-component";
 import ComponentLoading from "@/components/component-loading";
 import { cn } from "@/lib/utils";
@@ -65,6 +41,7 @@ import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -75,9 +52,17 @@ const TYPING_TIMER_LENGTH = 1500;
 export default function Chats() {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [openSheet, setOpenSheet] = useState({
+    createChannel: false,
+    updateChannel: false,
+    deleteChannel: false,
+    channelInfo: false,
+    clearChat: false,
+    messageInfo: false,
+    deleteMessage: false,
+  });
   const [newMessage, setNewMessage] = useState("");
   const [showMobileList, setShowMobileList] = useState(true);
-  const createChannel = useCreateChannel();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isMembersDialogOpen, setIsMembersDialogOpen] = useState(false);
   const [newChannelData, setNewChannelData] = useState({
@@ -152,8 +137,6 @@ export default function Chats() {
     pagination,
     error: socketError,
   } = useMessageStore();
-
-  const deleteChannelMutation = useDeleteChannel();
 
   // Initialize socket connection
   useEffect(() => {
@@ -234,17 +217,17 @@ export default function Chats() {
 
   const handleMemberSelect = async (member) => {
     if (isGroupChatMode) {
-      // For group chat, add/remove member from selection
+      // For group chat, add or remove member from selection
       setSelectedMembers((prev) =>
         prev.some((m) => m.id === member.id)
           ? prev.filter((m) => m.id !== member.id)
           : [...prev, member]
       );
     } else {
-      // For direct chat, create channel immediately
+      // For a direct chat, close the member selection dialog and create the channel immediately
       setIsMembersDialogOpen(false);
       try {
-        await createChannel.mutateAsync({
+        await messageService.createChannel({
           is_group: 0,
           name: member.first_name + " " + member.last_name,
           description: null,
@@ -252,7 +235,7 @@ export default function Chats() {
           user_ids: [member.id],
         });
       } catch (error) {
-        toast.error("Failed to create channel:");
+        toast.error("Failed to create channel: " + error.message);
       }
     }
   };
@@ -260,7 +243,6 @@ export default function Chats() {
   const handleCreateGroupChat = async (e) => {
     e.preventDefault();
     if (selectedMembers.length < 2) return;
-
     try {
       const formData = new FormData();
       formData.append("is_group", "1");
@@ -271,13 +253,11 @@ export default function Chats() {
       if (newChannelData.thumbnail_image instanceof File) {
         formData.append("thumbnail_image", newChannelData.thumbnail_image);
       }
-
       selectedMembers.forEach((member) => {
         formData.append("user_ids[]", member.id);
       });
 
-      await createChannel.mutateAsync(formData);
-
+      await messageService.createChannel(formData);
       setIsCreateDialogOpen(false);
       setIsMembersDialogOpen(false);
       setSelectedMembers([]);
@@ -289,7 +269,7 @@ export default function Chats() {
       setIsGroupChatMode(false);
       setIsCreatingChat(false);
     } catch (error) {
-      toast.error("Failed to create group channel:");
+      toast.error("Failed to create group channel: " + error.message);
     }
   };
 
@@ -381,12 +361,22 @@ export default function Chats() {
 
   const handleDeleteChat = async () => {
     try {
-      await deleteChannelMutation.mutateAsync(selectedChannel.id);
+      await messageService.deleteChannel(selectedChannel.id);
       setIsDeleteDialogOpen(false);
       setSelectedChannel(null);
       setShowMobileList(true);
     } catch (error) {
-      toast.error("Failed to delete chat.");
+      toast.error("Failed to delete chat: " + error.message);
+    }
+  };
+
+  // Optional: A sample update channel handler using messageService.updateChannel (if needed)
+  const handleUpdateChannel = async (channelId, updateData) => {
+    try {
+      await messageService.updateChannel(channelId, updateData);
+      toast.success("Channel updated successfully");
+    } catch (error) {
+      toast.error("Failed to update channel: " + error.message);
     }
   };
 
@@ -410,7 +400,11 @@ export default function Chats() {
                   onClick={() => {
                     setIsGroupChatMode(false);
                     setIsCreatingChat((prev) => !prev);
-                    setIsSheetOpen(true);
+                    // setIsSheetOpen(true);
+                    setOpenSheet((prev) => ({
+                      ...prev,
+                      createChannel: true,
+                    }));
                   }}
                   className="rounded-full bg-muted"
                 >
@@ -613,22 +607,7 @@ export default function Chats() {
                             </Button>
                           </>
                         )}
-                        {/* {selectedMessages.length === 1 &&
-                          messages.find((m) => m.id === selectedMessages[0])
-                            ?.message_sent_by_me ? (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => {
-                                // Handle delete
-                                setMessageToDelete(selectedMessages);
-                                setIsSelectMode(false);
-                                setSelectedMessages([]);
-                              }}
-                            >
-                              <Trash className="h-5 w-5 text-destructive" />
-                            </Button>
-                          ) : null} */}
+
                         {selectedMessages.length === 1 ? (
                           <Button
                             variant="ghost"
@@ -796,7 +775,7 @@ export default function Chats() {
                                           className="w-full h-auto object-contain rounded-lg"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            // Optionally: Add image preview/lightbox functionality here
+
                                             window.open(
                                               message.attachments[0].url,
                                               "_blank"
@@ -989,512 +968,487 @@ export default function Chats() {
             )}
           </div>
         </div>
-
-        {/* Chat Info Dialog */}
-        <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-          <DialogContent className="max-w-[90%] w-[350px] rounded-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Chat Information</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="flex flex-col items-center gap-4">
-                <img
-                  src={
-                    selectedChannel?.thumbnail_image_url ||
-                    "/default-avatar.png"
-                  }
-                  alt={selectedChannel?.name}
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-                <h3 className="font-semibold text-lg">
-                  {selectedChannel?.name || "Direct Message"}
-                </h3>
-              </div>
-              <div className="grid gap-2">
-                <Label>Description</Label>
-                <p className="text-sm text-muted-foreground">
-                  {selectedChannel?.description || "No description available"}
-                </p>
-              </div>
-              <div className="grid gap-2">
-                <Label>Created</Label>
-                <p className="text-sm text-muted-foreground">
-                  {selectedChannel?.created_at
-                    ? format(new Date(selectedChannel.created_at), "PPP")
-                    : "Unknown"}
-                </p>
-              </div>
-              {!selectedChannel?.is_group && (
-                <div className="grid gap-2">
-                  <Label>Online Status</Label>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        selectedChannel?.is_online
-                          ? "bg-green-500"
-                          : "bg-gray-400"
-                      }`}
-                    />
-                    <span className="text-sm text-muted-foreground">
-                      {selectedChannel?.is_online ? "Online" : "Offline"}
-                    </span>
-                  </div>
-                </div>
-              )}
+      </Card>
+      {/* Chat Info */}
+      <Sheet open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
+        <SheetContent className="overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Chat Information</SheetTitle>
+          </SheetHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex flex-col items-center gap-4">
+              <img
+                src={
+                  selectedChannel?.thumbnail_image_url || "/default-avatar.png"
+                }
+                alt={selectedChannel?.name}
+                className="w-24 h-24 rounded-full object-cover"
+              />
+              <h3 className="font-semibold text-lg">
+                {selectedChannel?.name || "Direct Message"}
+              </h3>
             </div>
-          </DialogContent>
-        </Dialog>
+            <div className="grid gap-2">
+              <Label>Description</Label>
+              <p className="text-sm text-muted-foreground">
+                {selectedChannel?.description || "No description available"}
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <Label>Created</Label>
+              <p className="text-sm text-muted-foreground">
+                {selectedChannel?.created_at
+                  ? format(new Date(selectedChannel.created_at), "PPP")
+                  : "Unknown"}
+              </p>
+            </div>
+            {!selectedChannel?.is_group && (
+              <div className="grid gap-2">
+                <Label>Online Status</Label>
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      selectedChannel?.is_online
+                        ? "bg-green-500"
+                        : "bg-gray-400"
+                    }`}
+                  />
+                  <span className="text-sm text-muted-foreground">
+                    {selectedChannel?.is_online ? "Online" : "Offline"}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+      {/* Delete Chat Dialog */}
+      <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <SheetContent className="max-w-[90%] w-[350px] rounded-2xl">
+          <SheetHeader>
+            <SheetTitle>Delete Chat</SheetTitle>
+            <SheetDescription>
+              Are you sure you want to delete this chat? This action cannot be
+              undone.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <Button className="rounded-full">Cancel</Button>
+            <Button
+              onClick={handleDeleteChat}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+              // disabled={deleteChannelMutation.isPending}
+            >
+              Delete
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+      {/* Delete Message Dialog */}
+      <Sheet
+        open={messageToDelete !== null}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setMessageToDelete(null);
+        }}
+      >
+        <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetHeader>
+            <SheetTitle>Delete Message</SheetTitle>
+            <SheetDescription>
+              Are you sure you want to delete this message? This action cannot
+              be undone.
+            </SheetDescription>
+          </SheetHeader>
+          <SheetFooter>
+            <Button className="rounded-full">Cancel</Button>
+            <Button
+              onClick={() => handleMessageDelete(messageToDelete)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
+            >
+              Delete
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+      {/* Members Dialog */}
+      <Sheet open={isMembersDialogOpen} onOpenChange={setIsMembersDialogOpen}>
+        <SheetContent className="sm:max-w-[425px]">
+          <SheetHeader>
+            <SheetTitle>
+              {isGroupChatMode
+                ? "Create Group Chat"
+                : "Select Member to Chat With"}
+            </SheetTitle>
+            {isGroupChatMode && (
+              <SheetDescription>
+                Select at least 2 members to create a group chat
+              </SheetDescription>
+            )}
+          </SheetHeader>
 
-        {/* Delete Chat Dialog */}
-        <AlertDialog
-          open={isDeleteDialogOpen}
-          onOpenChange={setIsDeleteDialogOpen}
-        >
-          <AlertDialogContent className="max-w-[90%] w-[350px] rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Chat</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this chat? This action cannot be
-                undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-full">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteChat}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
-                disabled={deleteChannelMutation.isPending}
-              >
-                {deleteChannelMutation.isPending ? "Deleting..." : "Delete"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Delete Message Dialog */}
-        <AlertDialog
-          open={messageToDelete !== null}
-          onOpenChange={(isOpen) => {
-            if (!isOpen) setMessageToDelete(null);
-          }}
-        >
-          <AlertDialogContent className="max-w-[90%] w-[350px] rounded-2xl">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Message</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this message? This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="rounded-full">
-                Cancel
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => handleMessageDelete(messageToDelete)}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        {/* Members Dialog */}
-        <Dialog
-          open={isMembersDialogOpen}
-          onOpenChange={setIsMembersDialogOpen}
-        >
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>
-                {isGroupChatMode
-                  ? "Create Group Chat"
-                  : "Select Member to Chat With"}
-              </DialogTitle>
-              {isGroupChatMode && (
-                <DialogDescription>
-                  Select at least 2 members to create a group chat
-                </DialogDescription>
-              )}
-            </DialogHeader>
-
-            <div className="space-y-2 mt-2 max-h-[60vh] overflow-y-auto">
-              {familyMembersLoading ? (
-                <ComponentLoading />
-              ) : familyMembers?.length > 0 ? (
-                <div className="space-y-2">
-                  {isGroupChatMode && (
-                    <div className="flex items-center justify-between px-2 py-1 bg-muted rounded-lg">
+          <div className="overflow-y-scroll no_scrollbar">
+            {familyMembersLoading ? (
+              <ComponentLoading />
+            ) : familyMembers?.length > 0 ? (
+              <div className="space-y-2">
+                {isGroupChatMode && (
+                  <div className="flex items-center justify-between px-2 py-1 bg-muted rounded-lg">
+                    <span className="text-sm text-muted-foreground">
+                      Selected: {selectedMembers.length} members
+                    </span>
+                    {selectedMembers.length >= 2 ? (
+                      <Button
+                        size="sm"
+                        onClick={() => setIsCreateDialogOpen(true)}
+                      >
+                        Next
+                      </Button>
+                    ) : (
                       <span className="text-sm text-muted-foreground">
-                        Selected: {selectedMembers.length} members
+                        Select {2 - selectedMembers.length} more
                       </span>
-                      {selectedMembers.length >= 2 ? (
-                        <Button
-                          size="sm"
-                          onClick={() => setIsCreateDialogOpen(true)}
-                        >
-                          Next
-                        </Button>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">
-                          Select {2 - selectedMembers.length} more
-                        </span>
+                    )}
+                  </div>
+                )}
+                {familyMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
+                      isGroupChatMode &&
+                      selectedMembers.some((m) => m.id === member.id)
+                        ? "bg-accent"
+                        : ""
+                    }`}
+                    onClick={() => {
+                      if (!isGroupChatMode) {
+                        handleMemberSelect(member);
+                      }
+                    }}
+                  >
+                    <img
+                      src={member.profile_pic_url || "/default-avatar.png"}
+                      alt={member.first_name}
+                      className="w-10 h-10 rounded-full object-cover border border-primary"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium">
+                        {member.first_name} {member.last_name}
+                      </div>
+                      {member.email && (
+                        <div className="text-sm text-muted-foreground">
+                          {member.email}
+                        </div>
                       )}
                     </div>
-                  )}
-                  {familyMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className={`flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer ${
-                        isGroupChatMode &&
-                        selectedMembers.some((m) => m.id === member.id)
-                          ? "bg-accent"
-                          : ""
-                      }`}
-                      onClick={() => {
-                        if (!isGroupChatMode) {
+                    {isGroupChatMode && (
+                      <Checkbox
+                        checked={selectedMembers.some(
+                          (m) => m.id === member.id
+                        )}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent parent div click
                           handleMemberSelect(member);
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center p-4">
+                <span className="text-muted-foreground">No members found</span>
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+      {/* create group chat */}
+      <Sheet
+        open={isCreateDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateDialogOpen(open);
+          if (!open) {
+            setNewChannelData({
+              name: "",
+              description: "",
+              thumbnail_image: null,
+            });
+          }
+        }}
+      >
+        <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetHeader>
+            <SheetTitle>Create Group Chat</SheetTitle>
+            <SheetDescription></SheetDescription>
+          </SheetHeader>
+          <form onSubmit={handleCreateGroupChat}>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="relative group">
+                    <input
+                      id="thumbnail"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setNewChannelData((prev) => ({
+                            ...prev,
+                            thumbnail_image: file,
+                          }));
                         }
                       }}
+                    />
+                    <label htmlFor="thumbnail" className="cursor-pointer block">
+                      {newChannelData.thumbnail_image ? (
+                        <div className="relative w-24 h-24">
+                          <img
+                            src={URL.createObjectURL(
+                              newChannelData.thumbnail_image
+                            )}
+                            alt="Thumbnail preview"
+                            className="w-24 h-24 rounded-full object-cover border border-primary"
+                          />
+                          <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <p className="text-white text-xs">Change Image</p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-brandSecondary flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                          <div className="flex flex-col items-center">
+                            <div className="bg-primary rounded-full p-3">
+                              <Camera className="h-8 w-8 text-white mb-1" />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </label>
+                    {newChannelData.thumbnail_image && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() =>
+                          setNewChannelData((prev) => ({
+                            ...prev,
+                            thumbnail_image: null,
+                          }))
+                        }
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {newChannelData.thumbnail_image && (
+                    <p className="text-sm text-muted-foreground">
+                      {newChannelData.thumbnail_image.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Group Name</Label>
+                <Input
+                  id="name"
+                  value={newChannelData.name}
+                  onChange={(e) =>
+                    setNewChannelData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter group name"
+                  required
+                  className="rounded-full h-10 md:h-12 focus:border-primary outline-none focus:ring-primary focus:ring-2"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={newChannelData.description}
+                  onChange={(e) =>
+                    setNewChannelData((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
+                  }
+                  maxLength={100}
+                  placeholder="Group description (optional)"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Selected Members</Label>
+                <div className="flex flex-wrap gap-2 p-2 border rounded-lg overflow-y-scroll max-h-[200px] min-h-[100px] no_scrollbar">
+                  {selectedMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center gap-1 rounded-full px-3 py-1 bg-primary/80"
                     >
                       <img
                         src={member.profile_pic_url || "/default-avatar.png"}
                         alt={member.first_name}
-                        className="w-10 h-10 rounded-full object-cover border border-primary"
+                        className="w-5 h-5 rounded-full object-cover border border-primary"
                       />
-                      <div className="flex-1">
-                        <div className="font-medium">
-                          {member.first_name} {member.last_name}
-                        </div>
-                        {member.email && (
-                          <div className="text-sm text-muted-foreground">
-                            {member.email}
-                          </div>
-                        )}
-                      </div>
-                      {isGroupChatMode && (
-                        <Checkbox
-                          checked={selectedMembers.some(
-                            (m) => m.id === member.id
-                          )}
-                          onClick={(e) => {
-                            e.stopPropagation(); // Prevent parent div click
-                            handleMemberSelect(member);
-                          }}
-                        />
-                      )}
+                      <span className="text-sm text-white">
+                        {member.first_name} {member.last_name}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-4 w-4 p-0 hover:bg-transparent"
+                        onClick={() => handleMemberSelect(member)}
+                      >
+                        <X className="h-3 w-3 text-white" />
+                      </Button>
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center p-4">
-                  <span className="text-muted-foreground">
-                    No members found
-                  </span>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Group Chat Creation Dialog */}
-        <Dialog
-          open={isCreateDialogOpen}
-          onOpenChange={(open) => {
-            setIsCreateDialogOpen(open);
-            if (!open) {
-              setNewChannelData({
-                name: "",
-                description: "",
-                thumbnail_image: null,
-              });
-            }
-          }}
-        >
-          <DialogContent className="max-w-[90%] w-[450px] rounded-2xl">
-            <DialogHeader>
-              <DialogTitle>Create Group Chat</DialogTitle>
-              <DialogDescription></DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreateGroupChat}>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="relative group">
-                      <input
-                        id="thumbnail"
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            setNewChannelData((prev) => ({
-                              ...prev,
-                              thumbnail_image: file,
-                            }));
-                          }
-                        }}
-                      />
-                      <label
-                        htmlFor="thumbnail"
-                        className="cursor-pointer block"
-                      >
-                        {newChannelData.thumbnail_image ? (
-                          <div className="relative w-24 h-24">
-                            <img
-                              src={URL.createObjectURL(
-                                newChannelData.thumbnail_image
-                              )}
-                              alt="Thumbnail preview"
-                              className="w-24 h-24 rounded-full object-cover border border-primary"
-                            />
-                            <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <p className="text-white text-xs">Change Image</p>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-24 h-24 rounded-full bg-brandSecondary flex items-center justify-center group-hover:bg-muted/80 transition-colors">
-                            <div className="flex flex-col items-center">
-                              <div className="bg-primary rounded-full p-3">
-                                <Camera className="h-8 w-8 text-white mb-1" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </label>
-                      {newChannelData.thumbnail_image && (
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                          onClick={() =>
-                            setNewChannelData((prev) => ({
-                              ...prev,
-                              thumbnail_image: null,
-                            }))
-                          }
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                    {newChannelData.thumbnail_image && (
-                      <p className="text-sm text-muted-foreground">
-                        {newChannelData.thumbnail_image.name}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="name">Group Name</Label>
-                  <Input
-                    id="name"
-                    value={newChannelData.name}
-                    onChange={(e) =>
-                      setNewChannelData((prev) => ({
-                        ...prev,
-                        name: e.target.value,
-                      }))
-                    }
-                    placeholder="Enter group name"
-                    required
-                    className="rounded-full h-10 md:h-12 focus:border-primary outline-none focus:ring-primary focus:ring-2"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={newChannelData.description}
-                    onChange={(e) =>
-                      setNewChannelData((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    maxLength={100}
-                    placeholder="Group description (optional)"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Selected Members</Label>
-                  <div className="flex flex-wrap gap-2 p-2 border rounded-lg overflow-y-scroll max-h-[200px] min-h-[100px] no_scrollbar">
-                    {selectedMembers.map((member) => (
-                      <div
-                        key={member.id}
-                        className="flex items-center gap-1 rounded-full px-3 py-1 bg-primary/80"
-                      >
-                        <img
-                          src={member.profile_pic_url || "/default-avatar.png"}
-                          alt={member.first_name}
-                          className="w-5 h-5 rounded-full object-cover border border-primary"
-                        />
-                        <span className="text-sm text-white">
-                          {member.first_name} {member.last_name}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-4 w-4 p-0 hover:bg-transparent"
-                          onClick={() => handleMemberSelect(member)}
-                        >
-                          <X className="h-3 w-3 text-white" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </div>
-              <DialogFooter className="mt-4 flex gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsCreateDialogOpen(false)}
-                  className="rounded-full"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={!newChannelData.name || selectedMembers.length < 2}
-                  className="rounded-full"
-                >
-                  Create Group
-                </Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        <Dialog
-          open={messageInfoData !== null}
-          onOpenChange={(open) => !open && setMessageInfoData(null)}
-        >
-          <DialogContent className="max-w-[90%] w-[350px] rounded-2xl p-0">
-            <div className="flex items-center justify-between p-4">
-              <DialogTitle className="text-xl font-medium">
-                Message info
-              </DialogTitle>
             </div>
-
-            <div className="px-4 pb-4">
-              {/* Message Content */}
-              <div className="bg-primary/90 text-primary-foreground rounded-2xl p-4 mb-6 max-w-[90%]">
-                <p className="text-base mb-2">{messageInfoData?.message}</p>
-                <div className="flex justify-end">
-                  <span className="text-sm text-primary-foreground/90">
-                    {messageInfoData?.created_at &&
-                      format(new Date(messageInfoData.created_at), "HH:mm a")}
-                  </span>
-                </div>
-              </div>
-
-              <hr className="border-t border-muted-foreground/20 mb-4" />
-
-              {/* Read/Delivered Status */}
-              {!selectedChannel?.is_group ? (
-                <div className="space-y-4 bg-[#FFF5E8] rounded-xl p-4">
-                  {messageInfoData?.read_at ? (
-                    <div className="flex items-center justify-between border-b">
-                      <div className="flex items-center gap-3">
-                        <CheckCheck className="h-5 w-5 text-primary" />
-                        <span className="text-base">Read</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm text-muted-foreground">
-                          {format(
-                            new Date(messageInfoData.read_at),
-                            "MMM d, HH:mm"
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between border-b pb-4">
-                      <div className="flex items-center gap-3">
-                        <CheckCheck className="h-5 w-5 text-primary" />
-                        <span className="text-base">Read</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {messageInfoData?.delivered_at ? (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-base">Delivered</span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-sm">
-                          {format(
-                            new Date(messageInfoData.delivered_at),
-                            "HH:mm a"
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-base">Delivered</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : null}
-
-              {/* For Group Messages - Show read status per member */}
-              {selectedChannel?.is_group && messageInfoData?.read_by ? (
-                <div className="mt-4 pt-4 border-t">
-                  <h4 className="text-sm font-medium mb-3">Read by</h4>
-                  <div className="space-y-3">
-                    {messageInfoData.read_by.map((reader) => (
-                      <div
-                        key={reader.id}
-                        className="flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={
-                              reader.profile_pic_url || "/default-avatar.png"
-                            }
-                            alt={reader.first_name}
-                            className="w-6 h-6 rounded-full"
-                          />
-                          <span className="text-sm">
-                            {reader.first_name} {reader.last_name}
-                          </span>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          {format(new Date(reader.read_at), "HH:mm")}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center p-4">
-                  <span className="text-muted-foreground">
-                    No read status available
-                  </span>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      </Card>
-
+            <SheetFooter className="mt-4 flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsCreateDialogOpen(false)}
+                className="rounded-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={!newChannelData.name || selectedMembers.length < 2}
+                className="rounded-full"
+              >
+                Create Group
+              </Button>
+            </SheetFooter>
+          </form>
+        </SheetContent>
+      </Sheet>
+      {/* Message Info */}
       <Sheet
-        className={`block md:hidden ${isSheetOpen ? "open" : "closed"}`}
-        open={isSheetOpen}
-        onOpenChange={setIsSheetOpen}
+        open={messageInfoData !== null}
+        onOpenChange={(open) => !open && setMessageInfoData(null)}
+      >
+        <SheetContent className="overflow-y-scroll no_scrollbar">
+          <div className="flex items-center justify-between p-4">
+            <SheetTitle className="text-xl font-medium">
+              Message info
+            </SheetTitle>
+          </div>
+
+          <div className="px-4 pb-4">
+            {/* Message Content */}
+            <div className="bg-primary/90 text-primary-foreground rounded-2xl p-4 mb-6 max-w-[90%]">
+              <p className="text-base mb-2">{messageInfoData?.message}</p>
+              <div className="flex justify-end">
+                <span className="text-sm text-primary-foreground/90">
+                  {messageInfoData?.created_at &&
+                    format(new Date(messageInfoData.created_at), "HH:mm a")}
+                </span>
+              </div>
+            </div>
+
+            <hr className="border-t border-muted-foreground/20 mb-4" />
+
+            {/* Read/Delivered Status */}
+            {!selectedChannel?.is_group ? (
+              <div className="space-y-4 bg-[#FFF5E8] rounded-xl p-4">
+                {messageInfoData?.read_at ? (
+                  <div className="flex items-center justify-between border-b">
+                    <div className="flex items-center gap-3">
+                      <CheckCheck className="h-5 w-5 text-primary" />
+                      <span className="text-base">Read</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(messageInfoData.read_at),
+                          "MMM d, HH:mm"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between border-b pb-4">
+                    <div className="flex items-center gap-3">
+                      <CheckCheck className="h-5 w-5 text-primary" />
+                      <span className="text-base">Read</span>
+                    </div>
+                  </div>
+                )}
+
+                {messageInfoData?.delivered_at ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Check className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-base">Delivered</span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-sm">
+                        {format(
+                          new Date(messageInfoData.delivered_at),
+                          "HH:mm a"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Check className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-base">Delivered</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
+            {/* For Group Messages - Show read status per member */}
+            {selectedChannel?.is_group && messageInfoData?.read_by ? (
+              <div className="mt-4 pt-4 border-t">
+                <h4 className="text-sm font-medium mb-3">Read by</h4>
+                <div className="space-y-3">
+                  {messageInfoData.read_by.map((reader) => (
+                    <div
+                      key={reader.id}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={reader.profile_pic_url || "/default-avatar.png"}
+                          alt={reader.first_name}
+                          className="w-6 h-6 rounded-full"
+                        />
+                        <span className="text-sm">
+                          {reader.first_name} {reader.last_name}
+                        </span>
+                      </div>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(reader.read_at), "HH:mm")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </SheetContent>
+      </Sheet>
+      {/* create channel */}
+      <Sheet
+        className={`block md:hidden ${
+          openSheet.createChannel ? "open" : "closed"
+        }`}
+        open={openSheet.createChannel}
+        onOpenChange={() =>
+          setOpenSheet((prev) => ({ ...prev, createChannel: false }))
+        }
       >
         <SheetTrigger></SheetTrigger>
         <SheetContent className="overflow-y-scroll no_scrollbar">
@@ -1527,7 +1481,8 @@ export default function Chats() {
                   <div
                     className={cn(
                       "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
-                      selectedMembers.length === familyMembers.length
+                      selectedMembers.length ===
+                        familyMembers.filter((item) => item.is_active)?.length
                         ? "bg-primary"
                         : "bg-accent"
                     )}
@@ -1535,7 +1490,9 @@ export default function Chats() {
                       if (selectedMembers.length === familyMembers.length) {
                         setSelectedMembers([]);
                       } else {
-                        setSelectedMembers(familyMembers);
+                        setSelectedMembers(
+                          familyMembers.filter((item) => item.is_active)
+                        );
                       }
                     }}
                   >

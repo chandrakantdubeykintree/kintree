@@ -235,7 +235,136 @@ class MessageService {
     });
   }
 
-  // Channel methods
+  /**
+   * Create a new channel.
+   * Emits the "create-channel" event.
+   *
+   * @param {Object} channelData - Data for the new channel.
+   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
+   */
+  createChannel(channelData) {
+    if (!this.socket?.connected) {
+      return Promise.reject(new Error("Socket not connected"));
+    }
+    return new Promise((resolve, reject) => {
+      this.socket.emit("create-channel", channelData, (response) => {
+        if (response.success) {
+          useMessageStore.getState().setChannels(response.channels);
+          resolve(response);
+        } else {
+          useMessageStore.getState().setError(response.error);
+          reject(new Error(response.error || "Failed to create channel"));
+        }
+      });
+    });
+  }
+
+  /**
+   * Update an existing channel.
+   * Emits the "update-channel" event.
+   *
+   * @param {number} channelId - ID of the channel to update.
+   * @param {Object} updateData - Update payload.
+   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
+   */
+  updateChannel(channelId, updateData) {
+    if (!this.socket?.connected) {
+      return Promise.reject(new Error("Socket not connected"));
+    }
+    return new Promise((resolve, reject) => {
+      this.socket.emit(
+        "update-channel",
+        { channelId, data: updateData },
+        (response) => {
+          if (response.success) {
+            useMessageStore.getState().setChannels(response.channels);
+            resolve(response);
+          } else {
+            useMessageStore.getState().setError(response.error);
+            reject(new Error(response.error || "Failed to update channel"));
+          }
+        }
+      );
+    });
+  }
+
+  /**
+   * Create a new group.
+   * Emits the "create-group" event.
+   *
+   * @param {Object} groupData - Data for the new group.
+   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
+   */
+  createGroup(groupData) {
+    if (!this.socket?.connected) {
+      return Promise.reject(new Error("Socket not connected"));
+    }
+    return new Promise((resolve, reject) => {
+      this.socket.emit("create-group", groupData, (response) => {
+        if (response.success) {
+          useMessageStore.getState().setChannels(response.channels);
+          resolve(response);
+        } else {
+          useMessageStore.getState().setError(response.error);
+          reject(new Error(response.error || "Failed to create group"));
+        }
+      });
+    });
+  }
+
+  /**
+   * Update an existing group.
+   * Emits the "update-group" event.
+   *
+   * @param {number} channelId - ID of the group to update.
+   * @param {Object} updateData - Update payload.
+   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
+   */
+  updateGroup(channelId, updateData) {
+    if (!this.socket?.connected) {
+      return Promise.reject(new Error("Socket not connected"));
+    }
+    return new Promise((resolve, reject) => {
+      this.socket.emit(
+        "update-group",
+        { channelId, data: updateData },
+        (response) => {
+          if (response.success) {
+            useMessageStore.getState().setChannels(response.channels);
+            resolve(response);
+          } else {
+            useMessageStore.getState().setError(response.error);
+            reject(new Error(response.error || "Failed to update group"));
+          }
+        }
+      );
+    });
+  }
+
+  /**
+   * Delete an existing group.
+   * Emits the "delete-group" event.
+   *
+   * @param {number} channelId - ID of the group to delete.
+   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
+   */
+  deleteGroup(channelId) {
+    if (!this.socket?.connected) {
+      return Promise.reject(new Error("Socket not connected"));
+    }
+    return new Promise((resolve, reject) => {
+      this.socket.emit("delete-group", channelId, (response) => {
+        if (response.success) {
+          useMessageStore.getState().setChannels(response.channels);
+          resolve(response);
+        } else {
+          useMessageStore.getState().setError(response.error);
+          reject(new Error(response.error || "Failed to delete group"));
+        }
+      });
+    });
+  }
+
   joinChannel(channelId, page = 1) {
     if (!channelId || isNaN(parseInt(channelId))) {
       useMessageStore.getState().setError("Invalid channel ID");
