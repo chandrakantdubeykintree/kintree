@@ -19,6 +19,9 @@ import {
   Trash,
   ImageIcon,
   File,
+  MessageSquare,
+  Pencil,
+  PencilIcon,
 } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -46,8 +49,24 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const TYPING_TIMER_LENGTH = 1500;
+
+// Define validation schema
+const editChannelSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Group name is required")
+    .max(50, "Group name must be less than 50 characters"),
+  description: z
+    .string()
+    .max(100, "Description must be less than 100 characters")
+    .optional(),
+  thumbnail_image: z.any().optional(),
+});
 
 export default function Chats() {
   const [selectedChannel, setSelectedChannel] = useState(null);
@@ -87,6 +106,85 @@ export default function Chats() {
 
   const [attachment, setAttachment] = useState(null);
 
+  const {
+    messages,
+    channelsLoading,
+    familyMembers,
+    familyMembersLoading,
+    channelsList,
+    isConnected,
+    isLoading: messagesLoading,
+    isLoadingMore,
+    isSending,
+    pagination,
+    error: socketError,
+  } = useMessageStore();
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = useForm({
+    resolver: zodResolver(editChannelSchema),
+    defaultValues: {
+      name: newChannelData.name,
+      description: newChannelData.description,
+      thumbnail_image: null,
+    },
+  });
+
+  // Initialize form with channel data when opening the edit form
+  useEffect(() => {
+    if (openSheet.updateChannel && selectedChannel) {
+      reset({
+        name: selectedChannel.name,
+        description: selectedChannel.description || "",
+        thumbnail_image: null,
+      });
+      setNewChannelData({
+        name: selectedChannel.name,
+        description: selectedChannel.description || "",
+        thumbnail_image: null,
+        channelId: selectedChannel.id,
+      });
+    }
+  }, [openSheet.updateChannel, selectedChannel, reset]);
+
+  const handleUpdateSubmit = async (data) => {
+    try {
+      const formData = new FormData();
+
+      // Always include the channel ID
+      formData.append("channelId", newChannelData.channelId);
+      formData.append("is_group", 1);
+
+      // Add name if it's provided
+      if (data.name) {
+        formData.append("name", data.name);
+      }
+
+      // Add description (even if empty)
+      formData.append("description", data.description || "");
+      formData.append("_method", "PUT");
+
+      // Add thumbnail image if it's provided
+      if (data.thumbnail_image) {
+        formData.append("thumbnail_image", data.thumbnail_image);
+      } else if (!selectedChannel?.thumbnail_image_url) {
+        // If no image was set before and no new image is provided, send null
+        formData.append("thumbnail_image", null);
+      }
+
+      await messageService.updateChannel(newChannelData.channelId, formData);
+
+      toast.success("Channel updated successfully");
+      setOpenSheet((prev) => ({ ...prev, updateChannel: false }));
+    } catch (error) {
+      toast.error("Failed to update channel: " + error.message);
+    }
+  };
+
   // Add this function to handle file selection
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
@@ -122,20 +220,6 @@ export default function Chats() {
         : [...prev, messageId]
     );
   };
-
-  const {
-    messages,
-    channelsLoading,
-    familyMembers,
-    familyMembersLoading,
-    channelsList,
-    isConnected,
-    isLoading: messagesLoading,
-    isLoadingMore,
-    isSending,
-    pagination,
-    error: socketError,
-  } = useMessageStore();
 
   // Initialize socket connection
   useEffect(() => {
@@ -369,16 +453,6 @@ export default function Chats() {
     }
   };
 
-  // Optional: A sample update channel handler using messageService.updateChannel (if needed)
-  const handleUpdateChannel = async (channelId, updateData) => {
-    try {
-      await messageService.updateChannel(channelId, updateData);
-      toast.success("Channel updated successfully");
-    } catch (error) {
-      toast.error("Failed to update channel: " + error.message);
-    }
-  };
-
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
@@ -387,7 +461,7 @@ export default function Chats() {
           <div
             className={`${
               showMobileList ? "block" : "hidden"
-            } md:block md:col-span-3 h-full relative rounded-2xl bg-brandLight`}
+            } md:block md:col-span-2 h-full relative rounded-2xl bg-brandLight`}
           >
             {/* Fixed channels header */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-10 rounded-tl-2xl rounded-tr-2xl">
@@ -455,8 +529,8 @@ export default function Chats() {
                                 channel.thumbnail_image_url ||
                                 "/default-avatar.png"
                               }
-                              alt={channel.name}
-                              className="w-12 h-12 border border-primary rounded-full object-cover"
+                              alt={channel.name.substring(0, 1)}
+                              className="w-12 h-12 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                             />
                             {channel.is_online && (
                               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
@@ -543,7 +617,7 @@ export default function Chats() {
           <div
             className={`${
               showMobileList ? "hidden" : "block"
-            } md:block md:col-span-5 h-full relative bg-brandLight rounded-2xl`}
+            } md:block md:col-span-6 h-full relative bg-brandLight rounded-2xl`}
           >
             {selectedChannel ? (
               <>
@@ -637,8 +711,8 @@ export default function Chats() {
                           selectedChannel.thumbnail_image_url ||
                           "/default-avatar.png"
                         }
-                        alt={selectedChannel.name}
-                        className="w-10 h-10 rounded-full object-cover border border-primary"
+                        alt={selectedChannel.name.substring(0, 1)}
+                        className="w-12 h-12 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                       />
                       <h3 className="font-medium">
                         {selectedChannel.name || "Direct Message"}
@@ -651,26 +725,50 @@ export default function Chats() {
                         <MoreVertical className="h-5 w-5" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-52 rounded-2xl p-2"
+                    >
                       <DropdownMenuItem
                         onClick={() => setIsInfoDialogOpen(true)}
+                        className="bg-transparent flex gap-4 items-center"
                       >
-                        View Info
+                        <img
+                          src="/icons/info-message.svg"
+                          className="w-6 h-6"
+                        />
+                        <div className="w-full text-md">View Info</div>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
                           setIsSelectMode(true);
                           setSelectedMessages([]);
                         }}
+                        className="bg-transparent flex gap-4 items-center"
                       >
-                        Select Messages
+                        <img
+                          src="/icons/select-message.svg"
+                          className="w-6 h-6"
+                        />
+                        <div className="w-full text-md">Select Messages</div>
                       </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => setIsDeleteDialogOpen(true)}
-                      >
-                        Delete Chat
-                      </DropdownMenuItem>
+                      {selectedChannel?.is_group ? (
+                        <DropdownMenuItem
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                          className="bg-transparent flex gap-4 items-center text-destructive"
+                        >
+                          <img src="/icons/delete.svg" className="w-6 h-6" />
+                          <div className="w-full text-md">Leave Chat</div>
+                        </DropdownMenuItem>
+                      ) : (
+                        <DropdownMenuItem
+                          onClick={() => setIsDeleteDialogOpen(true)}
+                          className="bg-transparent flex gap-4 items-center text-destructive"
+                        >
+                          <img src="/icons/delete.svg" className="w-6 h-6" />
+                          <div className="w-full text-md">Clear Chat</div>
+                        </DropdownMenuItem>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
@@ -972,24 +1070,68 @@ export default function Chats() {
       {isInfoDialogOpen && (
         <Sheet open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
           <SheetContent className="overflow-y-auto">
-            <SheetHeader>
+            <SheetHeader className="mb-8">
               <SheetTitle>Chat Information</SheetTitle>
             </SheetHeader>
             <div className="grid gap-4 py-4">
               <div className="flex flex-col items-center gap-4">
-                <div className="relative">
+                <div className="relative group">
                   <img
                     src={
                       selectedChannel?.thumbnail_image_url ||
                       "/default-avatar.png"
                     }
-                    alt={selectedChannel?.name}
-                    className="w-24 h-24 rounded-full object-cover"
+                    alt={selectedChannel?.name.substring(0, 1)}
+                    className="text-2xl font-bold w-24 h-24 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                   />
+                  {selectedChannel?.is_group ? (
+                    <div
+                      className="absolute bottom-0 right-0 p-1.5 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+                      onClick={() => {
+                        setNewChannelData((prev) => ({
+                          ...prev,
+                          thumbnail_image: null,
+                          channelId: selectedChannel.id,
+                        }));
+                        setOpenSheet((prev) => ({
+                          ...prev,
+                          updateChannel: true,
+                        }));
+                        setIsInfoDialogOpen(false);
+                      }}
+                    >
+                      <Pencil className="h-4 w-4 text-white" />
+                    </div>
+                  ) : null}
                   {selectedChannel.is_online && (
                     <div className="absolute bottom-4 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
+                {selectedChannel?.is_group ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setNewChannelData((prev) => ({
+                        ...prev,
+                        name: selectedChannel.name,
+                        description: selectedChannel.description,
+                        thumbnail_image: null,
+                        channelId: selectedChannel.id,
+                        is_group: 1,
+                      }));
+                      setOpenSheet((prev) => ({
+                        ...prev,
+                        updateChannel: true,
+                      }));
+                      setIsInfoDialogOpen(false);
+                    }}
+                    className="text-primary text-sm hover:bg-transparent"
+                  >
+                    Edit Group
+                    <PencilIcon />
+                  </Button>
+                ) : null}
                 <h3 className="font-semibold text-lg">
                   {selectedChannel?.name || "Direct Message"}
                 </h3>
@@ -1034,22 +1176,24 @@ export default function Chats() {
       {/* Delete Chat Dialog */}
       {isDeleteDialogOpen && (
         <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <SheetContent className="max-w-[90%] w-[350px] rounded-2xl">
-            <SheetHeader>
-              <SheetTitle>Delete Chat</SheetTitle>
+          <SheetContent className="">
+            <SheetHeader className="mb-8">
+              <SheetTitle>
+                {selectedChannel?.is_group ? "Leave" : "Clear"} Chat
+              </SheetTitle>
               <SheetDescription>
-                Are you sure you want to delete this chat? This action cannot be
-                undone.
+                Are you sure you want to{" "}
+                {selectedChannel?.is_group ? "leave" : "clear"} this chat? This
+                action cannot be undone.
               </SheetDescription>
             </SheetHeader>
-            <SheetFooter>
+            <SheetFooter className="mt-8">
               <Button className="rounded-full">Cancel</Button>
               <Button
                 onClick={handleDeleteChat}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
-                // disabled={deleteChannelMutation.isPending}
               >
-                Delete
+                {selectedChannel?.is_group ? "Leave" : "Clear"}
               </Button>
             </SheetFooter>
           </SheetContent>
@@ -1064,7 +1208,7 @@ export default function Chats() {
           }}
         >
           <SheetContent className="overflow-y-scroll no_scrollbar">
-            <SheetHeader>
+            <SheetHeader className="mb-8">
               <SheetTitle>Delete Message</SheetTitle>
               <SheetDescription>
                 Are you sure you want to delete this message? This action cannot
@@ -1087,7 +1231,7 @@ export default function Chats() {
       {isMembersDialogOpen && (
         <Sheet open={isMembersDialogOpen} onOpenChange={setIsMembersDialogOpen}>
           <SheetContent className="sm:max-w-[425px]">
-            <SheetHeader>
+            <SheetHeader className="mb-8">
               <SheetTitle>
                 {isGroupChatMode
                   ? "Create Group Chat"
@@ -1195,7 +1339,7 @@ export default function Chats() {
           }}
         >
           <SheetContent className="overflow-y-scroll no_scrollbar">
-            <SheetHeader>
+            <SheetHeader className="mb-8">
               <SheetTitle>Create Group Chat</SheetTitle>
               <SheetDescription></SheetDescription>
             </SheetHeader>
@@ -1479,7 +1623,7 @@ export default function Chats() {
         >
           <SheetTrigger></SheetTrigger>
           <SheetContent className="overflow-y-scroll no_scrollbar">
-            <SheetHeader>
+            <SheetHeader className="mb-8">
               <SheetTitle className="py-4 flex flex-col gap-2 items-center"></SheetTitle>
             </SheetHeader>
             <SheetDescription className="hidden"></SheetDescription>
@@ -1618,6 +1762,182 @@ export default function Chats() {
                 </div>
               )}
             </div>
+          </SheetContent>
+        </Sheet>
+      )}
+      {/* Update Channel */}
+      {openSheet.updateChannel && (
+        <Sheet
+          open={openSheet.updateChannel}
+          onOpenChange={(open) => {
+            if (!open) {
+              reset();
+              setNewChannelData({
+                name: "",
+                description: "",
+                thumbnail_image: null,
+                channelId: null,
+              });
+            }
+            setOpenSheet((prev) => ({ ...prev, updateChannel: open }));
+          }}
+        >
+          <SheetContent className="overflow-y-scroll no_scrollbar">
+            <SheetHeader className="mb-8">
+              <SheetTitle>Update Group Chat</SheetTitle>
+            </SheetHeader>
+            <form onSubmit={handleSubmit(handleUpdateSubmit)}>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex flex-col items-center gap-2">
+                    <Controller
+                      name="thumbnail_image"
+                      control={control}
+                      render={({ field }) => (
+                        <div className="relative group">
+                          <input
+                            id="thumbnail"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                field.onChange(file);
+                                setNewChannelData((prev) => ({
+                                  ...prev,
+                                  thumbnail_image: file,
+                                }));
+                              }
+                            }}
+                          />
+                          <label
+                            htmlFor="thumbnail"
+                            className="cursor-pointer block"
+                          >
+                            {newChannelData.thumbnail_image ? (
+                              <div className="relative w-24 h-24">
+                                <img
+                                  src={URL.createObjectURL(
+                                    newChannelData.thumbnail_image
+                                  )}
+                                  alt="Thumbnail preview"
+                                  className="w-24 h-24 rounded-full object-cover border border-primary"
+                                />
+                                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <p className="text-white text-xs">
+                                    Change Image
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="w-24 h-24 rounded-full bg-brandSecondary flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                                <img
+                                  src={
+                                    selectedChannel?.thumbnail_image_url ||
+                                    "/default-avatar.png"
+                                  }
+                                  alt="Channel thumbnail"
+                                  className="w-24 h-24 rounded-full object-cover border border-primary"
+                                />
+                                <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-colors flex items-center justify-center">
+                                  <p className="text-white text-xs">
+                                    Change Image
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </label>
+                          {newChannelData.thumbnail_image && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              onClick={() => {
+                                field.onChange(null);
+                                setNewChannelData((prev) => ({
+                                  ...prev,
+                                  thumbnail_image: null,
+                                }));
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Group Name</Label>
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <Input
+                          {...field}
+                          id="name"
+                          placeholder="Enter group name"
+                          className="rounded-full h-10 md:h-12 focus:border-primary outline-none focus:ring-primary focus:ring-2"
+                        />
+                        {fieldState.error && (
+                          <p className="text-sm text-destructive">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <>
+                        <Textarea
+                          {...field}
+                          id="description"
+                          maxLength={100}
+                          placeholder="Group description (optional)"
+                        />
+                        {fieldState.error && (
+                          <p className="text-sm text-destructive">
+                            {fieldState.error.message}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  />
+                </div>
+                <SheetFooter className="mt-4 flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setOpenSheet((prev) => ({
+                        ...prev,
+                        updateChannel: false,
+                      }))
+                    }
+                    className="rounded-full"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="rounded-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Updating..." : "Update Group"}
+                  </Button>
+                </SheetFooter>
+              </div>
+            </form>
           </SheetContent>
         </Sheet>
       )}

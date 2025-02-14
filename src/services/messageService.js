@@ -311,20 +311,23 @@ class MessageService {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
     }
+
+    // Convert FormData to a plain object
+    const data = {};
+    for (let [key, value] of updateData.entries()) {
+      data[key] = value;
+    }
+
     return new Promise((resolve, reject) => {
-      this.socket.emit(
-        "update-channel",
-        { channelId, data: updateData },
-        (response) => {
-          if (response.success) {
-            useMessageStore.getState().setChannels(response.channels);
-            resolve(response);
-          } else {
-            useMessageStore.getState().setError(response.error);
-            reject(new Error(response.error || "Failed to update channel"));
-          }
+      this.socket.emit("update-channel", { channelId, data }, (response) => {
+        if (response.success) {
+          useMessageStore.getState().setChannels(response.channels);
+          resolve(response);
+        } else {
+          useMessageStore.getState().setError(response.error);
+          reject(new Error(response.error || "Failed to update channel"));
         }
-      );
+      });
     });
   }
 
