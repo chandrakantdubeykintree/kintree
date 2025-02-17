@@ -6,10 +6,9 @@ import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import AsyncComponent from "@/components/async-component";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
-import {  useState, useEffect } from "react";
+import { useState } from "react";
 import EditRelativeForm from "@/components/edit-relative-form";
 import AddRelativeForm from "@/components/add-relative-form";
-import { toast } from 'react-hot-toast';
 
 import ComponentLoading from "@/components/component-loading";
 
@@ -18,7 +17,7 @@ export default function KintreeMember() {
   const { data: familyMember, isLoading } = useMember(id);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { data: familyTree } = useFamily();
 
@@ -47,8 +46,6 @@ export default function KintreeMember() {
   if (isLoading) {
     return <ComponentLoading />;
   }
-  
-  
 
   return (
     <AsyncComponent>
@@ -183,8 +180,6 @@ export default function KintreeMember() {
                 </div>
               </div>
 
-              
-
               {/* Additional Information */}
               <InfoSection title="Additional Information">
                 <InfoItem
@@ -217,15 +212,13 @@ export default function KintreeMember() {
                 />
                 {familyMember?.additional_info?.known_languages?.length > 0 && (
                   <InfoItem
-                  label="Known Languages"
-                  value={familyMember.additional_info.known_languages
-                    .map(lang => lang.name)
-                    .join(", ")}
-                />
+                    label="Known Languages"
+                    value={familyMember.additional_info.known_languages
+                      .map((lang) => lang.name)
+                      .join(", ")}
+                  />
                 )}
               </InfoSection>
-
-             
             </div>
           )}
         </Card>
