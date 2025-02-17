@@ -58,6 +58,7 @@ import PageNotFound from "./components/page-not-found";
 import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import Test from "./Test";
+import FlutterChat from "./pages/FlutterChat";
 
 const {
   RootLayout,
@@ -106,174 +107,200 @@ export default function App() {
       <GlobalErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <AuthProvider>
-              <Suspense fallback={<GlobalSpinner />}>
-                <RouteNameDisplay />
-                <Routes>
-                  <Route errorElement={<RouteErrorBoundary />}>
-                    <Route element={<AuthLayout />}>
-                      <Route path="/login" element={<Login />} />
-                      <Route path="/register" element={<Register />} />
-                      <Route
-                        path="/forgot-password"
-                        element={<ForgotPassword />}
-                      />
-                      <Route
-                        path="/forgot-username"
-                        element={<ForgotUsername />}
-                      />
-                    </Route>
-                    <Route
-                      path="/register/step/:step"
-                      element={<RegisterStep />}
-                    />
-                    <Route
-                      path=""
-                      element={
-                        <ProtectedRoutes>
-                          <GoogleMapsProvider>
-                            <ThemeLanguageProvider
-                              defaultTheme="light"
-                              defaultLanguage="en"
-                              storageKey="kintree-theme"
-                              languageStorageKey="kintree-language"
+            <Suspense fallback={<GlobalSpinner />}>
+              <Routes>
+                {/* Flutter Chat Route (exclusive) */}
+                <Route path="/flutter-chat/:token" element={<FlutterChat />} />
+                {/* Main Routes */}
+                <Route
+                  path="/*"
+                  element={
+                    <AuthProvider>
+                      <Suspense fallback={<GlobalSpinner />}>
+                        <RouteNameDisplay />
+                        <Routes>
+                          <Route errorElement={<RouteErrorBoundary />}>
+                            <Route element={<AuthLayout />}>
+                              <Route path="/login" element={<Login />} />
+                              <Route path="/register" element={<Register />} />
+                              <Route
+                                path="/forgot-password"
+                                element={<ForgotPassword />}
+                              />
+                              <Route
+                                path="/forgot-username"
+                                element={<ForgotUsername />}
+                              />
+                            </Route>
+                            <Route
+                              path="/register/step/:step"
+                              element={<RegisterStep />}
+                            />
+                            <Route
+                              path=""
+                              element={
+                                <ProtectedRoutes>
+                                  <GoogleMapsProvider>
+                                    <ThemeLanguageProvider
+                                      defaultTheme="light"
+                                      defaultLanguage="en"
+                                      storageKey="kintree-theme"
+                                      languageStorageKey="kintree-language"
+                                    >
+                                      <SidebarProvider>
+                                        <Suspense fallback={<GlobalSpinner />}>
+                                          <ContentLayout>
+                                            <Outlet />
+                                          </ContentLayout>
+                                        </Suspense>
+                                      </SidebarProvider>
+                                    </ThemeLanguageProvider>
+                                  </GoogleMapsProvider>
+                                </ProtectedRoutes>
+                              }
                             >
-                              <SidebarProvider>
-                                <Suspense fallback={<GlobalSpinner />}>
-                                  <ContentLayout>
-                                    <Outlet />
-                                  </ContentLayout>
-                                </Suspense>
-                              </SidebarProvider>
-                            </ThemeLanguageProvider>
-                          </GoogleMapsProvider>
-                        </ProtectedRoutes>
-                      }
-                    >
-                      {/* foreroom */}
-                      <Route
-                        index
-                        element={<Navigate to={route_foreroom} replace />}
-                      />
-                      <Route path={route_foreroom} element={<Foreroom />} />
-                      <Route
-                        path={route_create_post}
-                        element={<CreatePost />}
-                      />
-                      <Route
-                        path={route_create_poll}
-                        element={<CreatePoll />}
-                      />
-                      <Route
-                        path={route_view_post + "/:postId"}
-                        element={<ViewPost />}
-                      />
-                      <Route
-                        path={route_view_poll + "/:pollId"}
-                        element={<ViewPoll />}
-                      />
-                      <Route
-                        path={route_edit_post + "/:postId"}
-                        element={<EditPost />}
-                      />
-                      {/* <Route
+                              {/* foreroom */}
+                              <Route
+                                index
+                                element={
+                                  <Navigate to={route_foreroom} replace />
+                                }
+                              />
+                              <Route
+                                path={route_foreroom}
+                                element={<Foreroom />}
+                              />
+                              <Route
+                                path={route_create_post}
+                                element={<CreatePost />}
+                              />
+                              <Route
+                                path={route_create_poll}
+                                element={<CreatePoll />}
+                              />
+                              <Route
+                                path={route_view_post + "/:postId"}
+                                element={<ViewPost />}
+                              />
+                              <Route
+                                path={route_view_poll + "/:pollId"}
+                                element={<ViewPoll />}
+                              />
+                              <Route
+                                path={route_edit_post + "/:postId"}
+                                element={<EditPost />}
+                              />
+                              {/* <Route
                         path={route_edit_poll + "/:pollId"}
                         element={<EditPoll />}
                       /> */}
-                      {/* family tree */}
-                      <Route
-                        path={route_family_tree}
-                        element={<FamilyTree />}
-                      />
-                      <Route
-                        path={route_family_member + "/:id"}
-                        element={<FamilyMember />}
-                      />
-                      <Route
-                        path={route_family_tree_add_member}
-                        element={<AddMember />}
-                      />
-                      <Route
-                        path={route_family_tree_view_member}
-                        element={<ViewMember />}
-                      />
-                      <Route
-                        path={route_kintree_member + "/:id"}
-                        element={<KintreeMember />}
-                      />
-                      <Route
-                        path={route_family_tree_edit_member}
-                        element={<EditMember />}
-                      />
+                              {/* family tree */}
+                              <Route
+                                path={route_family_tree}
+                                element={<FamilyTree />}
+                              />
+                              <Route
+                                path={route_family_member + "/:id"}
+                                element={<FamilyMember />}
+                              />
+                              <Route
+                                path={route_family_tree_add_member}
+                                element={<AddMember />}
+                              />
+                              <Route
+                                path={route_family_tree_view_member}
+                                element={<ViewMember />}
+                              />
+                              <Route
+                                path={route_kintree_member + "/:id"}
+                                element={<KintreeMember />}
+                              />
+                              <Route
+                                path={route_family_tree_edit_member}
+                                element={<EditMember />}
+                              />
 
-                      {/* chats */}
-                      <Route path={route_chats} element={<Chats />} />
+                              {/* chats */}
+                              <Route path={route_chats} element={<Chats />} />
 
-                      {/* profile */}
-                      <Route path={route_profile} element={<Profile />} />
-                      <Route
-                        path={route_profile_view_profile}
-                        element={<ViewProfile />}
-                      />
+                              {/* profile */}
+                              <Route
+                                path={route_profile}
+                                element={<Profile />}
+                              />
+                              <Route
+                                path={route_profile_view_profile}
+                                element={<ViewProfile />}
+                              />
 
-                      {/* settings */}
-                      <Route path={route_settings} element={<Settings />} />
-                      <Route
-                        path={route_settings_edit_settings}
-                        element={<EditSettings />}
-                      />
+                              {/* settings */}
+                              <Route
+                                path={route_settings}
+                                element={<Settings />}
+                              />
+                              <Route
+                                path={route_settings_edit_settings}
+                                element={<EditSettings />}
+                              />
 
-                      {/* notifications */}
-                      <Route
-                        path={route_notifications}
-                        element={<Notifications />}
-                      />
+                              {/* notifications */}
+                              <Route
+                                path={route_notifications}
+                                element={<Notifications />}
+                              />
 
-                      {/* events */}
-                      <Route path={route_events} element={<Events />} />
-                      <Route
-                        path={route_events_create_event}
-                        element={<CreateEvent />}
-                      />
-                      <Route
-                        path={route_events_view_event + "/:eventId"}
-                        element={<ViewEvent />}
-                      />
-                      <Route
-                        path={route_events_edit_event + "/:eventId"}
-                        element={<EditEvent />}
-                      />
+                              {/* events */}
+                              <Route path={route_events} element={<Events />} />
+                              <Route
+                                path={route_events_create_event}
+                                element={<CreateEvent />}
+                              />
+                              <Route
+                                path={route_events_view_event + "/:eventId"}
+                                element={<ViewEvent />}
+                              />
+                              <Route
+                                path={route_events_edit_event + "/:eventId"}
+                                element={<EditEvent />}
+                              />
 
-                      {/* kincoins */}
-                      <Route path={route_kincoins} element={<Kincoins />} />
+                              {/* kincoins */}
+                              <Route
+                                path={route_kincoins}
+                                element={<Kincoins />}
+                              />
 
-                      {/* will */}
-                      <Route path={route_will} element={<Will />} />
-                      <Route
-                        path={route_will_create_will}
-                        element={<CreateWill />}
-                      />
-                      <Route
-                        path={route_will_view_will}
-                        element={<ViewWill />}
-                      />
-                      <Route
-                        path={route_will_edit_will}
-                        element={<EditWill />}
-                      />
+                              {/* will */}
+                              <Route path={route_will} element={<Will />} />
+                              <Route
+                                path={route_will_create_will}
+                                element={<CreateWill />}
+                              />
+                              <Route
+                                path={route_will_view_will}
+                                element={<ViewWill />}
+                              />
+                              <Route
+                                path={route_will_edit_will}
+                                element={<EditWill />}
+                              />
 
-                      {/* faqs */}
-                      <Route path="/faqs" element={<FAQS />} />
+                              {/* faqs */}
+                              <Route path="/faqs" element={<FAQS />} />
 
-                      {/* page not found */}
-                      <Route path="*" element={<PageNotFound />} />
-                    </Route>
+                              {/* page not found */}
+                              <Route path="*" element={<PageNotFound />} />
+                            </Route>
 
-                    <Route path="/test" element={<Test />} />
-                  </Route>
-                </Routes>
-              </Suspense>
-            </AuthProvider>
+                            <Route path="/test" element={<Test />} />
+                          </Route>
+                        </Routes>
+                      </Suspense>
+                    </AuthProvider>
+                  }
+                />
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </QueryClientProvider>
       </GlobalErrorBoundary>

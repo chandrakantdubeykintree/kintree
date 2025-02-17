@@ -147,7 +147,7 @@
     "thinking": "Thinking"
   },
   "privacy": {
-    "tile": {
+    "title": {
       "global": "Global",
       "family_tree": "Family Tree",
       "primary_family": "Primary Family",
