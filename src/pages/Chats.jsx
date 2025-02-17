@@ -98,6 +98,7 @@ export default function Chats() {
   const [isGroupChatMode, setIsGroupChatMode] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [channelSearchQuery, setChannelSearchQuery] = useState("");
+  const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
@@ -1070,7 +1071,7 @@ export default function Chats() {
       {/* Chat Info */}
       {isInfoDialogOpen && (
         <Sheet open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-          <SheetContent className="overflow-y-auto">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>Chat Information</SheetTitle>
             </SheetHeader>
@@ -1174,10 +1175,10 @@ export default function Chats() {
           </SheetContent>
         </Sheet>
       )}
-      {/* Delete Chat Dialog */}
+      {/* Delete Chat  */}
       {isDeleteDialogOpen && (
         <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-          <SheetContent className="">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>
                 {selectedChannel?.is_group ? "Leave" : "Clear"} Chat
@@ -1200,7 +1201,7 @@ export default function Chats() {
           </SheetContent>
         </Sheet>
       )}
-      {/* Delete Message Dialog */}
+      {/* Delete Message  */}
       {messageToDelete && (
         <Sheet
           open={messageToDelete !== null}
@@ -1208,7 +1209,7 @@ export default function Chats() {
             if (!isOpen) setMessageToDelete(null);
           }}
         >
-          <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>Delete Message</SheetTitle>
               <SheetDescription>
@@ -1228,10 +1229,10 @@ export default function Chats() {
           </SheetContent>
         </Sheet>
       )}
-      {/* Members Dialog */}
+      {/* Members  */}
       {isMembersDialogOpen && (
         <Sheet open={isMembersDialogOpen} onOpenChange={setIsMembersDialogOpen}>
-          <SheetContent className="sm:max-w-[425px]">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>
                 {isGroupChatMode
@@ -1339,7 +1340,7 @@ export default function Chats() {
             }
           }}
         >
-          <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>Create Group Chat</SheetTitle>
               <SheetDescription></SheetDescription>
@@ -1503,7 +1504,7 @@ export default function Chats() {
           open={messageInfoData !== null}
           onOpenChange={(open) => !open && setMessageInfoData(null)}
         >
-          <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <div className="flex items-center justify-between p-4">
               <SheetTitle className="text-xl font-medium">
                 Message info
@@ -1623,7 +1624,7 @@ export default function Chats() {
           }
         >
           <SheetTrigger></SheetTrigger>
-          <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle className="py-4 flex flex-col gap-2 items-center">
                 Start Chat
@@ -1641,8 +1642,12 @@ export default function Chats() {
                 <Input
                   placeholder="Search chats..."
                   className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
-                  value={channelSearchQuery}
-                  onChange={(e) => setChannelSearchQuery(e.target.value)}
+                  value={memberSearchQuery}
+                  onChange={(e) => {
+                    console.log(e.target.value);
+
+                    setMemberSearchQuery(e.target.value);
+                  }}
                 />
               </div>
               {isGroupChatMode ? (
@@ -1654,24 +1659,31 @@ export default function Chats() {
                     Select all:{" "}
                     <div
                       className={cn(
-                        "flex items-center justify-center w-4 h-4 border border-primary rounded-full cursor-pointer",
+                        "flex items-center justify-center w-5 h-5 border border-primary rounded-full cursor-pointer",
+                        "mr-4",
                         selectedMembers.length ===
                           familyMembers.filter((item) => item.is_active)?.length
                           ? "bg-primary"
                           : "bg-accent"
                       )}
                       onClick={() => {
-                        if (selectedMembers.length === familyMembers.length) {
-                          setSelectedMembers([]);
+                        if (
+                          selectedMembers.length ===
+                          familyMembers.filter((member) => member.is_active)
+                            .length
+                        ) {
+                          setMemberSearchQuery([]);
                         } else {
-                          setSelectedMembers(
+                          setMemberSearchQuery(
                             familyMembers.filter((item) => item.is_active)
                           );
                         }
                       }}
                     >
-                      {selectedMembers.length === familyMembers.length && (
-                        <Check className="w-4 h-4 text-white" />
+                      {selectedMembers.length ===
+                        familyMembers.filter((member) => member.is_active)
+                          .length && (
+                        <Check className="w-4 h-4 text-background" />
                       )}
                     </div>
                   </div>
@@ -1691,9 +1703,8 @@ export default function Chats() {
               )}
               {Array.isArray(familyMembers) &&
                 familyMembers
-                  ?.filter((member) => member.is_active)
                   ?.filter((member) => {
-                    const searchTerm = channelSearchQuery.toLowerCase();
+                    const searchTerm = memberSearchQuery.toLowerCase();
                     if (!searchTerm) return true;
 
                     return (
@@ -1705,15 +1716,19 @@ export default function Chats() {
                     <div
                       key={member.id}
                       className={cn(
-                        "flex items-center gap-3 p-4 cursor-pointer hover:bg-primary/10 transition-colors rounded-lg",
+                        "flex items-center gap-3 p-4 cursor-pointer hover:bg-primary/10 transition-colors relative",
                         isGroupChatMode &&
                           selectedMembers.some((m) => m.id === member.id) &&
-                          "bg-primary/20"
+                          "bg-primary/20",
+                        !member.is_active && "opacity-50",
+                        "border-b"
                       )}
                       onClick={() => {
-                        handleMemberSelect(member);
-                        setChannelSearchQuery("");
-                        !isGroupChatMode && setIsCreatingChat(false);
+                        if (member.is_active) {
+                          handleMemberSelect(member);
+                          setMemberSearchQuery("");
+                          !isGroupChatMode && setIsCreatingChat(false);
+                        }
                       }}
                     >
                       <img
@@ -1731,8 +1746,13 @@ export default function Chats() {
                           </div>
                         )}
                       </div>
+                      {!member.is_active && (
+                        <div className="px-2 py-1 text-xs text-white bg-primary rounded-full absolute right-4 bottom-1">
+                          Inactive
+                        </div>
+                      )}
 
-                      {isGroupChatMode ? (
+                      {isGroupChatMode && member.is_active ? (
                         selectedMembers.some((m) => m.id === member.id) ? (
                           <div className="flex items-center justify-center w-5 h-5 border border-primary rounded-full bg-primary">
                             <Check className="w-4 h-4 text-background" />
@@ -1744,7 +1764,7 @@ export default function Chats() {
                     </div>
                   ))}
               {isGroupChatMode && selectedMembers.length >= 2 && (
-                <div className="sticky bottom-[-1px] py-4 bg-brandLight flex items-center justify-end gap-2">
+                <div className="sticky bottom-[-24px] py-4 bg-brandLight flex items-center justify-end gap-2">
                   <Button
                     variant="outline"
                     className="rounded-full h-10"
@@ -1785,7 +1805,7 @@ export default function Chats() {
             setOpenSheet((prev) => ({ ...prev, updateChannel: open }));
           }}
         >
-          <SheetContent className="overflow-y-scroll no_scrollbar">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
             <SheetHeader className="mb-8">
               <SheetTitle>Update Group Chat</SheetTitle>
             </SheetHeader>
