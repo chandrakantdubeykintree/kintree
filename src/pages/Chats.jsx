@@ -51,8 +51,8 @@ import {
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-
-const TYPING_TIMER_LENGTH = 1500;
+import { kintreeApi } from "@/services/kintreeApi";
+import TypingIndicator from "@/components/typing-indicator";
 
 // Define validation schema
 const editChannelSchema = z.object({
@@ -88,7 +88,6 @@ export default function Chats() {
     thumbnail_image: null,
     selectedUserId: null,
   });
-  const typingTimeoutRef = useRef(null);
   const messagesEndRef = useRef(null);
   const [sendStatus, setSendStatus] = useState(null);
   const [typingUsers, setTypingUsers] = useState(new Set());
@@ -241,15 +240,6 @@ export default function Chats() {
         : [...prev, messageId]
     );
   };
-  // const handleMessageSelect = (messageId) => {
-  //   if (isSelectMode) {
-  //     setSelectedMessages((prev) =>
-  //       prev.includes(messageId)
-  //         ? prev.filter((id) => id !== messageId)
-  //         : [...prev, messageId]
-  //     );
-  //   }
-  // };
 
   // Initialize socket connection
   useEffect(() => {
@@ -305,28 +295,6 @@ export default function Chats() {
   }, [selectedChannel, messages]);
 
   // Listen for typing events
-  useEffect(() => {
-    messageService.socket?.on("user-typing", ({ channelId, user }) => {
-      if (channelId === selectedChannel?.id) {
-        setTypingUsers((prev) => new Set(prev).add(user));
-      }
-    });
-
-    messageService.socket?.on("user-stop-typing", ({ channelId, user }) => {
-      if (channelId === selectedChannel?.id) {
-        setTypingUsers((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(user);
-          return newSet;
-        });
-      }
-    });
-
-    return () => {
-      messageService.socket?.off("user-typing");
-      messageService.socket?.off("user-stop-typing");
-    };
-  }, [selectedChannel]);
 
   const handleMemberSelect = async (member) => {
     if (isGroupChatMode) {
@@ -353,6 +321,43 @@ export default function Chats() {
       }
     }
   };
+
+  const updateOnlineStatus = async (isOnline) => {
+    try {
+      if (selectedChannel) {
+        setSelectedChannel((prev) => ({
+          ...prev,
+          is_online: isOnline,
+        }));
+      }
+      await kintreeApi.put("/user/change-online-status", {
+        is_online: isOnline,
+      });
+    } catch (error) {
+      console.error("Failed to update online status:", error);
+    }
+  };
+
+  // Update the socket connection useEffect
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        updateOnlineStatus(true);
+      } else {
+        updateOnlineStatus(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Initial status update
+    updateOnlineStatus(true);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      updateOnlineStatus(false);
+    };
+  }, []);
 
   const handleCreateGroupChat = async (e) => {
     e.preventDefault();
@@ -386,17 +391,6 @@ export default function Chats() {
       toast.error("Failed to create group channel: " + error.message);
     }
   };
-
-  // useEffect(() => {
-  //   const handleClickOutside = (e) => {
-  //     if (isSelectMode && !e.target.closest(".message-container")) {
-  //       setIsSelectMode(false);
-  //     }
-  //   };
-
-  //   window.addEventListener("click", handleClickOutside);
-  //   return () => window.removeEventListener("click", handleClickOutside);
-  // }, [isSelectMode]);
 
   const handleClearChat = async (messageIds = []) => {
     if (!selectedChannel?.id) return;
@@ -467,24 +461,57 @@ export default function Chats() {
     setAttachment(null);
   };
 
-  const handleInputChange = (e) => {
-    setNewMessage(e.target.value);
-
-    if (selectedChannel) {
-      // Clear existing timeout
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
+  useEffect(() => {
+    const handleTypingStart = ({ channelId, user }) => {
+      if (channelId === selectedChannel?.id) {
+        setTypingUsers((prev) => new Set(prev).add(user));
       }
+    };
 
-      // Emit typing start
+    const handleTypingStop = ({ channelId, user }) => {
+      if (channelId === selectedChannel?.id) {
+        setTypingUsers((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(user);
+          return newSet;
+        });
+      }
+    };
+
+    messageService.socket?.on("user-typing", handleTypingStart);
+    messageService.socket?.on("user-stop-typing", handleTypingStop);
+
+    return () => {
+      messageService.socket?.off("user-typing", handleTypingStart);
+      messageService.socket?.off("user-stop-typing", handleTypingStop);
+    };
+  }, [selectedChannel]);
+
+  // Update the input change handler
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setNewMessage(value);
+
+    if (!selectedChannel) return;
+
+    // Start typing if there's content
+    if (value.trim()) {
       messageService.startTyping(selectedChannel.id);
-
-      // Set new timeout
-      typingTimeoutRef.current = setTimeout(() => {
-        messageService.stopTyping(selectedChannel.id);
-      }, TYPING_TIMER_LENGTH);
+    }
+    // Stop typing if there's no content
+    else {
+      messageService.stopTyping(selectedChannel.id);
     }
   };
+
+  // Add cleanup for typing state when component unmounts
+  useEffect(() => {
+    return () => {
+      if (selectedChannel) {
+        messageService.stopTyping(selectedChannel.id);
+      }
+    };
+  }, [selectedChannel]);
 
   const handleMessageDelete = async (messageId) => {
     if (!messageId || !selectedChannel?.id) return;
@@ -496,19 +523,6 @@ export default function Chats() {
       toast.error("Failed to delete message");
     }
   };
-
-  const handleDeleteChat = async () => {
-    try {
-      await messageService.deleteChannel(selectedChannel.id);
-      setIsDeleteDialogOpen(false);
-      setSelectedChannel(null);
-      setShowMobileList(true);
-    } catch (error) {
-      toast.error("Failed to delete chat: " + error.message);
-    }
-  };
-
-  console.log(selectedMessages);
 
   return (
     <AsyncComponent>
@@ -586,7 +600,7 @@ export default function Chats() {
                                 channel.thumbnail_image_url ||
                                 "/default-avatar.png"
                               }
-                              alt={channel.name.substring(0, 1)}
+                              alt={channel?.name?.substring(0, 1)}
                               className="w-12 h-12 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                             />
                             {channel.is_online && (
@@ -772,7 +786,7 @@ export default function Chats() {
                           selectedChannel.thumbnail_image_url ||
                           "/default-avatar.png"
                         }
-                        alt={selectedChannel.name.substring(0, 1)}
+                        alt={selectedChannel?.name?.substring(0, 1)}
                         className="w-12 h-12 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                       />
                       <h3 className="font-medium">
@@ -1030,12 +1044,11 @@ export default function Chats() {
                 {/* Fixed bottom section */}
                 <div className="absolute bottom-0 left-0 right-0 border-t bg-brandLight rounded-b-2xl">
                   {/* Typing indicator */}
+
                   {typingUsers.size > 0 && (
-                    <div className="px-4 py-2 text-sm text-muted-foreground">
-                      {Array.from(typingUsers)
-                        .map((user) => user.first_name)
-                        .join(", ")}
-                      {typingUsers.size === 1 ? " is" : " are"} typing...
+                    <div className="absolute bottom-20 left-4 flex items-center gap-2 text-sm text-muted-foreground">
+                      <span>{Array.from(typingUsers).join(", ")}</span>
+                      <TypingIndicator />
                     </div>
                   )}
 
@@ -1719,8 +1732,6 @@ export default function Chats() {
                   className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
                   value={memberSearchQuery}
                   onChange={(e) => {
-                    console.log(e.target.value);
-
                     setMemberSearchQuery(e.target.value);
                   }}
                 />
