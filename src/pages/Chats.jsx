@@ -19,7 +19,6 @@ import {
   Trash,
   ImageIcon,
   File,
-  MessageSquare,
   Pencil,
   PencilIcon,
 } from "lucide-react";
@@ -310,13 +309,14 @@ export default function Chats() {
       // For a direct chat, close the member selection dialog and create the channel immediately
       setIsMembersDialogOpen(false);
       try {
-        await messageService.createChannel({
+        const res = await messageService.createChannel({
           is_group: 0,
           name: member.first_name + " " + member.last_name,
           description: null,
           thumbnail_image: null,
           user_ids: [member.id],
         });
+        setOpenSheet((prev) => ({ ...prev, createChannel: false }));
       } catch (error) {
         toast.error("Failed to create channel: " + error.message);
       }
@@ -601,7 +601,11 @@ export default function Chats() {
                       className="w-[200px] h-10 md:h-12 rounded-full"
                       onClick={() => {
                         setIsGroupChatMode(false);
-                        setIsCreatingChat(true);
+                        setIsCreatingChat((prev) => !prev);
+                        setOpenSheet((prev) => ({
+                          ...prev,
+                          createChannel: true,
+                        }));
                       }}
                     >
                       <UserPlus className="h-5 w-5" />
@@ -621,7 +625,6 @@ export default function Chats() {
           >
             {selectedChannel ? (
               <>
-                {/* Fixed chat header */}
                 <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-10 rounded-t-2xl">
                   {isSelectMode ? (
                     <>
@@ -681,19 +684,17 @@ export default function Chats() {
                           </>
                         )}
 
-                        {selectedMessages.length === 1 ? (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setMessageToDelete(selectedMessages[0]);
-                              setIsSelectMode(false);
-                              setSelectedMessages([]);
-                            }}
-                          >
-                            <Trash className="h-5 w-5 text-destructive" />
-                          </Button>
-                        ) : null}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setMessageToDelete(selectedMessages[0]);
+                            setIsSelectMode(false);
+                            setSelectedMessages([]);
+                          }}
+                        >
+                          <Trash className="h-5 w-5 text-destructive" />
+                        </Button>
                       </div>
                     </>
                   ) : (
@@ -1624,7 +1625,9 @@ export default function Chats() {
           <SheetTrigger></SheetTrigger>
           <SheetContent className="overflow-y-scroll no_scrollbar">
             <SheetHeader className="mb-8">
-              <SheetTitle className="py-4 flex flex-col gap-2 items-center"></SheetTitle>
+              <SheetTitle className="py-4 flex flex-col gap-2 items-center">
+                Start Chat
+              </SheetTitle>
             </SheetHeader>
             <SheetDescription className="hidden"></SheetDescription>
             <div className="space-y-2">

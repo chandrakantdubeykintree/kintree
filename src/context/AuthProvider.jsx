@@ -41,6 +41,20 @@ export const AuthProvider = ({ children }) => {
         setLoading(true);
         const token = tokenService.getLoginToken();
 
+        // List of public routes that don't require authentication
+        const publicRoutes = [
+          "/login",
+          "/register",
+          "/forgot-password",
+          "/forgot-username",
+        ];
+
+        // Skip authentication check for public routes
+        if (publicRoutes.includes(location.pathname)) {
+          setLoading(false);
+          return;
+        }
+
         if (token && tokenService.isLoginTokenValid()) {
           const success = await fetchUserProfile();
           if (success) {

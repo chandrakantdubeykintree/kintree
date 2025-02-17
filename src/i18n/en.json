@@ -38,7 +38,7 @@
     },
     "phone_no": {
       "placeholder": "Enter your phone number",
-      "minLength": "Phone number must be at least 10 characters",
+      "minLength": "Phone number must be at least 9 characters",
       "required": "Phone number is required",
       "invalid": "Please enter a valid phone number"
     },

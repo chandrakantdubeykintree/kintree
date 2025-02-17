@@ -292,7 +292,7 @@ export default function App() {
                               <Route path="*" element={<PageNotFound />} />
                             </Route>
 
-                            <Route path="/test" element={<Test />} />
+                            {/* <Route path="/test" element={<Test />} /> */}
                           </Route>
                         </Routes>
                       </Suspense>

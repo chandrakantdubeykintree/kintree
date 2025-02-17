@@ -54,7 +54,7 @@ export function LoginForm({ setOpenTerms }) {
     phone_no: z.object({
       phone_no: z
         .string()
-        .refine((val) => val.length >= 10, t("forms.phone_no.minLength")),
+        .refine((val) => val.length >= 9, t("forms.phone_no.minLength")),
     }),
 
     otp: z.object({
