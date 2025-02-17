@@ -104,6 +104,27 @@ export default function Chats() {
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [messageInfoData, setMessageInfoData] = useState(null);
 
+  const [longPressTimer, setLongPressTimer] = useState(null);
+  const [isTouchActive, setIsTouchActive] = useState(false);
+
+  // Add these handlers
+  const handleTouchStart = (messageId) => {
+    setIsTouchActive(true);
+    const timer = setTimeout(() => {
+      setIsSelectMode(true);
+      setSelectedMessages([messageId]); // Start with the selected message
+    }, 500); // 500ms for long press
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouchActive(false);
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
   const [attachment, setAttachment] = useState(null);
 
   const {
@@ -220,6 +241,15 @@ export default function Chats() {
         : [...prev, messageId]
     );
   };
+  // const handleMessageSelect = (messageId) => {
+  //   if (isSelectMode) {
+  //     setSelectedMessages((prev) =>
+  //       prev.includes(messageId)
+  //         ? prev.filter((id) => id !== messageId)
+  //         : [...prev, messageId]
+  //     );
+  //   }
+  // };
 
   // Initialize socket connection
   useEffect(() => {
@@ -357,6 +387,30 @@ export default function Chats() {
     }
   };
 
+  // useEffect(() => {
+  //   const handleClickOutside = (e) => {
+  //     if (isSelectMode && !e.target.closest(".message-container")) {
+  //       setIsSelectMode(false);
+  //     }
+  //   };
+
+  //   window.addEventListener("click", handleClickOutside);
+  //   return () => window.removeEventListener("click", handleClickOutside);
+  // }, [isSelectMode]);
+
+  const handleClearChat = async (messageIds = []) => {
+    if (!selectedChannel?.id) return;
+
+    try {
+      await messageService.clearChat(selectedChannel.id, messageIds);
+      toast.success(
+        messageIds.length > 0 ? "Messages deleted" : "Chat cleared"
+      );
+    } catch (error) {
+      toast.error("Failed to clear chat: " + error.message);
+    }
+  };
+
   const handleChannelSelect = async (channel) => {
     if (selectedChannel?.id === channel.id) return;
 
@@ -453,6 +507,8 @@ export default function Chats() {
       toast.error("Failed to delete chat: " + error.message);
     }
   };
+
+  console.log(selectedMessages);
 
   return (
     <AsyncComponent>
@@ -685,17 +741,20 @@ export default function Chats() {
                           </>
                         )}
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setMessageToDelete(selectedMessages[0]);
-                            setIsSelectMode(false);
-                            setSelectedMessages([]);
-                          }}
-                        >
-                          <Trash className="h-5 w-5 text-destructive" />
-                        </Button>
+                        {selectedMessages?.length > 1 ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              // setMessageToDelete(selectedMessages[0]);
+                              handleClearChat(selectedMessages);
+                              setIsSelectMode(false);
+                              setSelectedMessages([]);
+                            }}
+                          >
+                            <Trash className="h-5 w-5 text-destructive" />
+                          </Button>
+                        ) : null}
                       </div>
                     </>
                   ) : (
@@ -743,8 +802,8 @@ export default function Chats() {
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => {
-                          setIsSelectMode(true);
-                          setSelectedMessages([]);
+                          setIsSelectMode(true); // This should activate select mode
+                          setSelectedMessages([]); // Clear any previously selected messages
                         }}
                         className="bg-transparent flex gap-4 items-center"
                       >
@@ -812,7 +871,17 @@ export default function Chats() {
                             message.message_sent_by_me
                               ? "justify-end"
                               : "justify-start"
-                          } mb-2 relative group`}
+                          } mb-2 relative group ${
+                            isTouchActive ? "touch-active" : ""
+                          }`}
+                          onTouchStart={() => handleTouchStart(message.id)}
+                          onTouchEnd={handleTouchEnd}
+                          onTouchCancel={handleTouchEnd}
+                          onClick={() => {
+                            if (isSelectMode) {
+                              handleMessageSelect(message.id);
+                            }
+                          }}
                         >
                           {isSelectMode && (
                             <div
@@ -942,7 +1011,7 @@ export default function Chats() {
                           </div>
                         </div>
                       ))}
-                      <div ref={messagesEndRef} /> {/* Scroll anchor */}
+                      <div ref={messagesEndRef} />
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center p-4 h-full gap-4">
@@ -1192,7 +1261,13 @@ export default function Chats() {
             <SheetFooter className="mt-8">
               <Button className="rounded-full">Cancel</Button>
               <Button
-                onClick={handleDeleteChat}
+                onClick={() => {
+                  if (selectedChannel?.is_group) {
+                    prompt("leave group");
+                  } else {
+                    handleClearChat(selectedMessages);
+                  }
+                }}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
               >
                 {selectedChannel?.is_group ? "Leave" : "Clear"}

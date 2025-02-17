@@ -273,6 +273,18 @@ class MessageService {
         useMessageStore.getState().removeMessage(data.messageId);
       }
     });
+
+    this.socket.on("chat-cleared", (data) => {
+      if (data.channelId === useMessageStore.getState().currentChannel?.id) {
+        useMessageStore.getState().clearMessages();
+      }
+    });
+
+    this.socket.on("messages-deleted", (data) => {
+      if (data.channelId === useMessageStore.getState().currentChannel?.id) {
+        useMessageStore.getState().removeMessages(data.messageIds);
+      }
+    });
   }
 
   /**
@@ -616,6 +628,39 @@ class MessageService {
     }
   }
 
+  async clearChat(channelId, messageIds = []) {
+    if (!this.socket?.connected) {
+      throw new Error("Socket not connected");
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        this.socket.emit(
+          "clear-chat",
+          {
+            channelId: parseInt(channelId),
+            message_ids: messageIds,
+          },
+          (response) => {
+            if (response.success) {
+              if (messageIds.length === 0) {
+                useMessageStore.getState().clearMessages();
+              } else {
+                useMessageStore.getState().removeMessages(messageIds);
+              }
+              resolve(response);
+            } else {
+              reject(new Error(response.error || "Failed to clear chat"));
+            }
+          }
+        );
+      });
+    } catch (error) {
+      useMessageStore.getState().setError("Failed to clear chat");
+      throw error;
+    }
+  }
+
   async deleteMessage(channelId, messageId) {
     if (!this.socket?.connected) {
       throw new Error("Socket not connected");
@@ -750,6 +795,10 @@ export const useMessageStore = create((set) => ({
   removeMessage: (messageId) =>
     set((state) => ({
       messages: state.messages.filter((msg) => msg.id !== messageId),
+    })),
+  removeMessages: (messageIds) =>
+    set((state) => ({
+      messages: state.messages.filter((msg) => !messageIds.includes(msg.id)),
     })),
 
   updateMessage: (updatedMessage) =>

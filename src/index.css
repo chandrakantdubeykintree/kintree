@@ -279,3 +279,16 @@ button[data-state="active"] {
     opacity: 1;
   }
 }
+
+.message-container {
+  transition: background-color 0.2s;
+}
+
+.message-container.touch-active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.touch-active {
+  background-color: rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
