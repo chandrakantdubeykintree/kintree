@@ -18,6 +18,7 @@ import { Button } from "./ui/button";
 import { useState, useEffect } from "react";
 import { useSearchUser } from "@/hooks/useUser";
 import { useInView } from "react-intersection-observer";
+import { encryptId } from "@/utils/encryption";
 
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
@@ -31,7 +32,7 @@ export default function Navbar() {
   const handleSearchInput = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
-    if (!showSearch) setShowSearch(true); // Open dialog when user starts typing
+    if (!showSearch) setShowSearch(true);
   };
 
   const handleSearch = async (query) => {
@@ -79,7 +80,13 @@ export default function Navbar() {
 
   const handleResultClick = (userId) => {
     setShowSearch(false);
-    navigate(`/kintree-member/${userId}`);
+    const encryptedId = encryptId(userId);
+    if (!encryptedId) {
+      console.error("Encryption failed");
+      return;
+    }
+
+    navigate(`/kintree-member/${encryptedId}`);
     setSearchQuery("");
   };
 
@@ -121,12 +128,7 @@ export default function Navbar() {
                         <div
                           key={user.user_id}
                           className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
-                          onClick={() => {
-                            setShowSearch(false);
-                            handleSearch(searchQuery);
-                            navigate(`/kintree-member/${user.user_id}`);
-                            setSearchQuery("");
-                          }}
+                          onClick={() => handleResultClick(user.user_id)}
                         >
                           <img
                             src={user.profile_pic_url}

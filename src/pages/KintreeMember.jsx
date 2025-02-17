@@ -6,18 +6,28 @@ import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import AsyncComponent from "@/components/async-component";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditRelativeForm from "@/components/edit-relative-form";
 import AddRelativeForm from "@/components/add-relative-form";
 
 import ComponentLoading from "@/components/component-loading";
+import { decryptId } from "@/utils/encryption";
 
 export default function KintreeMember() {
-  const { id } = useParams();
+  // const { id } = useParams();
+  const { id: encryptedId } = useParams();
+  const navigate = useNavigate();
+  const id = decryptId(encryptedId);
+  useEffect(() => {
+    const id = decryptId(encryptedId);
+    if (!id) {
+      navigate("/familytree", { replace: true });
+    }
+  }, [encryptedId, navigate]);
+
   const { data: familyMember, isLoading } = useMember(id);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
-  const navigate = useNavigate();
 
   const { data: familyTree } = useFamily();
 

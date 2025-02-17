@@ -22,6 +22,7 @@ import {
   route_kincoins,
   route_will,
   route_family_member,
+  route_kintree_member,
 } from "./routeEnpoints";
 
 const routeTitles = {
@@ -41,6 +42,7 @@ const routeTitles = {
   [route_forgot_username]: "Forgot Username",
   [route_family_tree]: "Family Tree",
   [route_family_member]: "Family Member",
+  [route_kintree_member]: "Kintree Member",
   [route_profile]: "Profile",
   [route_chats]: "Chats",
   [route_settings]: "Settings",
