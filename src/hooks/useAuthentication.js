@@ -50,7 +50,6 @@ export const useAuthentication = () => {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  // Query for checking auth status and getting user data
   const { data: user, isLoading } = useQuery({
     queryKey: AUTH_QUERY_KEYS.profile,
     queryFn: fetchUserProfile,
@@ -59,7 +58,7 @@ export const useAuthentication = () => {
       navigate("/foreroom");
     },
     onError: (error) => {
-      handleApiError(error, "Failed to fetch user profile");
+      handleApiError(error, "error_fetching_user_profile");
       tokenService.removeAllTokens();
       kintreeApi.defaults.headers.common["Authorization"] = null;
       navigate("/login");
@@ -89,10 +88,10 @@ export const useAuthentication = () => {
       ] = `Bearer ${login_token}`;
       tokenService.setLoginToken(login_token, data.remember);
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
-      toast.success(data.message);
+      toast.success(t("logged_in_successfully"));
     },
     onError: (error) => {
-      handleApiError(t("text.invalid_credentials"));
+      handleApiError(error, t("error_invalid_credentials"));
     },
   });
 
@@ -111,15 +110,12 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: () => {
-      // tokenService.removeAllTokens();
-      // kintreeApi.defaults.headers.common["Authorization"] = null;
-      // queryClient.setQueryData(AUTH_QUERY_KEYS.profile, null);
       queryClient.clear();
-      toast.success("Logged out successfully");
+      toast.success(t("logged_out_successfully"));
       window.location.reload();
     },
     onError: (error) => {
-      handleApiError(error, "Failed to logout");
+      handleApiError(error, t("error_logging_out"));
     },
   });
 
@@ -153,7 +149,6 @@ export const useAuthentication = () => {
     },
   });
 
-  // Send OTP for login or register mutation
   const sendOTPLoginRegisterMutation = useMutation({
     mutationFn: async (credentials) => {
       const response = await kintreeApi.post(
@@ -171,10 +166,10 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error);
+      handleApiError(error, t("error_sending_otp"));
     },
   });
 
@@ -201,6 +196,7 @@ export const useAuthentication = () => {
         ] = `Bearer ${login_token}`;
         tokenService.setLoginToken(login_token);
         queryClient.setQueryData(AUTH_QUERY_KEYS.profile, userData);
+        toast.success(t("logged_in_successfully"));
         navigate("/foreroom");
       } else {
         const { complete_registration_token, next_step, completed_step } =
@@ -212,12 +208,12 @@ export const useAuthentication = () => {
           nextStep: next_step,
           completedStep: completed_step || 0,
         });
+        toast.success("otp_verified_successfully");
         navigate(`/register/step/${next_step}`, { replace: true });
       }
-      toast.success(data.message);
     },
     onError: (error) => {
-      handleApiError(t("forms.otp.errors.invalid_otp"));
+      handleApiError(error, t("invalid_otp"));
     },
   });
 
@@ -225,7 +221,7 @@ export const useAuthentication = () => {
   const registerStepMutation = useMutation({
     mutationFn: async (formData) => {
       const token = tokenService.getRegistrationToken();
-      if (!token) throw new Error("No registration token found");
+      if (!token) throw new Error(t("error_registration_timed_out"));
 
       const currentStep = registrationState.nextStep;
 
@@ -308,7 +304,7 @@ export const useAuthentication = () => {
     },
     onError: (error) => {
       navigate("/register", { replace: true });
-      handleApiError(error, "Failed to save registration data");
+      handleApiError(error, t("error_saving_registration_data"));
     },
   });
 
@@ -329,10 +325,10 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, "Failed to send OTP for forgot password");
+      handleApiError(error, t("error_sending_otp"));
     },
   });
 
@@ -355,10 +351,10 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("otp_verified_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, "Failed to verify OTP for forgot password");
+      handleApiError(error, t("invalid_otp"));
     },
   });
 
@@ -378,11 +374,11 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("password_reset_successfully"));
       tokenService.removeResetPasswordToken();
     },
     onError: (error) => {
-      handleApiError(error, "Failed to reset password");
+      handleApiError(error, t("error_resetting_password"));
     },
   });
 
@@ -403,10 +399,10 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, "Failed to send OTP for forgot username");
+      handleApiError(error, t("error_sending_otp"));
     },
   });
 
@@ -426,10 +422,10 @@ export const useAuthentication = () => {
       return response.data;
     },
     onSuccess: (data) => {
-      toast.success(data.message);
+      toast.success(t("otp_verified_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, "Failed to verify OTP for forgot username");
+      handleApiError(error, t("error_verifying_otp"));
     },
   });
 

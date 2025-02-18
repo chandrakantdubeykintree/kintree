@@ -4,157 +4,20 @@
   "nativeName": "हिंदी",
   "dir": "ltr",
   "app_name": "किनट्री",
-  "posts": "पोस्ट",
-  "members": "सदस्य",
-  "bio": "बायो",
-  "foreroom": "फॉरेरूम",
-  "family_tree": "परिवार पेड़",
-  "chats": "चैट",
-  "dna": "डीएनए",
-  "events": "घटनाएं",
-  "kincoins": "किनकॉइंस",
-  "notifications": "नोटिफिकेशन्स",
-  "will": "विल",
-  "profile": "प्रोफ़ाइल",
-  "settings": "सेटिंग्स",
 
-  "forms": {
-    "username": {
-      "placeholder": "अपना उपयोगकर्ता नाम दर्ज करें",
-      "required": "उपयोगकर्ता नाम आवश्यक है",
-      "minLength": "उपयोगकर्ता नाम कम से कम 2 अक्षर का होना चाहिए",
-      "invalid": "कृपया एक वैध उपयोगकर्ता नाम दर्ज करें"
-    },
-    "email": {
-      "placeholder": "अपना ईमेल दर्ज करें",
-      "required": "ईमेल आवश्यक है",
-      "invalid": "कृपया एक वैध ईमेल दर्ज करें"
-    },
-    "password": {
-      "placeholder": "अपना पासवर्ड दर्ज करें",
-      "required": "पासवर्ड आवश्यक है",
-      "minLength": "पासवर्ड कम से कम 6 अक्षर का होना चाहिए"
-    },
-    "phone_no": {
-      "placeholder": "अपना फ़ोन नंबर दर्ज करें",
-      "minLength": "फ़ोन नंबर कम से कम 10 अक्षर का होना चाहिए",
-      "required": "फ़ोन नंबर आवश्यक है",
-      "invalid": "कृपया एक वैध फ़ोन नंबर दर्ज करें"
-    },
-    "buttons": {
-      "submit": "जमा करें",
-      "delete": "हटाएं",
-      "cancel": "रद्द करें",
-      "save": "सहेजें",
-      "loading": "लोड हो रहा है...",
-      "sending": "भेज रहा है...",
-      "add": "जोड़ें",
-      "edit": "संपादित करें",
-      "signup": "साइन अप करें",
-      "login": "लॉग इन करें"
-    },
-    "otp": {
-      "errors": {
-        "length": "OTP 4 या 6 अंकों का होना चाहिए",
-        "tooShort": "OTP कम से कम 4 अंकों का होना चाहिए",
-        "tooLong": "OTP 6 अंकों से अधिक नहीं हो सकता",
-        "invalidLength": "OTP 4 या 6 अंकों का होना चाहिए",
-        "numbers": "कृपया केवल संख्याएं दर्ज करें",
-        "required": "OTP आवश्यक है"
-      }
-    },
-    "label": {
-      "username": "उपयोगकर्ता नाम",
-      "email": "ईमेल",
-      "password": "पासवर्ड",
-      "login": "लॉग इन करें"
-    }
-  },
-  "headings": {},
-  "text": {
-    "welcome": "किनट्री में आपका स्वागत है",
-    "forgot": "भूल गए?",
-    "password": "पासवर्ड",
-    "username": "उपयोगकर्ता नाम",
-    "login_failed": "लॉगिन विफल",
-    "otp_sent": "OTP सफलतापूर्वक भेजा गया",
-    "otp_verified": "OTP सफलतापूर्वक सत्यापित",
-    "otp_incoiming": "OTP आ रहा है!",
-    "enter_otp": "OTP दर्ज करें",
-    "resend_otp": "OTP पुनः भेजें",
-    "verify_otp": "OTP सत्यापित करें",
-    "otp_sent_to": "OTP भेजा गया है इसपर",
-    "or": "या",
-    "continue": "जारी रखें",
-    "login_with_email": "ईमेल के साथ लॉग इन करें",
-    "login_with_phone": "फ़ोन के साथ लॉग इन करें",
-    "login_with_username": "उपयोगकर्ता नाम के साथ लॉग इन करें",
-    "try_another_way": "किसी और तरीके से प्रयास करें",
-    "didnt_receive_otp": "OTP प्राप्त नहीं हुआ?",
-    "agree_to_terms_privacy": "किनट्री का उपयोग करके, आप सहमत होते हैं",
-    "and": "और",
-    "terms": "शर्तें",
-    "privacy": "गोपनीयता नीति",
-    "whats_on_your_mind": "आपके दिमाग में क्या है?",
-    "edited": "संपादित",
-    "add_comment": "टिप्पणी जोड़ें",
-    "comment": "टिप्पणी",
-    "comments": "टिप्पणियाँ",
-    "create_post": "पोस्ट बनाएं",
-    "edit_post": "पोस्ट संपादित करें",
-    "create_poll": "पोल बनाएं",
-    "edit_poll": "पोल संपादित करें",
-    "caption": "कैप्शन",
-    "characters": "अक्षर",
-    "total votes": "कुल वोट",
-    "days_remaining": "बचे हुए दिन",
-    "view_result": "परिणाम देखें",
-    "like": "पसंद",
-    "likes": "पसंदें",
-    "poll_ended": "पोल समाप्त हो गई है",
-    "no_posts": "कोई पोस्ट नहीं",
-    "vote": "वोट",
-    "votes": "वोट",
-    "back_to_foreroom": "फॉरेरूम पर वापस जाएं",
-    "who_can_see_this_post": "कौन इस पोस्ट को देख सकता है?",
-    "default_public": "आपका डिफ़ॉल्ट दर्शक सार्वजनिक पर सेट किया गया है, लेकिन आप इस विशेष पोस्ट के दर्शक को बदल सकते हैं",
-    "add_feelings": "भावनाएं जोड़ें",
-    "how_are_you_feeling": "आप कैसा महसूस कर रहे हैं?",
-    "change_password": "",
-    "update_account_password": "",
-    "already_have_account": "",
-    "register_with_email": "",
-    "register_with_phone": ""
-  },
-  "feelings": {
-    "angry": "नाराज",
-    "annoyed": "परेशान",
-    "awesome": "बहुत बढ़िया",
-    "blessed": "धन्य",
-    "cool": "ठंडा",
-    "crazy": "पागल",
-    "excited": "उत्साहित",
-    "happy": "खुश",
-    "hungry": "भूखा",
-    "in_love": "प्यार में",
-    "lovely": "प्यारा",
-    "relaxed": "आराम से",
-    "sad": "उदास",
-    "shocked": "चौंका हुआ",
-    "thinking": "सोच रहा हूँ"
-  },
-  "privacy": {
-    "title": {
-      "global": "वैश्विक",
-      "family_tree": "परिवार पेड़",
-      "primary_family": "मुख्य परिवार",
-      "only_me": "केवल मैं"
-    },
-    "desc": {
-      "global": "किन्ट्री पर कोई भी",
-      "family_tree": "किन्ट्री पर आपका परिवार वृक्ष",
-      "primary_family": "आपके मुख्य परिवार के सदस्य",
-      "only_me": "केवल मैं"
-    }
-  }
+  "login": "लॉग इन",
+  "logout": "लॉग आउट",
+  "register": "रजिस्टर",
+
+  "email": "ईमेल",
+  "username": "उपयोगकर्ता नाम",
+  "password": "पासवर्ड",
+  "phone": "फ़ोन",
+  "otp": "ओटीपी",
+
+  "enter_otp": "ओटीपी दर्ज करें",
+  "enter_email": "ईमेल दर्ज करें",
+  "enter_username": "उपयोगकर्ता नाम दर्ज करें",
+  "enter_password": "पासवर्ड दर्ज करें",
+  "enter_phone": "फ़ोन दर्ज करें"
 }

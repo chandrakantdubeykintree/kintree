@@ -18,7 +18,6 @@ const CustomPhoneInput = React.forwardRef(
       height = "h-10",
       width = "w-full",
       containerClassName,
-      translationKey,
       countries,
       setCountryCode,
       ...props
@@ -58,9 +57,9 @@ const CustomPhoneInput = React.forwardRef(
           >
             <SelectTrigger
               className={cn(
-                "absolute left-0 top-0 z-10 flex w-[90px] items-center gap-1 rounded-l-full border-y border-l border-primary pr-0",
-                "focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0",
-                "hover:border-primary/80",
+                "absolute left-0 top-0 z-10 flex w-[90px] items-center gap-1 rounded-l-full border-0 pr-0",
+                "focus:outline-none focus:ring-0 focus:ring-offset-0",
+                "hover:border-0",
                 height
               )}
             >
@@ -97,14 +96,13 @@ const CustomPhoneInput = React.forwardRef(
               ))}
             </SelectContent>
           </Select>
-
+          <div className="absolute left-[95px] top-[15%] h-[70%] w-[1px] bg-primary " />
           <input
             ref={ref}
             type="tel"
-            placeholder={t(`${translationKey}.placeholder`)}
             className={cn(
               // Base styles
-              "flex w-full rounded-full border border-primary bg-background pl-[110px] pr-1 py-1",
+              "flex w-full rounded-full border border-primary bg-background pl-[105px] pr-1 py-1",
               "text-md ring-offset-background",
               "file:border-0 file:bg-transparent file:text-sm file:font-medium",
               "placeholder:text-muted-foreground",
@@ -121,6 +119,7 @@ const CustomPhoneInput = React.forwardRef(
               className
             )}
             {...props}
+            maxLength={12}
           />
         </div>
 

@@ -16,7 +16,6 @@ export const EditPost = lazy(() => import("./pages/EditPost"));
 export const ViewPost = lazy(() => import("./pages/ViewPost"));
 
 export const CreatePoll = lazy(() => import("./pages/CreatePoll"));
-// export const EditPoll = lazy(() => import("./pages/EditPoll"));
 export const ViewPoll = lazy(() => import("./pages/ViewPoll"));
 
 export const FamilyTree = lazy(() => import("./pages/FamilyTree"));
@@ -35,7 +34,6 @@ export const Profile = lazy(() => import("./pages/Profile"));
 export const ViewProfile = lazy(() => import("./pages/ViewProfile"));
 
 export const Settings = lazy(() => import("./pages/Settings"));
-export const EditSettings = lazy(() => import("./pages/EditSettings"));
 
 export const Notifications = lazy(() => import("./pages/Notifications"));
 

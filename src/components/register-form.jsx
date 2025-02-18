@@ -34,29 +34,27 @@ export function RegisterForm({ setOpenTerms }) {
 
   const registerSchemas = {
     email: z.object({
-      email: z.string().email(t("forms.email.invalid")),
+      email: z.string().nonempty(t("email_required")).email(t("invalid_email")),
     }),
 
     phone_no: z.object({
-      phone_no: z
-        .string()
-        .refine((val) => val.length >= 9, t("forms.phone_no.minLength")),
+      phone_no: z.string().refine((val) => val.length >= 9, t("invalid_phone")),
     }),
 
     otp: z.object({
       otp: z
         .string()
-        .nonempty(t("forms.otp.errors.required"))
-        .regex(/^\d+$/, t("forms.otp.errors.numbers"))
+        .nonempty(t("otp_required"))
+        .regex(/^\d+$/, t("invalid_otp"))
         .refine(
           (val) => val.length === 4 || val.length === 6,
           (val) => ({
             message:
               val.length < 4
-                ? t("forms.otp.errors.tooShort")
+                ? t("invalid_otp")
                 : val.length > 6
-                ? t("forms.otp.errors.tooLong")
-                : t("forms.otp.errors.invalidLength"),
+                ? t("invalid_otp")
+                : t("invalid_otp"),
           })
         ),
     }),
@@ -82,18 +80,14 @@ export function RegisterForm({ setOpenTerms }) {
 
   const onSubmit = async (data) => {
     if (registerType === "phone_no" || registerType === "email") {
-      try {
-        const response = await sendOTPLoginRegister({
-          [registerType]: countryCode + data[registerType],
-        });
-        if (response.status) {
-          setIsOtpSent(true);
-          setResendOtp(false);
-          setResendOTPIn(30);
-          setRegisterType("otp");
-        }
-      } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to send OTP");
+      const response = await sendOTPLoginRegister({
+        [registerType]: countryCode + data[registerType],
+      });
+      if (response.status) {
+        setIsOtpSent(true);
+        setResendOtp(false);
+        setResendOTPIn(30);
+        setRegisterType("otp");
       }
     } else if (registerType === "otp") {
       try {
@@ -103,9 +97,7 @@ export function RegisterForm({ setOpenTerms }) {
             watchedValues[watchedValues.phone_no ? "phone_no" : "email"],
         });
       } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "OTP verification failed"
-        );
+        toast.error(t(error, "otp_verification_failed"));
       }
     }
   };
@@ -115,36 +107,23 @@ export function RegisterForm({ setOpenTerms }) {
       case "email":
       case "phone_no":
         return (
-          <div className="flex flex-col gap-2 mb-2">
+          <div className="flex flex-col gap-2 mb-4">
             {registerType === "phone_no" ? (
-              <>
-                <CustomPhoneInput
-                  translationKey="phone_no"
-                  placeholder={t("forms.phone_no.placeholder")}
-                  error={errors.phone_no}
-                  {...register("phone_no")}
-                  countries={countriesList}
-                  setCountryCode={setCountryCode}
-                />
-              </>
+              <CustomPhoneInput
+                placeholder={t("enter_phone")}
+                error={errors.phone_no}
+                {...register("phone_no")}
+                countries={countriesList}
+                setCountryCode={setCountryCode}
+              />
             ) : (
-              <>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
-                  <CustomInput
-                    icon={Mail}
-                    {...register("email")}
-                    placeholder={t("forms.email.placeholder")}
-                    type="email"
-                    className="md:h-10 rounded-r-full rounded-l-full pl-10"
-                  />
-                </div>
-                {errors.email && (
-                  <div className="text-red-500 text-sm">
-                    {errors.email.message}
-                  </div>
-                )}
-              </>
+              <CustomInput
+                icon={Mail}
+                {...register("email")}
+                placeholder={t("enter_email")}
+                type="email"
+                className="md:h-10 rounded-r-full rounded-l-full pl-10"
+              />
             )}
           </div>
         );
@@ -224,56 +203,58 @@ export function RegisterForm({ setOpenTerms }) {
           width={80}
           height={60}
         />
-        <CardTitle className="text-[24px] font-semibold">
-          {isOtpSent ? t("text.enter_otp") : t("text.welcome")}
+        <CardTitle className="text-[24px] font-semibold text-primary">
+          {isOtpSent ? t("otp_incoming") : t("welcome")}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="space-y-4">
           {isOtpSent && (
-            <div className="text-[16px] text-gray-500 text-center">
-              {t("text.otp_sent_to")}{" "}
+            <div className="text-[16px] text-gray-400 text-center mb-2">
+              {(countryCode === "+91") & (registerType === "phone_no")
+                ? t("enter_otp_4")
+                : t("enter_otp_6")}
+            </div>
+          )}
+          {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
+            <div className="text-center text-[16px] mb-4 font-normal flex items-center gap-2 justify-center text-black">
+              <span>
+                {watchedValues.email ||
+                  countryCode + "-" + watchedValues.phone_no}
+              </span>
+              <span
+                className="h-4 w-4 cursor-pointer"
+                onClick={() => {
+                  editPhoneEmail(watchedValues.phone_no ? "phone_no" : "email");
+                }}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <g clipPath="url(#clip0_653_12821)">
+                    <path
+                      d="M8.57171 20.9826L0.857422 23.1426L3.01742 15.4284L17.1431 1.37125C17.3027 1.20798 17.4935 1.07824 17.7039 0.989668C17.9144 0.901094 18.1405 0.855469 18.3689 0.855469C18.5972 0.855469 18.8233 0.901094 19.0338 0.989668C19.2442 1.07824 19.435 1.20798 19.5946 1.37125L22.6289 4.42268C22.7895 4.58204 22.917 4.77166 23.0041 4.98054C23.0912 5.18945 23.1359 5.41352 23.1359 5.63982C23.1359 5.86613 23.0912 6.0902 23.0041 6.2991C22.917 6.50801 22.7895 6.69761 22.6289 6.85697L8.57171 20.9826Z"
+                      stroke="#943f7f"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_653_12821">
+                      <rect width="24" height="24" fill="white" />
+                    </clipPath>
+                  </defs>
+                </svg>
+              </span>
             </div>
           )}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
-          <div className="text-center text-[16px] mb-8 font-normal flex items-center gap-2 justify-center">
-            <span>
-              {watchedValues.email || countryCode + watchedValues.phone_no}
-            </span>
-
-            <span
-              className="h-4 w-4 cursor-pointer"
-              onClick={() => {
-                editPhoneEmail(watchedValues.phone_no ? "phone_no" : "email");
-              }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g clipPath="url(#clip0_653_12821)">
-                  <path
-                    d="M8.57171 20.9826L0.857422 23.1426L3.01742 15.4284L17.1431 1.37125C17.3027 1.20798 17.4935 1.07824 17.7039 0.989668C17.9144 0.901094 18.1405 0.855469 18.3689 0.855469C18.5972 0.855469 18.8233 0.901094 19.0338 0.989668C19.2442 1.07824 19.435 1.20798 19.5946 1.37125L22.6289 4.42268C22.7895 4.58204 22.917 4.77166 23.0041 4.98054C23.0912 5.18945 23.1359 5.41352 23.1359 5.63982C23.1359 5.86613 23.0912 6.0902 23.0041 6.2991C22.917 6.50801 22.7895 6.69761 22.6289 6.85697L8.57171 20.9826Z"
-                    stroke="#943f7f"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </g>
-                <defs>
-                  <clipPath id="clip0_653_12821">
-                    <rect width="24" height="24" fill="white" />
-                  </clipPath>
-                </defs>
-              </svg>
-            </span>
-          </div>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {renderForm()}
           <Button
             type="submit"
@@ -285,7 +266,7 @@ export function RegisterForm({ setOpenTerms }) {
             className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
             variant="outline"
           >
-            {isOtpSent ? t("text.verify_otp") : t("text.continue")}
+            {isOtpSent ? t("verify_otp") : t("continue")}
           </Button>
         </form>
       </CardContent>
@@ -295,7 +276,7 @@ export function RegisterForm({ setOpenTerms }) {
           <div className="flex items-center justify-center gap-4 w-full">
             <div className="h-[1px] bg-border grow" />
             <div className="min-w-fit text-center whitespace-nowrap text-gray-600">
-              {t("text.try_another_way")}
+              {t("try_another_way")}
             </div>
             <div className="h-[1px] bg-border grow" />
           </div>
@@ -303,16 +284,19 @@ export function RegisterForm({ setOpenTerms }) {
         {isOtpSent ? (
           <div className="flex flex-col justify-center items-center">
             <div className="flex flex-col justify-center items-center gap-2 text-gray-500">
-              <p>Didn’t receive OTP?</p>
+              <p>{t("did_not_receive_otp")}</p>
+
               <Button
                 variant="ghost"
                 onClick={handleResendOtp}
                 disabled={!resendOtp}
-                className="font-semibold text-[16px] cursor-pointer hover:underline text-brandPrimary hover:text-brandPrimary"
+                className="font-semibold text-[16px] cursor-pointer hover:underline text-brandPrimary hover:text-brandPrimary bg-none hover:bg-n"
               >
                 {resendOtp
-                  ? t("text.resend_otp")
-                  : `${t("text.resend_otp")} ${resendOTPIn}'s`}
+                  ? t("resend_otp")
+                  : `${t("resend_otp")} - ${resendOTPIn}' ${t(
+                      "seconds"
+                    ).toLocaleLowerCase()}`}
               </Button>
             </div>
           </div>
@@ -325,9 +309,7 @@ export function RegisterForm({ setOpenTerms }) {
                 onClick={() => handleregisterTypeChange("email")}
               >
                 <Mail className="h-5 w-5" />
-                <span className="text-[16px]">
-                  {t("text.register_with_email")}
-                </span>
+                <span className="text-[16px]">{t("continue_with_email")}</span>
               </Button>
             )}
 
@@ -338,25 +320,23 @@ export function RegisterForm({ setOpenTerms }) {
                 onClick={() => handleregisterTypeChange("phone_no")}
               >
                 <Phone className="h-5 w-5" />
-                <span className="text-[16px]">
-                  {t("text.register_with_phone")}
-                </span>
+                <span className="text-[16px]">{t("continue_with_phone")}</span>
               </Button>
             )}
           </div>
         )}
         <div className="text-balance text-center text-sm text-muted-foreground  hover:[&_a]:text-primary  ">
-          {t("text.already_have_account")}&nbsp;
+          {t("already_have_account")}&nbsp;
           <NavLink
             className="text-brandPrimary cursor-pointer hover:underline"
             to="/login"
           >
-            {t("text.login")}
+            {t("login")}
           </NavLink>
         </div>
 
-        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-          {t("text.agree_to_terms_privacy")}{" "}
+        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
+          {t("agree_to_terms")}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -367,9 +347,9 @@ export function RegisterForm({ setOpenTerms }) {
               })
             }
           >
-            {t("text.terms")}
+            {t("terms")}
           </span>{" "}
-          {t("text.and")}{" "}
+          {t("and")?.toLocaleLowerCase()}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -380,7 +360,7 @@ export function RegisterForm({ setOpenTerms }) {
               })
             }
           >
-            {t("text.privacy")}
+            {t("privacy")}&nbsp;{t("policy")}
           </span>
         </div>
       </CardFooter>

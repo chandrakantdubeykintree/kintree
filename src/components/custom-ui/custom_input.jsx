@@ -12,7 +12,6 @@ const CustomInput = React.forwardRef(
       height = "h-10",
       width = "w-full",
       containerClassName,
-      translationKey,
       ...props
     },
     ref
@@ -41,7 +40,6 @@ const CustomInput = React.forwardRef(
 
           <input
             ref={ref}
-            placeholder={t(`${translationKey}.placeholder`)}
             className={cn(
               // Base styles
               "flex w-full rounded-full border border-primary bg-background px-3 py-2",
