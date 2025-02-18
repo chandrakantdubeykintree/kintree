@@ -34,7 +34,6 @@ export function LoginForm({ setOpenTerms }) {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
-  const [otpLength, setOtpLength] = useState(6);
   const [countryCode, setCountryCode] = useState("");
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
@@ -120,10 +119,6 @@ export function LoginForm({ setOpenTerms }) {
           setResendOtp(false);
           setResendOTPIn(30);
           setLoginType("otp");
-          if (loginType === "phone_no") {
-            const currentPhoneNo = data.phone_no || "";
-            setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
-          }
         }
       } catch (error) {
         toast.error(

@@ -103,7 +103,6 @@ class MessageService {
       useMessageStore.getState().setConnected(true);
       useMessageStore.getState().setError(null);
       useMessageStore.getState().setChannelsLoading(true);
-
       this.socket.emit("get-channels", (response) => {
         if (response.success) {
           useMessageStore.getState().setChannels(response.channels);
@@ -287,13 +286,6 @@ class MessageService {
     });
   }
 
-  /**
-   * Create a new channel.
-   * Emits the "create-channel" event.
-   *
-   * @param {Object} channelData - Data for the new channel.
-   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
-   */
   createChannel(channelData) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
@@ -311,14 +303,6 @@ class MessageService {
     });
   }
 
-  /**
-   * Update an existing channel.
-   * Emits the "update-channel" event.
-   *
-   * @param {number} channelId - ID of the channel to update.
-   * @param {Object} updateData - Update payload.
-   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
-   */
   updateChannel(channelId, updateData) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
@@ -343,13 +327,6 @@ class MessageService {
     });
   }
 
-  /**
-   * Create a new group.
-   * Emits the "create-group" event.
-   *
-   * @param {Object} groupData - Data for the new group.
-   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
-   */
   createGroup(groupData) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
@@ -367,14 +344,6 @@ class MessageService {
     });
   }
 
-  /**
-   * Update an existing group.
-   * Emits the "update-group" event.
-   *
-   * @param {number} channelId - ID of the group to update.
-   * @param {Object} updateData - Update payload.
-   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
-   */
   updateGroup(channelId, updateData) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
@@ -396,13 +365,6 @@ class MessageService {
     });
   }
 
-  /**
-   * Delete an existing group.
-   * Emits the "delete-group" event.
-   *
-   * @param {number} channelId - ID of the group to delete.
-   * @returns {Promise} Resolves with response if successful, rejects with error otherwise.
-   */
   deleteGroup(channelId) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
@@ -836,10 +798,11 @@ export const useMessageStore = create((set) => ({
       ),
     })),
 
-  setUserTyping: (userId) =>
+  setUserTyping: (userId) => {
     set((state) => ({
       typingUsers: new Set([...state.typingUsers, userId]),
-    })),
+    }));
+  },
 
   setUserStoppedTyping: (userId) =>
     set((state) => ({

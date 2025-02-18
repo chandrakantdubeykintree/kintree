@@ -19,8 +19,11 @@ import { useAuthentication } from "@/hooks/useAuthentication";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
+import { CustomInput } from "./custom-ui/custom_input";
+import { useTranslation } from "react-i18next";
 
 export function RegisterForm({ setOpenTerms }) {
+  const { t } = useTranslation();
   const [registerType, setRegisterType] = useState("email");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
@@ -131,9 +134,10 @@ export function RegisterForm({ setOpenTerms }) {
               <>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
-                  <Input
+                  <CustomInput
+                    icon={Mail}
                     {...register("email")}
-                    placeholder="Email"
+                    placeholder={t("forms.email.placeholder")}
                     type="email"
                     className="md:h-10 rounded-r-full rounded-l-full pl-10"
                   />

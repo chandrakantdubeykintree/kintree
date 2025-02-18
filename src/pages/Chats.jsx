@@ -102,30 +102,9 @@ export default function Chats() {
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [messageInfoData, setMessageInfoData] = useState(null);
-
+  const [attachment, setAttachment] = useState(null);
   const [longPressTimer, setLongPressTimer] = useState(null);
   const [isTouchActive, setIsTouchActive] = useState(false);
-
-  // Add these handlers
-  const handleTouchStart = (messageId) => {
-    setIsTouchActive(true);
-    const timer = setTimeout(() => {
-      setIsSelectMode(true);
-      setSelectedMessages([messageId]); // Start with the selected message
-    }, 500); // 500ms for long press
-    setLongPressTimer(timer);
-  };
-
-  const handleTouchEnd = () => {
-    setIsTouchActive(false);
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
-  };
-
-  const [attachment, setAttachment] = useState(null);
-
   const {
     messages,
     channelsLoading,
@@ -139,6 +118,23 @@ export default function Chats() {
     pagination,
     error: socketError,
   } = useMessageStore();
+
+  const handleTouchStart = (messageId) => {
+    setIsTouchActive(true);
+    const timer = setTimeout(() => {
+      setIsSelectMode(true);
+      setSelectedMessages([messageId]);
+    }, 300);
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    setIsTouchActive(false);
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
 
   const {
     control,
@@ -154,7 +150,6 @@ export default function Chats() {
     },
   });
 
-  // Initialize form with channel data when opening the edit form
   useEffect(() => {
     if (openSheet.updateChannel && selectedChannel) {
       reset({
