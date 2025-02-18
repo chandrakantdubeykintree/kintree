@@ -28,7 +28,6 @@ export default function RegisterStepForm({
     mode: "onChange",
   });
 
-  // Reset form when step changes
   useEffect(() => {
     reset();
   }, [currentStep, reset]);
@@ -40,7 +39,6 @@ export default function RegisterStepForm({
 
   const renderStepContent = () => {
     const props = { register, errors, watch, setValue, gender };
-
     switch (currentStep) {
       case 1:
         return <StepOne {...props} />;

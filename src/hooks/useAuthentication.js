@@ -6,7 +6,6 @@ import toast from "react-hot-toast";
 import {
   api_auth_login_password,
   api_auth_logout,
-  api_auth_register_step,
   api_auth_reset_password,
   api_auth_send_otp_forgot_password,
   api_auth_send_otp_forgot_username,
@@ -108,6 +107,7 @@ export const useAuthentication = () => {
           response.data.data
         );
       }
+
       return response.data;
     },
     onSuccess: () => {
@@ -206,12 +206,13 @@ export const useAuthentication = () => {
         const { complete_registration_token, next_step, completed_step } =
           data.data;
         tokenService.setRegistrationToken(complete_registration_token);
+
         queryClient.setQueryData(AUTH_QUERY_KEYS.registrationState, {
           isRegistrationComplete: 0,
           nextStep: next_step,
-          completedStep: completed_step,
+          completedStep: completed_step || 0,
         });
-        navigate("/register/step/" + next_step);
+        navigate(`/register/step/${next_step}`, { replace: true });
       }
       toast.success(data.message);
     },
@@ -306,7 +307,6 @@ export const useAuthentication = () => {
       return data;
     },
     onError: (error) => {
-      console.error("Registration step error:", error);
       navigate("/register", { replace: true });
       handleApiError(error, "Failed to save registration data");
     },

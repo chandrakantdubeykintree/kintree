@@ -13,33 +13,42 @@ export default function RegisterStep() {
   const { step } = useParams();
   const { registerStep, registrationState } = useAuthentication();
 
-  // Redirect to correct step based on registration state
   useEffect(() => {
     const handleNavigation = async () => {
-      // Check if we have a registration token
+      if (!registrationState) return;
       const hasRegistrationToken = tokenService.getRegistrationToken();
-      if (hasRegistrationToken && !registrationState?.isRegistrationComplete) {
-        tokenService.removeLoginToken();
-      }
-      // Check if we have an auth token (logged in)
       const hasAuthToken = tokenService.getLoginToken();
 
-      // If user is already logged in and registration is complete
-      if (hasAuthToken && registrationState?.isRegistrationComplete) {
-        navigate("/foreroom", { replace: true });
+      // If we have a registration token but registration isn't complete
+      if (hasRegistrationToken && !registrationState?.isRegistrationComplete) {
+        // Only remove login token if it exists
+        if (hasAuthToken) {
+          tokenService.removeLoginToken();
+        }
+        // Ensure we're on the correct step
+        if (step !== registrationState.nextStep.toString()) {
+          navigate(`/register/step/${registrationState.nextStep}`, {
+            replace: true,
+          });
+        }
         return;
       }
 
-      // If no registration token and not logged in
-      if (!hasRegistrationToken && !hasAuthToken) {
+      // If we don't have a registration token
+      if (!hasRegistrationToken) {
         toast.error(
           "Session expired use your email/phone to start registration."
         );
         navigate("/register", { replace: true });
         return;
       }
-    };
 
+      // If we have an auth token, redirect to foreroom
+      if (hasAuthToken) {
+        navigate("/foreroom", { replace: true });
+        return;
+      }
+    };
     handleNavigation();
   }, [step, registrationState, navigate]);
 
@@ -52,7 +61,7 @@ export default function RegisterStep() {
   };
 
   if (!registrationState) {
-    return null; // or loading state
+    return null;
   }
 
   if (registrationState.isRegistrationComplete) {

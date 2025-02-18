@@ -2,14 +2,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 import { kintreeApi } from "../services/kintreeApi";
 
 import { tokenService } from "../services/tokenService";
-import { getErrorMessage, determineErrorType } from "../services/errorHandling";
-import {
-  api_auth_login_password,
-  api_auth_send_otp_login_register,
-  api_auth_verify_otp_login_register,
-  api_user_profile,
-} from "../constants/apiEndpoints";
-import toast from "react-hot-toast";
+import { api_user_profile } from "../constants/apiEndpoints";
 import { useLocation, useNavigate } from "react-router";
 
 const AuthContext = createContext();
@@ -28,20 +21,13 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [registrationState, setRegistrationState] = useState({
-    isRegistrationComplete: null,
-    nextStep: null,
-    completedStep: null,
-    verifiedContact: null,
-  });
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         setLoading(true);
         const token = tokenService.getLoginToken();
-
-        // List of public routes that don't require authentication
+        const registrationToken = tokenService.getRegistrationToken();
         const publicRoutes = [
           "/login",
           "/register",
@@ -49,8 +35,12 @@ export const AuthProvider = ({ children }) => {
           "/forgot-username",
         ];
 
-        // Skip authentication check for public routes
         if (publicRoutes.includes(location.pathname)) {
+          setLoading(false);
+          return;
+        }
+
+        if (registrationToken) {
           setLoading(false);
           return;
         }
@@ -58,11 +48,9 @@ export const AuthProvider = ({ children }) => {
         if (token && tokenService.isLoginTokenValid()) {
           const success = await fetchUserProfile();
           if (success) {
-            // If we're on the login page or root, redirect to foreroom
             if (location.pathname === "/login" || location.pathname === "/") {
               navigate("/foreroom");
             }
-            // Otherwise stay on the current route
           } else {
             handleLogout();
             if (!location.pathname.startsWith("/login")) {
@@ -111,167 +99,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const handleSendOtp = async (credentials) => {
-    try {
-      const response = await kintreeApi.post(
-        api_auth_send_otp_login_register,
-        credentials
-      );
-      if (response.data.status) {
-        toast.success(response.data.message);
-        return { success: true };
-      }
-      toast.error(response.data.message);
-      return { success: false, error: response.data.message };
-    } catch (error) {
-      const errorType = determineErrorType(error);
-      toast.error(getErrorMessage(errorType));
-      return { success: false, error: getErrorMessage(errorType) };
-    }
-  };
-
-  const handleVerifyOTP = async (credentials) => {
-    try {
-      const response = await kintreeApi.post(
-        api_auth_verify_otp_login_register,
-        credentials
-      );
-
-      if (response.data.success) {
-        // For registered users
-        if (response.data.data.is_registration_complete === 1) {
-          const { login_token, ...userData } = response.data.data;
-          kintreeApi.defaults.headers.common[
-            "Authorization"
-          ] = `Bearer ${login_token}`;
-          tokenService.setLoginToken(login_token, true);
-          // setUser(userData);
-          await fetchUserProfile();
-          setIsAuthenticated(true);
-          clearRegistrationState();
-          toast.success(response.data.message);
-          return { success: true, isRegistered: true };
-        }
-        // For non-registered users
-        else {
-          const { complete_registration_token, next_step, completed_step } =
-            response.data.data;
-          setRegistrationState({
-            isRegistrationComplete: 0,
-            nextStep: next_step,
-            completedStep: completed_step,
-            verifiedContact: credentials.email || credentials.phone_no,
-          });
-          tokenService.setRegistrationToken(complete_registration_token);
-          await fetchUserProfile("/user");
-          toast.success(response.data.message);
-          return { success: true, isRegistered: false };
-        }
-      }
-
-      toast.error(response.data.message);
-      return { success: false, error: response.data.message };
-    } catch (error) {
-      const errorType = determineErrorType(error);
-      toast.error(getErrorMessage(errorType));
-      return { success: false, error: getErrorMessage(errorType) };
-    }
-  };
-
-  const handleLogin = async (credentials) => {
-    try {
-      setLoading(true);
-      const response = await kintreeApi.post(
-        api_auth_login_password,
-        credentials
-      );
-      if (response?.data?.success) {
-        const { login_token, ...userData } = response.data.data;
-        kintreeApi.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${login_token}`;
-        tokenService.setLoginToken(login_token, true);
-        setUser(userData);
-        await fetchUserProfile();
-        setIsAuthenticated(true);
-        clearRegistrationState();
-        toast.success(response.data.message);
-        return { success: true };
-      }
-      return { success: false, error: response.data.message };
-    } catch (error) {
-      const errorType = determineErrorType(error);
-      toast.error(getErrorMessage(errorType));
-      return { success: false, error: getErrorMessage(errorType) };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const submitRegistrationStep = async (stepData) => {
-    try {
-      let response;
-      if (stepData.step === 4 && stepData.profile_image) {
-        const formData = new FormData();
-        formData.append("step", stepData.step);
-        if (stepData.profile_image instanceof File) {
-          formData.append("profile_image", stepData.profile_image);
-        } else {
-          formData.append(
-            "preseted_profile_image_id",
-            stepData.preseted_profile_image_id || 1
-          );
-        }
-
-        response = await kintreeApi.post(
-          `/registration/step/${stepData?.step}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${tokenService.getRegistrationToken()}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-      } else {
-        response = await kintreeApi.post(
-          `/registration/step/${stepData?.step}`,
-          stepData,
-          {
-            headers: {
-              Authorization: `Bearer ${tokenService.getRegistrationToken()}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      }
-
-      if (response.data.success) {
-        if (response.data.data.is_registration_complete === 1) {
-          const { login_token, ...userData } = response.data.data;
-          tokenService.setLoginToken(login_token);
-          setUser(userData);
-          await fetchUserProfile();
-          setIsAuthenticated(true);
-          clearRegistrationState();
-          return { success: true, isCompleted: true };
-        } else {
-          setRegistrationState((prev) => ({
-            ...prev,
-            nextStep: response.data.data.next_step,
-            completedStep: response.data.data.completed_step,
-          }));
-          return { success: true, isCompleted: false };
-        }
-      }
-      toast.error(response.data.message);
-      return { success: false, error: response.data.message };
-    } catch (error) {
-      const errorType = determineErrorType(error);
-      return { success: false, error: getErrorMessage(errorType) };
-    }
-  };
-
   const handleLogout = () => {
     setUser(null);
     setIsAuthenticated(false);
@@ -280,12 +107,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const clearRegistrationState = () => {
-    setRegistrationState({
-      isRegistrationComplete: null,
-      nextStep: null,
-      completedStep: null,
-      verifiedContact: null,
-    });
     tokenService.removeRegistrationToken();
   };
   return (
@@ -294,11 +115,6 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         isAuthenticated,
-        registrationState,
-        handleLogin,
-        handleSendOtp,
-        handleVerifyOTP,
-        submitRegistrationStep,
         handleLogout,
         clearRegistrationState,
         fetchUserProfile,

@@ -1,9 +1,6 @@
-import { useState } from "react";
 import CustomDateMonthYearPicker from "../custom-ui/custom-dateMonthYearPicker";
 
 export function StepTwo({ register, errors, watch, setValue }) {
-  const [date, setDate] = useState();
-
   return (
     <div className="flex flex-col gap-4">
       <CustomDateMonthYearPicker
