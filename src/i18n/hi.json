@@ -121,7 +121,10 @@
     "add_feelings": "भावनाएं जोड़ें",
     "how_are_you_feeling": "आप कैसा महसूस कर रहे हैं?",
     "change_password": "",
-    "update_account_password": ""
+    "update_account_password": "",
+    "already_have_account": "",
+    "register_with_email": "",
+    "register_with_phone": ""
   },
   "feelings": {
     "angry": "नाराज",

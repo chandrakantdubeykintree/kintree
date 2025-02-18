@@ -7,10 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "./ui/input-otp";
+import { countriesList } from "@/constants/countriesList";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import toast from "react-hot-toast";
@@ -21,6 +18,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { CustomInput } from "./custom-ui/custom_input";
 import { useTranslation } from "react-i18next";
+import { NavLink } from "react-router";
+import { CustomPhoneInput } from "./custom-ui/custom_phone_input";
+import { CustomOTPInput } from "./custom-ui/custom_otp_input";
 
 export function RegisterForm({ setOpenTerms }) {
   const { t } = useTranslation();
@@ -28,41 +28,49 @@ export function RegisterForm({ setOpenTerms }) {
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
-  const [otpLength, setOtpLength] = useState(6);
+  const [countryCode, setCountryCode] = useState("");
   const { sendOTPLoginRegister, verifyOTPLoginRegister } = useAuthentication();
   const { theme } = useThemeLanguage();
 
   const registerSchemas = {
     email: z.object({
-      email: z.string().email("Please enter a valid email address"),
+      email: z.string().email(t("forms.email.invalid")),
     }),
 
     phone_no: z.object({
       phone_no: z
         .string()
-        .regex(/^\+[1-9]\d{1,14}$/, "Please enter a valid phone number"),
+        .refine((val) => val.length >= 9, t("forms.phone_no.minLength")),
     }),
 
     otp: z.object({
       otp: z
         .string()
+        .nonempty(t("forms.otp.errors.required"))
+        .regex(/^\d+$/, t("forms.otp.errors.numbers"))
         .refine(
           (val) => val.length === 4 || val.length === 6,
-          "OTP must be 4 or 6 digits"
-        )
-        .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
+          (val) => ({
+            message:
+              val.length < 4
+                ? t("forms.otp.errors.tooShort")
+                : val.length > 6
+                ? t("forms.otp.errors.tooLong")
+                : t("forms.otp.errors.invalidLength"),
+          })
+        ),
     }),
   };
 
   const isValidOtp = (otp) => {
-    return /^\d+$/.test(otp) && otp.length === otpLength;
+    const requiredLength = countryCode === "+91" ? 4 : 6;
+    return /^\d+$/.test(otp) && otp.length === requiredLength;
   };
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    setValue,
     watch,
     reset,
   } = useForm({
@@ -76,17 +84,13 @@ export function RegisterForm({ setOpenTerms }) {
     if (registerType === "phone_no" || registerType === "email") {
       try {
         const response = await sendOTPLoginRegister({
-          [registerType]: data[registerType],
+          [registerType]: countryCode + data[registerType],
         });
         if (response.status) {
           setIsOtpSent(true);
           setResendOtp(false);
           setResendOTPIn(30);
           setRegisterType("otp");
-          if (registerType === "phone_no") {
-            const currentPhoneNo = data.phone_no || "";
-            setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
-          }
         }
       } catch (error) {
         toast.error(error?.response?.data?.message || "Failed to send OTP");
@@ -114,21 +118,14 @@ export function RegisterForm({ setOpenTerms }) {
           <div className="flex flex-col gap-2 mb-2">
             {registerType === "phone_no" ? (
               <>
-                <PhoneInput
-                  international
-                  countryCallingCodeEditable={false}
-                  defaultCountry="IN"
-                  onChange={(value) => setValue("phone_no", value)}
-                  value={watchedValues.phone_no}
-                  limitMaxLength
-                  maxLength={15}
-                  className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                <CustomPhoneInput
+                  translationKey="phone_no"
+                  placeholder={t("forms.phone_no.placeholder")}
+                  error={errors.phone_no}
+                  {...register("phone_no")}
+                  countries={countriesList}
+                  setCountryCode={setCountryCode}
                 />
-                {errors.phone_no && (
-                  <div className="text-red-500 text-sm">
-                    {errors.phone_no.message}
-                  </div>
-                )}
               </>
             ) : (
               <>
@@ -155,25 +152,12 @@ export function RegisterForm({ setOpenTerms }) {
         return (
           isOtpSent && (
             <div className="mb-4 flex flex-col gap-4 items-center justify-center">
-              <InputOTP
-                maxLength={otpLength}
-                onChange={(value) => setValue("otp", value)}
-                value={watchedValues.otp}
-                className="rounded-full"
-              >
-                <InputOTPGroup className="gap-2 rounded-full w-full">
-                  {[...Array(otpLength)].map((_, index) => (
-                    <InputOTPSlot
-                      key={index}
-                      index={index}
-                      className="border rounded-full h-8 w-8 lg:h-10 lg:w-10 border-brandPrimary"
-                    />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-              {errors.otp && (
-                <div className="text-red-500 text-sm">{errors.otp.message}</div>
-              )}
+              <CustomOTPInput
+                onlyNumbers={true}
+                length={countryCode === "+91" ? 4 : 6}
+                {...register("otp")}
+                error={errors.otp}
+              />
             </div>
           )
         );
@@ -241,20 +225,22 @@ export function RegisterForm({ setOpenTerms }) {
           height={60}
         />
         <CardTitle className="text-[24px] font-semibold">
-          {isOtpSent ? "OTP incoming!" : "Welcome to Kintree"}
+          {isOtpSent ? t("text.enter_otp") : t("text.welcome")}
         </CardTitle>
         <CardDescription>
           {isOtpSent && (
             <div className="text-[16px] text-gray-500 text-center">
-              Enter the {watchedValues.phone_no ? "4" : "6"} digit OTP sent to{" "}
+              {t("text.otp_sent_to")}{" "}
             </div>
           )}
         </CardDescription>
       </CardHeader>
       <CardContent>
         {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
-          <div className="text-center text-[16px] mb-8 font-normal flex items-center gap-4 justify-center">
-            <span>{watchedValues.email || watchedValues.phone_no}</span>
+          <div className="text-center text-[16px] mb-8 font-normal flex items-center gap-2 justify-center">
+            <span>
+              {watchedValues.email || countryCode + watchedValues.phone_no}
+            </span>
 
             <span
               className="h-4 w-4 cursor-pointer"
@@ -299,7 +285,7 @@ export function RegisterForm({ setOpenTerms }) {
             className="w-full md:h-10 rounded-l-full rounded-r-full mt-2 text-[16px] bg-brandPrimary text-white hover:bg-brandPrimary hover:text-blue-50"
             variant="outline"
           >
-            {isOtpSent ? "Verify OTP" : "Continue"}
+            {isOtpSent ? t("text.verify_otp") : t("text.continue")}
           </Button>
         </form>
       </CardContent>
@@ -309,7 +295,7 @@ export function RegisterForm({ setOpenTerms }) {
           <div className="flex items-center justify-center gap-4 w-full">
             <div className="h-[1px] bg-border grow" />
             <div className="min-w-fit text-center whitespace-nowrap text-gray-600">
-              Try another way?
+              {t("text.try_another_way")}
             </div>
             <div className="h-[1px] bg-border grow" />
           </div>
@@ -324,7 +310,9 @@ export function RegisterForm({ setOpenTerms }) {
                 disabled={!resendOtp}
                 className="font-semibold text-[16px] cursor-pointer hover:underline text-brandPrimary hover:text-brandPrimary"
               >
-                {resendOtp ? "Resend Code" : `Resend Code in ${resendOTPIn}'s`}
+                {resendOtp
+                  ? t("text.resend_otp")
+                  : `${t("text.resend_otp")} ${resendOTPIn}'s`}
               </Button>
             </div>
           </div>
@@ -336,9 +324,10 @@ export function RegisterForm({ setOpenTerms }) {
                 variant="outline"
                 onClick={() => handleregisterTypeChange("email")}
               >
-                {/* <img src={ICON_EMAIL} className="h-5 w-5" /> */}
                 <Mail className="h-5 w-5" />
-                <span className="text-[16px]">Register with Email</span>
+                <span className="text-[16px]">
+                  {t("text.register_with_email")}
+                </span>
               </Button>
             )}
 
@@ -349,14 +338,25 @@ export function RegisterForm({ setOpenTerms }) {
                 onClick={() => handleregisterTypeChange("phone_no")}
               >
                 <Phone className="h-5 w-5" />
-                <span className="text-[16px]">Register with Phone</span>
+                <span className="text-[16px]">
+                  {t("text.register_with_phone")}
+                </span>
               </Button>
             )}
           </div>
         )}
+        <div className="text-balance text-center text-sm text-muted-foreground  hover:[&_a]:text-primary  ">
+          {t("text.already_have_account")}&nbsp;
+          <NavLink
+            className="text-brandPrimary cursor-pointer hover:underline"
+            to="/login"
+          >
+            {t("text.login")}
+          </NavLink>
+        </div>
 
-        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary  ">
-          By using Kintree, you agree to the{" "}
+        <div className="text-balance text-center text-sm text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+          {t("text.agree_to_terms_privacy")}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -367,9 +367,9 @@ export function RegisterForm({ setOpenTerms }) {
               })
             }
           >
-            Terms
+            {t("text.terms")}
           </span>{" "}
-          and{" "}
+          {t("text.and")}{" "}
           <span
             className="text-brandPrimary cursor-pointer hover:underline"
             onClick={() =>
@@ -380,7 +380,7 @@ export function RegisterForm({ setOpenTerms }) {
               })
             }
           >
-            Privacy Policy.
+            {t("text.privacy")}
           </span>
         </div>
       </CardFooter>

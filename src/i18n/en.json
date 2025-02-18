@@ -34,7 +34,9 @@
       "placeholder": "Enter your password",
       "required": "Password is required",
       "invalid": "Please enter a valid password",
-      "minLength": "Password must be at least 5 characters"
+      "minLength": "Password must be at least 5 characters",
+      "new_password": "New Password",
+      "confirm_password": "Confirm Password"
     },
     "phone_no": {
       "placeholder": "Enter your phone number",
@@ -42,6 +44,7 @@
       "required": "Phone number is required",
       "invalid": "Please enter a valid phone number"
     },
+    "first_name": {},
     "buttons": {
       "submit": "Submit",
       "delete": "Delete",
@@ -74,8 +77,16 @@
       }
     }
   },
-  "headings": {},
+  "headings": {
+    "register_step_1_heading": "We'd love to know about yourself",
+    "register_step_2_heading": "When were you born?",
+    "register_step_3_heading": "What's your gender?",
+    "register_step_4_heading": "Choose your profile picture",
+    "register_step_5_heading": "Can you share your Father's Name?",
+    "register_step_6_heading": "Can you share your Mother's Name?"
+  },
   "text": {
+    "login": "Login",
     "welcome": "Welcome to Kintree",
     "forgot": "Forgot",
     "password": "Password",
@@ -90,9 +101,13 @@
     "resend_otp": "Resend OTP",
     "or": "or",
     "continue": "Continue",
+    "complete_registration": "Complete Registration",
+    "processing": "Processing",
     "login_with_email": "Login with email",
     "login_with_phone": "Login with phone",
     "login_with_username": "Login with username",
+    "register_with_phone": "Register with phone",
+    "register_with_email": "Register with email",
     "try_another_way": "Try another way",
     "didnt_receive_otp": "Didn't receive OTP?",
     "agree_to_terms_privacy": "By using Kintree, you agree to the",
@@ -111,7 +126,7 @@
     "edit_poll": "Edit poll",
     "caption": "Caption",
     "characters": "characters",
-
+    "already_have_account": "Already have account",
     "total_votes": "total votes",
     "days_remaining": "days remaining",
     "view_result": "View result",
@@ -127,7 +142,17 @@
     "add_feelings": "Add feelings",
     "how_are_you_feeling": "How are you feeling?",
     "change_password": "Change Password",
-    "update_account_password": "Update your account password"
+    "update_account_password": "Update your account password",
+    "register_step_1_desc": "Let's start with your name",
+    "register_step_2_desc": "This helps us personalize your experience",
+    "register_step_3_desc": "Help us understand you better",
+    "register_step_4_desc": "Let others recognize you easily",
+    "register_step_5_desc": "Let's honor the first branch in your family tree",
+    "register_step_6_desc": "We can't wait to celebrate her impact on your life",
+    "rember_password": "Rembered password?",
+    "reset_with_phone": "Reset with phone",
+    "reset_with_email": "Reset with email",
+    "reset_password": "Reset Password"
   },
   "feelings": {
     "angry": "Angry",
