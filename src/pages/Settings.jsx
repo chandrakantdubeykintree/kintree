@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -30,7 +29,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { LANGUAGES } from "@/constants/languages";
-import { EyeIcon, EyeOffIcon, LockIcon } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import AsyncComponent from "@/components/async-component";
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
@@ -41,52 +40,52 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { CustomPasswordInput } from "@/components/custom-ui/custom_pasword_input";
 
-const PasswordSchema = z
-  .object({
-    current_password: z
-      .string()
-      .min(1, "Current password is required")
-      .max(20, "Current password must be less than 20 characters"),
-    password: z
-      .string()
-      .min(5, "Password must be at least 5 characters")
-      .max(20, "Password must be less than 20 characters")
-      .refine((val, ctx) => val !== ctx.data.current_password, {
-        message: "New password must be different from current password",
-      }),
-    password_confirmation: z
-      .string()
-      .min(5, "Password confirmation must be at least 5 characters")
-      .max(20, "Password confirmation must be less than 20 characters"),
-  })
-  .refine((data) => data.password === data.password_confirmation, {
-    message: "Passwords must match",
-    path: ["password_confirmation"],
-  });
-
-const LanguageSchema = z.object({
-  theme: z.enum(["light", "dark"]),
-  language: z.string().min(1, "Language is required"),
-});
-
-const PhonePrivacySchema = z.object({
-  phone_no: z.boolean(),
-});
-
-const EmailPrivacySchema = z.object({
-  email: z.boolean(),
-});
-
-const AccountSchema = z.object({
-  type: z.enum(["deactivate", "deletion"]),
-  comment: z
-    .string()
-    .min(10, "Comment must be at least 10 characters")
-    .max(200, "Comment must be less than 200 characters"),
-});
-
 export default function Settings() {
   const { t } = useTranslation();
+  const PasswordSchema = z
+    .object({
+      current_password: z
+        .string()
+        .min(1, "Current password is required")
+        .max(20, "Current password must be less than 20 characters"),
+      password: z
+        .string()
+        .min(5, "Password must be at least 5 characters")
+        .max(20, "Password must be less than 20 characters")
+        .refine((val, ctx) => val !== ctx.data.current_password, {
+          message: "New password must be different from current password",
+        }),
+      password_confirmation: z
+        .string()
+        .min(5, "Password confirmation must be at least 5 characters")
+        .max(20, "Password confirmation must be less than 20 characters"),
+    })
+    .refine((data) => data.password === data.password_confirmation, {
+      message: "Passwords must match",
+      path: ["password_confirmation"],
+    });
+
+  const LanguageSchema = z.object({
+    theme: z.enum(["light", "dark"]),
+    language: z.string().min(1, "Language is required"),
+  });
+
+  const PhonePrivacySchema = z.object({
+    phone_no: z.boolean(),
+  });
+
+  const EmailPrivacySchema = z.object({
+    email: z.boolean(),
+  });
+
+  const AccountSchema = z.object({
+    type: z.enum(["deactivate", "deletion"]),
+    comment: z
+      .string()
+      .min(10, "Comment must be at least 10 characters")
+      .max(200, "Comment must be less than 200 characters"),
+  });
+
   const [activeForm, setActiveForm] = useState(null);
   const { setTheme, setLanguage } = useThemeLanguage();
   const { handleLogout } = useAuth();
@@ -94,12 +93,6 @@ export default function Settings() {
   const [accountAction, setAccountAction] = useState(null);
   const { profile, updateProfile } = useProfile("user/configurations");
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
-
-  const [showPassword, setShowPassword] = useState({
-    current_password: false,
-    password: false,
-    password_confirmation: false,
-  });
 
   const {
     register: passwordRegister,
@@ -168,13 +161,6 @@ export default function Settings() {
     },
   });
 
-  const togglePasswordVisibility = (field) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
-
   const handleSubmitPhonePrivacy = async (values) => {
     const dataToSend = {
       type: "phone_no",
@@ -206,6 +192,7 @@ export default function Settings() {
         method: "PATCH",
       });
       toast.success("Email privacy updated successfully");
+      setActiveForm(null);
     } catch (error) {
       toast.error("Failed to update email privacy");
     }
@@ -282,10 +269,8 @@ export default function Settings() {
           {/* Password Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle>{t("text.change_password")}</CardTitle>
-              <CardDescription>
-                {t("text.update_account_password")}
-              </CardDescription>
+              <CardTitle>{t("change_password")}</CardTitle>
+              <CardDescription>{t("update_account_password")}</CardDescription>
             </CardHeader>
             <CardContent>
               {activeForm === "password" ? (
@@ -295,123 +280,36 @@ export default function Settings() {
                   )}
                   className="space-y-4"
                 >
-                  <div className="space-y-2">
-                    <Label htmlFor="current_password">Current Password</Label>
-                    <div className="relative">
-                      <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-                      <Input
-                        id="current_password"
-                        {...passwordRegister("current_password")}
-                        type={
-                          showPassword.current_password ? "text" : "password"
-                        }
-                        className="bg-background text-foreground h-10 lg:h-12 pl-10 rounded-full"
-                      />
-                      {/* <CustomPasswordInput
-                        {...passwordRegister("current_password")}
-                      /> */}
-                      {showPassword.current_password ? (
-                        <EyeIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() =>
-                            togglePasswordVisibility("current_password")
-                          }
-                        />
-                      ) : (
-                        <EyeOffIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() =>
-                            togglePasswordVisibility("current_password")
-                          }
-                        />
-                      )}
-                    </div>
-                    {passwordErrors.current_password && (
-                      <p className="text-sm text-red-500">
-                        {passwordErrors.current_password.message}
-                      </p>
-                    )}
-                  </div>
+                  <CustomPasswordInput
+                    icon={LockKeyhole}
+                    placeholder={t("current_password")}
+                    error={passwordErrors.current_password}
+                    {...passwordRegister("current_password")}
+                  />
+                  <CustomPasswordInput
+                    icon={LockKeyhole}
+                    {...passwordRegister("password")}
+                    placeholder={t("new_password")}
+                    error={passwordErrors.password}
+                  />
+                  <CustomPasswordInput
+                    icon={LockKeyhole}
+                    {...passwordRegister("password_confirmation")}
+                    placeholder={t("confirm_password")}
+                    error={passwordErrors.password_confirmation}
+                  />
 
-                  <div className="space-y-2">
-                    <Label htmlFor="password">New Password</Label>
-                    <div className="relative">
-                      <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-                      <Input
-                        id="password"
-                        {...passwordRegister("password")}
-                        type={showPassword.password ? "text" : "password"}
-                        className="bg-background text-foreground h-10 lg:h-12 pl-10 rounded-full"
-                      />
-                      {showPassword.password ? (
-                        <EyeIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() => togglePasswordVisibility("password")}
-                        />
-                      ) : (
-                        <EyeOffIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() => togglePasswordVisibility("password")}
-                        />
-                      )}
-                    </div>
-                    {passwordErrors.password && (
-                      <p className="text-sm text-red-500">
-                        {passwordErrors.password.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="password_confirmation">
-                      Confirm Password
-                    </Label>
-                    <div className="relative">
-                      <LockIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5" />
-                      <Input
-                        id="password_confirmation"
-                        {...passwordRegister("password_confirmation")}
-                        type={
-                          showPassword.password_confirmation
-                            ? "text"
-                            : "password"
-                        }
-                        className="bg-background text-foreground h-10 lg:h-12 pl-10 rounded-full"
-                      />
-                      {showPassword.password_confirmation ? (
-                        <EyeIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() =>
-                            togglePasswordVisibility("password_confirmation")
-                          }
-                        />
-                      ) : (
-                        <EyeOffIcon
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-5 w-5 cursor-pointer"
-                          onClick={() =>
-                            togglePasswordVisibility("password_confirmation")
-                          }
-                        />
-                      )}
-                    </div>
-                    {passwordErrors.password_confirmation && (
-                      <p className="text-sm text-red-500">
-                        {passwordErrors.password_confirmation.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button type="submit" className="rounded-full">
-                      Save Changes
-                    </Button>
+                  <div className="flex justify-end gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setActiveForm(null)}
                       className="rounded-full"
                     >
-                      Cancel
+                      {t("cancel")}
+                    </Button>
+                    <Button type="submit" className="rounded-full">
+                      {t("save_password")}
                     </Button>
                   </div>
                 </form>
@@ -419,11 +317,11 @@ export default function Settings() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-md text-gray-600 dark:text-gray-200">
-                      Username:{" "}
+                      {t("username")}:{" "}
                       <span className="font-semibold">{user?.username}</span>
                     </p>
                     <p className="text-md text-gray-600 dark:text-gray-200">
-                      Email:{" "}
+                      {t("email")}:{" "}
                       <span className="font-semibold">{user?.email}</span>
                     </p>
                   </div>
@@ -431,7 +329,7 @@ export default function Settings() {
                     onClick={() => setActiveForm("password")}
                     className="rounded-full"
                   >
-                    Change Password
+                    {t("change_password")}
                   </Button>
                 </div>
               )}
@@ -441,8 +339,8 @@ export default function Settings() {
           {/* Language Settings Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle>Language & Theme</CardTitle>
-              <CardDescription>Customize your app experience</CardDescription>
+              <CardTitle>{t("language_&_theme")}</CardTitle>
+              <CardDescription>{t("customize_app_experience")}</CardDescription>
             </CardHeader>
             <CardContent>
               {activeForm === "language" ? (
@@ -453,7 +351,6 @@ export default function Settings() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label>Theme</Label>
                     <Select
                       onValueChange={(value) =>
                         setLanguageValue("theme", value)
@@ -465,8 +362,8 @@ export default function Settings() {
                         <SelectValue placeholder="Select theme" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="light">Light</SelectItem>
-                        <SelectItem value="dark">Dark</SelectItem>
+                        <SelectItem value="light">{t("light")}</SelectItem>
+                        <SelectItem value="dark">{t("dark")}</SelectItem>
                       </SelectContent>
                     </Select>
                     {languageErrors.theme && (
@@ -477,7 +374,6 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Language</Label>
                     <Select
                       onValueChange={(value) =>
                         setLanguageValue("language", value)
@@ -503,17 +399,17 @@ export default function Settings() {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button type="submit" className="rounded-full">
-                      Save Changes
-                    </Button>
+                  <div className="flex justify-end gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setActiveForm(null)}
                       className="rounded-full"
                     >
-                      Cancel
+                      {t("cancel")}
+                    </Button>
+                    <Button type="submit" className="rounded-full">
+                      {t("save_changes")}
                     </Button>
                   </div>
                 </form>
@@ -521,13 +417,13 @@ export default function Settings() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-gray-600 dark:text-gray-200">
-                      Current Theme:{" "}
+                      {t("current_theme")}:{" "}
                       <span className="font-semibold">
                         {capitalizeName(profile?.theme)}
                       </span>
                     </p>
                     <p className="text-gray-600 dark:text-gray-200">
-                      Current Language:{" "}
+                      {t("current_language")}:{" "}
                       <span className="font-semibold">
                         {
                           Object.entries(LANGUAGES)?.find(
@@ -541,7 +437,7 @@ export default function Settings() {
                     onClick={() => setActiveForm("language")}
                     className="rounded-full"
                   >
-                    Edit Settings
+                    {t("edit_configuration")}
                   </Button>
                 </div>
               )}
@@ -551,8 +447,10 @@ export default function Settings() {
           {/* Contact Privacy Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle>Contact Privacy</CardTitle>
-              <CardDescription>Manage your contact privacy</CardDescription>
+              <CardTitle>{t("contact_privacy")}</CardTitle>
+              <CardDescription>
+                {t("manage_your_contact_privacy")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {activeForm === "contact" ? (
@@ -566,7 +464,7 @@ export default function Settings() {
                   >
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Label htmlFor="phone_no">Phone Number</Label>
+                        <Label htmlFor="phone_no">{t("phone_number")}</Label>
                         <Switch
                           className="border border-primary"
                           id="phone_no"
@@ -576,7 +474,9 @@ export default function Settings() {
                           }
                         />
                         <p className="text-sm text-gray-600 dark:text-gray-200">
-                          {watchPhonePrivacy("phone_no") ? "Public" : "Private"}
+                          {watchPhonePrivacy("phone_no")
+                            ? t("public")
+                            : t("private")}
                         </p>
                       </div>
                       {phonePrivacyErrors.phone_no && (
@@ -587,7 +487,7 @@ export default function Settings() {
                     </div>
                     <div className="flex gap-2">
                       <Button type="submit" className="rounded-full">
-                        Save Phone Privacy
+                        {t("save_phone_privacy")}
                       </Button>
                     </div>
                   </form>
@@ -601,7 +501,7 @@ export default function Settings() {
                   >
                     <div className="space-y-2">
                       <div className="flex items-center space-x-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t("email")}</Label>
                         <Switch
                           className="border border-primary"
                           id="email"
@@ -611,7 +511,9 @@ export default function Settings() {
                           }
                         />
                         <p className="text-sm text-gray-600 dark:text-gray-200">
-                          {watchEmailPrivacy("email") ? "Public" : "Private"}
+                          {watchEmailPrivacy("email")
+                            ? t("public")
+                            : t("private")}
                         </p>
                       </div>
                       {emailPrivacyErrors.email && (
@@ -623,20 +525,10 @@ export default function Settings() {
 
                     <div className="flex gap-2">
                       <Button type="submit" className="rounded-full">
-                        Save Email Privacy
+                        {t("save_email_privacy")}
                       </Button>
                     </div>
                   </form>
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setActiveForm(null)}
-                      className="rounded-full"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
                 </div>
               ) : (
                 <Button
@@ -652,8 +544,10 @@ export default function Settings() {
           {/* Account Management Card */}
           <Card className="">
             <CardHeader>
-              <CardTitle>Account Management</CardTitle>
-              <CardDescription>Manage your account status</CardDescription>
+              <CardTitle>{t("account_management")}</CardTitle>
+              <CardDescription>
+                {t("manage_your_account_status")}
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {activeForm === "account" ? (
@@ -664,7 +558,6 @@ export default function Settings() {
                   className="space-y-4"
                 >
                   <div className="space-y-2">
-                    <Label>Action Type</Label>
                     <Select
                       onValueChange={(value) => setAccountValue("type", value)}
                       defaultValue={watchAccount("type")}
@@ -675,9 +568,11 @@ export default function Settings() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="deactivate">
-                          Deactivate Account
+                          {t("deactivate_account")}
                         </SelectItem>
-                        <SelectItem value="deletion">Delete Account</SelectItem>
+                        <SelectItem value="deletion">
+                          {t("delete_account")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     {accountErrors.type && (
@@ -688,10 +583,9 @@ export default function Settings() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Reason</Label>
                     <Textarea
                       {...accountRegister("comment")}
-                      placeholder="Please tell us why..."
+                      placeholder={t("please_tell_us_why")}
                       className="bg-background text-foreground max-h-40 h-24"
                       maxLength={200}
                     />
@@ -705,21 +599,21 @@ export default function Settings() {
                     )}
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button
-                      type="submit"
-                      variant="destructive"
-                      className="rounded-full"
-                    >
-                      Continue
-                    </Button>
+                  <div className="flex gap-2 justify-end">
                     <Button
                       type="button"
                       variant="outline"
                       onClick={() => setActiveForm(null)}
                       className="rounded-full"
                     >
-                      Cancel
+                      {t("cancel")}
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="destructive"
+                      className="rounded-full"
+                    >
+                      {t("continue")}
                     </Button>
                   </div>
                 </form>
@@ -729,7 +623,7 @@ export default function Settings() {
                   onClick={() => setActiveForm("account")}
                   className="rounded-full"
                 >
-                  Manage Account
+                  {t("manage_account")}
                 </Button>
               )}
             </CardContent>
@@ -737,28 +631,22 @@ export default function Settings() {
 
           {/* Confirmation Dialog */}
           <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-            <DialogContent className="max-w-[500px]">
+            <DialogContent className="max-w-[500px] rounded-2xl w-[90%]">
               <DialogHeader>
                 <DialogTitle>
                   {accountAction?.type === "deactivate"
-                    ? "Confirm Account Deactivation"
-                    : "Confirm Account Deletion"}
+                    ? t("confirm_account_deactivation")
+                    : t("confirm_account_deletion")}
                 </DialogTitle>
                 <DialogDescription>
                   {accountAction?.type === "deactivate" ? (
-                    <>
-                      Your account will be deactivated after 90 days. You can
-                      reactivate your account by logging in during this period.
-                    </>
+                    <>{t("deactivate_account_warning")}</>
                   ) : (
-                    <>
-                      Your account and all associated data will be permanently
-                      deleted in 30 days. This action cannot be undone.
-                    </>
+                    <>{t("delete_account_warning")}</>
                   )}
                 </DialogDescription>
               </DialogHeader>
-              <DialogFooter className="sm:justify-start">
+              <DialogFooter className="sm:justify-start gap-4">
                 <Button
                   type="button"
                   variant="destructive"
@@ -766,8 +654,8 @@ export default function Settings() {
                   className="rounded-full"
                 >
                   {accountAction?.type === "deactivate"
-                    ? "Deactivate Account"
-                    : "Delete Account"}
+                    ? t("deactivate_account")
+                    : t("delete_account")}
                 </Button>
                 <Button
                   className="rounded-full"
@@ -779,7 +667,7 @@ export default function Settings() {
                     setActiveForm(null);
                   }}
                 >
-                  Keep Account
+                  {t("keep_account")}
                 </Button>
               </DialogFooter>
             </DialogContent>
