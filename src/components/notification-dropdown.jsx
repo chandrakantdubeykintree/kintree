@@ -23,8 +23,6 @@ export default function NotificationDropDown() {
     }
   };
 
-  console.log(unreadCount, "unreadCount");
-
   const NotificationItem = ({ notification }) => {
     const { notification_data, readed_at } = notification;
     const { notified_by, message } = notification_data;

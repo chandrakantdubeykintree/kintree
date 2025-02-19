@@ -24,10 +24,10 @@ export default function SecondaryNavigation() {
             to={path}
             onMouseEnter={() => setHoveredPath(path)}
             onMouseLeave={() => setHoveredPath(null)}
-            className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base bg-gray-50 ${
+            className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base bg-gray-50 dark:bg-gray-800 ${
               location?.pathname.includes(path)
-                ? "bg-primary text-white hover:bg-primary"
-                : "hover:bg-primary/90 hover:text-white"
+                ? "bg-primary text-white hover:bg-primary dark:bg-primary dark:bg-primary/90"
+                : "hover:bg-primary/90 hover:text-white dark:hover:bg-primary/90 dark:hover:text-white"
             } `}
           >
             <div className="flex items-center gap-2">
