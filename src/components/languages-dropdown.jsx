@@ -53,7 +53,7 @@ export default function LanguagesDropDown() {
       <DropdownMenuContent className="w-56" align="end" side="bottom">
         <DropdownMenuLabel>Select Language</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <div className="max-h-[300px] overflow-y-auto">
+        <div className="max-h-[300px] overflow-y-scroll no_scrollbar">
           <DropdownMenuGroup>{languagesList}</DropdownMenuGroup>
         </div>
       </DropdownMenuContent>

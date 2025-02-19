@@ -23,6 +23,8 @@ export default function NotificationDropDown() {
     }
   };
 
+  console.log(unreadCount, "unreadCount");
+
   const NotificationItem = ({ notification }) => {
     const { notification_data, readed_at } = notification;
     const { notified_by, message } = notification_data;
@@ -41,7 +43,7 @@ export default function NotificationDropDown() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
-            <p className={`text-sm ${!readed_at ? "font-semibold" : ""}`}>
+            <p className={`text-sm ${!readed_at ? "font-normal" : ""}`}>
               {message}
             </p>
             <p className="text-xs text-gray-500 mt-1">
@@ -65,20 +67,23 @@ export default function NotificationDropDown() {
             className="w-6 h-6 transform transition-transform duration-300 ease-in-out hover:scale-125"
             alt="Notifications"
           />
-          {notifications.length > 0 && (
+          {
             <span className="absolute -top-1.5 -right-1.5 w-5 h-5 text-xs font-bold text-white flex items-center justify-center bg-red-500 rounded-full">
-              {notifications.length}
+              {unreadCount}
             </span>
-          )}
+          }
         </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-[275px]" align="end">
-        <div className="p-4">
-          <CardTitle>Notifications</CardTitle>
+        <div className="p-4 space-y-2">
+          <CardTitle className="self-start">Notifications</CardTitle>
           <CardDescription>
             You have {unreadCount} unread notification{unreadCount !== 1 && "s"}
           </CardDescription>
+          <div className="px-2 flex justify-center items-center bg-primary py-1 text-white text-xs rounded-full cursor-pointer">
+            Mark all as read
+          </div>
         </div>
 
         <DropdownMenuSeparator />

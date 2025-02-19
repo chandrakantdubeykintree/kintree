@@ -3,6 +3,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQueryClient,
+  useQuery,
 } from "@tanstack/react-query";
 
 export function useNotifications(limit = 10) {
@@ -62,6 +63,50 @@ export function useNotifications(limit = 10) {
     },
   });
 
+  // Mark all notifications as read
+  const markAllAsRead = useMutation({
+    mutationFn: async () => {
+      const response = await kintreeApi.put(
+        "/user/notifications/mark-as-all-read"
+      );
+      return response.data.data;
+    },
+    onSuccess: () => {
+      // Update all notifications in the cache to be marked as read
+      queryClient.setQueryData(["notifications"], (oldData) => {
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => ({
+            ...page,
+            notifications: page.notifications.map((notification) => ({
+              ...notification,
+              is_read: true,
+            })),
+          })),
+        };
+      });
+      // Invalidate the unread count query
+      queryClient.invalidateQueries(["notifications-unread-count"]);
+    },
+  });
+
+  // Fetch unread notifications count
+  const {
+    data: unreadCountData,
+    isLoading: isLoadingUnreadCount,
+    isError: isErrorUnreadCount,
+    error: unreadCountError,
+  } = useQuery({
+    queryKey: ["notifications-unread-count"],
+    queryFn: async () => {
+      const response = await kintreeApi.get(
+        "/user/notifications/unreaded-count"
+      );
+      return response.data.data.unreaded_count;
+    },
+    refetchInterval: 60000, // Refetch every minute to keep count updated
+  });
+
   // Mark notification as unread
   const markAsUnread = useMutation({
     mutationFn: async (notificationId) => {
@@ -115,16 +160,9 @@ export function useNotifications(limit = 10) {
     return data?.pages.flatMap((page) => page.notifications) || [];
   };
 
-  // Helper function to get unread count
-  const getUnreadCount = () => {
-    return getAllNotifications().filter(
-      (notification) => !notification.readed_at
-    ).length;
-  };
-
   return {
     notifications: getAllNotifications(),
-    unreadCount: getUnreadCount(),
+    unreadCount: unreadCountData ?? 0,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -137,5 +175,10 @@ export function useNotifications(limit = 10) {
     isMarkingAsRead: markAsRead.isLoading,
     isMarkingAsUnread: markAsUnread.isLoading,
     isDeleting: deleteNotification.isLoading,
+    isLoadingUnreadCount,
+    isErrorUnreadCount,
+    unreadCountError,
+    markAllAsRead: markAllAsRead.mutate,
+    isMarkingAllAsRead: markAllAsRead.isLoading,
   };
 }

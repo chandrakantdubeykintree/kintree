@@ -29,10 +29,10 @@ import { Input } from "./ui/input";
 import { useAuth } from "@/context/AuthProvider";
 import { useRef } from "react";
 import { useEffect } from "react";
-import { useTransition } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function PostComments({ postId, onCommentUpdate }) {
-  const { t } = useTransition();
+  const { t } = useTranslation();
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useComments(postId);
 
@@ -149,12 +149,12 @@ export default function PostComments({ postId, onCommentUpdate }) {
                 {isFetchingNextPage ? (
                   <ComponentLoading />
                 ) : (
-                  <span>Load more comments...</span>
+                  <span>{t("load_more")}</span>
                 )}
               </div>
             )}
             {!data?.pages?.[0]?.data?.comments?.length && (
-              <div className="text-center">No comments yet</div>
+              <div className="text-center">{t("no_comments_yet")}</div>
             )}
           </div>
         </div>
@@ -162,14 +162,16 @@ export default function PostComments({ postId, onCommentUpdate }) {
           <div className="flex flex-col gap-2">
             {replyingTo && (
               <div className="flex items-center justify-between text-sm text-brandPrimary p-2 rounded">
-                <span>Replying to @{replyingTo.author_details.username}</span>
+                <span>
+                  {t("replying_to")} @{replyingTo.author_details.username}
+                </span>
                 <Button
                   variant="ghost"
                   className="border border-brandPrimary hover:bg-red-500 rounded-full"
                   size="sm"
                   onClick={handleCancelReply}
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             )}
@@ -181,8 +183,10 @@ export default function PostComments({ postId, onCommentUpdate }) {
                 onKeyPress={handleKeyPress}
                 placeholder={
                   replyingTo
-                    ? `Reply to @${replyingTo.author_details.username}...`
-                    : "Add a comment..."
+                    ? `${t("reply_to")} @${
+                        replyingTo.author_details.username
+                      }...`
+                    : t("add_comment") + "..."
                 }
                 className="flex-1 p-2 px-4 border h-10 rounded-full"
               />

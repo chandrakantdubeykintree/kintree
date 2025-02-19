@@ -8,29 +8,14 @@ import { usePost } from "@/hooks/usePosts";
 import ComponentLoading from "@/components/component-loading";
 import PostComments from "@/components/post-comments";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
-import { checkPostAccess } from "@/services/privacyChecks";
+import { useTranslation } from "react-i18next";
 
 export default function ViewPost() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { postId } = useParams();
   const { data, isLoading, refetch, error } = usePost(postId);
   const navigate = useNavigate();
-  // useEffect(() => {
-  //   if (!isLoading && data) {
-  //     const hasAccess = checkPostAccess(
-  //       data.author_details.id,
-  //       data.privacy,
-  //       user
-  //     );
-
-  //     if (!hasAccess) {
-  //       toast.error("You don't have permission to view this post");
-  //       navigate("/foreroom");
-  //       return;
-  //     }
-  //   }
-  // }, [data, isLoading, user, navigate]);
   const handlePostUpdate = () => {
     refetch();
   };
@@ -65,7 +50,7 @@ export default function ViewPost() {
                 />
               </svg>
             </span>
-            Back to Foreroom
+            {t("back_to_foreroom")}
           </NavLink>
         </div>
         <div className="flex flex-col gap-4 h-full">

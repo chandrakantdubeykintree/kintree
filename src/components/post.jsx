@@ -21,7 +21,9 @@ import PostEditDeleteDropDown from "./post-edit-dropdown";
 import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
+import { useTranslation } from "react-i18next";
 export default function Post({ post, user, onReactionUpdate }) {
+  const { t } = useTranslation();
   const {
     id,
     privacy,
@@ -135,7 +137,6 @@ export default function Post({ post, user, onReactionUpdate }) {
               </button>
 
               {isViewPost ? (
-                // Render a non-clickable div or span
                 <div className="flex items-center gap-2 h-18 w-18">
                   <img
                     src={ICON_COMMENT}
@@ -146,7 +147,6 @@ export default function Post({ post, user, onReactionUpdate }) {
                   </span>
                 </div>
               ) : (
-                // Render the clickable NavLink
                 <NavLink
                   to={`${
                     type === "normal" ? route_view_post : route_view_poll

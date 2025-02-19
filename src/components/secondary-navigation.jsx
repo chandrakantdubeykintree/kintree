@@ -4,6 +4,7 @@ import { Card } from "./ui/card";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useUnreadMessages } from "@/hooks/useChannels";
+import { useNotifications } from "@/hooks/useNotifications";
 
 export default function SecondaryNavigation() {
   const location = useLocation();
@@ -11,6 +12,8 @@ export default function SecondaryNavigation() {
   const [hoveredPath, setHoveredPath] = useState(null);
   const { data: unreadMessages } = useUnreadMessages();
   const unreadedMessageCount = unreadMessages?.data?.unreaded_message_count;
+
+  const { unreadCount } = useNotifications(5);
 
   return (
     <Card className="w-full max-w-sm mx-auto shadow-sm border-0 rounded-2xl overflow-hidden">
@@ -21,9 +24,9 @@ export default function SecondaryNavigation() {
             to={path}
             onMouseEnter={() => setHoveredPath(path)}
             onMouseLeave={() => setHoveredPath(null)}
-            className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base ${
+            className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base bg-gray-50 ${
               location?.pathname.includes(path)
-                ? "bg-brandPrimary text-white hover:bg-brandPrimary"
+                ? "bg-primary text-white hover:bg-primary"
                 : "hover:bg-primary/90 hover:text-white"
             } `}
           >
@@ -46,6 +49,13 @@ export default function SecondaryNavigation() {
                   {unreadedMessageCount > 99
                     ? "99+"
                     : unreadedMessageCount || 0}
+                </span>
+              </div>
+            )}
+            {path === "/notifications" && (
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-red-500 p-2">
+                <span className="text-xs text-white">
+                  {unreadCount > 99 ? "99+" : unreadCount || 0}
                 </span>
               </div>
             )}

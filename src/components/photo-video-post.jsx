@@ -165,7 +165,6 @@ export default function PhotoVideoPost({ post }) {
       </div>
     );
   };
-  // throw new Error("PollPost component is not implemented yet");
   return (
     <AsyncComponent>
       <CardContent className="p-0">

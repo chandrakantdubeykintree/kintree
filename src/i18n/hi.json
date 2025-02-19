@@ -21,5 +21,9 @@
   "enter_email": "ईमेल दर्ज करें",
   "enter_username": "उपयोगकर्ता नाम दर्ज करें",
   "enter_password": "पासवर्ड दर्ज करें",
-  "enter_phone": "फ़ोन दर्ज करें"
+  "enter_phone": "फ़ोन दर्ज करें",
+  "comment": "टिप्पणी",
+  "comments": "टिप्पणियाँ",
+  "like": "पसंद",
+  "likes": "पसंद"
 }

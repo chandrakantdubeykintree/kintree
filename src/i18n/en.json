@@ -211,6 +211,10 @@
   "no_upcoming_events": "No upcoming events",
   "no_family_members": "No family members",
   "family_members": "Family Members",
+  "load_more": "Load more",
+  "no_comments_yet": "No comments yet",
+  "replying_to": "Replying to",
+  "reply_to": "Reply to",
 
   "error_fetching_user_profile": "Error fetching user profile",
   "error_fetching_user_data": "Error fetching user data",
