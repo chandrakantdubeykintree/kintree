@@ -29,8 +29,10 @@ import { Input } from "./ui/input";
 import { useAuth } from "@/context/AuthProvider";
 import { useRef } from "react";
 import { useEffect } from "react";
+import { useTransition } from "react";
 
 export default function PostComments({ postId, onCommentUpdate }) {
+  const { t } = useTransition();
   const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useComments(postId);
 

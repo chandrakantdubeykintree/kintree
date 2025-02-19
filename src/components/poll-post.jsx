@@ -2,10 +2,13 @@ import AsyncComponent from "@/components/async-component";
 import { ICON_CHECK_BRAND } from "@/constants/iconUrls";
 import { usePollVote } from "@/hooks/usePosts";
 import { formatTimeAgo } from "@/utils/stringFormat";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import PollVotersDialog from "./poll-voters-dialog";
 
 export default function PollPost({ post, user, onReactionUpdate }) {
   const { t } = useTranslation();
+  const [openPollVioters, setOpenPollVioters] = useState(false);
   const {
     id,
     privacy,
@@ -113,7 +116,7 @@ export default function PollPost({ post, user, onReactionUpdate }) {
                   ${isHighestVoted ? "border-brandPrimary" : ""}
                   ${pollVoteMutation.isPending ? "opacity-50" : ""}
                   ${
-                    !isInteractionDisabled ? "cursor-pointer" : "cursor-default"
+                    !isInteractionDisabled ? "cursor-pointer" : "cursor-pointer"
                   }
                 `}
               >
@@ -129,8 +132,8 @@ export default function PollPost({ post, user, onReactionUpdate }) {
                   {(post_data.is_user_voted || isPollEnded()) && (
                     <span className="text-sm text-gray-600">
                       {option.vote_count}{" "}
-                      {option.vote_count > 1 ? t("text.votes") : t("text.vote")}{" "}
-                      ({votePercentage}%)
+                      {option.vote_count > 1 ? t("votes") : t("vote")} (
+                      {votePercentage}%)
                     </span>
                   )}
                 </div>
@@ -142,26 +145,35 @@ export default function PollPost({ post, user, onReactionUpdate }) {
           {isPollEnded() ? (
             <div className="flex gap-2">
               <span>
-                {post_data?.poll_total_votes} {} {t("text.total_votes")}
+                {post_data?.poll_total_votes} {} {t("total_votes")}
               </span>
               <span>•</span>
               <span>
-                {t("text.poll_ended")} {formatTimeAgo(post_data.poll_end_date)}
+                {t("poll_ended")} {formatTimeAgo(post_data.poll_end_date)}
               </span>
             </div>
           ) : (
             <span>
-              {getDaysRemaining(post_data.poll_end_date)}{" "}
-              {t("text.days_remaining")}
+              {getDaysRemaining(post_data.poll_end_date)} {t("days_remaining")}
             </span>
           )}
           {post_data.polls_creator && (
-            <span className="text-primary cursor-pointer">
-              {t("text.view_result")}
+            <span
+              className="text-primary cursor-pointer"
+              onClick={() => setOpenPollVioters(true)}
+            >
+              {t("view_results")}
             </span>
           )}
         </div>
       </div>
+      {openPollVioters ? (
+        <PollVotersDialog
+          isOpen={openPollVioters}
+          onClose={() => setOpenPollVioters(false)}
+          pollId={post_data.id}
+        />
+      ) : null}
     </AsyncComponent>
   );
 }

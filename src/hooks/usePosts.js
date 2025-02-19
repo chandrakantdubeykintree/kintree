@@ -8,6 +8,7 @@ import {
 import { replaceUrlParams } from "../utils/stringFormat";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   POSTS: "posts",
@@ -41,6 +42,22 @@ export const fetchPostById = async (postId) => {
   try {
     const response = await kintreeApi.get(`/posts/${postId}`);
     return response.data.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const fetchPollVoteById = async (pollId, optionId) => {
+  try {
+    const url = replaceUrlParams(
+      `/polls/:pollId/options/:optionId/voted-users`,
+      {
+        pollId,
+        optionId,
+      }
+    );
+    const response = await kintreeApi.get(url);
+    return response.data;
   } catch (error) {
     return handleApiError(error);
   }
@@ -185,116 +202,6 @@ export const postCommentReaction = async ({ postId, commentId, data }) => {
   }
 };
 
-export const usePosts = (limit = 15) => {
-  return useInfiniteQuery({
-    queryKey: [QUERY_KEYS.POSTS],
-    queryFn: ({ pageParam = 1 }) => fetchPosts({ pageParam, limit }),
-    getNextPageParam: (lastPage) => {
-      return lastPage.data.next_page ?? undefined;
-    },
-    refetchOnWindowFocus: false,
-    refetchInterval: 60000,
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch posts. Please try again later.");
-      console.error("Posts fetch error:", error);
-    },
-  });
-};
-
-export const usePost = (postId, options = {}) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.POST, postId],
-    queryFn: () => fetchPostById(postId),
-    enabled: Boolean(postId),
-    ...options,
-    refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    staleTime: 0,
-    cacheTime: 0,
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch post details.");
-    },
-  });
-};
-
-export const useCreatePost = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: createPost,
-    onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to create post. Please try again."
-      );
-    },
-    onSuccess: (data) => {
-      toast.success(data.message || "Post created successfully!");
-      if (data.type === "poll") {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
-      }
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.POSTS],
-        refetchType: "all",
-      });
-    },
-  });
-};
-
-export const useEditPost = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ postId, updatedPost }) => editPost(postId, updatedPost),
-    onSuccess: (data) => {
-      toast.success("Post updated successfully!");
-      // Invalidate and remove from cache
-      queryClient.removeQueries({ queryKey: [QUERY_KEYS.POST, data.id] });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.POSTS],
-        refetchType: "all",
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.POST, data.id],
-        refetchType: "all",
-      });
-    },
-    onError: (error) => {
-      console.error("Edit post error:", error);
-      toast.error(error.response?.data?.message || "Failed to update post");
-    },
-  });
-};
-
-export const useDeletePost = () => {
-  const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  return useMutation({
-    mutationFn: ({ postId, postType, type }) =>
-      deletePost(postId, postType, type),
-    onSuccess: (_, { postType, type }) => {
-      toast.success(
-        type === "poll"
-          ? "Poll deleted successfully!"
-          : "Post deleted successfully!"
-      );
-      if (postType === "poll") {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
-      }
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
-      navigate("/foreroom");
-    },
-    onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to delete post. Please try again."
-      );
-    },
-  });
-};
-
 export const handleReaction = async ({ postId, type }) => {
   try {
     const url = replaceUrlParams("/posts/:postId/reactions", { postId });
@@ -315,21 +222,6 @@ export const fetchPostReactions = async (postId) => {
   }
 };
 
-export const useFetchPostReactions = (postId) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.POST_REACTIONS, postId],
-    queryFn: () => fetchPostReactions(postId),
-    enabled: Boolean(postId),
-    refetchOnWindowFocus: false,
-    staleTime: 1000 * 60, // 1 minute
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch post reactions.");
-      console.error("Post reactions fetch error:", error);
-    },
-  });
-};
-
 export const handleVote = async ({ pollId, optionId }) => {
   try {
     const url = replaceUrlParams("/polls/:pollId/options/:optionId/vote", {
@@ -343,18 +235,155 @@ export const handleVote = async ({ pollId, optionId }) => {
   }
 };
 
+export const fetchPoll = async (pollId) => {
+  try {
+    const url = replaceUrlParams("/polls/:pollId", { pollId });
+    const response = await kintreeApi.get(url);
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const usePosts = (limit = 15) => {
+  const { t } = useTranslation();
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.POSTS],
+    queryFn: ({ pageParam = 1 }) => fetchPosts({ pageParam, limit }),
+    getNextPageParam: (lastPage) => {
+      return lastPage.data.next_page ?? undefined;
+    },
+    refetchOnWindowFocus: false,
+    refetchInterval: 60000,
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("error_failed_to_fetch_posts"));
+    },
+  });
+};
+
+export const usePost = (postId, options = {}) => {
+  const { t } = useTranslation();
+  return useQuery({
+    queryKey: [QUERY_KEYS.POST, postId],
+    queryFn: () => fetchPostById(postId),
+    enabled: Boolean(postId),
+    ...options,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
+    cacheTime: 0,
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("error_failed_to_fetch_post_details"));
+    },
+  });
+};
+
+export const useCreatePost = () => {
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createPost,
+    onError: (error) => {
+      toast.error(t("error_failed_create_post"));
+    },
+    onSuccess: (data) => {
+      toast.success(
+        data.type === "poll"
+          ? t("poll_created_successfully")
+          : t("post_created_successfully")
+      );
+      if (data.type === "poll") {
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
+      }
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.POSTS],
+        refetchType: "all",
+      });
+    },
+  });
+};
+
+export const useEditPost = () => {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ postId, updatedPost }) => editPost(postId, updatedPost),
+    onSuccess: (data) => {
+      toast.success(t("post_updated_successfully"));
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.POST, data.id] });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.POSTS],
+        refetchType: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.POST, data.id],
+        refetchType: "all",
+      });
+    },
+    onError: (error) => {
+      console.error("Edit post error:", error);
+      toast.error(t("error_failed_to_update_post"));
+    },
+  });
+};
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  return useMutation({
+    mutationFn: ({ postId, postType, type }) =>
+      deletePost(postId, postType, type),
+    onSuccess: (_, { postType, type }) => {
+      toast.success(
+        type === "poll"
+          ? t("poll_deleted_successfully")
+          : t("post_deleted_successfully")
+      );
+      if (postType === "poll") {
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POLLS] });
+      }
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
+      navigate("/foreroom");
+    },
+    onError: (error) => {
+      toast.error(
+        t("error_failed_to_delete_post") ||
+          "Failed to delete post. Please try again."
+      );
+    },
+  });
+};
+
+export const useFetchPostReactions = (postId) => {
+  const { t } = useTranslation();
+  return useQuery({
+    queryKey: [QUERY_KEYS.POST_REACTIONS, postId],
+    queryFn: () => fetchPostReactions(postId),
+    enabled: Boolean(postId),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60, // 1 minute
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("error_failed_to_fetch_post_reactions"));
+    },
+  });
+};
+
 export const usePostReactions = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: handleReaction,
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update reaction. Please try again."
-      );
+      toast.error(t("error_failed_to_update_reaction"));
     },
     onSuccess: () => {
-      toast.success(`Reaction updated successfully!`);
+      toast.success(t("reaction_updated_successfully"));
     },
     onSettled: (_, __, { postId }) => {
       queryClient.invalidateQueries({
@@ -372,17 +401,14 @@ export const usePostReactions = () => {
 
 export const usePollVote = () => {
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: handleVote,
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to register vote. Please try again."
-      );
+      toast.error(t("error_failed_to_register_vote"));
     },
     onSuccess: () => {
-      toast.success("Vote registered successfully!");
+      toast.success(t("vote_registered_successfully"));
     },
     onSettled: (_, __, { pollId }) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
@@ -391,39 +417,43 @@ export const usePollVote = () => {
   });
 };
 
-export const fetchPoll = async (pollId) => {
-  try {
-    const url = replaceUrlParams("/polls/:pollId", { pollId });
-    const response = await kintreeApi.get(url);
-    return response.data;
-  } catch (error) {
-    return handleApiError(error);
-  }
-};
-
 export const usePoll = (pollId, options = {}) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.POLL, pollId],
     queryFn: () => fetchPoll(pollId),
     enabled: Boolean(pollId),
     refetchOnWindowFocus: false,
-    staleTime: 1000 * 60, // 1 minute
+    staleTime: 1000 * 60,
     retry: 2,
     ...options,
     onError: (error) => {
-      toast.error("Failed to fetch poll.");
-      console.error("Poll fetch error:", error);
+      toast.error(t("error_failed_to_fetch_poll"));
+    },
+  });
+};
+
+export const usePollVoteById = (pollId, optionId, options = {}) => {
+  const { t } = useTranslation();
+  return useQuery({
+    queryKey: [QUERY_KEYS.POLL, pollId, "votes", optionId],
+    queryFn: () => fetchPollVoteById(pollId, optionId),
+    enabled: Boolean(pollId && optionId),
+    refetchOnWindowFocus: false,
+    ...options,
+    onError: (error) => {
+      toast.error(t("error_failed_to_fetch_poll_votes"));
     },
   });
 };
 
 export const useComments = (postId) => {
+  const { t } = useTranslation();
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.COMMENTS, postId],
     queryFn: ({ pageParam = 1 }) =>
       fetchComments({ postId, pageParam, limit: 10 }),
     getNextPageParam: (lastPage) => {
-      // Match the pattern used in posts
       if (lastPage?.data?.next_page) {
         return lastPage.data.next_page;
       }
@@ -434,76 +464,74 @@ export const useComments = (postId) => {
     staleTime: 1000 * 60, // 1 minute
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch comments.");
+      toast.error(t("error_failed_to_fetch_comments"));
     },
   });
 };
 
 export const useCreateComment = () => {
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: createComment,
     onSuccess: (_, { postId }) => {
-      toast.success("Comment added successfully!");
+      toast.success(t("comment_added_successfully"));
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.COMMENTS, postId],
       });
     },
     onError: (error) => {
-      toast.error("Failed to create comment. Please try again.");
+      toast.error(t("error_failed_to_add_comment"));
     },
   });
 };
 
 export const useUpdateComment = () => {
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: updateComment,
     onSuccess: (_, { postId }) => {
-      toast.success("Comment updated successfully!");
+      toast.success(t("comment_updated_successfully"));
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.COMMENTS, postId],
       });
     },
     onError: (error) => {
-      toast.error("Failed to update comment. Please try again.");
+      toast.error(t("error_failed_to_update_comment"));
     },
   });
 };
 
 export const useDeleteComment = () => {
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: deleteComment,
     onSuccess: (_, { postId }) => {
-      toast.success("Comment deleted successfully!");
+      toast.success(t("comment_deleted_successfully"));
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.COMMENTS, postId],
       });
     },
     onError: (error) => {
-      toast.error("Failed to delete comment. Please try again.");
+      toast.error(t("error_failed_to_delete_comment"));
     },
   });
 };
 
 export const usePostCommentReactions = (postId) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: ({ commentId, data }) =>
       postCommentReaction({ postId, commentId, data }),
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to update reaction. Please try again."
-      );
+      toast.error(t("error_failed_to_update_reaction"));
     },
     onSuccess: () => {
-      toast.success("Reaction updated successfully!");
+      toast.success(t("reaction_updated_successfully"));
     },
     onSettled: (_, __, { commentId }) => {
       queryClient.invalidateQueries({

@@ -1,5 +1,5 @@
 import { useFamily, useMember } from "@/hooks/useFamily";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, NavLink, useNavigate, useParams } from "react-router";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
@@ -82,9 +82,9 @@ export default function KintreeMember() {
             </Avatar>
 
             <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
-              <Link to="/familytree">
+              <NavLink to={-1}>
                 <ArrowLeft className="w-5 h-5 text-primary-foreground" />
-              </Link>
+              </NavLink>
             </div>
           </div>
 

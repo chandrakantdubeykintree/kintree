@@ -1,18 +1,9 @@
 import ForeroomIcon from "@/components/custom-icons/foreroomIcon";
 import {
-  ICON_CHAT,
   ICON_DELETE,
   ICON_EDIT,
-  ICON_EVENT,
-  ICON_FAMILYTREE,
-  ICON_FOREROOM,
-  ICON_KINCOINS,
-  ICON_NOTIFICATION,
-  ICON_PROFILE,
   ICON_SETTINGS,
-  ICON_SHOP,
   ICON_USERNAME,
-  ICON_WILL,
 } from "./iconUrls";
 import FamilyTreeIcon from "@/components/custom-icons/familyTreeIcon";
 import DnaIcon from "@/components/custom-icons/dnaIcon";
@@ -32,7 +23,7 @@ export const mainNavLinks = [
   { path: "/events", label: "events", Icon: EventsIcon },
   { path: "/kincoins", label: "kincoins", Icon: KincoinsIcon },
   { path: "/notifications", label: "notifications", Icon: NotificationsIcon },
-  { path: "/will", label: "will", Icon: WillIcon },
+  { path: "/will", label: "kin_will", Icon: WillIcon },
   { path: "/profile", label: "profile", Icon: ProfileIcon },
   { path: "/settings", label: "settings", Icon: SettingsIcon },
 ];
@@ -50,6 +41,6 @@ export const publicLinks = [
 ];
 
 export const postDropDown = [
-  { path: "editpost", label: "EDIT", icon: ICON_EDIT },
-  { path: "delete", label: "DELETE", icon: ICON_DELETE },
+  { path: "editpost", label: "edit", icon: ICON_EDIT },
+  { path: "delete", label: "delete", icon: ICON_DELETE },
 ];

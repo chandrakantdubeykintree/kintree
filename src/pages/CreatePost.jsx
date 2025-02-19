@@ -60,8 +60,8 @@ export const postSchema = z.object({
 
 const defaultPrivacy = {
   id: 1,
-  title: "privacy.title.global",
-  desc: "privacy.desc.global",
+  title: "global",
+  desc: "global_desc",
   icon: "/privacy/web.svg",
 };
 
@@ -99,13 +99,15 @@ export default function CreatePost() {
         !SUPPORTED_VIDEO_TYPES.includes(file.type)
       ) {
         toast.error(
-          `"${file.name}" - Unsupported file type. Please use JPG, PNG, GIF, WEBP, MP4, MOV, or WEBM.`
+          `"${file.name}" - ${t(
+            "unsupported_file_format"
+          )}. Supported formats are: .jpg, .png, .gif, .webp, .mp4, .mov, .webm`
         );
         continue;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(`"${file.name}" - File size exceeds 10MB limit.`);
+        toast.error(`"${file.name}" - ${t("file_too_large")}`);
         continue;
       }
 
@@ -210,14 +212,14 @@ export default function CreatePost() {
                 />
               </svg>
             </span>
-            {t("text.back_to_foreroom")}
+            {t("back_to_foreroom")}
           </NavLink>
         </div>
         <Card className="w-full">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardHeader className="flex flex-row flex-wrap justify-between items-center">
-                <div className="text-xl font-bold">{t("text.create_post")}</div>
+                <div className="text-xl font-bold">{t("create_post")}</div>
                 <FormField
                   control={form.control}
                   name="privacy"
@@ -240,7 +242,7 @@ export default function CreatePost() {
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex justify-between">
-                        <Label>{t("text.caption")}</Label>
+                        <Label>{t("caption")}</Label>
                         <span
                           className={`text-sm ${
                             field.value.length > 1000
@@ -248,12 +250,12 @@ export default function CreatePost() {
                               : "text-gray-500"
                           }`}
                         >
-                          {field.value.length}/1000 {t("text.characters")}
+                          {field.value.length}/1000 {t("characters")}
                         </span>
                       </div>
                       <FormControl>
                         <Textarea
-                          placeholder={t("text.whats_on_your_mind")}
+                          placeholder={t("whats_on_your_mind")}
                           rows="6"
                           className="lg:text-[16px]"
                           {...field}
@@ -359,7 +361,7 @@ export default function CreatePost() {
                         Creating Post...
                       </>
                     ) : (
-                      t("text.create_post")
+                      t("create_post")
                     )}
                   </Button>
                 </div>

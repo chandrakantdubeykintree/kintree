@@ -21,7 +21,6 @@ import PostEditDeleteDropDown from "./post-edit-dropdown";
 import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
-import { Ticket } from "lucide-react";
 export default function Post({ post, user, onReactionUpdate }) {
   const {
     id,
@@ -168,18 +167,8 @@ export default function Post({ post, user, onReactionUpdate }) {
                   src={ICON_SHARE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
-                {/* <span className="text-sm">share</span> */}
               </button>
             </div>
-
-            {/* <div className="self-end">
-              <button className="flex items-center gap-2  h-18 w-18 ">
-                <img
-                  src={ICON_SAVE}
-                  className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
-                />
-              </button>
-            </div> */}
           </div>
         </CardContent>
       </Card>

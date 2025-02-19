@@ -32,8 +32,8 @@ export default function PrivacyDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-64">
-        <DropdownMenuLabel>{t("text.who_can_see_this_post")}</DropdownMenuLabel>
-        <p className="py-1 px-2">{t("text.default_public")}</p>
+        <DropdownMenuLabel>{t("who_can_see_this_post")}</DropdownMenuLabel>
+        <p className="py-1 px-2">{t("default_public")}</p>
         <ul className="flex flex-col gap-2">
           {PRIVACYDROPDOWN.map((item) => (
             <DropdownMenuItem

@@ -152,7 +152,7 @@ export default function Posts({ post, user }) {
                     <>
                       <span>•</span>
                       <span>
-                        {t("text.edited")} {format(updated_at, "dd MMM yyyy")}
+                        {t("edited")} {format(updated_at, "dd MMM yyyy")}
                       </span>
                     </>
                   )}
@@ -166,7 +166,7 @@ export default function Posts({ post, user }) {
                   {post_data?.feeling && (
                     <span className="text-sm font-medium flex items-center gap-1 text-primary">
                       <span>•</span>
-                      {t("feelings." + post_data?.feeling.name)}
+                      {t(post_data?.feeling.name)}
                       <img
                         src={post_data?.feeling.image_url}
                         className="w-5 h-5"
@@ -206,8 +206,8 @@ export default function Posts({ post, user }) {
                 >
                   {reactions?.["like"]?.count || 0} &nbsp;
                   {reactions?.["like"]?.count > 1
-                    ? t("text.likes")
-                    : t("text.like")}
+                    ? t("likes")?.toLocaleLowerCase()
+                    : t("like")?.toLocaleLowerCase()}
                 </span>
               </button>
               <NavLink
@@ -223,8 +223,8 @@ export default function Posts({ post, user }) {
                 <span className="text-sm">
                   {comment_counts || 0} &nbsp;
                   {comment_counts > 1
-                    ? t("text.comments").toLowerCase()
-                    : t("text.comment").toLowerCase()}
+                    ? t("comments").toLowerCase()
+                    : t("comment").toLowerCase()}
                 </span>
               </NavLink>
               <button className="flex items-center gap-2  h-18 w-18">
@@ -232,18 +232,8 @@ export default function Posts({ post, user }) {
                   src={ICON_SHARE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
-                {/* <span className="text-sm">share</span> */}
               </button>
             </div>
-
-            {/* <div className="self-end">
-              <button className="flex items-center gap-2  h-18 w-18 ">
-                <img
-                  src={ICON_SAVE}
-                  className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
-                />
-              </button>
-            </div> */}
           </div>
         </CardContent>
         <CardFooter className="p-4 flex gap-5 w-full border-t">
@@ -264,7 +254,7 @@ export default function Posts({ post, user }) {
             >
               <Input
                 type="text"
-                placeholder={t("text.add_comment")}
+                placeholder={t("add_comment")}
                 className="boder rounded-full shadow-none h-10 px-4"
                 style={{ width: "100%" }}
                 value={commentInput}

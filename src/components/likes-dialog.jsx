@@ -10,8 +10,10 @@ import { useFetchPostReactions } from "@/hooks/usePosts";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { getInitials } from "@/utils/stringFormat";
 import ComponentLoading from "./component-loading";
+import { useTranslation } from "react-i18next";
 
 export default function LikesDialog({ isOpen, onClose, postId }) {
+  const { t } = useTranslation();
   const { data: likesData, isLoading } = useFetchPostReactions(postId);
 
   if (isLoading) {
@@ -23,10 +25,11 @@ export default function LikesDialog({ isOpen, onClose, postId }) {
       <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
         <DialogContent className="w-96 h-max-96 overflow-y-auto no_scrollbar rounded-lg">
           <DialogHeader>
-            <DialogTitle>People Who Liked This Post</DialogTitle>
+            <DialogTitle>{t("people_who_liked_this_post")}</DialogTitle>
           </DialogHeader>
           <DialogDescription>
-            {likesData?.data?.reactions?.length || 0} people liked this post
+            {likesData?.data?.reactions?.length || 0}&nbsp;
+            {t("people_liked_this_post")}
           </DialogDescription>
           <hr />
           {likesData?.data?.reactions?.length > 0 ? (
@@ -60,7 +63,7 @@ export default function LikesDialog({ isOpen, onClose, postId }) {
               ))}
             </ul>
           ) : (
-            <p>No likes yet.</p>
+            <p className="text-gray-500">{t("no_likes_yet")}</p>
           )}
         </DialogContent>
       </Dialog>

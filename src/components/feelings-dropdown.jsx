@@ -54,7 +54,7 @@ export default function FeelingsDropDown({
             </Button>
           ) : (
             <Button variant="outline" className="rounded-full">
-              {t("text.add_feelings")}
+              {t("add_feelings")}
             </Button>
           )}
         </DropdownMenuTrigger>
@@ -67,7 +67,7 @@ export default function FeelingsDropDown({
 
         <DropdownMenuContent className="max-h-72 px-4 w-52 overflow-scroll no_scrollbar border rounded-lg py-4 p-5 flex flex-col gap-4 mt-2">
           <DropdownMenuLabel className="font-semibold text-sm py-2">
-            {t("text.how_are_you_feeling")}
+            {t("how_are_you_feeling")}
           </DropdownMenuLabel>
           <ul className="flex flex-col gap-4">
             {FEELINGSDROPDOWN.map((item) => (

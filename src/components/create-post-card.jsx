@@ -7,7 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   route_create_poll,
   route_create_post,
-  route_events,
   route_events_create_event,
 } from "@/constants/routeEnpoints";
 import { useTranslation } from "react-i18next";
@@ -30,7 +29,7 @@ export default function CreatePostCard({ user }) {
             </div>
             <Input
               type="text"
-              placeholder={t("text.whats_on_your_mind")}
+              placeholder={t("whats_on_your_mind")}
               className="boder rounded-full shadow-none h-10 px-4 flex-grow"
               onClick={() => navigate(route_create_post)}
             />

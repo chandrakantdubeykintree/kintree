@@ -3,6 +3,7 @@ import { capitalizeName, formatTimeAgoBirthDay } from "@/utils/stringFormat";
 import UpcomingEventsCard from "./upcoming-events-card";
 import ContactsListCard from "./contacts-list-card";
 import AsyncComponent from "./async-component";
+import { useTranslation } from "react-i18next";
 
 export default function ForeroomRight({
   birthDaysToday = [],
@@ -11,19 +12,22 @@ export default function ForeroomRight({
   recentChatsList = [],
   contactsList = [],
 }) {
+  const { t } = useTranslation();
   return (
     <AsyncComponent>
       <div className="grid gap-6">
         <Card className="w-full max-w-sm mx-auto shadow-sm rounded-2xl overflow-hidden">
           <CardHeader>
-            <CardTitle>Birthdays</CardTitle>
+            <CardTitle>{t("birthdays")}</CardTitle>
           </CardHeader>
           <CardContent>
             <h2 className="text-sm font-semibold">Today</h2>
             <ul className="min-h-20">
               {birthDaysToday.length === 0 && (
                 <div className="flex justify-center items-center h-full">
-                  <span className="text-sm font-light">No Birthdays Today</span>
+                  <span className="text-sm font-light">
+                    {t("no_birthdays_today")}
+                  </span>
                 </div>
               )}
               {birthDaysToday.map((birthday) => (
@@ -46,11 +50,13 @@ export default function ForeroomRight({
                 </li>
               ))}
             </ul>
-            <h2 className="text-sm font-semibold">Recent</h2>
+            <h2 className="text-sm font-semibold">{t("recent")}</h2>
             <ul className="min-h-20">
               {birthDaysPast.length === 0 && (
                 <div className="flex justify-center items-center h-full">
-                  <span className="text-sm font-light">No Past Birthdays</span>
+                  <span className="text-sm font-light">
+                    {t("no_recent_birthdays")}
+                  </span>
                 </div>
               )}
               {birthDaysPast.map((birthday) => (
@@ -76,12 +82,12 @@ export default function ForeroomRight({
                 </li>
               ))}
             </ul>
-            <h2 className="text-sm font-semibold">Upcoming</h2>
+            <h2 className="text-sm font-semibold">{t("upcoming")}</h2>
             <ul className="min-h-20">
               {birthDaysUpcoming.length === 0 && (
                 <div className="flex justify-center items-center h-full">
                   <span className="text-sm font-light">
-                    No Upcoming Birthdays
+                    {t("no_upcoming_birthdays")}
                   </span>
                 </div>
               )}
@@ -113,13 +119,15 @@ export default function ForeroomRight({
 
         <Card className="w-full max-w-sm mx-auto shadow-sm rounded-2xl overflow-hidden">
           <CardHeader>
-            <CardTitle>Recent Chats</CardTitle>
+            <CardTitle>{t("recent_chats")}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="overflow-y-scroll h-40 no_scrollbar">
               {recentChatsList.length === 0 && (
                 <div className="flex justify-center items-center h-full">
-                  <span className="text-sm font-light">No Recent Chats</span>
+                  <span className="text-sm font-light">
+                    {t("no_recent_chats")}
+                  </span>
                 </div>
               )}
               {recentChatsList.map((birthday) => (
