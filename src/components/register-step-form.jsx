@@ -2,7 +2,6 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { registrationStepSchemas } from "@/schemas/registrationSchemas";
 import { StepOne } from "./registerationSteps/StepOne";
 import { StepTwo } from "./registerationSteps/StepTwo";
 import { StepThree } from "./registerationSteps/StepThree";
@@ -11,6 +10,7 @@ import { StepFive } from "./registerationSteps/StepFive";
 import { StepSix } from "./registerationSteps/StepSix";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
 export default function RegisterStepForm({
   currentStep,
@@ -18,6 +18,55 @@ export default function RegisterStepForm({
   gender,
 }) {
   const { t } = useTranslation();
+  const registrationStepSchemas = {
+    1: z.object({
+      first_name: z.string().min(1, t("first_name_required")),
+      middle_name: z.string().optional(),
+      last_name: z.string().min(1, t("last_name_required")),
+    }),
+
+    2: z.object({
+      date_of_birth: z.string().min(1, t("date_of_birth_required")),
+    }),
+
+    3: z.object({
+      gender: z.enum(["m", "f"], {
+        required_error: t("gender_required"),
+      }),
+    }),
+
+    4: z
+      .object({
+        profile_image: z
+          .any()
+          .optional()
+          .refine((val) => {
+            if (!val) return true;
+            return val instanceof File;
+          }, t("error_invalid_file_type")),
+        preseted_profile_image_id: z.number().nullable().optional(),
+        skipped: z.number().optional(),
+      })
+      .refine((data) => {
+        if (data.skipped === 1) return true;
+        return (
+          Boolean(data.profile_image) || Boolean(data.preseted_profile_image_id)
+        );
+      }, t("select_profile_picture_or_skip")),
+
+    5: z.object({
+      father_first_name: z.string().min(1, t("father_first_name_required")),
+      father_last_name: z.string().min(1, t("father_last_name_required")),
+      grand_father_name: z.string().min(1, t("grandfather_name_required")),
+    }),
+
+    6: z.object({
+      mother_first_name: z.string().min(1, t("mother_first_name_required")),
+      mother_last_name: z.string().min(1, t("mother_last_name_required")),
+      grand_father_name: z.string().min(1, t("grandfather_name_required")),
+    }),
+  };
+
   const {
     register,
     handleSubmit,
@@ -126,22 +175,22 @@ export default function RegisterStepForm({
         {renderSignUpStepTitleDesc(currentStep)}
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {renderStepContent()}
           <Button
             type="submit"
             disabled={isSubmitting}
-            className="w-full md:h-[56px] rounded-full mt-6"
+            className="w-full md:h-[48px] rounded-full mt-6"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
                 <span className="loading loading-spinner loading-sm"></span>
-                {t("text.processing")}...
+                {t("processing")}...
               </div>
             ) : currentStep === 6 ? (
-              t("text.complete_registration")
+              t("complete_registration")
             ) : (
-              t("text.continue")
+              t("continue")
             )}
           </Button>
         </form>

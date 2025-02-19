@@ -78,11 +78,6 @@ export function LoginForm({ setOpenTerms }) {
     }),
   };
 
-  const isValidOtp = (otp) => {
-    const requiredLength = countryCode === "+91" ? 4 : 6;
-    return /^\d+$/.test(otp) && otp.length === requiredLength;
-  };
-
   const {
     register,
     handleSubmit,
@@ -93,6 +88,11 @@ export function LoginForm({ setOpenTerms }) {
     resolver: zodResolver(loginSchemas[loginType]),
     mode: "onChange",
   });
+
+  const isValidOtp = (otp) => {
+    const requiredLength = countryCode === "+91" ? 4 : 6;
+    return /^\d+$/.test(otp) && otp.length === requiredLength;
+  };
 
   const watchedValues = watch();
   const hasErrors = Object.keys(errors).length > 0;
@@ -276,12 +276,15 @@ export function LoginForm({ setOpenTerms }) {
           width={80}
           height={60}
         />
-        <CardTitle className="text-[24px] font-semibold text-primary">
-          {isOtpSent ? t("otp_incoming") : t("welcome")}
+        <CardTitle className="text-[24px] font-semibold text-center">
+          {isOtpSent ? t("otp_incoming") : t("welcome_to_family")}
         </CardTitle>
+        {!isOtpSent ? (
+          <p className="text-sm text-gray-600">{t("explore_family_history")}</p>
+        ) : null}
         <CardDescription className="space-y-4">
           {isOtpSent && (
-            <div className="text-[16px] text-gray-400 text-center mb-2">
+            <div className="text-[16px] text-gray-400 text-center mb-4">
               {(countryCode === "+91") & (loginType === "phone_no")
                 ? t("enter_otp_4")
                 : t("enter_otp_6")}

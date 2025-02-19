@@ -203,9 +203,14 @@ export function RegisterForm({ setOpenTerms }) {
           width={80}
           height={60}
         />
-        <CardTitle className="text-[24px] font-semibold text-primary">
-          {isOtpSent ? t("otp_incoming") : t("welcome")}
+        <CardTitle className="text-[24px] font-semibold text-center">
+          {isOtpSent ? t("otp_incoming") : t("one_step_away")}
         </CardTitle>
+        {!isOtpSent ? (
+          <p className="text-center text-xs mt-2">
+            {t("enter_email_to_continue")}
+          </p>
+        ) : null}
         <CardDescription className="space-y-4">
           {isOtpSent && (
             <div className="text-[16px] text-gray-400 text-center mb-2">

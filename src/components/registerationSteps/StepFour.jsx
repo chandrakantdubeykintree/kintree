@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { profileImage } from "@/constants/presetAvatars";
+import { useTranslation } from "react-i18next";
 
 export function StepFour({ register, errors, setValue, watch, gender }) {
+  const { t } = useTranslation();
   const [selectedPresetId, setSelectedPresetId] = useState(null);
   const watchedImage = watch("profile_image");
   const watchedPresetId = watch("preseted_profile_image_id");
@@ -20,7 +22,6 @@ export function StepFour({ register, errors, setValue, watch, gender }) {
 
   const handlePresetSelect = (id) => {
     if (selectedPresetId === id) {
-      // Deselect if clicking the same preset
       setSelectedPresetId(null);
       setValue("preseted_profile_image_id", null);
     } else {
@@ -72,7 +73,7 @@ export function StepFour({ register, errors, setValue, watch, gender }) {
         >
           <Avatar className="h-24 w-24 relative group border">
             <AvatarImage src={getCurrentAvatarUrl()} alt="Profile" />
-            <AvatarFallback>Upload</AvatarFallback>
+            <AvatarFallback>{t("upload")}</AvatarFallback>
             {(watchedImage || watchedPresetId) && (
               <div
                 className="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center rounded-full cursor-pointer"
@@ -81,12 +82,12 @@ export function StepFour({ register, errors, setValue, watch, gender }) {
                   clearSelection();
                 }}
               >
-                <span className="text-white text-sm">Clear</span>
+                <span className="text-white text-sm">{t("clear")}</span>
               </div>
             )}
           </Avatar>
           <span className="text-sm text-muted-foreground">
-            Click to upload your photo or select an avatar.
+            {t("upload_profile_picture_or_select_avatar")}
           </span>
         </label>
       </div>
@@ -119,7 +120,7 @@ export function StepFour({ register, errors, setValue, watch, gender }) {
         onClick={handleSkip}
         className="text-muted-foreground"
       >
-        Skip for now
+        {t("skip_for_now")}
       </Button>
 
       {errors.profile_image && (

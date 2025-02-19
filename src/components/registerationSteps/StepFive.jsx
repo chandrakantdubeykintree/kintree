@@ -1,45 +1,35 @@
-import { Input } from "../ui/input";
+import { useTranslation } from "react-i18next";
+import { CustomInput } from "../custom-ui/custom_input";
 
 export function StepFive({ register, errors }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <Input
+        <CustomInput
           {...register("father_first_name")}
-          placeholder="Father's First Name"
+          placeholder={t("enter_father_first_name")}
           className="md:h-[56px] rounded-full"
+          error={errors.father_first_name}
         />
-        {errors.father_first_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.father_first_name.message}
-          </span>
-        )}
       </div>
 
       <div>
-        <Input
+        <CustomInput
           {...register("father_last_name")}
-          placeholder="Father's Last Name"
+          placeholder={t("enter_father_last_name")}
           className="md:h-[56px] rounded-full"
+          error={errors.father_last_name}
         />
-        {errors.father_last_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.father_last_name.message}
-          </span>
-        )}
       </div>
 
       <div>
-        <Input
+        <CustomInput
           {...register("grand_father_name")}
-          placeholder="Grandfather's Name"
+          placeholder={t("enter_grandfather_name")}
           className="md:h-[56px] rounded-full"
+          error={errors.grand_father_name}
         />
-        {errors.grand_father_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.grand_father_name.message}
-          </span>
-        )}
       </div>
     </div>
   );

@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import CustomDateMonthYearPicker from "../custom-ui/custom-dateMonthYearPicker";
 
 export function StepTwo({ register, errors, watch, setValue }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4">
       <CustomDateMonthYearPicker
-        placeholder="Select Date"
+        placeholder={t("date_of_birth")}
         initialFocus
         maxDate={new Date()}
         value={watch("date_of_birth")}

@@ -144,7 +144,7 @@ export default function VerifyUserForm({ setIsVerified }) {
   return (
     <Card className="p-4 w-[320px]">
       <CardHeader className="flex items-center justify-center">
-        <CardTitle className="text-[24px] font-semibold">
+        <CardTitle className="text-[24px] font-semibold text-center">
           {isOtpSent ? "OTP incoming!" : "Verify user"}
         </CardTitle>
         <CardDescription>

@@ -6,8 +6,10 @@ import { Navigate, useNavigate, useParams } from "react-router";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { toast } from "react-hot-toast";
 import { tokenService } from "@/services/tokenService";
+import { useTranslation } from "react-i18next";
 
 export default function RegisterStep() {
+  const { t } = useTranslation();
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { step } = useParams();
@@ -34,11 +36,14 @@ export default function RegisterStep() {
         return;
       }
 
+      if (hasAuthToken) {
+        navigate("/foreroom", { replace: true });
+        return;
+      }
+
       // If we don't have a registration token
-      if (!hasRegistrationToken) {
-        toast.error(
-          "Session expired use your email/phone to start registration."
-        );
+      if (!hasRegistrationToken && !registrationState?.isRegistrationComplete) {
+        toast.error(t("error_session_expired"));
         navigate("/register", { replace: true });
         return;
       }
@@ -56,7 +61,7 @@ export default function RegisterStep() {
     try {
       await registerStep(data);
     } catch (error) {
-      toast.error("Failed to save registration data");
+      toast.error(t("error_saving_registration_data"));
     }
   };
 

@@ -1,45 +1,35 @@
-import { Input } from "../ui/input";
+import { useTranslation } from "react-i18next";
+import { CustomInput } from "../custom-ui/custom_input";
 
 export function StepOne({ register, errors }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4">
       <div>
-        <Input
+        <CustomInput
           {...register("first_name")}
-          placeholder="First Name"
           className="md:h-[56px] rounded-full"
+          placeholder={t("enter_first_name")}
+          error={errors.first_name}
         />
-        {errors.first_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.first_name.message}
-          </span>
-        )}
       </div>
 
       <div>
-        <Input
+        <CustomInput
           {...register("middle_name")}
-          placeholder="Middle Name (Optional)"
+          placeholder={t("enter_middle_name")}
           className="md:h-[56px] rounded-full"
+          error={errors.middle_name}
         />
-        {errors.middle_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.middle_name.message}
-          </span>
-        )}
       </div>
 
       <div>
-        <Input
+        <CustomInput
           {...register("last_name")}
-          placeholder="Last Name"
+          placeholder={t("enter_last_name")}
           className="md:h-[56px] rounded-full"
+          error={errors.last_name}
         />
-        {errors.last_name && (
-          <span className="text-sm text-red-500 mt-1 ml-4">
-            {errors.last_name.message}
-          </span>
-        )}
       </div>
     </div>
   );

@@ -32,7 +32,6 @@ export function ForgotPasswordForm({ setOpenTerms }) {
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
-  const [showPassword, setShowPassword] = useState(false);
   const { theme } = useThemeLanguage();
   const navigate = useNavigate();
   const { resetPassword, sendOTPForgotPassword, verifyOTPForgotPassword } =
@@ -107,7 +106,7 @@ export function ForgotPasswordForm({ setOpenTerms }) {
         password_confirmation: data.confirm_password,
       });
       if (response.success) {
-        toast.success("Password reset successfully");
+        toast.success(t("password_reset_successfully"));
         navigate("/login");
       }
     } else if (loginType === "phone_no" || loginType === "email") {
@@ -167,7 +166,7 @@ export function ForgotPasswordForm({ setOpenTerms }) {
       case "email":
       case "phone_no":
         return (
-          <div className="flex flex-col gap-2 mb-2">
+          <div className="flex flex-col gap-2 mb-4">
             {loginType === "phone_no" ? (
               <>
                 <CustomPhoneInput
@@ -192,12 +191,14 @@ export function ForgotPasswordForm({ setOpenTerms }) {
       case "otp":
         return (
           isOtpSent && (
-            <CustomOTPInput
-              onlyNumbers={true}
-              length={otpLength}
-              {...register("otp")}
-              error={errors.otp}
-            />
+            <div className="flex flex-col gap-2 mb-4">
+              <CustomOTPInput
+                onlyNumbers={true}
+                length={otpLength}
+                {...register("otp")}
+                error={errors.otp}
+              />
+            </div>
           )
         );
       default:
@@ -273,7 +274,7 @@ export function ForgotPasswordForm({ setOpenTerms }) {
           width={80}
           height={60}
         />
-        <CardTitle className="text-[24px] font-semibold text-primary">
+        <CardTitle className="text-[24px] font-semibold text-center">
           {loginType === "reset_password"
             ? t("reset_password")
             : isOtpSent

@@ -208,7 +208,7 @@ export const useAuthentication = () => {
           nextStep: next_step,
           completedStep: completed_step || 0,
         });
-        toast.success("otp_verified_successfully");
+        toast.success(t("otp_verified_successfully"));
         navigate(`/register/step/${next_step}`, { replace: true });
       }
     },
@@ -288,7 +288,7 @@ export const useAuthentication = () => {
         queryClient.removeQueries(AUTH_QUERY_KEYS.registrationState);
 
         // Navigate to foreroom
-        navigate("/foreroom", { replace: true });
+        return navigate("/foreroom", { replace: true });
       } else {
         const { next_step, completed_step, gender } = data.data;
 
@@ -299,7 +299,6 @@ export const useAuthentication = () => {
           gender: gender,
         }));
       }
-
       return data;
     },
     onError: (error) => {
