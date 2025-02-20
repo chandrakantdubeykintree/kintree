@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { tokenService } from "../services/tokenService";
 import { toast } from "react-hot-toast";
-import Chats from "./Chats";
+import FlutterChats from "./FlutterChats";
 
 export default function FlutterChat() {
   const { token } = useParams();
@@ -60,7 +60,7 @@ export default function FlutterChat() {
 
   return (
     <div style={{ height: "100vh", overflow: "hidden" }}>
-      <Chats />
+      <FlutterChats />
     </div>
   );
 }
