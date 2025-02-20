@@ -1,76 +1,66 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { tokenService } from "../services/tokenService";
-
 import { toast } from "react-hot-toast";
 import Chats from "./Chats";
 
 export default function FlutterChat() {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [isValidToken, setIsValidToken] = useState(false);
-
-  // Add this useEffect to handle back button
-  useEffect(() => {
-    const handleBackButton = (e) => {
-      e.preventDefault();
-      // Send message to native app to handle back button
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({ type: "backButtonPressed" })
-        );
-      }
-    };
-
-    // Add event listener for back button
-    window.addEventListener("popstate", handleBackButton);
-
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
-  }, []);
 
   useEffect(() => {
+    // Check if running in Flutter WebView
+    const isFlutterWebView = window.ReactNativeWebView !== undefined;
+
+    if (isFlutterWebView) {
+      // Inject CSS only for Flutter WebView
+      const style = document.createElement("style");
+      style.textContent = `
+        html, body {
+          height: 100%;
+          overflow: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        #root {
+          height: 100%;
+          overflow: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
     if (token) {
-      // Set the token from the URL
       tokenService.setLoginToken(token);
-
-      // Basic token validation (you can add more complex validation if needed)
       if (tokenService.isLoginTokenValid()) {
-        setIsValidToken(true);
+        // Additional scroll fixes for Flutter WebView
+        document.body.style.overflow = "auto";
+        document.body.style.webkitOverflowScrolling = "touch";
+        document.documentElement.style.overflow = "auto";
+        document.documentElement.style.webkitOverflowScrolling = "touch";
       } else {
         toast.error("Invalid or expired token");
-        navigate("/"); // Redirect to home or any other page
+        navigate("/");
       }
     } else {
       toast.error("No token provided");
-      navigate("/"); // Redirect to home or any other page
+      navigate("/");
     }
+
+    return () => {
+      if (isFlutterWebView) {
+        // Clean up injected styles
+        const style = document.querySelector("style[data-flutter-webview]");
+        if (style) {
+          style.remove();
+        }
+      }
+    };
   }, [token, navigate]);
 
-  if (!isValidToken) {
-    return null; // Or a loading spinner
-  }
-
   return (
-    <div className="mx-auto">
-      <main className={`max-w-[1370px] mx-auto px-1`}>
-        <div className="grid grid-cols-12 gap-4 h-[100vh]">
-          <div
-            className={`
-              col-span-12 
-              overflow-y-auto relative
-              h-full
-            `}
-            style={{
-              WebkitOverflowScrolling: "touch", // Enable smooth scrolling on iOS
-              overscrollBehavior: "contain", // Prevent overscroll on mobile
-            }}
-          >
-            <Chats />
-          </div>
-        </div>
-      </main>
+    <div style={{ height: "100vh", overflow: "hidden" }}>
+      <Chats />
     </div>
   );
 }
