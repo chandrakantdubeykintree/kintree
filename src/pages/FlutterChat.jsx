@@ -10,6 +10,26 @@ export default function FlutterChat() {
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState(false);
 
+  // Add this useEffect to handle back button
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      // Send message to native app to handle back button
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({ type: "backButtonPressed" })
+        );
+      }
+    };
+
+    // Add event listener for back button
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, []);
+
   useEffect(() => {
     if (token) {
       // Set the token from the URL
@@ -39,8 +59,13 @@ export default function FlutterChat() {
           <div
             className={`
               col-span-12 
-              overflow-y-scroll no_scrollbar relative
+              overflow-y-auto relative
+              h-full
             `}
+            style={{
+              WebkitOverflowScrolling: "touch", // Enable smooth scrolling on iOS
+              overscrollBehavior: "contain", // Prevent overscroll on mobile
+            }}
           >
             <Chats />
           </div>

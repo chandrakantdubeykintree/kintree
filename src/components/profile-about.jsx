@@ -1,4 +1,3 @@
-import { profileAbout } from "@/constants/mappingConstants";
 import { Card } from "@/components/ui/card";
 import { useState } from "react";
 
@@ -9,8 +8,37 @@ import EditEthinicityForm from "@/components/edit-ethinicity-form";
 import EditEducationForm from "@/components/edit-education-form";
 import EditInterestsForm from "@/components/edit-interests-form";
 import { useWindowSize } from "@/hooks/useWindowSize";
+import { useTranslation } from "react-i18next";
+
+export const profileAbout = [
+  {
+    label: "basic_information",
+    path: "basic-info",
+  },
+  {
+    label: "contact",
+    path: "contact",
+  },
+  {
+    label: "additional",
+    path: "additional-info",
+  },
+  {
+    label: "ethinicity",
+    path: "ethinicity",
+  },
+  {
+    label: "education",
+    path: "educations",
+  },
+  {
+    label: "interests",
+    path: "interests",
+  },
+];
 
 export default function ProfileAbout() {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("basic-info");
   const { width } = useWindowSize();
 
@@ -63,7 +91,7 @@ export default function ProfileAbout() {
                   : "text-white hover:text-brandPrimary"
               } cursor-pointer  hover:bg-brandSecondary `}
             >
-              {label}
+              {t(label)}
             </button>
           ))}
         </div>

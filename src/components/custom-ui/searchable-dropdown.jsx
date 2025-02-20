@@ -93,14 +93,14 @@ export default function SearchableDropdown({
               />
             </div>
           </div>
-          <div className="overflow-auto max-h-[200px] pb-8">
+          <div className="overflow-auto max-h-[200px] pt-2 pb-8 px-4">
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   className={cn(
-                    "w-full px-4 py-2 text-left flex items-center justify-between hover:bg-brandPrimary hover:text-white",
+                    "w-full px-4 py-2 text-left flex items-center justify-between hover:bg-brandPrimary hover:text-white mb-1 rounded-full",
                     value === option.id && "bg-brandPrimary text-white"
                   )}
                   onClick={() => handleSelect(option)}

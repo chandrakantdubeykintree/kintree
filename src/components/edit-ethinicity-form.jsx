@@ -3,14 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import {
   Accordion,
   AccordionContent,
@@ -30,21 +23,22 @@ import {
 import ComponentLoading from "./component-loading";
 import SearchableDropdown from "./custom-ui/searchable-dropdown";
 import { Pen } from "lucide-react";
-
-const ethnicitySchema = z.object({
-  religion_id: z.string().min(1, "Religion is required"),
-  caste_id: z.string().optional(),
-  sub_caste_id: z.string().optional(),
-  gotra_id: z.string().optional(),
-  sect_id: z.string().optional(),
-});
+import { useTranslation } from "react-i18next";
 
 export default function EditEthnicityForm() {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile(
     "/user/regional-info"
   );
   const { width } = useWindowSize();
+  const ethnicitySchema = z.object({
+    religion_id: z.string().min(1, t("religion_required")),
+    caste_id: z.string().optional(),
+    sub_caste_id: z.string().optional(),
+    gotra_id: z.string().optional(),
+    sect_id: z.string().optional(),
+  });
 
   const form = useForm({
     resolver: zodResolver(ethnicitySchema),
@@ -135,7 +129,7 @@ export default function EditEthnicityForm() {
       });
       setIsEditing(false);
     } catch (error) {
-      console.error("Error updating ethnicity:", error);
+      console.error(t("error_updating_ethinicity"));
     }
   };
 
@@ -155,7 +149,6 @@ export default function EditEthnicityForm() {
             name="religion_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Religion</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -165,8 +158,8 @@ export default function EditEthnicityForm() {
                       })) || []
                     }
                     {...field}
-                    placeholder="Select Religion"
-                    searchPlaceholder="Search religion..."
+                    placeholder={t("religion")}
+                    searchPlaceholder={t("search_religion")}
                     isLoading={religionsLoading}
                   />
                 </FormControl>
@@ -181,7 +174,6 @@ export default function EditEthnicityForm() {
               name="caste_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Caste</FormLabel>
                   <FormControl>
                     <SearchableDropdown
                       options={
@@ -191,8 +183,8 @@ export default function EditEthnicityForm() {
                         })) || []
                       }
                       {...field}
-                      placeholder="Select Caste"
-                      searchPlaceholder="Search caste..."
+                      placeholder={t("caste")}
+                      searchPlaceholder={t("search_caste")}
                       isLoading={castesLoading}
                       disabled={!form.watch("religion_id") || religionsLoading}
                     />
@@ -210,7 +202,6 @@ export default function EditEthnicityForm() {
               name="sub_caste_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sub-caste</FormLabel>
                   <FormControl>
                     <SearchableDropdown
                       options={
@@ -220,8 +211,8 @@ export default function EditEthnicityForm() {
                         })) || []
                       }
                       {...field}
-                      placeholder="Select Sub-caste"
-                      searchPlaceholder="Search sub-caste..."
+                      placeholder={t("sub_caste")}
+                      searchPlaceholder={t("search_sub_caste")}
                       isLoading={subCastesLoading}
                       disabled={!form.watch("caste_id") || castesLoading}
                     />
@@ -238,7 +229,6 @@ export default function EditEthnicityForm() {
               name="gotra_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gotra</FormLabel>
                   <FormControl>
                     <SearchableDropdown
                       options={
@@ -248,8 +238,8 @@ export default function EditEthnicityForm() {
                         })) || []
                       }
                       {...field}
-                      placeholder="Select Gotra"
-                      searchPlaceholder="Search gotra..."
+                      placeholder={t("gotra")}
+                      searchPlaceholder={t("search_gotra")}
                       isLoading={gotrasLoading}
                       disabled={!form.watch("religion_id") || religionsLoading}
                     />
@@ -266,7 +256,6 @@ export default function EditEthnicityForm() {
               name="sect_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Sect</FormLabel>
                   <FormControl>
                     <SearchableDropdown
                       options={
@@ -276,8 +265,8 @@ export default function EditEthnicityForm() {
                         })) || []
                       }
                       {...field}
-                      placeholder="Select Sect"
-                      searchPlaceholder="Search sect..."
+                      placeholder={t("sect")}
+                      searchPlaceholder={t("search_sect")}
                       isLoading={sectsLoading}
                       disabled={!form.watch("religion_id") || religionsLoading}
                     />
@@ -296,10 +285,10 @@ export default function EditEthnicityForm() {
             onClick={handleCancelEdit}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" className="rounded-full">
-            Save Changes
+            {t("save_changes")}
           </Button>
         </div>
       </form>
@@ -307,31 +296,31 @@ export default function EditEthnicityForm() {
   ) : (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       <div>
-        <p className="text-sm">Religion</p>
+        <p className="text-sm">{t("religion")}</p>
         <h3 className="text-md font-semibold">
           {profile?.religion?.name || "--"}
         </h3>
       </div>
       <div>
-        <p className="text-sm">Caste</p>
+        <p className="text-sm">{t("caste")}</p>
         <h3 className="text-md font-semibold">
           {profile?.caste?.name || "--"}
         </h3>
       </div>
       <div>
-        <p className="text-sm">Sub Caste</p>
+        <p className="text-sm">{t("sub_caste")}</p>
         <h3 className="text-md font-semibold">
           {profile?.sub_caste?.name || "--"}
         </h3>
       </div>
       <div>
-        <p className="text-sm">Gotra</p>
+        <p className="text-sm">{t("gotra")}</p>
         <h3 className="text-md font-semibold">
           {profile?.gotra?.name || "--"}
         </h3>
       </div>
       <div>
-        <p className="text-sm">Sect</p>
+        <p className="text-sm">{t("sect")}</p>
         <h3 className="text-md font-semibold">{profile?.sect?.name || "--"}</h3>
       </div>
     </div>
@@ -345,13 +334,13 @@ export default function EditEthnicityForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">Ethnicity</h2>
+          <h2 className="text-lg font-medium">{t("ethinicity")}</h2>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
               onClick={handleEditClick}
             >
-              <span>Edit</span>
+              <span>{t("edit")}</span>
               <img src={ICON_EDIT2} className="" />
             </button>
           )}
@@ -363,7 +352,7 @@ export default function EditEthnicityForm() {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1 border-none">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          Ethnicity
+          {t("ethinicity")}
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

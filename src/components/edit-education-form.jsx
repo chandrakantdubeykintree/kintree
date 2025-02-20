@@ -26,8 +26,10 @@ import toast from "react-hot-toast";
 import YearSelect from "./custom-ui/year-select";
 import SearchableDropdown from "./custom-ui/searchable-dropdown";
 import { Plus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function EditEducationForm() {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [selectedEducation, setSelectedEducation] = useState(null);
   const {
@@ -40,9 +42,9 @@ export default function EditEducationForm() {
   const { data: educationTypeList = [] } = useEducationTypes();
 
   const educationSchema = z.object({
-    type_id: z.string().min(1, "Education type is required"),
-    institution_name: z.string().min(1, "Institution name is required"),
-    start_year: z.string().min(1, "Start year is required").optional(),
+    type_id: z.string().min(1, t("education_type_required")),
+    institution_name: z.string().min(1, t("institution_name_required")),
+    start_year: z.string().min(1, t("start_year_required")).optional(),
     end_year: z.string().optional(),
   });
 
@@ -98,10 +100,7 @@ export default function EditEducationForm() {
       setSelectedEducation(null);
       form.reset();
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message ||
-          "Failed to save education details. Please try again."
-      );
+      toast.error(t("error_failed_to_save_educational_details"));
     }
   };
 
@@ -117,7 +116,6 @@ export default function EditEducationForm() {
             name="type_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Education Type</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -128,7 +126,7 @@ export default function EditEducationForm() {
                     }
                     {...field}
                     isLoading={isLoading}
-                    placeholder="Select Education Type"
+                    placeholder={t("education_type")}
                     searchPlaceholder="Search education type..."
                     className="w-full rounded-full bg-background text-foreground my-2 shadow-sm px-4 h-10 lg:h-12"
                   />
@@ -143,12 +141,11 @@ export default function EditEducationForm() {
             name="institution_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Institution Name</FormLabel>
                 <FormControl>
                   <input
                     {...field}
                     className="w-full rounded-full bg-background text-foreground my-2 shadow-sm px-4 h-10 lg:h-12"
-                    placeholder="Enter Institution Name"
+                    placeholder={t("institution_name")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -161,11 +158,10 @@ export default function EditEducationForm() {
             name="start_year"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Start Year</FormLabel>
                 <FormControl>
                   <YearSelect
                     {...field}
-                    placeholder="Select Start Year"
+                    placeholder={t("start_year")}
                     startYear={1900}
                     endYear={new Date().getFullYear()}
                     className="w-full rounded-full bg-background text-foreground my-2 shadow-sm px-4 h-10 lg:h-12"
@@ -181,11 +177,10 @@ export default function EditEducationForm() {
             name="end_year"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Year</FormLabel>
                 <FormControl>
                   <YearSelect
                     {...field}
-                    placeholder="Select End Year"
+                    placeholder={t("end_year")}
                     startYear={1900}
                     endYear={new Date().getFullYear() + 10}
                     className="w-full rounded-full bg-background text-foreground my-2 shadow-sm px-4 h-10 lg:h-12"
@@ -204,10 +199,10 @@ export default function EditEducationForm() {
             onClick={handleCancelEdit}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" className="rounded-full">
-            Save Changes
+            {t("save_changes")}
           </Button>
         </div>
       </form>
@@ -240,7 +235,7 @@ export default function EditEducationForm() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm">Education Type</p>
+                <p className="text-sm">{t("education_type")}</p>
                 <h3 className="text-md font-semibold">
                   {educationTypeList.find(
                     (et) => et.id === education.type?.toString()
@@ -248,28 +243,26 @@ export default function EditEducationForm() {
                 </h3>
               </div>
               <div>
-                <p className="text-sm">Institution Name</p>
+                <p className="text-sm">{t("institution_name")}</p>
                 <h3 className="text-md font-semibold">
                   {education.institution_name}
                 </h3>
               </div>
               <div>
-                <p className="text-sm">Start Year</p>
+                <p className="text-sm">{t("start_year")}</p>
                 <h3 className="text-md font-semibold">
                   {education.start_year}
                 </h3>
               </div>
               <div>
-                <p className="text-sm">End Year</p>
+                <p className="text-sm">{t("end_year")}</p>
                 <h3 className="text-md font-semibold">{education.end_year}</h3>
               </div>
             </div>
           </div>
         ))
       ) : (
-        <div className="text-center text-gray-500">
-          No education details available
-        </div>
+        <div className="text-center text-gray-500">{}</div>
       )}
     </div>
   );

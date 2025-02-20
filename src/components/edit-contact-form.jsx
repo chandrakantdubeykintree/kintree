@@ -28,14 +28,10 @@ import toast from "react-hot-toast";
 import ComponentLoading from "./component-loading";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
-
-const contactFormSchema = z.object({
-  email: z.string().email("Invalid email address").optional(),
-  phone_no: z.string().min(10, "Invalid phone number").optional(),
-  otp: z.string().optional(),
-});
+import { useTranslation } from "react-i18next";
 
 export default function EditContactForm() {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editField, setEditField] = useState(null);
   const [canResend, setCanResend] = useState(true);
@@ -45,6 +41,12 @@ export default function EditContactForm() {
   const [otpLength, setOtpLength] = useState(6);
   const { profile, updateProfile, isLoading } = useProfile("/user/profile");
   const { width } = useWindowSize();
+
+  const contactFormSchema = z.object({
+    email: z.string().email().optional(t("invalid_email")),
+    phone_no: z.string().min(10, t("invalid_phone")).optional(),
+    otp: z.string().optional(),
+  });
 
   const form = useForm({
     resolver: zodResolver(contactFormSchema),
@@ -95,7 +97,7 @@ export default function EditContactForm() {
         toast.error(res.data.message);
       }
     } catch (error) {
-      toast.error("Failed to resend OTP. Please try again.");
+      toast.error(t("error_sending_otp"));
     }
   };
 
@@ -103,9 +105,7 @@ export default function EditContactForm() {
     try {
       if (!values[editField]) {
         toast.error(
-          `Please enter a valid ${
-            editField === "email" ? "email" : "phone number"
-          }`
+          editField === "email" ? t("invalid_email") : t("invalid_phone")
         );
         return;
       }
@@ -116,7 +116,7 @@ export default function EditContactForm() {
           [editField]: values[editField],
         });
         if (res.data.success) {
-          toast.success(res.data.message);
+          toast.success(t("otp_sent_successfully"));
           if (editField === "phone_no") {
             const currentPhoneNo = values.phone_no || "";
             setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
@@ -124,11 +124,11 @@ export default function EditContactForm() {
           setShowOtpInput(true);
           setCanResend(false);
         } else {
-          toast.error(res.data.errors[editField][0] || "Failed to send otp");
+          toast.error(t("error_sending_otp"));
         }
       } else {
         if (!values.otp || values.otp.length !== otpLength) {
-          toast.error(`Please enter a valid ${otpLength}-digit OTP`);
+          toast.error(t("invalid_otp"));
           return;
         }
 
@@ -145,11 +145,11 @@ export default function EditContactForm() {
           updateProfile({ ...profile, [editField]: values[editField] });
           handleCancelEdit();
         } else {
-          toast.error(res.data.message);
+          toast.error(t("error_invalid_otp"));
         }
       }
     } catch (error) {
-      toast.error("An error occurred. Please try again.");
+      toast.error(t("error_some_error_occurred"));
     }
   };
 
@@ -158,7 +158,7 @@ export default function EditContactForm() {
       className="text-sm text-brandPrimary hover:text-blue-800"
       onClick={() => handleEditClick(field)}
     >
-      {profile?.[field] ? "Update" : "Add"}
+      {profile?.[field] ? t("update") : t("add")}
     </button>
   );
 
@@ -171,7 +171,7 @@ export default function EditContactForm() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>
-                {editField === "email" ? "Email" : "Phone Number"}
+                {editField === "email" ? t("email") : t("phone_number")}
               </FormLabel>
               <FormControl>
                 {editField === "phone_no" ? (
@@ -196,7 +196,7 @@ export default function EditContactForm() {
                   <Input
                     {...field}
                     type="email"
-                    placeholder="Email"
+                    placeholder={t("enter_email")}
                     disabled={showOtpInput}
                     className="h-12 rounded-r-full rounded-l-full px-5 bg-background"
                   />
@@ -213,7 +213,7 @@ export default function EditContactForm() {
             name="otp"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Enter OTP</FormLabel>
+                <FormLabel>{t("enter_otp")}</FormLabel>
                 <FormControl>
                   <div className="mb-4 flex flex-col gap-4 items-center justify-center">
                     <InputOTP
@@ -245,7 +245,9 @@ export default function EditContactForm() {
                       !canResend && "opacity-50 cursor-not-allowed"
                     )}
                   >
-                    {canResend ? "Resend OTP" : `Resend OTP in ${countdown}s`}
+                    {canResend
+                      ? t("resend_otp")
+                      : `${t("resend_otp_in")} ${countdown} ${t("seconds")}`}
                   </button>
                 </div>
               </FormItem>
@@ -260,10 +262,10 @@ export default function EditContactForm() {
             onClick={handleCancelEdit}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" className="rounded-full">
-            {showOtpInput ? "Verify OTP" : "Send OTP"}
+            {showOtpInput ? t("verify_otp") : t("send_otp")}
           </Button>
         </div>
       </form>
@@ -274,14 +276,14 @@ export default function EditContactForm() {
     <div className="grid grid-cols-1 gap-5">
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm">Email</p>
+          <p className="text-sm">{t("email")}</p>
           <h3 className="text-md font-semibold">{profile?.email || "--"}</h3>
         </div>
         {!isEditing && renderEditButton("email")}
       </div>
       <div className="flex justify-between items-center">
         <div>
-          <p className="text-sm">Phone Number</p>
+          <p className="text-sm">{t("phone_number")}</p>
           <h3 className="text-md font-semibold">{profile?.phone_no || "--"}</h3>
         </div>
         {!isEditing && renderEditButton("phone_no")}
@@ -297,7 +299,7 @@ export default function EditContactForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">Contact Information</h2>
+          <h2 className="text-lg font-medium">{t("contact_information")}</h2>
         </div>
       </div>
       <div className="p-4 min-h-[280px] max-h-[280px]">
@@ -308,7 +310,7 @@ export default function EditContactForm() {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
-          Contact Information
+          {t("contact_information")}
         </AccordionTrigger>
         <AccordionContent className="p-4">
           {isEditing ? renderEditForm() : renderContent()}

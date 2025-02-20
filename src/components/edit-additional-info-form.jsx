@@ -33,27 +33,29 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Pen } from "lucide-react";
-
-const additionalInfoSchema = z.object({
-  birth_place: z.string().min(1, "Birth place is required"),
-  blood_group: z.string().min(1, "Blood group is required"),
-  current_city: z.string().min(1, "Current city is required"),
-  date_of_anniversary: z.string().optional(),
-  known_language_ids: z
-    .array(z.string())
-    .min(1, "At least one language is required"),
-  mother_tongue: z.string().min(1, "Mother tongue is required"),
-  native_place: z.string().min(1, "Native place is required"),
-  occupation: z.string().min(1, "Occupation is required"),
-  relationship_status: z.string().min(1, "Relationship status is required"),
-});
+import { useTranslation } from "react-i18next";
 
 export default function EditAdditionalInfoForm() {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile(
     "/user/additional-info"
   );
   const { width } = useWindowSize();
+
+  const additionalInfoSchema = z.object({
+    birth_place: z.string().min(1, t("birth_place_required")),
+    blood_group: z.string().min(1, t("blood_group_required")),
+    current_city: z.string().min(1, t("current_city_required")),
+    date_of_anniversary: z.string().optional(),
+    known_language_ids: z
+      .array(z.string())
+      .min(1, t("known_languages_required")),
+    mother_tongue: z.string().min(1, t("mother_tongue_required")),
+    native_place: z.string().min(1, t("native_place_required")),
+    occupation: z.string().min(1, t("occupation_required")),
+    relationship_status: z.string().min(1, t("relationship_status_required")),
+  });
 
   const { data: languagesList } = useLanguages();
   const { data: bloodGroupsList } = useBloodGroups();
@@ -124,9 +126,7 @@ export default function EditAdditionalInfoForm() {
       });
       setIsEditing(false);
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to update information"
-      );
+      toast.error(t("error_failed_to_update_additional_info"));
     }
   };
 
@@ -139,11 +139,10 @@ export default function EditAdditionalInfoForm() {
             name="birth_place"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Birth Place</FormLabel>
                 <FormControl>
                   <LocationSearchInput
                     {...field}
-                    placeholder="Search for birth place..."
+                    placeholder={t("birth_place")}
                     className="rounded-full h-10 md:h-12 bg-background"
                   />
                 </FormControl>
@@ -157,7 +156,6 @@ export default function EditAdditionalInfoForm() {
             name="blood_group"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Blood Group</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -167,7 +165,7 @@ export default function EditAdditionalInfoForm() {
                       })) || []
                     }
                     {...field}
-                    placeholder="Select blood group"
+                    placeholder={t("blood_group")}
                     className="h-10 md:h-12 bg-background rounded-full"
                   />
                 </FormControl>
@@ -181,11 +179,10 @@ export default function EditAdditionalInfoForm() {
             name="current_city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Current City</FormLabel>
                 <FormControl>
                   <LocationSearchInput
                     {...field}
-                    placeholder="Search for current city..."
+                    placeholder={t("current_city")}
                     className="rounded-full h-10 md:h-12 bg-background"
                   />
                 </FormControl>
@@ -199,7 +196,6 @@ export default function EditAdditionalInfoForm() {
             name="relationship_status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Relationship Status</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -209,7 +205,7 @@ export default function EditAdditionalInfoForm() {
                       })) || []
                     }
                     {...field}
-                    placeholder="Select relationship status"
+                    placeholder={t("relationship_status")}
                     className="h-10 md:h-12 bg-background rounded-full"
                   />
                 </FormControl>
@@ -224,12 +220,11 @@ export default function EditAdditionalInfoForm() {
               name="date_of_anniversary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date of Anniversary</FormLabel>
                   <FormControl>
                     <CustomDateMonthYearPicker
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder="Select Date"
+                      placeholder={t("date_of_anniversary")}
                       className="rounded-full h-10 md:h-12 bg-background"
                       initialFocus
                     />
@@ -245,7 +240,6 @@ export default function EditAdditionalInfoForm() {
             name="known_language_ids"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Known Languages</FormLabel>
                 <FormControl>
                   <CustomMultiSelect
                     options={
@@ -256,7 +250,8 @@ export default function EditAdditionalInfoForm() {
                     }
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Select languages"
+                    placeholder={t("known_languages")}
+                    item_name="language"
                     className="h-10 md:h-12 bg-background rounded-full"
                   />
                 </FormControl>
@@ -270,7 +265,6 @@ export default function EditAdditionalInfoForm() {
             name="mother_tongue"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mother Tongue</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -280,7 +274,7 @@ export default function EditAdditionalInfoForm() {
                       })) || []
                     }
                     {...field}
-                    placeholder="Select mother tongue"
+                    placeholder={t("mother_tongue")}
                     className="h-10 md:h-12 bg-background rounded-full"
                   />
                 </FormControl>
@@ -294,11 +288,10 @@ export default function EditAdditionalInfoForm() {
             name="native_place"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Native Place</FormLabel>
                 <FormControl>
                   <LocationSearchInput
                     {...field}
-                    placeholder="Search for native place..."
+                    placeholder={t("native_place")}
                     className="rounded-full h-10 md:h-12 bg-background"
                   />
                 </FormControl>
@@ -312,7 +305,6 @@ export default function EditAdditionalInfoForm() {
             name="occupation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Occupation</FormLabel>
                 <FormControl>
                   <SearchableDropdown
                     options={
@@ -322,7 +314,7 @@ export default function EditAdditionalInfoForm() {
                       })) || []
                     }
                     {...field}
-                    placeholder="Select occupation"
+                    placeholder={t("occupation")}
                     className="h-10 md:h-12 bg-background rounded-full"
                   />
                 </FormControl>
@@ -339,10 +331,10 @@ export default function EditAdditionalInfoForm() {
             onClick={handleCancelEdit}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" className="rounded-full">
-            Save Changes
+            {t("save_changes")}
           </Button>
         </div>
       </form>
@@ -378,7 +370,7 @@ export default function EditAdditionalInfoForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">Additional Information</h2>
+          <h2 className="text-lg font-medium">{t("additional_information")}</h2>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary border-dark-border dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
@@ -396,7 +388,7 @@ export default function EditAdditionalInfoForm() {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
-          Additional Information
+          {t("additional_information")}
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

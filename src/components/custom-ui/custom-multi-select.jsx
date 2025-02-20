@@ -19,6 +19,7 @@ export default function CustomMultiSelect({
   className,
   error,
   disabled,
+  item_name,
   searchPlaceholder = "Search...",
 }) {
   const [open, setOpen] = React.useState(false);
@@ -81,7 +82,7 @@ export default function CustomMultiSelect({
             {Icon && <Icon className="h-4 w-4 shrink-0" />}
             <span className={cn(!value.length && "text-muted-foreground")}>
               {value.length > 0
-                ? `${value.length} item${
+                ? `${value.length} ${item_name ? item_name : "item"}${
                     value.length !== 1 ? "s" : ""
                   } selected`
                 : placeholder}
@@ -95,13 +96,13 @@ export default function CustomMultiSelect({
         align="start"
       >
         <div className="flex flex-col p-2 gap-2">
-          <div className="flex gap-2">
+          <div className="w-full">
             <CustomInput
               icon={<Search className="h-4 w-4 shrink-0 opacity-50" />}
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-9"
+              className="h-9 w-full"
             />
           </div>
 
@@ -110,7 +111,7 @@ export default function CustomMultiSelect({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 rounded-full"
               onClick={handleSelectAll}
               disabled={filteredOptions.every((option) =>
                 value.includes(option.value)
@@ -121,7 +122,7 @@ export default function CustomMultiSelect({
             <Button
               variant="outline"
               size="sm"
-              className="flex-1"
+              className="flex-1 rounded-full"
               onClick={handleRemoveAll}
               disabled={filteredOptions.every(
                 (option) => !value.includes(option.value)

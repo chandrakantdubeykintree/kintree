@@ -10,8 +10,10 @@ import { Card } from "@/components/ui/card";
 import { ICON_EDIT } from "@/constants/iconUrls";
 import ImageUploadModal from "@/components/image-upload-modal";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { profile: user, isProfileLoading } = useProfile("/user/profile");
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -53,7 +55,7 @@ export default function Profile() {
             onClick={() => openImageModal("cover")}
           >
             <img src={ICON_EDIT} className="w-4 h-4" />
-            <span className="text-md">Edit</span>
+            <span className="text-md">{t("edit")}</span>
           </Button>
           {/* Profile Image */}
           <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] lg:w-[120px] lg:h-[120px] border-brandPrimary rounded-full absolute z-10 bottom-[-25%] left-[5%] border-[2px] overflow-hidden group bg-background">
@@ -88,7 +90,7 @@ export default function Profile() {
               }`}
               onClick={() => setActiveTab("about")}
             >
-              About
+              {t("about")}
             </div>
             <div
               className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
@@ -98,7 +100,7 @@ export default function Profile() {
               }`}
               onClick={() => setActiveTab("gallery")}
             >
-              Gallery
+              {t("gallery")}
             </div>
             <div
               className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
@@ -108,7 +110,7 @@ export default function Profile() {
               }`}
               onClick={() => setActiveTab("members")}
             >
-              Members
+              {t("members")}
             </div>
           </div>
           {renderTabContent()}
