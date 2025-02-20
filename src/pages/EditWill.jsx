@@ -10,19 +10,21 @@ import { Steps } from "@/components/will/Steps";
 import UnsavedChangesDialog from "@/components/will/UnsavedChangesDialog";
 import { useWill } from "@/hooks/useWill";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function EditWill() {
+  const { t } = useTranslation();
   const [step, setStep] = useState("personal-info");
   const { willData } = useWill();
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const steps = [
-    { id: "personal-info", title: "Personal Details" },
-    { id: "beneficiaries", title: "Beneficiaries" },
-    { id: "allocation", title: "Allocation" },
-    { id: "executor", title: "Executor" },
-    { id: "review", title: "Review" },
-    { id: "selfie", title: "Self Authentication" },
-    { id: "notarize", title: "Notarization" },
+    { id: "personal-info", title: t("personal_details") },
+    { id: "beneficiaries", title: t("beneficiaries") },
+    { id: "allocation", title: t("allocation") },
+    { id: "executor", title: t("executor") },
+    { id: "review", title: t("review") },
+    { id: "selfie", title: t("self_authentication") },
+    { id: "notarize", title: t("notarization") },
   ];
   function willCreationStep() {
     switch (step) {
@@ -43,7 +45,7 @@ export default function EditWill() {
     }
   }
   return (
-    <Card className="mx-auto p-2 py-4 md:p-4 lg:p-6 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
+    <Card className="mx-auto p-2 py-4 md:p-4 lg:p-6 bg-background rounded-2xl overflow-y-scroll no_scrollbar">
       {step !== "acknowledge" && (
         <div className="mb-8 flex justify-between items-center overflow-x-scroll no_scrollbar w-full">
           <Steps

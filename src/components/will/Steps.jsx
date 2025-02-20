@@ -7,13 +7,11 @@ export function Steps({ steps, currentStep, willId }) {
   const stepsContainerRef = useRef(null);
   const currentStepRef = useRef(null);
 
-  // Scroll to center the current step on mobile/tablet
   useEffect(() => {
     if (currentStepRef.current && stepsContainerRef.current) {
       const container = stepsContainerRef.current;
       const element = currentStepRef.current;
 
-      // Calculate scroll position to center the element
       const scrollLeft =
         element.offsetLeft -
         container.offsetWidth / 2 +
@@ -82,7 +80,7 @@ export function Steps({ steps, currentStep, willId }) {
                         "after:absolute after:w-full after:h-full after:bg-primary"
                     )}
                     style={{
-                      width: "calc(120px - 32px)", // Adjust based on step width and circle size
+                      width: "calc(120px - 32px)",
                     }}
                   />
                 </div>
@@ -104,12 +102,3 @@ export function Steps({ steps, currentStep, willId }) {
     </div>
   );
 }
-
-// Add this CSS to your global styles or tailwind.config.js
-// .scrollbar-hide::-webkit-scrollbar {
-//   display: none;
-// }
-// .scrollbar-hide {
-//   -ms-overflow-style: none;
-//   scrollbar-width: none;
-// }

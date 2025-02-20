@@ -9,7 +9,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import {
@@ -22,36 +21,37 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import CustomDateMonthYearPicker from "../custom-ui/custom-dateMonthYearPicker";
-
-const beneficiarySchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  date_of_birth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")
-    .refine((date) => {
-      const dob = new Date(date);
-      const today = new Date();
-      const age = today.getFullYear() - dob.getFullYear();
-      const monthDiff = today.getMonth() - dob.getMonth();
-
-      // Adjust age if birthday hasn't occurred this year
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < dob.getDate())
-      ) {
-        return age - 1 >= 1;
-      }
-      return age >= 1;
-    }, "You must be at least 1 years old"),
-  email: z.string().email("Invalid email address").optional(),
-  phone_no: z.string().min(10, "Phone number must be at least 10 digits"),
-  phone_country_code: z.string().min(1, "Country code is required"),
-  gender: z.enum(["m", "f", "o"]),
-});
+import { useTranslation } from "react-i18next";
 
 export default function AddBeneficiaryForm({ willId, onSuccess }) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { addBeneficiary, isAddingBeneficiary } = useWill();
+
+  const beneficiarySchema = z.object({
+    name: z.string().min(1, t("name_required")),
+    date_of_birth: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, t("invalid_date"))
+      .refine((date) => {
+        const dob = new Date(date);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+          return age - 1 >= 1;
+        }
+        return age >= 1;
+      }, t("age_must_be_at_least_one_year")),
+    email: z.string().email(t("invalid_email")).optional(),
+    phone_no: z.string().min(10, t("invalid_phone_number")),
+    phone_country_code: z.string().min(1, t("phone_country_code_required")),
+    gender: z.enum(["m", "f", "o"]),
+  });
 
   const form = useForm({
     resolver: zodResolver(beneficiarySchema),
@@ -80,7 +80,7 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
       onSuccess?.();
       form.reset();
     } catch (error) {
-      console.error("Error adding beneficiary:", error);
+      console.error(t("error_adding_beneficiary"));
     }
   };
 
@@ -92,11 +92,10 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
               <FormControl>
                 <Input
                   {...field}
-                  placeholder="Enter beneficiary's name"
+                  placeholder={t("enter_name")}
                   className="rounded-full h-10 md:h-12"
                 />
               </FormControl>
@@ -111,10 +110,10 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
                 <FormControl>
                   <CustomDateMonthYearPicker
                     {...field}
+                    placeholder={t("select_date_of_birth")}
                     maxDate={new Date()}
                     className="rounded-full h-10 md:h-12"
                   />
@@ -129,18 +128,17 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
             name="gender"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Gender</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                   className="rounded-full h-10 md:h-12"
                 >
                   <SelectTrigger className="rounded-full h-10 md:h-12">
-                    <SelectValue placeholder="Select Martial Status" />
+                    <SelectValue placeholder={t("gender")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="m">Male</SelectItem>
-                    <SelectItem value="f">Female</SelectItem>
+                    <SelectItem value="m">{t("male")}</SelectItem>
+                    <SelectItem value="f">{t("female")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -154,12 +152,11 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
                   type="email"
                   {...field}
-                  placeholder="Enter email address"
+                  placeholder={t("enter_email")}
                   className="rounded-full h-10 md:h-12"
                 />
               </FormControl>
@@ -173,7 +170,6 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
           name="phone_no"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number</FormLabel>
               <FormControl className="border rounded-full pl-2">
                 <PhoneInput
                   international
@@ -204,14 +200,14 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
             onClick={() => onSuccess?.()}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
             disabled={isAddingBeneficiary}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            {isAddingBeneficiary ? "Adding..." : "Add Beneficiary"}
+            {isAddingBeneficiary ? t("adding") : t("add_beneficiary")}
           </Button>
         </div>
       </form>

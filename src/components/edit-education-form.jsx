@@ -108,7 +108,7 @@ export default function EditEducationForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <h3 className="text-lg font-medium mb-4">
-          {selectedEducation ? "Edit Education" : "Add New Education"}
+          {selectedEducation ? t("edit_educations") : t("add_education")}
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -275,13 +275,13 @@ export default function EditEducationForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">Education</h2>
+          <h2 className="text-lg font-medium">{t("education")}</h2>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
               onClick={handleAddNew}
             >
-              <span>Add</span>
+              <span>{t("add")}</span>
               <img src={ICON_EDIT2} className="" />
             </button>
           )}
@@ -293,7 +293,7 @@ export default function EditEducationForm() {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1" className="border-none">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          Education
+          {t("education")}
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { profile: user, isProfileLoading } = useProfile("/user/profile");
+  const { profile: user } = useProfile("/user/profile");
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [uploadType, setUploadType] = useState(null);

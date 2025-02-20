@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Trash2, User } from "lucide-react";
+import { User } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useQueryClient } from "@tanstack/react-query";
 import { kintreeApi } from "@/services/kintreeApi";
+import { useTranslation } from "react-i18next";
 
 export default function BeneficiaryCard({
   beneficiary,
   willId,
   showPercentage = true,
 }) {
+  const { t } = useTranslation();
   const [percentage, setPercentage] = useState(beneficiary.percentage || "0");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -32,7 +34,7 @@ export default function BeneficiaryCard({
       );
       queryClient.invalidateQueries(["beneficiaries", willId]);
     } catch (error) {
-      console.error("Error deleting beneficiary:", error);
+      console.error(t("error_deleting_beneficiary"), error);
     }
   };
 
@@ -91,21 +93,20 @@ export default function BeneficiaryCard({
         >
           <AlertDialogContent className="max-w-md w-[90%] rounded-2xl">
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Beneficiary</AlertDialogTitle>
+              <AlertDialogTitle>{t("delete_beneficiary")}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to remove {beneficiary.name} from your
-                will? This action cannot be undone.
+                {t("remove_beneficiary_warning")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="rounded-full">
-                Cancel
+                {t("cancel")}
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
                 className="bg-destructive text-destructive-foreground rounded-full"
               >
-                Delete
+                {t("delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

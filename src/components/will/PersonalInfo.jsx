@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,68 +19,68 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import PhoneInput, { parsePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
-import { CalendarIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import CustomDateMonthYearPicker from "../custom-ui/custom-dateMonthYearPicker";
-
-const personalInfoSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  father_name: z.string().min(1, "Father's name is required"),
-  date_of_birth: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format")
-    .refine((date) => {
-      const dob = new Date(date);
-      const today = new Date();
-      const age = today.getFullYear() - dob.getFullYear();
-      const monthDiff = today.getMonth() - dob.getMonth();
-
-      // Adjust age if birthday hasn't occurred this year
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < dob.getDate())
-      ) {
-        return age - 1 >= 18;
-      }
-      return age >= 18;
-    }, "You must be at least 18 years old"),
-  email: z.string().email("Invalid email address"),
-  phone_no: z.string().refine((value) => {
-    try {
-      if (!value) return false;
-      const phoneNumber = parsePhoneNumber(value);
-      if (!phoneNumber) return false;
-
-      // Get the national number (without country code)
-      const nationalNumber = phoneNumber.nationalNumber;
-
-      // Check if it's a valid number for the given country
-      return phoneNumber.isValid() && nationalNumber.length <= 10;
-    } catch (error) {
-      return false;
-    }
-  }, "Please enter a valid phone number"),
-  phone_country_code: z.string().min(1, "Country code is required"),
-  marital_status: z.enum(["single", "married", "divorced", "widowed"]),
-  occupation: z.enum([
-    "salaried",
-    "business",
-    "professional",
-    "retired",
-    "other",
-  ]),
-  designation: z.string().min(1, "Designation is required"),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().min(1, "City is required"),
-  pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
-});
+import { useTranslation } from "react-i18next";
 
 export default function PersonalInfo({ setStep, willId }) {
+  const { t } = useTranslation();
+  const personalInfoSchema = z.object({
+    name: z.string().min(1, t("name_required")),
+    father_name: z.string().min(1, t("father_name_required")),
+    date_of_birth: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, t("invalid_date"))
+      .refine((date) => {
+        const dob = new Date(date);
+        const today = new Date();
+        const age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < dob.getDate())
+        ) {
+          return age - 1 >= 18;
+        }
+        return age >= 18;
+      }, t("age_must_be_18")),
+    email: z.string().email(t("invalid_email")),
+    phone_no: z.string().refine((value) => {
+      try {
+        if (!value) return false;
+        const phoneNumber = parsePhoneNumber(value);
+        if (!phoneNumber) return false;
+
+        const nationalNumber = phoneNumber.nationalNumber;
+
+        return phoneNumber.isValid() && nationalNumber.length <= 10;
+      } catch (error) {
+        return false;
+      }
+    }, t("invalid_phone_number")),
+    phone_country_code: z.string().min(1, t("country_code_required")),
+    marital_status: z.enum([
+      t("single")?.toLowerCase(),
+      t("married")?.toLowerCase(),
+      t("divorced")?.toLowerCase(),
+      t("widowed")?.toLowerCase(),
+    ]),
+    occupation: z.enum([
+      t("salaried")?.toLowerCase(),
+      t("business")?.toLowerCase(),
+      t("professional")?.toLowerCase(),
+      t("retired")?.toLowerCase(),
+      t("other")?.toLowerCase(),
+    ]),
+    designation: z.string().min(1, t("designation_required")),
+    address: z.string().min(1, t("address_required")),
+    city: z.string().min(1, t("city_required")),
+    pincode: z.string().regex(/^\d{6}$/, t("invalid_pincode")),
+  });
   const navigate = useNavigate();
   const { addPersonalInfo, isAddingPersonalInfo, willData } = useWill();
 
@@ -100,31 +100,30 @@ export default function PersonalInfo({ setStep, willId }) {
 
   const onSubmit = async (data) => {
     try {
-      // Use parsePhoneNumber to get the country code and national number
       const phoneNumber = parsePhoneNumber(data.phone_no);
       if (phoneNumber) {
-        const countryCode = phoneNumber.countryCallingCode; // Get the country code
-        const localPhoneNumber = phoneNumber.nationalNumber; // Get the national number
+        const countryCode = phoneNumber.countryCallingCode;
+        const localPhoneNumber = phoneNumber.nationalNumber;
 
         const response = await addPersonalInfo(
           {
             ...data,
-            phone_country_code: `+${countryCode}`, // Format the country code
-            phone_no: localPhoneNumber, // Send only the local phone number
+            phone_country_code: `+${countryCode}`,
+            phone_no: localPhoneNumber,
           },
           willId
         );
         if (response.success) {
-          toast.success(response.message || "Personal info saved successfully");
+          toast.success(t("personal_info_saved_successfully"));
           setStep("beneficiaries");
         } else {
-          toast.error(response.message || "Error saving personal info");
+          toast.error(t("error_saving_personal_info"));
         }
       } else {
-        toast.error("Invalid phone number");
+        toast.error(t("invalid_phone_number"));
       }
     } catch (error) {
-      toast.error("Error saving personal info");
+      toast.error(t("error_saving_personal_info"));
     }
   };
 
@@ -137,12 +136,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     {...field}
-                    placeholder="Enter your name"
+                    placeholder={t("enter_name")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -155,12 +153,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="father_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Father's Name</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     {...field}
-                    placeholder="Enter father's name"
+                    placeholder={t("enter_father_name")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -173,12 +170,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="date_of_birth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date of Birth</FormLabel>
                 <FormControl>
                   <CustomDateMonthYearPicker
                     value={field.value}
                     onChange={field.onChange}
-                    placeholder="Select Date of Birth"
+                    placeholder={t("date_of_birth")}
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                   />
                 </FormControl>
@@ -192,13 +188,12 @@ export default function PersonalInfo({ setStep, willId }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     type="email"
                     {...field}
-                    placeholder="Enter your email"
+                    placeholder={t("enter_email")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -211,7 +206,6 @@ export default function PersonalInfo({ setStep, willId }) {
             name="phone_no"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
                 <FormControl className="border rounded-md pl-1">
                   <PhoneInput
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground pl-2"
@@ -257,21 +251,20 @@ export default function PersonalInfo({ setStep, willId }) {
             name="marital_status"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Marital Status</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <SelectTrigger className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground">
-                    <SelectValue placeholder="Select Martial Status" />
+                    <SelectValue placeholder={t("martial_status")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Martial Status</SelectLabel>
-                      <SelectItem value="single">Single</SelectItem>
-                      <SelectItem value="married">Married</SelectItem>
-                      <SelectItem value="divorced">Divorced</SelectItem>
-                      <SelectItem value="widowed">Widowed</SelectItem>
+                      <SelectLabel>{t("select_martial_status")}</SelectLabel>
+                      <SelectItem value="single">{t("single")}</SelectItem>
+                      <SelectItem value="married">{t("married")}</SelectItem>
+                      <SelectItem value="divorced">{t("divorced")}</SelectItem>
+                      <SelectItem value="widowed">{t("widowed")}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -285,22 +278,23 @@ export default function PersonalInfo({ setStep, willId }) {
             name="occupation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Occupation</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <SelectTrigger className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground">
-                    <SelectValue placeholder="Select Occupation" />
+                    <SelectValue placeholder={t("occupation")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Occupation</SelectLabel>
-                      <SelectItem value="salaried">Salaried</SelectItem>
-                      <SelectItem value="business">Business</SelectItem>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="retired">Retired</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectLabel>{t("select_occpuation")}</SelectLabel>
+                      <SelectItem value="salaried">{t("salaried")}</SelectItem>
+                      <SelectItem value="business">{t("business")}</SelectItem>
+                      <SelectItem value="professional">
+                        {t("professional")}
+                      </SelectItem>
+                      <SelectItem value="retired">{t("retired")}</SelectItem>
+                      <SelectItem value="other">{t("other")}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -314,12 +308,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="designation"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Designation</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     {...field}
-                    placeholder="Enter your designation"
+                    placeholder={t("designation")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -333,12 +326,11 @@ export default function PersonalInfo({ setStep, willId }) {
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Address</FormLabel>
               <FormControl>
                 <Input
                   className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                   {...field}
-                  placeholder="Enter your address"
+                  placeholder={t("address")}
                 />
               </FormControl>
               <FormMessage />
@@ -352,12 +344,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="city"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>City</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     {...field}
-                    placeholder="Enter your city"
+                    placeholder={t("city")}
                   />
                 </FormControl>
                 <FormMessage />
@@ -370,12 +361,11 @@ export default function PersonalInfo({ setStep, willId }) {
             name="pincode"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Pincode</FormLabel>
                 <FormControl>
                   <Input
                     className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground"
                     {...field}
-                    placeholder="Enter pincode"
+                    placeholder={t("pincode")}
                     maxLength={6}
                   />
                 </FormControl>
@@ -390,20 +380,19 @@ export default function PersonalInfo({ setStep, willId }) {
             type="button"
             variant="outline"
             onClick={() => {
-              // reset the form
               form.reset();
               navigate("/will");
             }}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
             disabled={isAddingPersonalInfo}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            {isAddingPersonalInfo ? "Saving..." : "Next"}
+            {isAddingPersonalInfo ? t("saving") : t("next")}
           </Button>
         </div>
       </form>

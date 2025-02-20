@@ -1,93 +1,76 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { tokenService } from "../services/tokenService";
+
 import { toast } from "react-hot-toast";
-import FlutterChats from "./FlutterChats";
+import Chats from "./Chats";
 
 export default function FlutterChat() {
   const { token } = useParams();
   const navigate = useNavigate();
+  const [isValidToken, setIsValidToken] = useState(false);
+
+  // Add this useEffect to handle back button
+  useEffect(() => {
+    const handleBackButton = (e) => {
+      e.preventDefault();
+      // Send message to native app to handle back button
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({ type: "backButtonPressed" })
+        );
+      }
+    };
+
+    // Add event listener for back button
+    window.addEventListener("popstate", handleBackButton);
+
+    return () => {
+      window.removeEventListener("popstate", handleBackButton);
+    };
+  }, []);
 
   useEffect(() => {
-    const isFlutterWebView = true;
-
-    // Enhanced CSS for WebView scrolling
-    const style = document.createElement("style");
-    style.setAttribute("data-flutter-webview", "true");
-    style.textContent = `
-        html, body {
-          height: 100% !important;
-          width: 100% !important;
-          overflow: auto !important;
-          -webkit-overflow-scrolling: touch !important;
-          overscroll-behavior: contain !important;
-          position: fixed !important;
-        }
-        #root {
-          height: 100% !important;
-          width: 100% !important;
-          overflow: auto !important;
-          -webkit-overflow-scrolling: touch !important;
-        }
-        .messages-container {
-          -webkit-overflow-scrolling: touch !important;
-          overscroll-behavior: contain !important;
-          overflow-y: scroll !important;
-          flex: 1 1 auto !important;
-        }
-      `;
-    document.head.appendChild(style);
-
-    // Prevent bounce effect on iOS
-    document.body.style.position = "fixed";
-    document.body.style.width = "100%";
-    document.body.style.height = "100%";
-
-    // Enable momentum scrolling
-    document.addEventListener(
-      "touchmove",
-      (e) => {
-        if (e.target.closest(".messages-container")) {
-          e.stopPropagation();
-        }
-      },
-      { passive: false }
-    );
-
     if (token) {
+      // Set the token from the URL
       tokenService.setLoginToken(token);
+
+      // Basic token validation (you can add more complex validation if needed)
       if (tokenService.isLoginTokenValid()) {
-        // Additional scroll fixes for Flutter WebView
-        document.body.style.overflow = "auto";
-        document.body.style.webkitOverflowScrolling = "touch";
-        document.documentElement.style.overflow = "auto";
-        document.documentElement.style.webkitOverflowScrolling = "touch";
+        setIsValidToken(true);
       } else {
         toast.error("Invalid or expired token");
-        navigate("/");
+        navigate("/"); // Redirect to home or any other page
       }
     } else {
       toast.error("No token provided");
-      navigate("/");
+      navigate("/"); // Redirect to home or any other page
     }
-
-    return () => {
-      if (isFlutterWebView) {
-        // Clean up injected styles
-        const style = document.querySelector("style[data-flutter-webview]");
-        if (style) {
-          style.remove();
-        }
-        // Reset touch-action
-        document.body.style.touchAction = "";
-        document.documentElement.style.touchAction = "";
-      }
-    };
   }, [token, navigate]);
 
+  if (!isValidToken) {
+    return null; // Or a loading spinner
+  }
+
   return (
-    <div style={{ height: "100vh" }}>
-      <FlutterChats />
+    <div className="mx-auto">
+      <main className={`max-w-[1370px] mx-auto px-1`}>
+        <div className="grid grid-cols-12 gap-4 h-[100vh]">
+          <div
+            className={`
+              col-span-12 
+              overflow-y-auto relative
+              h-full
+            `}
+            style={{
+              WebkitOverflowScrolling: "touch",
+              overscrollBehavior: "contain",
+            }}
+          >
+            <Chats />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

@@ -4,8 +4,10 @@ import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export default function WillAcknowledgement({ setStep }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { createWill, isCreatingWill } = useWill();
   const [accepted, setAccepted] = useState({
@@ -19,7 +21,7 @@ export default function WillAcknowledgement({ setStep }) {
 
   const handleCreateWill = async () => {
     if (!allTermsAccepted) {
-      toast.error("Please accept all terms to continue");
+      toast.error("error_accept_all_terms");
       return;
     }
 
@@ -28,39 +30,25 @@ export default function WillAcknowledgement({ setStep }) {
       if (result?.success && result?.data?.id) {
         setStep("personal-info");
       } else {
-        toast.error("Failed to create will. Please try again.");
+        toast.error(t("error_failed_to_create_will"));
       }
     } catch (error) {
-      toast.error("Failed to create will. Please try again.");
+      toast.error(t("error_failed_to_create_will"));
     }
   };
 
   return (
     <div className="mx-auto p-6 flex flex-col gap-12">
       <h2 className="text-2xl font-bold text-center">
-        Before You Begin to Create Your Will
+        {t("before_will_creation")}
       </h2>
 
       <ul className="list-decimal max-w-2xl mx-auto pl-5">
-        <li className="text-gray-[#656565]">
-          The Kintree Will is a testament to your wisdom and a gift to those you
-          cherish the most.
-        </li>
-        <li className="text-gray-[#656565]">
-          We assure you that your data is safe and secured with us, as your
-          privacy is our priority.
-        </li>
-        <li className="text-gray-[#656565]">
-          It is mandatory to fill in your personal details such as Name, Date of
-          Birth, Address and contact details.
-        </li>
-        <li className="text-gray-[#656565]">
-          You can distribute your assets among multiple beneficiaries.
-        </li>
-        <li className="text-gray-[#656565]">
-          You may add as many beneficiaries as you like (beneficiaries need not
-          necessarily be your family members).
-        </li>
+        <li className="text-gray-[#656565]">{t("will_acko_1")}</li>
+        <li className="text-gray-[#656565]">{t("will_acko_2")}</li>
+        <li className="text-gray-[#656565]">{t("will_acko_3")}</li>
+        <li className="text-gray-[#656565]">{t("will_acko_4")}</li>
+        <li className="text-gray-[#656565]">{t("will_acko_5")}</li>
       </ul>
 
       <div className="space-y-6 max-w-2xl mx-auto">
@@ -73,8 +61,7 @@ export default function WillAcknowledgement({ setStep }) {
             }
           />
           <label htmlFor="terms" className="text-sm">
-            I understand that this will is a legal document and will be used to
-            distribute my assets after my death.
+            {t("will_terms_checkbox")}
           </label>
         </div>
 
@@ -87,8 +74,7 @@ export default function WillAcknowledgement({ setStep }) {
             }
           />
           <label htmlFor="sound" className="text-sm">
-            I confirm that I am of sound mind and making this will voluntarily
-            without any undue influence or coercion.
+            {t("will_sound_checkbox")}
           </label>
         </div>
 
@@ -101,8 +87,7 @@ export default function WillAcknowledgement({ setStep }) {
             }
           />
           <label htmlFor="truthful" className="text-sm">
-            I declare that all information provided in this will shall be
-            truthful and accurate to the best of my knowledge.
+            {t("will_truthful_checkbox")}
           </label>
         </div>
 
@@ -115,8 +100,7 @@ export default function WillAcknowledgement({ setStep }) {
             }
           />
           <label htmlFor="agree" className="text-sm">
-            I have read all the information mentioned above and I agree to make
-            my Will.
+            {t("will_agree_checkbox")}
           </label>
         </div>
 
@@ -126,14 +110,14 @@ export default function WillAcknowledgement({ setStep }) {
             onClick={() => navigate("/will")}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             onClick={handleCreateWill}
             disabled={!allTermsAccepted || isCreatingWill}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            {isCreatingWill ? "Creating..." : "Continue"}
+            {isCreatingWill ? t("creating") : t("continue")}
           </Button>
         </div>
       </div>

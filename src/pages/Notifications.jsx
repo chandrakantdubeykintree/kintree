@@ -12,10 +12,11 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "react-hot-toast";
-import { formatTimeAgo } from "@/utils/stringFormat";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationsPage() {
+  const { t } = useTranslation();
   const [selectedNotification, setSelectedNotification] = useState(null);
   const {
     notifications,
@@ -44,7 +45,7 @@ export default function NotificationsPage() {
     if (!notification.readed_at) {
       markAsRead(notification.id, {
         onError: () => {
-          toast.error("Failed to mark notification as read");
+          toast.error("error marking notification read");
         },
       });
     }
@@ -56,9 +57,9 @@ export default function NotificationsPage() {
     try {
       await deleteNotification(selectedNotification.id);
       setSelectedNotification(null);
-      toast.success("Notification deleted successfully");
+      toast.success(t("notification_deleted_successfully"));
     } catch (error) {
-      toast.error("Failed to delete notification");
+      toast.error(t("failed_to_delete_notification"));
     }
   };
 
@@ -68,13 +69,13 @@ export default function NotificationsPage() {
     try {
       if (selectedNotification.readed_at) {
         await markAsUnread(selectedNotification.id);
-        toast.success("Marked as unread");
+        toast.success(t("marked_as_unread"));
       } else {
         await markAsRead(selectedNotification.id);
-        toast.success("Marked as read");
+        toast.success(t("marked_as_read"));
       }
     } catch (error) {
-      toast.error("Failed to update notification");
+      toast.error(t("failed_to_update_notification"));
     }
   };
 
@@ -101,11 +102,6 @@ export default function NotificationsPage() {
             <p className={`text-sm ${!readed_at ? "font-semibold" : ""}`}>
               {message}
             </p>
-            {/* <p className="text-xs text-gray-500 mt-1">
-              {formatTimeAgo(notification.created_at, {
-                addSuffix: true,
-              })}
-            </p> */}
             <p className="text-xs text-gray-500 mt-1">
               @{notified_by.username}
             </p>
@@ -128,7 +124,7 @@ export default function NotificationsPage() {
 
   return (
     <Card className="container max-w-2xl mx-auto py-8 px-4 rounded-2xl">
-      <h1 className="text-2xl font-bold mb-6">Notifications</h1>
+      <h1 className="text-2xl font-bold mb-6">{t("notifications")}</h1>
 
       <div className="space-y-2">
         {notifications.map((notification) => (
@@ -141,7 +137,7 @@ export default function NotificationsPage() {
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
               <Button variant="ghost" onClick={() => fetchNextPage()}>
-                Load more
+                {t("load_more")}
               </Button>
             )}
           </div>
@@ -149,7 +145,7 @@ export default function NotificationsPage() {
 
         {notifications.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            No notifications yet
+            {t("no_notifications")}
           </div>
         )}
       </div>
@@ -160,7 +156,7 @@ export default function NotificationsPage() {
       >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Notification</DialogTitle>
+            <DialogTitle>{t("notification")}</DialogTitle>
           </DialogHeader>
 
           {selectedNotification && (
@@ -206,9 +202,9 @@ export default function NotificationsPage() {
                   {isMarkingAsRead || isMarkingAsUnread ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : selectedNotification.readed_at ? (
-                    "Mark as unread"
+                    t("mark_as_unread")
                   ) : (
-                    "Mark as read"
+                    t("mark_as_read")
                   )}
                 </Button>
                 <Button
@@ -220,7 +216,7 @@ export default function NotificationsPage() {
                   {isDeleting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    "Delete"
+                    t("delete")
                   )}
                 </Button>
               </div>

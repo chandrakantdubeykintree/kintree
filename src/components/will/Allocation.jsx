@@ -11,8 +11,10 @@ import { AlertCircle, CheckCircle2, User } from "lucide-react";
 
 import ComponentLoading from "../component-loading";
 import { Checkbox } from "../ui/checkbox";
+import { useTranslation } from "react-i18next";
 
 export default function Allocation({ setStep, willId }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [isConsentChecked, setIsConsentChecked] = useState(false);
@@ -55,7 +57,7 @@ export default function Allocation({ setStep, willId }) {
 
   const handleSubmit = async () => {
     if (totalPercentage !== 100) {
-      toast.error("Total allocation must equal 100%");
+      toast.error(t("totat_allocation_must_be_100"));
       return;
     }
 
@@ -67,10 +69,10 @@ export default function Allocation({ setStep, willId }) {
           percentage,
         })),
       });
-      toast.success("Allocations saved successfully");
+      toast.success(t("allocations_saved_successfully"));
       setStep("executor");
     } catch (error) {
-      toast.error("Failed to save allocations");
+      toast.error(t("error_saving_allocations"));
     }
   };
 
@@ -83,14 +85,12 @@ export default function Allocation({ setStep, willId }) {
   if (beneficiaries.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-600">
-          No beneficiaries added yet. Please add beneficiaries first.
-        </p>
+        <p className="text-gray-600">{t("no_beneficiaries_added_yet")}</p>
         <Button
           className="rounded-full mt-4"
           onClick={() => navigate(`/will/create/${willId}/beneficiaries`)}
         >
-          Add Beneficiaries
+          {t("add_beneficiaries")}
         </Button>
       </div>
     );
@@ -99,10 +99,9 @@ export default function Allocation({ setStep, willId }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold mb-2">Asset Allocation</h2>
+        <h2 className="text-xl font-semibold mb-2">{t("asset_allocation")}</h2>
         <p className="text-gray-600 mb-6">
-          Specify how your assets should be distributed among your
-          beneficiaries. The total allocation must be equal to 100%.
+          {t("asset_allocation_description")}
         </p>
 
         <div className="space-y-4">
@@ -142,7 +141,7 @@ export default function Allocation({ setStep, willId }) {
 
         <div className="mt-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-md font-medium">Total Allocation</span>
+            <span className="text-md font-medium">{t("total_allocation")}</span>
             <span
               className={`font-medium ${
                 totalPercentage.toFixed(2).toString() === "100.00"
@@ -157,13 +156,13 @@ export default function Allocation({ setStep, willId }) {
           {totalPercentage.toFixed(2).toString() !== "100.00" && (
             <p className="text-yellow-600 text-sm mt-2 flex items-center gap-1">
               <AlertCircle className="w-4 h-4" />
-              Total allocation must equal 100%
+              {t("total_allocation_must_be_100")}
             </p>
           )}
           {totalPercentage.toFixed(2).toString() === "100.00" && (
             <p className="text-green-600 text-md mt-2 flex items-center gap-1">
               <CheckCircle2 className="w-4 h-4" />
-              Allocation complete
+              {t("allocation_complete")}
             </p>
           )}
         </div>
@@ -179,7 +178,7 @@ export default function Allocation({ setStep, willId }) {
           htmlFor="consent"
           className="text-sm text-gray-600 cursor-pointer select-none"
         >
-          I confirm the allocation of assets to beneficiaries listed above.
+          {t("confirm_allocation")}
         </label>
       </div>
 
@@ -189,7 +188,7 @@ export default function Allocation({ setStep, willId }) {
           variant="outline"
           onClick={() => setStep("beneficiaries")}
         >
-          Back
+          {t("back")}
         </Button>
         <Button
           className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
@@ -200,7 +199,7 @@ export default function Allocation({ setStep, willId }) {
             !isConsentChecked
           }
         >
-          {isSavingAllocations ? "Saving..." : "Next"}
+          {isSavingAllocations ? t("saving") : t("next")}
         </Button>
       </div>
     </div>

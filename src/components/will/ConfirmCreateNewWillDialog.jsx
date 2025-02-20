@@ -7,21 +7,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
+import { useTranslation } from "react-i18next";
 
 export default function ConfirmCreateNewWillDialog({
   showConfirmDialog,
   setShowConfirmDialog,
   handleConfirmNewWill,
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Will</DialogTitle>
-          <DialogDescription>
-            You already have an existing will. Creating a new will would delete
-            your current will. Are you sure you want to proceed?
-          </DialogDescription>
+          <DialogTitle>{t("create_new_will")}</DialogTitle>
+          <DialogDescription>{t("existing_will_warning")}</DialogDescription>
         </DialogHeader>
 
         <DialogFooter className="flex gap-2">
@@ -30,10 +29,10 @@ export default function ConfirmCreateNewWillDialog({
             onClick={() => setShowConfirmDialog(false)}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button variant="destructive" onClick={handleConfirmNewWill}>
-            Create New
+            {t("create_new")}
           </Button>
         </DialogFooter>
       </DialogContent>

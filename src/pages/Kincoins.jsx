@@ -5,8 +5,10 @@ import ReactConfetti from "react-confetti";
 import RedeemKincoins from "./RedeemKincoins";
 import EarnKincoins from "./EarnKincoins";
 import KincoinsTransactions from "./KincoinsTransactions";
+import { useTranslation } from "react-i18next";
 
 export default function Kincoins() {
+  const { t } = useTranslation();
   const [showBanner, setShowBanner] = useState(true);
   const [activeTab, setActiveTab] = useState("redeem");
   const [windowSize, setWindowSize] = useState({
@@ -106,12 +108,12 @@ export default function Kincoins() {
           </div>
           <div className="flex-1 flex gap-1 flex-col items-center justify-center z-10">
             <div className="font-medium text-primary rounded-md px-2 py-1 bg-white flex items-center">
-              Rewards
+              {t("rewards")}
             </div>
             <div className="text-white font-bold text-[20px]">
-              Your Kincoins balance
+              {t("your_kincoins_balance")}
             </div>
-            <div className="text-white font-bold text-[36px]">3333333333</div>
+            <div className="text-white font-bold text-[36px]">0</div>
           </div>
           {showConfetti && (
             <ReactConfetti
@@ -133,7 +135,7 @@ export default function Kincoins() {
               }`}
               onClick={() => setActiveTab("redeem")}
             >
-              Redeem
+              {t("redeem")}
             </div>
             <div
               className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
@@ -143,7 +145,7 @@ export default function Kincoins() {
               }`}
               onClick={() => setActiveTab("earn")}
             >
-              Earn
+              {t("earn")}
             </div>
             <div
               className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
@@ -153,7 +155,7 @@ export default function Kincoins() {
               }`}
               onClick={() => setActiveTab("transactions")}
             >
-              Transactions
+              {t("transactions")}
             </div>
           </div>
           {renderTabContent()}

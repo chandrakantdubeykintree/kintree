@@ -32,24 +32,24 @@ import { Badge } from "@/components/ui/badge";
 import ComponentLoading from "@/components/component-loading";
 import toast from "react-hot-toast";
 import { Pen, Plus, Trash2 } from "lucide-react";
-
-const interestsSchema = z.object({
-  interest_ids: z
-    .array(z.string())
-    .min(1, "Please select at least one interest"),
-  searchQuery: z.string().optional(),
-});
-
-const newInterestSchema = z.object({
-  name: z.string().min(1, "Interest name is required"),
-});
+import { useTranslation } from "react-i18next";
 
 export default function EditInterestsForm() {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile("/user/interests");
   const { data: availableInterests, refetch: refetchInterests } =
     useInterests();
+
+  const interestsSchema = z.object({
+    interest_ids: z.array(z.string()).min(1, t("select_interest")),
+    searchQuery: z.string().optional(),
+  });
+
+  const newInterestSchema = z.object({
+    name: z.string().min(1, t("interest_name_required")),
+  });
 
   const { width } = useWindowSize();
   const { updateInterests } = useProfile("/user/store-custom-interests");
@@ -86,9 +86,7 @@ export default function EditInterestsForm() {
       });
       setIsEditing(false);
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to update interests"
-      );
+      toast.error(t("error_failed_to_update_interests"));
     }
   };
 
@@ -100,9 +98,7 @@ export default function EditInterestsForm() {
       setShowCreateModal(false);
       createInterestForm.reset();
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to create interest"
-      );
+      toast.error(t("error_failed_to_create_interest"));
     }
   };
 
@@ -156,7 +152,7 @@ export default function EditInterestsForm() {
               className="rounded-full"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Create Interest
+              {t("add_interest")}
             </Button>
           </div>
         </div>
@@ -218,7 +214,7 @@ export default function EditInterestsForm() {
             className="rounded-full"
           >
             <Trash2 className="w-4 h-4" />
-            Remove All
+            {t("remove_all")}
           </Button>
           <Button
             type="button"
@@ -226,10 +222,10 @@ export default function EditInterestsForm() {
             onClick={handleCancelEdit}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button type="submit" className="rounded-full">
-            Save Changes
+            {t("save_changes")}
           </Button>
         </div>
       </form>
@@ -247,7 +243,7 @@ export default function EditInterestsForm() {
         ))
       ) : (
         <div>
-          <p className="text-sm">No interests available</p>
+          <p className="text-sm">{t("no_interests_added")}</p>
         </div>
       )}
     </div>
@@ -270,13 +266,13 @@ export default function EditInterestsForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">Interests</h2>
+          <h2 className="text-lg font-medium">{t("interests")}</h2>
           {!isEditing && (
             <button
               className="flex items-center border-brandPrimary gap-2 border border-dark-border dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
               onClick={handleEditClick}
             >
-              <span>Edit</span>
+              <span>{t("edit")}</span>
               <img src={ICON_EDIT2} className="" />
             </button>
           )}
@@ -286,7 +282,7 @@ export default function EditInterestsForm() {
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Create New Interest</DialogTitle>
+            <DialogTitle>{t("create_new_interest")}</DialogTitle>
           </DialogHeader>
           <Form {...createInterestForm}>
             <form onSubmit={createInterestForm.handleSubmit(onCreateInterest)}>
@@ -299,7 +295,7 @@ export default function EditInterestsForm() {
                       <FormControl>
                         <Input
                           {...field}
-                          placeholder="Enter interest name"
+                          placeholder={t("interest_name")}
                           className="rounded-full"
                         />
                       </FormControl>
@@ -318,10 +314,10 @@ export default function EditInterestsForm() {
                   }}
                   className="rounded-full"
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
                 <Button type="submit" className="rounded-full">
-                  Add Interest
+                  {t("add_interest")}
                 </Button>
               </DialogFooter>
             </form>
@@ -333,7 +329,7 @@ export default function EditInterestsForm() {
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1 border-none">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          Interests
+          {t("interests")}
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

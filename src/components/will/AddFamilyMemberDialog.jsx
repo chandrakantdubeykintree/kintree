@@ -7,19 +7,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Card } from "../ui/card";
 import { User } from "lucide-react";
-
-const familyMemberIdSchema = z.object({
-  member_ids: z
-    .array(z.number())
-    .min(1, "At least one member must be selected"),
-});
+import { useTranslation } from "react-i18next";
 
 export default function AddFamilyMemberDialog({
   willId,
   onSuccess,
   familyMembers,
 }) {
+  const { t } = useTranslation();
   const { addMemberBeneficiaries, isAddingMemberBeneficiaries } = useWill();
+  const familyMemberIdSchema = z.object({
+    member_ids: z.array(z.number()).min(1, t("select_at_least_one_member")),
+  });
 
   const {
     register,
@@ -47,13 +46,13 @@ export default function AddFamilyMemberDialog({
         memberIds: data.member_ids,
       });
       if (response.success) {
-        toast.success("Family members added successfully");
+        toast.success(t("member_added_successfully"));
         onSuccess();
       } else {
-        toast.error("Failed to add family members");
+        toast.error(t("error_failed_to_add_member"));
       }
     } catch (error) {
-      toast.error("Failed to add family members");
+      toast.error(t("error_failed_to_add_member"));
     }
   };
 
@@ -105,14 +104,14 @@ export default function AddFamilyMemberDialog({
           variant="outline"
           onClick={onSuccess}
         >
-          Cancel
+          {t("cancel")}
         </Button>
         <Button
           className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           type="submit"
           disabled={isAddingMemberBeneficiaries}
         >
-          {isAddingMemberBeneficiaries ? "Adding..." : "Next"}
+          {isAddingMemberBeneficiaries ? t("saving") : t("next")}
         </Button>
       </div>
     </form>

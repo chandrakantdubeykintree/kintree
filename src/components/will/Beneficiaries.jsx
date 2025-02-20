@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate, useParams } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Plus, Search } from "lucide-react";
@@ -16,8 +15,11 @@ import ComponentLoading from "../component-loading";
 import AddFamilyMemberDialog from "./AddFamilyMemberDialog";
 import { Input } from "../ui/input";
 import { useFamilyMembers } from "@/hooks/useFamily";
+import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 export default function Beneficiaries({ setStep, willId }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("family");
   const [searchQuery, setSearchQuery] = useState("");
   const { data: familyMembers } = useFamilyMembers();
@@ -73,7 +75,7 @@ export default function Beneficiaries({ setStep, willId }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col justify-start gap-4">
-        <h2 className="text-xl font-semibold">Beneficiaries</h2>
+        <h2 className="text-xl font-semibold">{t("beneficiaries")}</h2>
         <div className="flex flex-wrap justify-start gap-4">
           <Dialog
             open={isAddFamilyMemberDialogOpen}
@@ -82,19 +84,31 @@ export default function Beneficiaries({ setStep, willId }) {
             <DialogTrigger asChild>
               <Button className="w-fit h-10 md:h-12 rounded-full">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Beneficiary from family
+                {t("add_beneficiary_family_member")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[650px] overflow-y-auto no_scrollbar">
               <DialogHeader className="space-y-4">
                 <DialogTitle className="text-xl font-semibold">
-                  Add beneficiaries from below family members
+                  {t("add_beneficiary_family_member")}
                 </DialogTitle>
                 <div className="flex items-center border bg-gray-100 rounded-full relative">
                   <Search className="w-5 h-5 absolute left-2 z-10" />
                   <Input
-                    className="pl-10 w-full border-none bg-transparent outline-0 ring-0 focus-visible:ring-0 placeholder:text-gray-500 rounded-full h-[48px]"
-                    placeholder="Search family members"
+                    className={cn(
+                      // Base styles
+                      "pl-10",
+                      "w-full rounded-full border border-primary bg-background",
+                      "text-sm ring-offset-background",
+                      "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+                      "placeholder:text-muted-foreground",
+                      // Focus styles
+                      "focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0",
+                      "focus:border-primary",
+                      // Hover styles
+                      "hover:border-primary/80"
+                    )}
+                    placeholder={t("search_family_members")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -117,12 +131,12 @@ export default function Beneficiaries({ setStep, willId }) {
                 variant="outline"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add a non-relative
+                {t("add_non_relative")}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[90vh] h-[550px] overflow-y-scroll no_scrollbar">
               <DialogHeader>
-                <DialogTitle>Add New Beneficiary</DialogTitle>
+                <DialogTitle>{t("add_new_beneficary")}</DialogTitle>
               </DialogHeader>
               <AddBeneficiaryForm
                 willId={willId}
@@ -144,7 +158,7 @@ export default function Beneficiaries({ setStep, willId }) {
             setActiveTab("family");
           }}
         >
-          Family ({memberBeneficiariesCount?.length})
+          {t("family")} ({memberBeneficiariesCount?.length})
         </div>
         <div
           className={`text-sm flex items-center cursor-pointer hover:bg-gray-100 px-4 ${
@@ -156,13 +170,13 @@ export default function Beneficiaries({ setStep, willId }) {
             setActiveTab("non-relative");
           }}
         >
-          Non-relative ({nonMemberBeneficiariesCount?.length})
+          {t("non_relative")} ({nonMemberBeneficiariesCount?.length})
         </div>
       </div>
 
       {memberBeneficiariesCount.length === 0 && activeTab === "family" ? (
         <div className="text-center py-8 text-gray-500">
-          No beneficiaries added yet. Click the button above to add one.
+          {t("no_beneficiaries_added")}
         </div>
       ) : (
         activeTab === "family" && (
@@ -182,8 +196,7 @@ export default function Beneficiaries({ setStep, willId }) {
       {nonMemberBeneficiariesCount.length === 0 &&
       activeTab === "non-relative" ? (
         <div className="text-center py-8 text-gray-500">
-          No non member beneficiaries added yet. Click the button above to add
-          one.
+          {t("no_beneficiaries_added")}
         </div>
       ) : (
         activeTab !== "family" && (
@@ -206,14 +219,14 @@ export default function Beneficiaries({ setStep, willId }) {
           onClick={() => setStep("personal-info")}
           className="rounded-full h-10 md:h-12 px-4 lg:px-6"
         >
-          Back
+          {t("back")}
         </Button>
         <Button
           onClick={handleSaveAndContinue}
           disabled={isSavingAllocations || beneficiaries.length === 0}
           className="rounded-full h-10 md:h-12 px-4 lg:px-6"
         >
-          {isSavingAllocations ? "Saving..." : "Next"}
+          {isSavingAllocations ? t("saving") : t("next")}
         </Button>
       </div>
     </div>

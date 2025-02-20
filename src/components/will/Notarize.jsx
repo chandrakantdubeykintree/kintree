@@ -1,30 +1,14 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { useWill } from "@/hooks/useWill";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FileText, Download, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
-
-const NOTARIZATION_STEPS = [
-  {
-    title: "Generate Will Document",
-    description: "Create the final version of your will document",
-    icon: FileText,
-  },
-  {
-    title: "Download & Review",
-    description: "Download and carefully review your will document",
-    icon: Download,
-  },
-  {
-    title: "Notarize Will",
-    description: "Legally authenticate your will document",
-    icon: CheckCircle2,
-  },
-];
+import { useTranslation } from "react-i18next";
 
 export default function Notarize({ setStep, willId }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     generateWill,
@@ -37,35 +21,55 @@ export default function Notarize({ setStep, willId }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [willUrl, setWillUrl] = useState(willData?.data?.will_url || null);
 
+  const NOTARIZATION_STEPS = [
+    {
+      title: t("generate_will_document"),
+      description: t("generate_will_document_description"),
+      icon: FileText,
+    },
+    {
+      title: t("download_and_review"),
+      description: t("download_and_review_description"),
+      icon: Download,
+    },
+    {
+      title: t("notarize_will"),
+      description: t("notarize_will_description"),
+      icon: CheckCircle2,
+    },
+  ];
+
   const handleGenerateWill = async () => {
     try {
       const result = await generateWill(willId);
       if (result?.data?.will_url) {
         setWillUrl(result.data.will_url);
         setCurrentStep(1);
-        toast.success("Will document generated successfully");
+        toast.success(t("will_generated_successfully"));
       }
     } catch (error) {
-      toast.error("Failed to generate will document");
+      toast.error(t("error_generating_will"));
     }
   };
 
   const handleNotarize = async () => {
     try {
       await notarizeWill(willId);
-      toast.success("Will notarized successfully");
+      toast.success(t("will_notarized_successfully"));
       navigate("/will");
     } catch (error) {
-      toast.error("Failed to notarize will");
+      toast.error(t("error_notarizing_will"));
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-background rounded-lg p-6 shadow-md">
-        <h2 className="text-xl font-semibold mb-2">Notarize Your Will</h2>
+        <h2 className="text-xl font-semibold mb-2">
+          {t("notarize_your_will")}
+        </h2>
         <p className="text-gray-600 mb-6">
-          Complete these final steps to make your will legally valid.
+          {t("complete_the_following_steps_to_notarize_your_will")}
         </p>
 
         <div className="space-y-4">
@@ -105,7 +109,7 @@ export default function Notarize({ setStep, willId }) {
                           disabled={isGeneratingWill}
                           className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
-                          {isGeneratingWill ? "Generating..." : "Generate"}
+                          {isGeneratingWill ? t("generating") : t("generate")}
                         </Button>
                       )}
                       {index === 1 && willUrl && (
@@ -116,7 +120,7 @@ export default function Notarize({ setStep, willId }) {
                           }}
                           className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
-                          Download
+                          {t("download")}
                         </Button>
                       )}
                       {index === 2 && (
@@ -125,7 +129,7 @@ export default function Notarize({ setStep, willId }) {
                           disabled={isNotarizingWill}
                           className="rounded-full h-10 md:h-12 px-4 md:px-6"
                         >
-                          {isNotarizingWill ? "Processing..." : "Notarize"}
+                          {isNotarizingWill ? t("processing") : t("notarize")}
                         </Button>
                       )}
                     </div>
@@ -143,7 +147,7 @@ export default function Notarize({ setStep, willId }) {
           className="rounded-full h-10 md:h-12 px-4 md:px-6"
           onClick={() => navigate(`/will`)}
         >
-          Go to Will
+          {t("go_to_will")}
         </Button>
       </div>
     </div>

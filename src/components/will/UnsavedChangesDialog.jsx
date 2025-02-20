@@ -8,16 +8,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 export default function UnsavedChangesDialog({ isOpen, onClose, onConfirm }) {
+  const { t } = useTranslation();
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogTitle>{t("unsaved_changes")}</AlertDialogTitle>
           <AlertDialogDescription>
-            You have unsaved changes. Are you sure you want to leave? Your
-            progress will be lost.
+            {t("unsaved_changes_warning")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -25,13 +26,13 @@ export default function UnsavedChangesDialog({ isOpen, onClose, onConfirm }) {
             onClick={onClose}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            Stay
+            {t("stay")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           >
-            Leave
+            {t("leave")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

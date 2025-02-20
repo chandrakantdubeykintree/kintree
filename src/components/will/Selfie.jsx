@@ -5,8 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Camera, RefreshCcw } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Webcam from "react-webcam";
+import { useTranslation } from "react-i18next";
 
 export default function Selfie({ setStep, willId }) {
+  const { t } = useTranslation();
   const webcamRef = useRef(null);
   const { uploadSelfie, isUploadingSelfie } = useWill();
 
@@ -32,32 +34,33 @@ export default function Selfie({ setStep, willId }) {
       }
 
       await uploadSelfie({ willId, selfieFile });
-      toast.success("Selfie uploaded successfully");
+      toast.success(t("selfie_uploaded_successfully"));
       setStep("notarize");
     } catch (error) {
-      toast.error("Failed to upload selfie");
+      toast.error(t("error_failed_to_upload_selfie"));
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="">
-        <h2 className="text-xl font-semibold mb-2">Self Authentication</h2>
+        <h2 className="text-xl font-semibold mb-2">
+          {t("self_authentication")}
+        </h2>
         <p className="text-gray-600 mb-6">
-          Please provide a clear selfie for identity verification. You can
-          either take a photo using your camera or upload an existing photo.
+          {t("self_authentication_description")}
         </p>
 
         <div className="grid gap-6">
           <Card className="p-6">
             <div className="flex flex-col items-center space-y-4">
               <Camera className="w-12 h-12 text-primary" />
-              <h3 className="font-semibold">Take Photo</h3>
+              <h3 className="font-semibold">{t("take_a_selfie")}</h3>
               <Button
                 onClick={() => setShowWebcam(true)}
                 className="rounded-full h-10 md:h-12 px-4 md:px-6"
               >
-                Open Camera
+                {t("open_camera")}
               </Button>
             </div>
           </Card>
@@ -78,14 +81,14 @@ export default function Selfie({ setStep, willId }) {
                   onClick={handleCapture}
                   className="rounded-full h-10 md:h-12 px-4 md:px-6 w-full sm:w-auto"
                 >
-                  Capture
+                  {t("capture_selfie")}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowWebcam(false)}
                   className="rounded-full h-10 md:h-12 px-4 md:px-6 w-full sm:w-auto"
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             </Card>
@@ -110,7 +113,7 @@ export default function Selfie({ setStep, willId }) {
                   }}
                 >
                   <RefreshCcw className="w-4 h-4 mr-2" />
-                  Retake
+                  {t("retake_selfie")}
                 </Button>
               </div>
               {capturedImage && (
@@ -120,7 +123,7 @@ export default function Selfie({ setStep, willId }) {
                     onClick={() => handleSubmit()}
                     disabled={isUploadingSelfie}
                   >
-                    {isUploadingSelfie ? "Uploading..." : "Use This Photo"}
+                    {isUploadingSelfie ? t("uploading") : t("use_this_photo")}
                   </Button>
                 </div>
               )}
@@ -135,7 +138,7 @@ export default function Selfie({ setStep, willId }) {
           onClick={() => setStep("review")}
           className="rounded-full h-10 md:h-12 px-4 md:px-6"
         >
-          Back
+          {t("back")}
         </Button>
       </div>
     </div>
