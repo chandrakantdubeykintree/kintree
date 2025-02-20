@@ -9,26 +9,50 @@ export default function FlutterChat() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if running in Flutter WebView
-    const isFlutterWebView = window.ReactNativeWebView !== undefined;
+    const isFlutterWebView = true;
 
-    if (isFlutterWebView) {
-      // Inject CSS only for Flutter WebView
-      const style = document.createElement("style");
-      style.textContent = `
+    // Enhanced CSS for WebView scrolling
+    const style = document.createElement("style");
+    style.setAttribute("data-flutter-webview", "true");
+    style.textContent = `
         html, body {
-          height: 100%;
-          overflow: auto;
-          -webkit-overflow-scrolling: touch;
+          height: 100% !important;
+          width: 100% !important;
+          overflow: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+          overscroll-behavior: contain !important;
+          position: fixed !important;
         }
         #root {
-          height: 100%;
-          overflow: auto;
-          -webkit-overflow-scrolling: touch;
+          height: 100% !important;
+          width: 100% !important;
+          overflow: auto !important;
+          -webkit-overflow-scrolling: touch !important;
+        }
+        .messages-container {
+          -webkit-overflow-scrolling: touch !important;
+          overscroll-behavior: contain !important;
+          overflow-y: scroll !important;
+          flex: 1 1 auto !important;
         }
       `;
-      document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
+
+    // Prevent bounce effect on iOS
+    document.body.style.position = "fixed";
+    document.body.style.width = "100%";
+    document.body.style.height = "100%";
+
+    // Enable momentum scrolling
+    document.addEventListener(
+      "touchmove",
+      (e) => {
+        if (e.target.closest(".messages-container")) {
+          e.stopPropagation();
+        }
+      },
+      { passive: false }
+    );
 
     if (token) {
       tokenService.setLoginToken(token);
@@ -54,6 +78,9 @@ export default function FlutterChat() {
         if (style) {
           style.remove();
         }
+        // Reset touch-action
+        document.body.style.touchAction = "";
+        document.documentElement.style.touchAction = "";
       }
     };
   }, [token, navigate]);

@@ -519,6 +519,42 @@ export default function FlutterChats() {
     }
   };
 
+  // Add this useEffect to handle WebView specific scroll behavior
+  useEffect(() => {
+    // Add WebView specific styles
+    const style = document.createElement("style");
+    style.textContent = `
+        .messages-container, .channels-list {
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+          touch-action: pan-y;
+        }
+      `;
+    document.head.appendChild(style);
+
+    // Add event listeners for better scroll handling
+    const handleTouchMove = (e) => {
+      e.preventDefault();
+    };
+
+    const containers = document.querySelectorAll(
+      ".messages-container, .channels-list"
+    );
+    containers.forEach((container) => {
+      container.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
+    });
+
+    return () => {
+      // Clean up
+      style.remove();
+      containers.forEach((container) => {
+        container.removeEventListener("touchmove", handleTouchMove);
+      });
+    };
+  }, []);
+
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
@@ -528,16 +564,6 @@ export default function FlutterChats() {
             className={`${
               showMobileList ? "block" : "hidden"
             } md:block md:col-span-2 h-full relative rounded-2xl bg-brandLight`}
-            style={{
-              height: window.ReactNativeWebView ? "calc(100vh - 16px)" : "auto",
-              overflowY: "auto",
-              WebkitOverflowScrolling: window.ReactNativeWebView
-                ? "touch"
-                : "auto",
-              overscrollBehavior: window.ReactNativeWebView
-                ? "contain"
-                : "auto",
-            }}
           >
             {/* Fixed channels header */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-10 rounded-tl-2xl rounded-tr-2xl">
@@ -563,7 +589,21 @@ export default function FlutterChats() {
             </div>
 
             {/* Scrollable channels list */}
-            <div className="absolute top-[73px] bottom-0 left-0 right-0 overflow-y-auto">
+            <div
+              className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container"
+              onScroll={handleScroll}
+              style={{
+                WebkitOverflowScrolling: "touch",
+                overscrollBehavior: "contain",
+                touchAction: "pan-y",
+                height: "auto",
+                willChange: "transform", // Optimize performance
+                transform: "translateZ(0)", // Enable hardware acceleration
+                "-webkit-transform": "translateZ(0)",
+                "-webkit-backface-visibility": "hidden",
+                "backface-visibility": "hidden",
+              }}
+            >
               <div className="p-4 space-y-2">
                 {channelsLoading ? (
                   <ComponentLoading />
