@@ -13,6 +13,7 @@ import { DeleteConfirmationDialog } from "@/components/delete-member-dialog";
 import { useAuth } from "@/context/AuthProvider";
 import EditRelativeForm from "@/components/edit-relative-form";
 import AddRelativeForm from "@/components/add-relative-form";
+import { useTranslation } from "react-i18next";
 
 export default function FamilyMember() {
   const { id } = useParams();
@@ -21,15 +22,19 @@ export default function FamilyMember() {
   const is_user_added_by_me = familyMember?.added_by?.id === user?.id;
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
+  const { t } = useTranslation();
 
   const { data: familyTree } = useFamily();
 
   const familyMemberSelected = familyTree?.find((member) => member?.id === +id);
 
   const handleShareCredentials = () => {
-    const credentials = `Username: ${familyMember?.username}\nPassword: ${familyMember?.password}`;
+    const credentials = t("credentials_format", {
+      username: familyMember?.username,
+      password: familyMember?.password,
+    });
     navigator.clipboard.writeText(credentials);
-    toast.success("Credentials copied to clipboard!");
+    toast.success(t("credentials_copied"));
   };
 
   const handleAddRelative = () => {
@@ -49,10 +54,10 @@ export default function FamilyMember() {
   const handleConfirmDelete = async () => {
     try {
       // Implement delete API call
-      toast.success("Member deleted successfully");
+      toast.success(t("delete_member_success"));
       // Navigate back or to appropriate page
     } catch (error) {
-      toast.error("Failed to delete member");
+      toast.error(t("delete_member_error"));
     }
     setShowDeleteDialog(false);
   };
@@ -151,13 +156,13 @@ export default function FamilyMember() {
                     variant="outline"
                     className="text-primary rounded-full"
                   >
-                    {familyMember?.relation}
+                    {t(familyMember?.relation)}
                   </Badge>
                   <Badge
                     variant="outline"
                     className="text-primary rounded-full"
                   >
-                    {familyMember?.gender === "f" ? "Female" : "Male"}
+                    {t(familyMember?.gender === "f" ? "female" : "male")}
                   </Badge>
                   <Badge
                     variant="outline"
@@ -167,7 +172,7 @@ export default function FamilyMember() {
                         : "text-red-600 rounded-full"
                     }
                   >
-                    {familyMember?.is_alive ? "Alive" : "Deceased"}
+                    {t(familyMember?.is_alive ? "alive" : "deceased")}
                   </Badge>
                 </div>
                 {familyMember?.basic_info?.bio && (
@@ -184,7 +189,7 @@ export default function FamilyMember() {
                     {familyMember?.post_count}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Posts
+                    {t("posts")}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -192,7 +197,7 @@ export default function FamilyMember() {
                     {familyMember?.event_count}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Events
+                    {t("events")}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -200,51 +205,54 @@ export default function FamilyMember() {
                     {familyMember?.attachments?.length || 0}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Attachments
+                    {t("attachments")}
                   </p>
                 </div>
               </div>
 
               {/* Contact Information */}
-              <InfoSection title="Contact Information">
-                <InfoItem label="Email" value={familyMember?.email} />
-                <InfoItem label="Phone" value={familyMember?.phone_no} />
-                <InfoItem label="Username" value={familyMember?.username} />
+              <InfoSection title={t("contact_information")}>
+                <InfoItem label={t("email")} value={familyMember?.email} />
+                <InfoItem label={t("phone")} value={familyMember?.phone_no} />
+                <InfoItem
+                  label={t("username")}
+                  value={familyMember?.username}
+                />
               </InfoSection>
 
               {/* Additional Information */}
-              <InfoSection title="Additional Information">
+              <InfoSection title={t("additional_information")}>
                 <InfoItem
-                  label="Birth Place"
+                  label={t("birth_place")}
                   value={familyMember?.additional_info?.birth_place}
                 />
                 <InfoItem
-                  label="Native Place"
+                  label={t("native_place")}
                   value={familyMember?.additional_info?.native_place}
                 />
                 <InfoItem
-                  label="Current City"
+                  label={t("current_city")}
                   value={familyMember?.additional_info?.current_city}
                 />
                 <InfoItem
-                  label="Blood Group"
+                  label={t("blood_group")}
                   value={familyMember?.additional_info?.blood_group}
                 />
                 <InfoItem
-                  label="Occupation"
+                  label={t("occupation")}
                   value={familyMember?.additional_info?.occupation}
                 />
                 <InfoItem
-                  label="Relationship Status"
-                  value={familyMember?.additional_info?.relationship_status}
+                  label={t("relationship_status")}
+                  value={t(familyMember?.additional_info?.relationship_status)}
                 />
                 <InfoItem
-                  label="Mother Tongue"
+                  label={t("mother_tongue")}
                   value={familyMember?.additional_info?.mother_tongue}
                 />
                 {familyMember?.additional_info?.known_languages?.length > 0 && (
                   <InfoItem
-                    label="Known Languages"
+                    label={t("known_languages")}
                     value={familyMember.additional_info.known_languages.join(
                       ", "
                     )}
@@ -253,31 +261,31 @@ export default function FamilyMember() {
               </InfoSection>
 
               {/* Regional Information */}
-              <InfoSection title="Regional Information">
+              <InfoSection title={t("regional_information")}>
                 <InfoItem
-                  label="Religion"
+                  label={t("religion")}
                   value={familyMember?.regional_info?.religion}
                 />
                 <InfoItem
-                  label="Caste"
+                  label={t("caste")}
                   value={familyMember?.regional_info?.caste}
                 />
                 <InfoItem
-                  label="Sub Caste"
+                  label={t("sub_caste")}
                   value={familyMember?.regional_info?.sub_caste}
                 />
                 <InfoItem
-                  label="Gotra"
+                  label={t("gotra")}
                   value={familyMember?.regional_info?.gotra}
                 />
                 <InfoItem
-                  label="Sect"
+                  label={t("sect")}
                   value={familyMember?.regional_info?.sect}
                 />
               </InfoSection>
 
               {/* Added By Information */}
-              <InfoSection title="Added By">
+              <InfoSection title={t("added_by")}>
                 <div className="col-span-2 flex items-center gap-4">
                   <Avatar className="w-12 h-12">
                     <AvatarImage
@@ -304,7 +312,7 @@ export default function FamilyMember() {
               <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-primary">
-                    Login Credentials
+                    {t("login_credentials")}
                   </h2>
                   <Button
                     variant="outline"
@@ -313,13 +321,13 @@ export default function FamilyMember() {
                     className="flex items-center gap-2 rounded-full"
                   >
                     <Share2 className="w-4 h-4" />
-                    Share Credentials
+                    {t("share_credentials")}
                   </Button>
                 </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="flex flex-col">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Username
+                      {t("username")}
                     </span>
                     <span className="font-medium">
                       {familyMember?.username}
@@ -327,7 +335,7 @@ export default function FamilyMember() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-sm text-gray-500 dark:text-gray-400">
-                      Password
+                      {t("password")}
                     </span>
                     <span className="font-medium">
                       {familyMember?.password}
@@ -344,7 +352,7 @@ export default function FamilyMember() {
                   onClick={handleAddRelative}
                 >
                   <UserPlus className="w-4 h-4" />
-                  Add Relative
+                  {t("add_relative")}
                 </Button>
                 {is_user_added_by_me && !familyMember?.is_active && (
                   <Button
@@ -353,7 +361,7 @@ export default function FamilyMember() {
                     onClick={handleEdit}
                   >
                     <Edit className="w-4 h-4" />
-                    Edit
+                    {t("edit")}
                   </Button>
                 )}
                 {is_user_added_by_me && !familyMember?.is_active && (
@@ -363,7 +371,7 @@ export default function FamilyMember() {
                     onClick={handleDelete}
                   >
                     <Trash2 className="w-4 h-4" />
-                    Delete
+                    {t("delete")}
                   </Button>
                 )}
               </div>

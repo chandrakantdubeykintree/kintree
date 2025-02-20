@@ -70,9 +70,7 @@ const {
   ViewPost,
   CreatePoll,
   ViewPoll,
-  AddMember,
   ViewMember,
-  EditMember,
   Chats,
   Profile,
   ViewProfile,
@@ -189,10 +187,7 @@ export default function App() {
                                 path={route_family_member + "/:id"}
                                 element={<FamilyMember />}
                               />
-                              <Route
-                                path={route_family_tree_add_member}
-                                element={<AddMember />}
-                              />
+
                               <Route
                                 path={route_family_tree_view_member}
                                 element={<ViewMember />}
@@ -200,10 +195,6 @@ export default function App() {
                               <Route
                                 path={route_kintree_member + "/:id"}
                                 element={<KintreeMember />}
-                              />
-                              <Route
-                                path={route_family_tree_edit_member}
-                                element={<EditMember />}
                               />
                               <Route path={route_chats} element={<Chats />} />
                               <Route

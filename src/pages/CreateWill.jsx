@@ -11,19 +11,21 @@ import UnsavedChangesDialog from "@/components/will/UnsavedChangesDialog";
 import WillAcknowledgement from "@/components/will/WillAcknowledgement";
 import { useWill } from "@/hooks/useWill";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function CreateWill() {
+  const { t } = useTranslation();
   const [step, setStep] = useState("acknowledge");
   const { willData } = useWill();
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const steps = [
-    { id: "personal-info", title: "Personal Details" },
-    { id: "beneficiaries", title: "Beneficiaries" },
-    { id: "allocation", title: "Allocation" },
-    { id: "executor", title: "Executor" },
-    { id: "review", title: "Review" },
-    { id: "selfie", title: "Self Authentication" },
-    { id: "notarize", title: "Notarization" },
+    { id: "personal-info", title: t("personal_details") },
+    { id: "beneficiaries", title: t("beneficiaries") },
+    { id: "allocation", title: t("allocation") },
+    { id: "executor", title: t("executor") },
+    { id: "review", title: t("review") },
+    { id: "selfie", title: t("self_authentication") },
+    { id: "notarize", title: t("notarization") },
   ];
   function willCreationStep() {
     switch (step) {

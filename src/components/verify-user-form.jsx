@@ -23,26 +23,26 @@ import {
   CardTitle,
 } from "./ui/card";
 
-const verifyUserSchema = z.object({
-  email: z.string().email("Invalid email address").optional(),
-  phone_no: z.string().min(10, "Invalid phone number").optional(),
-  otp: z.object({
-    otp: z
-      .string()
-      .refine(
-        (val) => val.length === 4 || val.length === 6,
-        "OTP must be 4 or 6 digits"
-      )
-      .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
-  }),
-});
-
 export default function VerifyUserForm({ setIsVerified }) {
   const [verifyType, setVerifyType] = useState("email");
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
+
+  const verifyUserSchema = z.object({
+    email: z.string().email("Invalid email address").optional(),
+    phone_no: z.string().min(10, "Invalid phone number").optional(),
+    otp: z.object({
+      otp: z
+        .string()
+        .refine(
+          (val) => val.length === 4 || val.length === 6,
+          "OTP must be 4 or 6 digits"
+        )
+        .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
+    }),
+  });
 
   const form = useForm({
     resolver: zodResolver(verifyUserSchema),

@@ -22,54 +22,61 @@ import { useNavigate } from "react-router";
 import CustomDateMonthYearPicker from "@/components/custom-ui/custom-dateMonthYearPicker";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { addDays, addWeeks } from "date-fns";
-
-const DURATION_OPTIONS = [
-  { value: "1day", label: "1 Day", getDuration: (start) => addDays(start, 1) },
-  {
-    value: "2days",
-    label: "2 Days",
-    getDuration: (start) => addDays(start, 2),
-  },
-  {
-    value: "1week",
-    label: "1 Week",
-    getDuration: (start) => addWeeks(start, 1),
-  },
-  {
-    value: "2weeks",
-    label: "2 Weeks",
-    getDuration: (start) => addWeeks(start, 2),
-  },
-];
-
-const pollSchema = z.object({
-  question: z
-    .string()
-    .min(5, "Question must be at least 5 characters long")
-    .max(200, "Question cannot exceed 200 characters"),
-  pollOptions: z
-    .array(
-      z
-        .string()
-        .min(1, "Option cannot be empty")
-        .max(30, "Option cannot exceed 30 words")
-        .refine(
-          (value) => value.trim().split(/\s+/).length <= 30,
-          "Option cannot exceed 30 words"
-        )
-    )
-    .min(2, "At least 2 options are required")
-    .max(4, "Maximum 4 options are allowed"),
-  startDate: z.coerce.date({
-    required_error: "Start date is required",
-    invalid_type_error: "That's not a date!",
-  }),
-  duration: z.string({
-    required_error: "Please select a duration",
-  }),
-});
+import { useTranslation } from "react-i18next";
 
 export default function CreatePoll() {
+  const { t } = useTranslation();
+
+  const DURATION_OPTIONS = [
+    {
+      value: "1day",
+      label: t("duration_1_day"),
+      getDuration: (start) => addDays(start, 1),
+    },
+    {
+      value: "2days",
+      label: t("duration_2_days"),
+      getDuration: (start) => addDays(start, 2),
+    },
+    {
+      value: "1week",
+      label: t("duration_1_week"),
+      getDuration: (start) => addWeeks(start, 1),
+    },
+    {
+      value: "2weeks",
+      label: t("duration_2_weeks"),
+      getDuration: (start) => addWeeks(start, 2),
+    },
+  ];
+
+  const pollSchema = z.object({
+    question: z
+      .string()
+      .min(5, t("question_min_length"))
+      .max(200, t("question_max_length")),
+    pollOptions: z
+      .array(
+        z
+          .string()
+          .min(1, t("option_required"))
+          .max(30, t("option_max_length"))
+          .refine(
+            (value) => value.trim().split(/\s+/).length <= 30,
+            t("option_max_words")
+          )
+      )
+      .min(2, t("min_options"))
+      .max(4, t("max_options")),
+    startDate: z.coerce.date({
+      required_error: t("start_date_required"),
+      invalid_type_error: t("invalid_date"),
+    }),
+    duration: z.string({
+      required_error: t("duration_required"),
+    }),
+  });
+
   const navigate = useNavigate();
   const {
     register,
@@ -132,7 +139,7 @@ export default function CreatePoll() {
         navigate("/", { state: { newPost: true } });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create poll");
+        toast.error(t("poll_creation_error"));
       },
     });
   };
@@ -159,18 +166,20 @@ export default function CreatePoll() {
                 />
               </svg>
             </span>
-            Back to Foreroom
+            {t("back_to_foreroom")}
           </NavLink>
         </div>
         <Card className="w-full rounded-2xl">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <CardHeader className="text-xl font-bold">Create Poll</CardHeader>
+            <CardHeader className="text-xl font-bold">
+              {t("create_poll")}
+            </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Question</Label>
+                <Label>{t("question")}</Label>
                 <Textarea
                   {...register("question")}
-                  placeholder="Type your question here."
+                  placeholder={t("question_placeholder")}
                   rows="4"
                 />
                 {errors.question && (
@@ -181,12 +190,14 @@ export default function CreatePoll() {
               </div>
 
               <div className="space-y-4">
-                <Label>Options</Label>
+                <Label>{t("options")}</Label>
                 {pollOptions.map((_, index) => (
                   <div key={index} className="flex gap-2">
                     <Input
                       {...register(`pollOptions.${index}`)}
-                      placeholder={`Option ${index + 1}`}
+                      placeholder={t("option_placeholder", {
+                        number: index + 1,
+                      })}
                       className="rounded-full h-10 md:h-12 px-4 md:px-6"
                     />
                     {pollOptions.length > 2 && (
@@ -216,13 +227,13 @@ export default function CreatePoll() {
                   onClick={addOption}
                   className="rounded-full h-10 md:h-12 px-4 md:px-6"
                 >
-                  Add Option
+                  {t("add_option")}
                 </Button>
               )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <Label>Start Date</Label>
+                  <Label>{t("start_date")}</Label>
                   <Controller
                     control={control}
                     name="startDate"
@@ -230,7 +241,7 @@ export default function CreatePoll() {
                       <CustomDateMonthYearPicker
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Select start date"
+                        placeholder={t("select_start_date")}
                         minDate={new Date()}
                         className="rounded-full h-10 md:h-12 px-4 md:px-6"
                       />
@@ -244,7 +255,7 @@ export default function CreatePoll() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>Duration</Label>
+                  <Label>{t("duration")}</Label>
                   <Controller
                     control={control}
                     name="duration"
@@ -289,7 +300,7 @@ export default function CreatePoll() {
                 disabled={isCreatingPost || isPending}
                 className="rounded-full h-10 md:h-12 px-4 md:px-6"
               >
-                {isCreatingPost ? "Creating..." : "Create Poll"}
+                {isCreatingPost ? t("creating_poll") : t("create_poll")}
               </Button>
             </CardFooter>
           </form>

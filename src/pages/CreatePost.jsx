@@ -41,23 +41,6 @@ const SUPPORTED_IMAGE_TYPES = [
 const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-export const postSchema = z.object({
-  body: z
-    .string()
-    .min(5, "Caption must be at least 5 characters")
-    .max(1000, "Caption cannot exceed 1000 characters")
-    .optional(),
-  feeling_id: z.number().nullable(),
-  album_id: z.number().nullable(),
-  privacy: z.object({
-    id: z.number(),
-    title: z.string(),
-    desc: z.string(),
-    icon: z.string(),
-  }),
-  attachment_ids: z.array(z.number()).optional(),
-});
-
 const defaultPrivacy = {
   id: 1,
   title: "global",
@@ -72,7 +55,22 @@ export default function CreatePost() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-
+  const postSchema = z.object({
+    body: z
+      .string()
+      .min(5, "Caption must be at least 5 characters")
+      .max(1000, "Caption cannot exceed 1000 characters")
+      .optional(),
+    feeling_id: z.number().nullable(),
+    album_id: z.number().nullable(),
+    privacy: z.object({
+      id: z.number(),
+      title: z.string(),
+      desc: z.string(),
+      icon: z.string(),
+    }),
+    attachment_ids: z.array(z.number()).optional(),
+  });
   const form = useForm({
     resolver: zodResolver(postSchema),
     defaultValues: {
@@ -99,20 +97,21 @@ export default function CreatePost() {
         !SUPPORTED_VIDEO_TYPES.includes(file.type)
       ) {
         toast.error(
-          `"${file.name}" - ${t(
-            "unsupported_file_format"
-          )}. Supported formats are: .jpg, .png, .gif, .webp, .mp4, .mov, .webm`
+          t("file_format_error", {
+            fileName: file.name,
+            formats: ".jpg, .png, .gif, .webp, .mp4, .mov, .webm",
+          })
         );
         continue;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(`"${file.name}" - ${t("file_too_large")}`);
+        toast.error(t("file_size_error", { fileName: file.name }));
         continue;
       }
 
       if (mediaFiles.length + validFiles.length >= 10) {
-        toast.error("Maximum 10 files allowed");
+        toast.error(t("max_files_error"));
         break;
       }
 
@@ -138,7 +137,7 @@ export default function CreatePost() {
         [...uploadedAttachments, ...newAttachments].map((att) => att.id)
       );
     } catch (error) {
-      toast.error("Failed to upload files");
+      toast.error(t("upload_failed"));
     } finally {
       setIsUploading(false);
     }
@@ -159,19 +158,19 @@ export default function CreatePost() {
         );
       },
       onError: (error) => {
-        toast.error("Failed to delete file");
+        toast.error(t("delete_failed"));
       },
     });
   };
 
   const onSubmit = (values) => {
     if (!values.body?.trim() && !uploadedAttachments.length) {
-      toast.error("Please add either a caption or media files");
+      toast.error(t("empty_post_error"));
       return;
     }
 
     if (uploadedAttachments.length > 10) {
-      toast.error("Please add less than 10 media files");
+      toast.error(t("max_files_error"));
       return;
     }
 
@@ -184,7 +183,7 @@ export default function CreatePost() {
         });
       },
       onError: (error) => {
-        toast.error(error.message || "Failed to create post");
+        toast.error(t("post_creation_failed"));
       },
     });
   };

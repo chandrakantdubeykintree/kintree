@@ -39,6 +39,7 @@ import { LocationSearchInput } from "@/components/location-search-input";
 import CustomMultiSelect from "@/components/custom-ui/custom-multi-select";
 import { Card } from "@/components/ui/card";
 import CustomDateTimePicker from "@/components/custom-ui/custom-date-time-picker";
+import { useTranslation } from "react-i18next";
 
 const createEventSchema = z.object({
   event_category_id: z.string().min(1, "Event category is required"),
@@ -72,6 +73,7 @@ const createEventSchema = z.object({
 });
 
 export default function CreateEvent() {
+  const { t } = useTranslation();
   const [attachments, setAttachments] = useState([]);
   const navigate = useNavigate();
   const { mutateAsync: createEvent, isLoading } = useCreateEvent();
@@ -81,6 +83,26 @@ export default function CreateEvent() {
     useUploadAttachment();
   const { mutate: deleteAttachment, isLoading: isDeleting } =
     useDeleteAttachment();
+
+  const createEventSchema = z.object({
+    event_category_id: z.string().min(1, t("event_category_required")),
+    name: z.string().min(1, t("name_required")).max(50, t("name_max_length")),
+    venue: z.string().min(1, t("venue_required")),
+    start_at: z
+      .string()
+      .min(1, t("start_date_required"))
+      .refine((date) => new Date(date) > new Date(), t("start_date_future")),
+    end_at: z
+      .string()
+      .optional()
+      .refine(
+        (date) => !date || new Date(date) > new Date(),
+        t("end_date_future")
+      ),
+    details: z.string().max(200, t("details_max_length")).optional(),
+    attachment_ids: z.array(z.number()).optional(),
+    attendee_ids: z.array(z.number()).min(1, t("attendees_required")),
+  });
 
   const form = useForm({
     resolver: zodResolver(createEventSchema),
@@ -100,7 +122,7 @@ export default function CreateEvent() {
     const files = Array.from(e.target.files);
 
     if (attachments.length + files.length > 3) {
-      toast.error("Maximum 3 attachments allowed");
+      toast.error(t("max_attachments_error"));
       return;
     }
 
@@ -123,7 +145,7 @@ export default function CreateEvent() {
         ...newAttachments.map((att) => att.id),
       ]);
     } catch (error) {
-      toast.error("Failed to upload files");
+      toast.error(t("file_upload_error"));
     }
   };
 
@@ -167,6 +189,7 @@ export default function CreateEvent() {
           <img
             src="/illustrations/illustration_12.png"
             className="object-cover w-full h-full rounded-lg"
+            alt={t("events_banner_image")}
           />
         </div>
         <div className="flex items-center gap-4 mb-6 px-4">
@@ -189,7 +212,7 @@ export default function CreateEvent() {
                 />
               </svg>
             </span>
-            Back to Events
+            {t("back_to_events")}
           </NavLink>
         </div>
         <div className="rounded-lg bg-brandSecondary m-4 p-4">
@@ -201,7 +224,7 @@ export default function CreateEvent() {
               >
                 <div>
                   <div className="text-2xl font-medium mb-4">
-                    Create New Event
+                    {t("create_new_event")}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -215,7 +238,9 @@ export default function CreateEvent() {
                               value={field.value}
                             >
                               <SelectTrigger className="w-full h-10 md:h-12 rounded-full bg-background">
-                                <SelectValue placeholder="Select event category" />
+                                <SelectValue
+                                  placeholder={t("select_event_category")}
+                                />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectGroup>
@@ -245,7 +270,7 @@ export default function CreateEvent() {
                           <FormControl>
                             <Input
                               {...field}
-                              placeholder="Event Name"
+                              placeholder={t("event_name")}
                               className="h-10 md:h-12 rounded-full bg-background"
                             />
                           </FormControl>
@@ -262,7 +287,7 @@ export default function CreateEvent() {
                           <FormControl>
                             <LocationSearchInput
                               {...field}
-                              placeholder="Search venue..."
+                              placeholder={t("search_venue")}
                               className="h-10 md:h-12 rounded-full bg-background"
                             />
                           </FormControl>
@@ -293,7 +318,7 @@ export default function CreateEvent() {
                                 }))}
                               value={field.value}
                               onChange={field.onChange}
-                              placeholder="Select Attendees"
+                              placeholder={t("select_attendees")}
                               className="h-10 md:h-12 bg-background rounded-full"
                             />
                           </FormControl>
@@ -320,7 +345,7 @@ export default function CreateEvent() {
                               }}
                               minDate={new Date()}
                               className="h-10 md:h-12 rounded-full"
-                              placeholder="Select start date & time"
+                              placeholder={t("select_start_date")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -364,7 +389,7 @@ export default function CreateEvent() {
                                   : new Date()
                               }
                               className="h-10 md:h-12 rounded-full"
-                              placeholder="Select end date & time"
+                              placeholder={t("select_end_date")}
                             />
                           </FormControl>
                           <FormMessage />
@@ -381,7 +406,7 @@ export default function CreateEvent() {
                         <FormControl>
                           <Textarea
                             {...field}
-                            placeholder="Event Details"
+                            placeholder={t("event_details")}
                             className="rounded-2xl bg-background"
                           />
                         </FormControl>
@@ -406,7 +431,7 @@ export default function CreateEvent() {
                         className="cursor-pointer flex items-center gap-2 p-2 border rounded-full bg-background"
                       >
                         <Upload className="w-4 h-4" />
-                        {isUploading ? "Uploading..." : "Upload Attachments"}
+                        {isUploading ? t("uploading") : t("upload_attachments")}
                       </label>
                       <span className="text-sm text-gray-500">
                         ({attachments.length}/3)
@@ -454,7 +479,7 @@ export default function CreateEvent() {
                     className="rounded-full h-10 md:h-12 px-4 md:px-6"
                     variant="outline"
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button
                     type="submit"
@@ -464,10 +489,10 @@ export default function CreateEvent() {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
+                        {t("creating")}
                       </>
                     ) : (
-                      "Create Event"
+                      t("create_event")
                     )}
                   </Button>
                 </div>

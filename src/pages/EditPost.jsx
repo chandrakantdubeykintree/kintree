@@ -13,6 +13,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import PrivacyDropdown from "@/components/privacy-dropdown";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -24,6 +25,7 @@ const SUPPORTED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm"];
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export default function EditPost() {
+  const { t } = useTranslation();
   const [deletedAttachmentIds, setDeletedAttachmentIds] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
@@ -60,7 +62,7 @@ export default function EditPost() {
   useEffect(() => {
     if (postData && user) {
       if (postData?.author_details?.id !== user?.id) {
-        toast.error("You are not authorized to edit this post");
+        toast.error(t("unauthorized_edit"));
         navigate("/foreroom");
         return;
       }
@@ -116,7 +118,7 @@ export default function EditPost() {
     return <ComponentLoading />;
   }
   if (error) {
-    toast.error("Failed to load post");
+    toast.error(t("load_post_error"));
     navigate("/foreroom");
     return null;
   }
@@ -126,26 +128,27 @@ export default function EditPost() {
     const files = Array.from(e.target.files);
     const validFiles = [];
 
-    // Check each file individually
     for (const file of files) {
       if (
         !SUPPORTED_IMAGE_TYPES.includes(file.type) &&
         !SUPPORTED_VIDEO_TYPES.includes(file.type)
       ) {
         toast.error(
-          `"${file.name}" - Unsupported file type. Please use JPG, PNG, GIF, WEBP, MP4, MOV, or WEBM.`
+          t("file_format_error", {
+            fileName: file.name,
+            formats: ".jpg, .png, .gif, .webp, .mp4, .mov, .webm",
+          })
         );
         continue;
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        toast.error(`"${file.name}" - File size exceeds 10MB limit.`);
+        toast.error(t("file_size_error", { fileName: file.name }));
         continue;
       }
 
-      // Check if adding this file would exceed the 10 file limit
       if (mediaFiles.length + files.length + validFiles.length >= 10) {
-        toast.error("Maximum 10 files allowed");
+        toast.error(t("max_files_error"));
         break;
       }
 
@@ -169,7 +172,7 @@ export default function EditPost() {
       const newAttachments = result.data;
       setUploadedAttachments((prev) => [...prev, ...newAttachments]);
     } catch (error) {
-      toast.error("Failed to upload files");
+      toast.error(t("upload_failed"));
     } finally {
       setIsUploading(false);
     }
@@ -217,14 +220,12 @@ export default function EditPost() {
             setFiles([]);
           },
           onError: (error) => {
-            toast.error(
-              error.response?.data?.message || "Failed to update post"
-            );
+            toast.error(t("update_post_error"));
           },
         }
       );
     } catch (error) {
-      toast.error("Failed to update post");
+      toast.error(t("update_post_error"));
     }
   };
 
@@ -251,13 +252,13 @@ export default function EditPost() {
                 />
               </svg>
             </span>
-            Back to Foreroom
+            {t("back_to_foreroom")}
           </NavLink>
         </div>
         <Card className="w-full">
           <form onSubmit={handleSubmit}>
             <CardHeader className="flex flex-row flex-wrap justify-between items-center">
-              <div className="text-xl font-bold">Edit Post</div>
+              <div className="text-xl font-bold">{t("edit_post")}</div>
               <PrivacyDropdown
                 selectedPrivacy={privacy}
                 setSelectedPrivacy={setPrivacy}
@@ -266,13 +267,13 @@ export default function EditPost() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <Label>Caption</Label>
+                  <Label>{t("caption")}</Label>
                   <span
                     className={`text-sm ${
                       isOverLimit ? "text-red-500" : "text-gray-500"
                     }`}
                   >
-                    {charCount}/1000 characters
+                    {t("character_count", { count: charCount, max: 1000 })}
                   </span>
                 </div>
                 <Textarea
@@ -289,11 +290,11 @@ export default function EditPost() {
                       ? "border-red-500 focus-visible:ring-red-500"
                       : ""
                   }`}
-                  placeholder="Edit your post..."
+                  placeholder={t("edit_post_placeholder")}
                 />
                 {isOverLimit && (
                   <p className="text-sm text-red-500">
-                    Caption cannot exceed 1000 characters
+                    {t("caption_max_length")}
                   </p>
                 )}
               </div>
@@ -302,7 +303,7 @@ export default function EditPost() {
               {files.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Current Attachments
+                    {t("current_attachments")}
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     {files.map((file, index) => (
@@ -349,7 +350,7 @@ export default function EditPost() {
               {mediaFiles.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    New Attachments {isUploading && "(Uploading...)"}
+                    {t("new_attachments")} {isUploading && t("uploading")}
                   </label>
                   <div className="grid grid-cols-2 gap-4">
                     {mediaFiles.map((file, index) => (
@@ -407,14 +408,14 @@ export default function EditPost() {
                   variant="outline"
                   className="rounded-full h-10 md:h-12 px-4 md:px-6"
                 >
-                  <label>Add Files</label>
+                  <label>{t("add_files")}</label>
                 </Button>
                 <Button
                   type="submit"
                   disabled={editPostMutation.isPending}
                   className="rounded-full h-10 md:h-12 px-4 md:px-6"
                 >
-                  {editPostMutation.isPending ? "Saving..." : "Save Changes"}
+                  {editPostMutation.isPending ? t("saving") : t("save_changes")}
                 </Button>
               </div>
             </CardContent>

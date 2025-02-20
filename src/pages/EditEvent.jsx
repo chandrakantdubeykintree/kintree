@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/select";
 import { capitalizeName } from "@/utils/stringFormat";
 import { format, addHours } from "date-fns";
-import { NavLink, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Map } from "@/components/map";
 import { LocationSearchInput } from "@/components/location-search-input";
 import CustomMultiSelect from "@/components/custom-ui/custom-multi-select";
@@ -40,37 +40,10 @@ import { Card } from "@/components/ui/card";
 import CustomDateTimePicker from "@/components/custom-ui/custom-date-time-picker";
 import ComponentLoading from "@/components/component-loading";
 import toast from "react-hot-toast";
-
-const editEventSchema = z.object({
-  event_category_id: z.string().min(1, "Event category is required"),
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(50, "Name must be 50 characters or less"),
-  venue: z.string().min(1, "Venue is required"),
-  start_at: z
-    .string()
-    .min(1, "Start date is required")
-    .refine(
-      (date) => new Date(date) > new Date(),
-      "Start date & time must be in the future"
-    ),
-  end_at: z
-    .string()
-    .optional()
-    .refine(
-      (date) => !date || new Date(date) > new Date(),
-      "End date & time must be in the future"
-    ),
-  details: z
-    .string()
-    .max(200, "Details must be 200 characters or less")
-    .optional(),
-  attachment_ids: z.array(z.number()).optional(),
-  attendee_ids: z.array(z.number()).min(1, "Attendees are required"),
-});
+import { useTranslation } from "react-i18next";
 
 export default function EditEvent() {
+  const { t } = useTranslation();
   const { eventId } = useParams();
   const navigate = useNavigate();
   const { data: event, isLoading: isLoadingEvent } = useEvent(eventId);
@@ -82,7 +55,25 @@ export default function EditEvent() {
   const { mutate: deleteAttachment, isLoading: isDeleting } =
     useDeleteAttachment();
   const [attachments, setAttachments] = useState([]);
-
+  const editEventSchema = z.object({
+    event_category_id: z.string().min(1, t("event_category_required")),
+    name: z.string().min(1, t("name_required")).max(50, t("name_max_length")),
+    venue: z.string().min(1, t("venue_required")),
+    start_at: z
+      .string()
+      .min(1, t("start_date_required"))
+      .refine((date) => new Date(date) > new Date(), t("start_date_future")),
+    end_at: z
+      .string()
+      .optional()
+      .refine(
+        (date) => !date || new Date(date) > new Date(),
+        t("end_date_future")
+      ),
+    details: z.string().max(200, t("details_max_length")).optional(),
+    attachment_ids: z.array(z.number()).optional(),
+    attendee_ids: z.array(z.number()).min(1, t("attendees_required")),
+  });
   const form = useForm({
     resolver: zodResolver(editEventSchema),
     defaultValues: {
@@ -127,10 +118,10 @@ export default function EditEvent() {
       };
 
       await editEvent({ eventId, updatedEvent: formattedData });
-      toast.success("Event updated successfully");
+      toast.success(t("event_update_success"));
       navigate(`/view-event/${eventId}`);
     } catch (error) {
-      toast.error("Failed to update event");
+      toast.error(t("event_update_failed"));
     }
   };
 
@@ -138,7 +129,7 @@ export default function EditEvent() {
     const files = Array.from(e.target.files);
 
     if (attachments.length + files.length > 3) {
-      toast.error("Maximum 3 attachments allowed");
+      toast.error(t("max_attachments_error"));
       return;
     }
 
@@ -162,7 +153,7 @@ export default function EditEvent() {
         ...newAttachments.map((att) => att.id),
       ]);
     } catch (error) {
-      toast.error("Failed to upload attachments");
+      toast.error(t("attachment_upload_failed"));
     }
   };
 
@@ -189,30 +180,7 @@ export default function EditEvent() {
   return (
     <AsyncComponent>
       <Card className="bg-background rounded-2xl h-full overflow-y-scroll no_scrollbar p-4">
-        {/* <div className="flex items-center gap-4 mb-6">
-          <NavLink
-            to={`/view-event/${eventId}`}
-            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
-          >
-            <span className="h-8 w-8 rounded-full hover:bg-sky-100 flex items-center justify-center">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                />
-              </svg>
-            </span>
-            Back to Event
-          </NavLink>
-        </div> */}
-        <div className="text-2xl font-medium mb-4">Edit Event</div>
+        <div className="text-2xl font-medium mb-4">{t("edit_event")}</div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -227,11 +195,13 @@ export default function EditEvent() {
                         onValueChange={field.onChange}
                       >
                         <SelectTrigger className="h-12 rounded-full">
-                          <SelectValue placeholder="Select event category" />
+                          <SelectValue
+                            placeholder={t("select_event_category")}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Event Category</SelectLabel>
+                            <SelectLabel>{t("event_category")}</SelectLabel>
                             {eventCategories?.map((category) => (
                               <SelectItem
                                 key={category.id}
@@ -257,7 +227,7 @@ export default function EditEvent() {
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="Event Name"
+                        placeholder={t("event_name")}
                         className="h-12 rounded-full"
                       />
                     </FormControl>
@@ -274,7 +244,7 @@ export default function EditEvent() {
                     <FormControl>
                       <LocationSearchInput
                         {...field}
-                        placeholder="Search venue..."
+                        placeholder={t("search_venue")}
                         className="h-12 rounded-full"
                       />
                     </FormControl>
@@ -305,7 +275,7 @@ export default function EditEvent() {
                           }))}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder="Select Attendees"
+                        placeholder={t("select_attendees")}
                         className="h-12 rounded-full"
                       />
                     </FormControl>
@@ -330,7 +300,7 @@ export default function EditEvent() {
                         }}
                         minDate={new Date()}
                         className="h-12 rounded-full"
-                        placeholder="Select start date & time"
+                        placeholder={t("select_start_date")}
                       />
                     </FormControl>
                     <FormMessage />
@@ -358,7 +328,7 @@ export default function EditEvent() {
                             : new Date()
                         }
                         className="h-12 rounded-full"
-                        placeholder="Select end date & time"
+                        placeholder={t("select_end_date")}
                       />
                     </FormControl>
                     <FormMessage />
@@ -375,7 +345,7 @@ export default function EditEvent() {
                   <FormControl>
                     <Textarea
                       {...field}
-                      placeholder="Event Details"
+                      placeholder={t("event_details")}
                       className="rounded-2xl"
                     />
                   </FormControl>
@@ -400,7 +370,7 @@ export default function EditEvent() {
                   className="cursor-pointer flex items-center gap-2 p-2 border rounded-full"
                 >
                   <Upload className="w-4 h-4" />
-                  {isUploading ? "Uploading..." : "Upload Attachments"}
+                  {isUploading ? t("uploading") : t("upload_attachments")}
                 </label>
                 <span className="text-sm text-gray-500">
                   ({attachments.length}/3)
@@ -454,7 +424,7 @@ export default function EditEvent() {
                 className="rounded-full h-10 md:h-12"
                 variant="outline"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
@@ -464,10 +434,10 @@ export default function EditEvent() {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating...
+                    {t("updating")}
                   </>
                 ) : (
-                  "Update Event"
+                  t("update_event")
                 )}
               </Button>
             </div>
