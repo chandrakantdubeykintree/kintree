@@ -27,9 +27,7 @@ import {
   route_view_poll,
   route_family_tree,
   route_family_member,
-  route_family_tree_add_member,
   route_family_tree_view_member,
-  route_family_tree_edit_member,
   route_chats,
   route_events,
   route_events_create_event,
@@ -48,7 +46,7 @@ import {
   route_kintree_member,
 } from "./constants/routeEnpoints";
 import { SidebarProvider } from "./context/SidebarContext";
-import PageNotFound from "./components/page-not-found";
+import PageNotFound from "./pages/PageNotFound";
 import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import FlutterChat from "./pages/FlutterChat";
@@ -76,7 +74,7 @@ const {
   ViewProfile,
   Settings,
   EditSettings,
-  Notifications,
+  NotificationsPage,
   Events,
   CreateEvent,
   EditEvent,
@@ -187,7 +185,6 @@ export default function App() {
                                 path={route_family_member + "/:id"}
                                 element={<FamilyMember />}
                               />
-
                               <Route
                                 path={route_family_tree_view_member}
                                 element={<ViewMember />}
@@ -215,7 +212,7 @@ export default function App() {
                               />
                               <Route
                                 path={route_notifications}
-                                element={<Notifications />}
+                                element={<NotificationsPage />}
                               />
                               <Route path={route_events} element={<Events />} />
                               <Route
@@ -248,9 +245,9 @@ export default function App() {
                                 element={<EditWill />}
                               />
                               <Route path="/faqs" element={<FAQS />} />
-                              <Route path="*" element={<PageNotFound />} />
                             </Route>
                           </Route>
+                          <Route path="*" element={<PageNotFound />} />
                         </Routes>
                       </Suspense>
                     </AuthProvider>

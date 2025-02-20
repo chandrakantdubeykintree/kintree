@@ -31,7 +31,9 @@ export const ViewProfile = lazy(() => import("./pages/ViewProfile"));
 
 export const Settings = lazy(() => import("./pages/Settings"));
 
-export const Notifications = lazy(() => import("./pages/Notifications"));
+export const NotificationsPage = lazy(() =>
+  import("./pages/NotificationsPage")
+);
 
 export const Events = lazy(() => import("./pages/Events"));
 export const CreateEvent = lazy(() => import("./pages/CreateEvent"));
