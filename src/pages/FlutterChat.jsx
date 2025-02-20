@@ -59,7 +59,7 @@ export default function FlutterChat() {
   }, [token, navigate]);
 
   return (
-    <div style={{ height: "100vh", overflow: "hidden" }}>
+    <div style={{ height: "100vh" }}>
       <FlutterChats />
     </div>
   );
