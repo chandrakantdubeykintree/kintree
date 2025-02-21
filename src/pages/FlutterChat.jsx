@@ -37,7 +37,7 @@ export default function FlutterChat() {
 
   useEffect(() => {
     if (!searchParams.has("mobile")) {
-      setSearchParams({ mobile: "true" });
+      setSearchParams({ mobile: "false" });
     }
   }, []);
 
