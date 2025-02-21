@@ -901,7 +901,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         />
                         <div className="w-full text-md">Select Messages</div>
                       </DropdownMenuItem>
-                      {selectedChannel?.is_group ? (
+                      {/* {selectedChannel?.is_group ? (
                         <DropdownMenuItem
                           onClick={() => setIsDeleteDialogOpen(true)}
                           className="bg-transparent flex gap-4 items-center text-destructive"
@@ -917,7 +917,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                           <img src="/icons/delete.svg" className="w-6 h-6" />
                           <div className="w-full text-md">Clear Chat</div>
                         </DropdownMenuItem>
-                      )}
+                      )} */}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
