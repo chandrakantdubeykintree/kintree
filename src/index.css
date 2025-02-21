@@ -154,13 +154,6 @@
   background: var(--background);
 }
 
-.accordionContainer button svg {
-  color: var(--brand-primary);
-  stroke-width: 2px;
-  width: 20px;
-  height: 20px;
-}
-
 .custom-clip-polygon {
   clip-path: polygon(100% 1%, 100% 53%, 100% 100%, 0% 100%, 25% 50%, 0% 0%);
 }

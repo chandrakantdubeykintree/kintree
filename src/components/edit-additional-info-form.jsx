@@ -386,7 +386,7 @@ export default function EditAdditionalInfoForm() {
     </>
   ) : (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value="item-1">
+      <AccordionItem value="item-1" className="border-none">
         <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
           {t("additional_information")}
         </AccordionTrigger>

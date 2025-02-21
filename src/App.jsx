@@ -50,6 +50,7 @@ import PageNotFound from "./pages/PageNotFound";
 import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import FlutterChat from "./pages/FlutterChat";
+import Test from "./pages/Test";
 
 const {
   RootLayout,
@@ -95,7 +96,15 @@ export default function App() {
             <Suspense fallback={<GlobalSpinner />}>
               <Routes>
                 {/* Flutter Chat Route (exclusive) */}
-                <Route path="/flutter-chat/:token" element={<FlutterChat />} />
+                {/* <Route path="/flutter-chat/:token" element={<FlutterChat />} /> */}
+                <Route
+                  path="/flutter-chat/:token"
+                  element={
+                    <Suspense fallback={<GlobalSpinner />}>
+                      <FlutterChat />
+                    </Suspense>
+                  }
+                />
                 {/* Main Routes */}
                 <Route
                   path="/*"
@@ -248,6 +257,7 @@ export default function App() {
                             </Route>
                           </Route>
                           <Route path="*" element={<PageNotFound />} />
+                          <Route path="/test" element={<Test />} />
                         </Routes>
                       </Suspense>
                     </AuthProvider>

@@ -97,7 +97,7 @@ export default function ProfileAbout() {
         </div>
       </div>
       {/* right side content */}
-      <Card className="p-2 h-full col-span-12 md:col-span-8 lg:col-span-9 bg-brandSecondary">
+      <Card className="sm:p-2 h-full col-span-12 md:col-span-8 lg:col-span-9 sm:bg-brandSecondary shadow-none border-none">
         {renderContent()}
       </Card>
     </div>

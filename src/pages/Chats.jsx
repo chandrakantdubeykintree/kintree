@@ -20,7 +20,8 @@ import {
   ImageIcon,
   File,
   Pencil,
-  PencilIcon,
+  CircleUserRound,
+  Trash2Icon,
 } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -53,6 +54,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { kintreeApi } from "@/services/kintreeApi";
 import TypingIndicator from "@/components/typing-indicator";
+import { useNavigate, useSearchParams } from "react-router";
 
 // Define validation schema
 const editChannelSchema = z.object({
@@ -67,8 +69,9 @@ const editChannelSchema = z.object({
   thumbnail_image: z.any().optional(),
 });
 
-export default function Chats() {
+export default function Chats({ isFlutter, onViewChange }) {
   const [selectedChannel, setSelectedChannel] = useState(null);
+  const navigate = useNavigate();
   const [openSheet, setOpenSheet] = useState({
     createChannel: false,
     updateChannel: false,
@@ -98,7 +101,6 @@ export default function Chats() {
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [channelSearchQuery, setChannelSearchQuery] = useState("");
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
-  const [isCreatingChat, setIsCreatingChat] = useState(false);
   const [isSelectMode, setIsSelectMode] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState([]);
   const [messageInfoData, setMessageInfoData] = useState(null);
@@ -118,6 +120,30 @@ export default function Chats() {
     pagination,
     error: socketError,
   } = useMessageStore();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Add this effect to handle mobile parameter updates
+  useEffect(() => {
+    if (isFlutter) {
+      setSearchParams({ mobile: showMobileList ? "true" : "false" });
+    }
+  }, [showMobileList, isFlutter, setSearchParams]);
+  const handleShowMobileList = (show) => {
+    setShowMobileList(show);
+    if (isFlutter && onViewChange) {
+      onViewChange(show);
+    }
+  };
+
+  const [newMembersToAdd, setNewMembersToAdd] = useState([]);
+  // Add this new handler function
+  const handleUpdateGroupMembers = (member) => {
+    setNewMembersToAdd((prev) =>
+      prev.some((m) => m.id === member.id)
+        ? prev.filter((m) => m.id !== member.id)
+        : [...prev, member]
+    );
+  };
 
   const handleTouchStart = (messageId) => {
     setIsTouchActive(true);
@@ -140,7 +166,8 @@ export default function Chats() {
     control,
     handleSubmit,
     reset,
-    formState: { isSubmitting },
+    getValues,
+    formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(editChannelSchema),
     defaultValues: {
@@ -152,19 +179,23 @@ export default function Chats() {
 
   useEffect(() => {
     if (openSheet.updateChannel && selectedChannel) {
-      reset({
+      const currentValues = {
         name: selectedChannel.name,
         description: selectedChannel.description || "",
         thumbnail_image: null,
-      });
-      setNewChannelData({
-        name: selectedChannel.name,
-        description: selectedChannel.description || "",
-        thumbnail_image: null,
-        channelId: selectedChannel.id,
-      });
+      };
+
+      if (JSON.stringify(currentValues) !== JSON.stringify(getValues())) {
+        reset(currentValues);
+        setNewChannelData({
+          name: selectedChannel.name,
+          description: selectedChannel.description || "",
+          thumbnail_image: null,
+          channelId: selectedChannel.id,
+        });
+      }
     }
-  }, [openSheet.updateChannel, selectedChannel, reset]);
+  }, [openSheet.updateChannel, selectedChannel]);
 
   const handleUpdateSubmit = async (data) => {
     try {
@@ -201,6 +232,7 @@ export default function Chats() {
   };
 
   // Add this function to handle file selection
+
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -243,12 +275,20 @@ export default function Chats() {
     }
 
     return () => {
-      if (selectedChannel) {
-        messageService.leaveChannel(selectedChannel.id);
-      }
+      // if (selectedChannel) {
+      //   messageService.leaveChannel(selectedChannel.id);
+      // }
       messageService.disconnect();
     };
   }, []);
+  useEffect(() => {
+    return () => {
+      // Only attempt to leave if there's a selected channel when component unmounts
+      if (selectedChannel?.id) {
+        messageService.leaveChannel(selectedChannel.id);
+      }
+    };
+  }, [selectedChannel?.id]);
 
   // Scroll to bottom for new messages
   const scrollToBottom = useCallback(() => {
@@ -289,18 +329,14 @@ export default function Chats() {
     }
   }, [selectedChannel, messages]);
 
-  // Listen for typing events
-
   const handleMemberSelect = async (member) => {
     if (isGroupChatMode) {
-      // For group chat, add or remove member from selection
       setSelectedMembers((prev) =>
         prev.some((m) => m.id === member.id)
           ? prev.filter((m) => m.id !== member.id)
           : [...prev, member]
       );
     } else {
-      // For a direct chat, close the member selection dialog and create the channel immediately
       setIsMembersDialogOpen(false);
       try {
         const res = await messageService.createChannel({
@@ -357,21 +393,36 @@ export default function Chats() {
   const handleCreateGroupChat = async (e) => {
     e.preventDefault();
     if (selectedMembers.length < 2) return;
+
     try {
       const formData = new FormData();
-      formData.append("is_group", "1");
-      formData.append("name", newChannelData.name);
-      if (newChannelData.description) {
-        formData.append("description", newChannelData.description);
+
+      formData.append("is_group", 1);
+
+      // Add name if it's provided
+      if (newChannelData.name) {
+        formData.append("name", newChannelData.name);
       }
-      if (newChannelData.thumbnail_image instanceof File) {
+
+      // Add description (even if empty)
+      formData.append("description", newChannelData.description || "");
+
+      // Add thumbnail image if it's provided
+      if (newChannelData.thumbnail_image) {
         formData.append("thumbnail_image", newChannelData.thumbnail_image);
+      } else {
+        // If no image was set before and no new image is provided, send null
+        formData.append("thumbnail_image", null);
       }
-      selectedMembers.forEach((member) => {
-        formData.append("user_ids[]", member.id);
-      });
+
+      if (selectedMembers.length > 0) {
+        selectedMembers.forEach((member) => {
+          formData.append("user_ids[]", member.id);
+        });
+      }
 
       await messageService.createChannel(formData);
+
       setIsCreateDialogOpen(false);
       setIsMembersDialogOpen(false);
       setSelectedMembers([]);
@@ -381,8 +432,14 @@ export default function Chats() {
         thumbnail_image: null,
       });
       setIsGroupChatMode(false);
-      setIsCreatingChat(false);
+      setOpenSheet((prev) => ({
+        ...prev,
+        createChannel: false,
+      }));
+
+      toast.success("Group created successfully");
     } catch (error) {
+      console.error("Failed to create group channel:", error);
       toast.error("Failed to create group channel: " + error.message);
     }
   };
@@ -395,7 +452,11 @@ export default function Chats() {
       toast.success(
         messageIds.length > 0 ? "Messages deleted" : "Chat cleared"
       );
+      setIsDeleteDialogOpen(false);
+      setIsInfoDialogOpen(false);
     } catch (error) {
+      console.log(error);
+
       toast.error("Failed to clear chat: " + error.message);
     }
   };
@@ -434,6 +495,21 @@ export default function Chats() {
     }
   };
 
+  const handleLeaveChannel = async () => {
+    if (!selectedChannel?.id) return;
+
+    try {
+      await messageService.leaveChannel(selectedChannel.id);
+      toast.success("Left group successfully");
+      setIsDeleteDialogOpen(false);
+      setIsInfoDialogOpen(false);
+      setShowMobileList(true);
+    } catch (error) {
+      console.error("Error leaving channel:", error);
+      toast.error("Failed to leave channel: " + error.message);
+    }
+  };
+
   // Handle message sending with better error handling
   const handleSendMessage = async (message) => {
     if (!selectedChannel || (!message.trim() && !attachment)) return;
@@ -449,6 +525,10 @@ export default function Chats() {
     } catch (error) {
       toast.error("Failed to send message");
     }
+  };
+
+  const handleBack = () => {
+    handleShowMobileList(true);
   };
 
   // Add this to clear attachment
@@ -538,7 +618,6 @@ export default function Chats() {
                   size="icon"
                   onClick={() => {
                     setIsGroupChatMode(false);
-                    setIsCreatingChat((prev) => !prev);
                     // setIsSheetOpen(true);
                     setOpenSheet((prev) => ({
                       ...prev,
@@ -667,7 +746,6 @@ export default function Chats() {
                       className="w-[200px] h-10 md:h-12 rounded-full"
                       onClick={() => {
                         setIsGroupChatMode(false);
-                        setIsCreatingChat((prev) => !prev);
                         setOpenSheet((prev) => ({
                           ...prev,
                           createChannel: true,
@@ -750,7 +828,7 @@ export default function Chats() {
                           </>
                         )}
 
-                        {selectedMessages?.length > 1 ? (
+                        {selectedMessages?.length > 0 ? (
                           <Button
                             variant="ghost"
                             size="icon"
@@ -772,7 +850,8 @@ export default function Chats() {
                         variant="ghost"
                         size="icon"
                         className="md:hidden"
-                        onClick={() => setShowMobileList(true)}
+                        // onClick={() => setShowMobileList(true)}
+                        onClick={handleBack}
                       >
                         <ArrowLeft className="h-5 w-5" />
                       </Button>
@@ -1148,11 +1227,11 @@ export default function Chats() {
       {/* Chat Info */}
       {isInfoDialogOpen && (
         <Sheet open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-          <SheetContent className="overflow-y-scroll no_scrollbar w-full">
+          <SheetContent className="overflow-y-scroll no_scrollbar w-full bg-brandLight">
             <SheetHeader className="mb-8">
               <SheetTitle>Chat Information</SheetTitle>
             </SheetHeader>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-1 py-4">
               <div className="flex flex-col items-center gap-4">
                 <div className="relative group">
                   <img
@@ -1165,7 +1244,7 @@ export default function Chats() {
                   />
                   {selectedChannel?.is_group ? (
                     <div
-                      className="absolute bottom-0 right-0 p-1.5 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
+                      className="absolute top-0 right-0 p-1.5 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors"
                       onClick={() => {
                         setNewChannelData((prev) => ({
                           ...prev,
@@ -1183,7 +1262,7 @@ export default function Chats() {
                     </div>
                   ) : null}
                   {selectedChannel.is_online && (
-                    <div className="absolute bottom-4 right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
+                    <div className="absolute bottom-2 right-[10px] w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
                 {selectedChannel?.is_group ? (
@@ -1208,32 +1287,39 @@ export default function Chats() {
                     className="text-primary text-sm hover:bg-transparent"
                   >
                     Edit Group
-                    <PencilIcon />
+                    <Pencil />
                   </Button>
                 ) : null}
                 <h3 className="font-semibold text-lg">
                   {selectedChannel?.name || "Direct Message"}
                 </h3>
               </div>
+
+              {!selectedChannel?.is_group ? (
+                <div className="grid gap-2 justify-center">
+                  {selectedChannel?.relation ? (
+                    <div className="text-sm">{selectedChannel?.relation}</div>
+                  ) : (
+                    <div>--</div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center text-sm text-muted-foreground">
+                  {selectedChannel?.users?.length} members
+                </div>
+              )}
+
               {selectedChannel?.is_group ? (
-                <div className="grid gap-2">
-                  <Label>Description</Label>
+                <div className="grid gap-2 mt-2">
+                  <Label className="text-sm font-semibold">Description</Label>
                   <p className="text-sm text-muted-foreground">
                     {selectedChannel?.description || "No description available"}
                   </p>
                 </div>
               ) : null}
-              <div className="grid gap-2">
-                <Label>Created</Label>
-                <p className="text-sm text-muted-foreground">
-                  {selectedChannel?.created_at
-                    ? format(new Date(selectedChannel.created_at), "PPP")
-                    : "Unknown"}
-                </p>
-              </div>
+
               {!selectedChannel?.is_group && (
-                <div className="grid gap-2">
-                  <Label>Online Status</Label>
+                <div className="grid gap-2 justify-center">
                   <div className="flex items-center gap-2">
                     <div
                       className={`w-2 h-2 rounded-full ${
@@ -1248,6 +1334,90 @@ export default function Chats() {
                   </div>
                 </div>
               )}
+
+              {!selectedChannel?.is_group ? (
+                <div className="flex flex-col mt-4">
+                  <div
+                    className="p-3 bg-background flex gap-4 border-b hover:cursor-pointer"
+                    onClick={() =>
+                      navigate(`/family-member/${selectedChannel?.user_id}`)
+                    }
+                  >
+                    <CircleUserRound
+                      strokeWidth={1.5}
+                      className="text-primary w-6"
+                    />
+                    <span>View Profile</span>
+                  </div>
+                  <div
+                    className="p-3 bg-background flex gap-4 hover:cursor-pointer"
+                    onClick={handleClearChat}
+                  >
+                    <Trash2Icon
+                      strokeWidth={1.25}
+                      className="text-red-600 w-6"
+                    />
+                    <span className="text-red-500">Clear Chat</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col mt-4">
+                  <div
+                    className="p-3 bg-background flex gap-4 border-b hover:cursor-pointer"
+                    onClick={() => {}}
+                  >
+                    <CircleUserRound
+                      strokeWidth={1.5}
+                      className="text-primary w-6"
+                    />
+                    <span>Add Member</span>
+                  </div>
+                  <div
+                    className="p-3 bg-background flex gap-4 hover:cursor-pointer border-b"
+                    onClick={handleClearChat}
+                  >
+                    <Trash2Icon
+                      strokeWidth={1.25}
+                      className="text-red-600 w-6"
+                    />
+                    <span className="text-red-500">Clear Chat</span>
+                  </div>
+                  <div
+                    className="p-3 bg-background flex gap-4 hover:cursor-pointer"
+                    onClick={handleClearChat}
+                  >
+                    <Trash2Icon
+                      strokeWidth={1.25}
+                      className="text-red-600 w-6"
+                    />
+                    <span className="text-red-500">Leave Group</span>
+                  </div>
+                </div>
+              )}
+
+              {selectedChannel?.is_group ? (
+                <div className="flex flex-col mt-4">
+                  <div className="text-[18px] font-semibold pb-4">
+                    Group Members
+                  </div>
+                  {selectedChannel?.users?.map((member) => (
+                    <div
+                      key={member.id}
+                      className="p-3 bg-background flex gap-4 mb-1"
+                      onClick={() =>
+                        navigate(`/family-member/${member.user_id}`)
+                      }
+                    >
+                      <img
+                        src={member.profile_pic_url || "/default-avatar.png"}
+                        alt={member.first_name}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <span>{member.first_name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </SheetContent>
         </Sheet>
@@ -1266,14 +1436,14 @@ export default function Chats() {
                 action cannot be undone.
               </SheetDescription>
             </SheetHeader>
-            <SheetFooter className="mt-8">
+            <SheetFooter className="mt-8 gap-4">
               <Button className="rounded-full">Cancel</Button>
               <Button
                 onClick={() => {
                   if (selectedChannel?.is_group) {
-                    prompt("leave group");
+                    handleLeaveChannel();
                   } else {
-                    handleClearChat(selectedMessages);
+                    handleClearChat([]);
                   }
                 }}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full"
@@ -1300,7 +1470,7 @@ export default function Chats() {
                 be undone.
               </SheetDescription>
             </SheetHeader>
-            <SheetFooter>
+            <SheetFooter className="gap-4">
               <Button className="rounded-full">Cancel</Button>
               <Button
                 onClick={() => handleMessageDelete(messageToDelete)}
@@ -1753,9 +1923,11 @@ export default function Chats() {
                           familyMembers.filter((member) => member.is_active)
                             .length
                         ) {
-                          setMemberSearchQuery([]);
+                          // Clear selected members instead of search query
+                          setSelectedMembers([]);
                         } else {
-                          setMemberSearchQuery(
+                          // Select all active members instead of setting search query
+                          setSelectedMembers(
                             familyMembers.filter((item) => item.is_active)
                           );
                         }
@@ -1776,18 +1948,18 @@ export default function Chats() {
                     setIsGroupChatMode(true);
                   }}
                 >
-                  <Button variant="outline" className="w-fit rounded-full h-10">
+                  {/* <Button variant="outline" className="w-fit rounded-full h-10">
                     <Users className="w-6 h-6 text-primary" />
                     <span className="text-md">Create Group</span>
-                  </Button>
+                  </Button> */}
                 </div>
               )}
               {Array.isArray(familyMembers) &&
                 familyMembers
                   ?.filter((member) => {
-                    const searchTerm = memberSearchQuery.toLowerCase();
-                    if (!searchTerm) return true;
+                    if (!memberSearchQuery) return true;
 
+                    const searchTerm = memberSearchQuery.toLowerCase();
                     return (
                       member.first_name?.toLowerCase().includes(searchTerm) ||
                       member.last_name?.toLowerCase().includes(searchTerm)
@@ -1808,7 +1980,6 @@ export default function Chats() {
                         if (member.is_active) {
                           handleMemberSelect(member);
                           setMemberSearchQuery("");
-                          !isGroupChatMode && setIsCreatingChat(false);
                         }
                       }}
                     >
@@ -1850,7 +2021,6 @@ export default function Chats() {
                     variant="outline"
                     className="rounded-full h-10"
                     onClick={() => {
-                      setIsCreatingChat(false);
                       setIsGroupChatMode(false);
                       setSelectedMembers([]);
                     }}
@@ -1882,6 +2052,7 @@ export default function Chats() {
                 thumbnail_image: null,
                 channelId: null,
               });
+              setNewMembersToAdd([]);
             }
             setOpenSheet((prev) => ({ ...prev, updateChannel: open }));
           }}
@@ -2018,6 +2189,90 @@ export default function Chats() {
                     )}
                   />
                 </div>
+                {/* add new members to be resolved later */}
+                {/* <div className="space-y-2 mt-4">
+                  <Label>Add Members</Label>
+                  <div className="space-y-2">
+                    {newMembersToAdd.length > 0 && (
+                      <div className="flex flex-wrap gap-2 p-2 border rounded-lg">
+                        {newMembersToAdd.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex items-center gap-1 rounded-full px-3 py-1 bg-primary/80"
+                          >
+                            <img
+                              src={
+                                member.profile_pic_url || "/default-avatar.png"
+                              }
+                              alt={member.first_name}
+                              className="w-5 h-5 rounded-full object-cover border border-primary"
+                            />
+                            <span className="text-sm text-white">
+                              {member.first_name} {member.last_name}
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-4 w-4 p-0 hover:bg-transparent"
+                              onClick={() => handleUpdateGroupMembers(member)}
+                            >
+                              <X className="h-3 w-3 text-white" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="max-h-[400px] overflow-y-auto border rounded-lg p-2 no_scrollbar">
+                      {familyMembers
+                        ?.filter(
+                          (member) =>
+                            !selectedChannel?.users?.some(
+                              (u) => u.id === member.id
+                            ) && member.is_active
+                        )
+                        ?.map((member) => (
+                          <div
+                            key={member.id}
+                            className={cn(
+                              "flex items-center gap-2 p-2 rounded-lg hover:bg-accent/50 transition-colors cursor-pointer",
+                              newMembersToAdd.some((m) => m.id === member.id) &&
+                                "bg-accent"
+                            )}
+                            onClick={() => handleUpdateGroupMembers(member)}
+                          >
+                            <img
+                              src={
+                                member.profile_pic_url || "/default-avatar.png"
+                              }
+                              alt={member.first_name}
+                              className="w-8 h-8 rounded-full object-cover border border-primary"
+                            />
+                            <div className="flex-1">
+                              <div className="font-medium">
+                                {member.first_name} {member.last_name}
+                              </div>
+                              {member.email && (
+                                <div className="text-sm text-muted-foreground">
+                                  {member.email}
+                                </div>
+                              )}
+                            </div>
+                            <Checkbox
+                              checked={newMembersToAdd.some(
+                                (m) => m.id === member.id
+                              )}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUpdateGroupMembers(member);
+                              }}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </div> */}
                 <SheetFooter className="mt-4 flex gap-2">
                   <Button
                     type="button"

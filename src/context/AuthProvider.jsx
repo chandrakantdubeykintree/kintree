@@ -33,6 +33,7 @@ export const AuthProvider = ({ children }) => {
           "/register",
           "/forgot-password",
           "/forgot-username",
+          "/test",
         ];
 
         if (publicRoutes.includes(location.pathname)) {

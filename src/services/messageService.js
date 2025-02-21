@@ -284,12 +284,30 @@ class MessageService {
         useMessageStore.getState().removeMessages(data.messageIds);
       }
     });
+    this.socket.on("user-left", (data) => {
+      // Update channel members if needed
+      const currentChannel = useMessageStore.getState().currentChannel;
+      if (currentChannel?.id === data.channelId) {
+        const updatedChannel = {
+          ...currentChannel,
+          users: currentChannel.users?.filter(
+            (user) => user.id !== data.userId
+          ),
+        };
+        useMessageStore.getState().setCurrentChannel(updatedChannel);
+      }
+    });
   }
 
   createChannel(channelData) {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
     }
+    // to work on the group channel creation
+    // const data = {};
+    // for (let [key, value] of channelData.entries()) {
+    //   data[key] = value;
+    // }
     return new Promise((resolve, reject) => {
       this.socket.emit("create-channel", channelData, (response) => {
         if (response.success) {
@@ -461,9 +479,32 @@ class MessageService {
     );
   }
 
-  leaveChannel(channelId) {
-    if (!this.socket?.connected) return;
-    this.socket.emit("leave-channel", channelId);
+  async leaveChannel(channelId) {
+    if (!this.socket?.connected) {
+      throw new Error("Socket not connected");
+    }
+
+    try {
+      return new Promise((resolve, reject) => {
+        this.socket.emit("leave-channel", { channelId }, (response) => {
+          if (response.success) {
+            const currentChannels = useMessageStore.getState().channelsList;
+            const updatedChannels = currentChannels.filter(
+              (channel) => channel.id !== channelId
+            );
+            useMessageStore.getState().setChannels(updatedChannels);
+            useMessageStore.getState().setCurrentChannel(null);
+            useMessageStore.getState().clearMessages();
+            resolve(response);
+          } else {
+            reject(new Error(response.error || "Failed to leave channel"));
+          }
+        });
+      });
+    } catch (error) {
+      useMessageStore.getState().setError("Failed to leave channel");
+      throw error;
+    }
   }
 
   // Message methods

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useSearchParams } from "react-router";
 import { tokenService } from "../services/tokenService";
 
 import { toast } from "react-hot-toast";
@@ -9,25 +9,36 @@ export default function FlutterChat() {
   const { token } = useParams();
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // Add this useEffect to handle back button
   useEffect(() => {
-    const handleBackButton = (e) => {
-      e.preventDefault();
-      // Send message to native app to handle back button
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(
-          JSON.stringify({ type: "backButtonPressed" })
-        );
+    const handleMobileParam = () => {
+      const currentMobile = searchParams.get("mobile");
+      const showingOnlyChannelsList = !document.querySelector(
+        ".messages-container"
+      );
+
+      if (showingOnlyChannelsList && currentMobile !== "true") {
+        setSearchParams({ mobile: "true" });
+      } else if (!showingOnlyChannelsList && currentMobile !== "false") {
+        setSearchParams({ mobile: "false" });
       }
     };
 
-    // Add event listener for back button
-    window.addEventListener("popstate", handleBackButton);
+    // Initial check
+    handleMobileParam();
 
-    return () => {
-      window.removeEventListener("popstate", handleBackButton);
-    };
+    // Set up mutation observer to watch for DOM changes
+    const observer = new MutationObserver(handleMobileParam);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [setSearchParams]);
+
+  useEffect(() => {
+    if (!searchParams.has("mobile")) {
+      setSearchParams({ mobile: "true" });
+    }
   }, []);
 
   useEffect(() => {
@@ -67,7 +78,12 @@ export default function FlutterChat() {
               overscrollBehavior: "contain",
             }}
           >
-            <Chats />
+            <Chats
+              isFlutter={true}
+              onViewChange={(isChannelList) => {
+                setSearchParams({ mobile: isChannelList ? "true" : "false" });
+              }}
+            />
           </div>
         </div>
       </main>

@@ -3,27 +3,5 @@
   "name": "Hindi",
   "nativeName": "हिंदी",
   "dir": "ltr",
-  "app_name": "किनट्री",
-
-  "login": "लॉग इन",
-  "logout": "लॉग आउट",
-  "register": "रजिस्टर",
-  "male": "पुरुष",
-  "femaile": "महिला",
-
-  "email": "ईमेल",
-  "username": "उपयोगकर्ता नाम",
-  "password": "पासवर्ड",
-  "phone": "फ़ोन",
-  "otp": "ओटीपी",
-
-  "enter_otp": "ओटीपी दर्ज करें",
-  "enter_email": "ईमेल दर्ज करें",
-  "enter_username": "उपयोगकर्ता नाम दर्ज करें",
-  "enter_password": "पासवर्ड दर्ज करें",
-  "enter_phone": "फ़ोन दर्ज करें",
-  "comment": "टिप्पणी",
-  "comments": "टिप्पणियाँ",
-  "like": "पसंद",
-  "likes": "पसंद"
+  "app_name": "किनट्री"
 }

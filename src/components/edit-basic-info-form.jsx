@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,18 +14,46 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ICON_EDIT2 } from "@/constants/iconUrls";
+import { ICON_EDIT } from "@/constants/iconUrls";
 import { Textarea } from "@/components/ui/textarea";
 import ComponentLoading from "@/components/component-loading";
 import { Pen } from "lucide-react";
 import CustomDateMonthYearPicker from "./custom-ui/custom-dateMonthYearPicker";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditBasicInfoForm() {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile("/user/basic-info");
   const { width } = useWindowSize();
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    const fields = [
+      "first_name",
+      "middle_name",
+      "last_name",
+      "date_of_birth",
+      "gender",
+      "bio",
+      "nickname",
+    ];
+
+    const totalFields = fields.length;
+    let completedFields = 0;
+
+    fields.forEach((field) => {
+      if (profile[field] && profile[field].trim() !== "") {
+        completedFields += 1;
+      }
+    });
+
+    return Math.round((completedFields / totalFields) * 100);
+  };
+
+  const profileCompletion = calculateProfileCompletion(profile);
 
   const basicInfoSchema = z.object({
     first_name: z.string().min(1, t("first_name_required")),
@@ -265,14 +286,28 @@ export default function EditBasicInfoForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">{t("basic_information")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">{t("basic_information")}</h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={60}
+                strokeWidth={6}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-primary/25"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary border-dark-border dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
               onClick={handleEditClick}
             >
               <span className="text-sm">{t("edit")}</span>
-              <img src={ICON_EDIT2} className="w-3" />
+              <img src={ICON_EDIT} className="w-3" />
             </button>
           )}
         </div>
@@ -281,19 +316,28 @@ export default function EditBasicInfoForm() {
     </>
   ) : (
     <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value="item-1 border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
+      <AccordionItem value="item-1" className="border-none">
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-0">
           <div className="flex justify-between gap-4 items-center">
             {t("basic_information")}
+          </div>
+          <div className="flex items-center gap-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={6}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-primary/20"
+              progressClassName="stroke-primary"
+            />
           </div>
         </AccordionTrigger>
         <AccordionContent className="p-4 relative border-none">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">
             {!isEditing && (
-              <Pen
-                className="w-5 stroke-brandPrimary"
-                onClick={handleEditClick}
-              />
+              <Pen className="w-5 stroke-primary" onClick={handleEditClick} />
             )}
           </div>
           {content}
