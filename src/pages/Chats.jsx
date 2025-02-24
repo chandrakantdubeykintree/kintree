@@ -67,6 +67,8 @@ const editChannelSchema = z.object({
 });
 
 export default function Chats({ isFlutter, onViewChange }) {
+  console.log(onViewChange, isFlutter);
+
   const [selectedChannel, setSelectedChannel] = useState(null);
   const navigate = useNavigate();
   const [openSheet, setOpenSheet] = useState({
@@ -131,6 +133,8 @@ export default function Chats({ isFlutter, onViewChange }) {
       onViewChange(show);
     }
   };
+
+  console.log(isFlutter);
 
   const [newMembersToAdd, setNewMembersToAdd] = useState([]);
   // Add this new handler function
@@ -622,7 +626,7 @@ export default function Chats({ isFlutter, onViewChange }) {
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
-        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4">
+        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4 relative">
           {/* Channels list */}
           <div
             className={`${
