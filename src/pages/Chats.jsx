@@ -13,9 +13,6 @@ import {
   Search,
   PlusIcon,
   Camera,
-  Copy,
-  Info,
-  Trash,
   ImageIcon,
   File,
   Pencil,
@@ -826,7 +823,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                                 }
                               }}
                             >
-                              {/* <Info className="h-5 w-5" /> */}
                               <img
                                 src="/icons/info-message.svg"
                                 className="h-5 w-5"
@@ -849,7 +845,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                                 }
                               }}
                             >
-                              {/* <Copy className="h-5 w-5" /> */}
                               <img
                                 src="/icons/copy-message.svg"
                                 className="h-5 w-5"
@@ -868,7 +863,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                               setSelectedMessages([]);
                             }}
                           >
-                            {/* <Trash className="h-5 w-5 text-destructive" /> */}
                             <img
                               src="/icons/delete-message.svg"
                               className="h-5 w-5"
@@ -974,7 +968,7 @@ export default function Chats({ isFlutter, onViewChange }) {
 
                 {/* Scrollable messages area */}
                 <div
-                  className="absolute top-[73px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
+                  className="absolute top-[81px] bottom-[89px] left-0 right-0 overflow-y-auto messages-container no_scrollbar"
                   onScroll={handleScroll}
                 >
                   {isLoadingMore && (

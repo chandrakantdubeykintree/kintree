@@ -182,10 +182,7 @@ class MessageService {
     });
 
     this.socket.on("new-message", (message) => {
-      console.log("New message received:", message);
-
       const currentChannel = useMessageStore.getState().currentChannel;
-      console.log("Current channel:", currentChannel);
 
       // Simply add the message if it's for the current channel
       if (parseInt(currentChannel?.id) === parseInt(message.channel_id)) {
@@ -910,10 +907,6 @@ export const useMessageStore = create((set) => ({
 
   addMessage: (message) =>
     set((state) => {
-      // Debug logging
-      console.log("Adding message to store:", message);
-      console.log("Current channel:", state.currentChannel);
-
       // Ensure channel IDs match and convert to numbers for comparison
       if (parseInt(state.currentChannel?.id) !== parseInt(message.channel_id)) {
         console.log("Message channel doesn't match current channel");
@@ -923,7 +916,6 @@ export const useMessageStore = create((set) => ({
       // Check for duplicates
       const messageExists = state.messages.some((msg) => msg.id === message.id);
       if (messageExists) {
-        console.log("Message already exists in store");
         return state;
       }
 
@@ -931,8 +923,6 @@ export const useMessageStore = create((set) => ({
       const updatedMessages = [...state.messages, message].sort(
         (a, b) => new Date(a.created_at) - new Date(b.created_at)
       );
-
-      console.log("Updated messages:", updatedMessages);
 
       return {
         messages: updatedMessages,
