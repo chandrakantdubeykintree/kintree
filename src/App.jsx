@@ -95,8 +95,6 @@ export default function App() {
           <BrowserRouter>
             <Suspense fallback={<GlobalSpinner />}>
               <Routes>
-                {/* Flutter Chat Route (exclusive) */}
-                {/* <Route path="/flutter-chat/:token" element={<FlutterChat />} /> */}
                 <Route
                   path="/flutter-chat/:token"
                   element={
