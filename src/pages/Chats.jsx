@@ -496,7 +496,7 @@ export default function Chats({ isFlutter, onViewChange }) {
       messageService.connect();
     }
 
-    messageService.joinChannel(channel.id, 1); // Start with page 1
+    messageService.joinChannel(channel.id, 1);
   };
 
   const handleScroll = (e) => {
@@ -721,7 +721,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                                       <CheckCheck className="h-4 w-4 text-primary" />
                                     ) : channel?.latest_message
                                         ?.delivered_at ? (
-                                      <Check className="h-4 w-4 text-muted-foreground" />
+                                      <CheckCheck className="h-4 w-4 text-muted-foreground" />
                                     ) : (
                                       <Check className="h-4 w-4 text-muted-foreground/50" />
                                     )}
@@ -791,7 +791,7 @@ export default function Chats({ isFlutter, onViewChange }) {
           >
             {selectedChannel ? (
               <>
-                <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-10 rounded-t-2xl">
+                <div className="absolute top-0 left-0 right-0 flex items-center justify-between py-4 md:px-4 border-b bg-brandLight z-1 rounded-t-2xl">
                   {isSelectMode ? (
                     <>
                       <div className="flex items-center gap-2">
@@ -826,7 +826,11 @@ export default function Chats({ isFlutter, onViewChange }) {
                                 }
                               }}
                             >
-                              <Info className="h-5 w-5" />
+                              {/* <Info className="h-5 w-5" /> */}
+                              <img
+                                src="/icons/info-message.svg"
+                                className="h-5 w-5"
+                              />
                             </Button>
                             <Button
                               variant="ghost"
@@ -845,7 +849,11 @@ export default function Chats({ isFlutter, onViewChange }) {
                                 }
                               }}
                             >
-                              <Copy className="h-5 w-5" />
+                              {/* <Copy className="h-5 w-5" /> */}
+                              <img
+                                src="/icons/copy-message.svg"
+                                className="h-5 w-5"
+                              />
                             </Button>
                           </>
                         )}
@@ -860,7 +868,11 @@ export default function Chats({ isFlutter, onViewChange }) {
                               setSelectedMessages([]);
                             }}
                           >
-                            <Trash className="h-5 w-5 text-destructive" />
+                            {/* <Trash className="h-5 w-5 text-destructive" /> */}
+                            <img
+                              src="/icons/delete-message.svg"
+                              className="h-5 w-5"
+                            />
                           </Button>
                         ) : null}
                       </div>
@@ -888,40 +900,41 @@ export default function Chats({ isFlutter, onViewChange }) {
                       </h3>
                     </div>
                   )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-5 w-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-52 rounded-2xl p-2"
-                    >
-                      <DropdownMenuItem
-                        onClick={() => setIsInfoDialogOpen(true)}
-                        className="bg-transparent flex gap-4 items-center"
+                  {!isSelectMode ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-52 rounded-2xl p-2"
                       >
-                        <img
-                          src="/icons/info-message.svg"
-                          className="w-6 h-6"
-                        />
-                        <div className="w-full text-md">View Info</div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setIsSelectMode(true); // This should activate select mode
-                          setSelectedMessages([]); // Clear any previously selected messages
-                        }}
-                        className="bg-transparent flex gap-4 items-center"
-                      >
-                        <img
-                          src="/icons/select-message.svg"
-                          className="w-6 h-6"
-                        />
-                        <div className="w-full text-md">Select Messages</div>
-                      </DropdownMenuItem>
-                      {/* {selectedChannel?.is_group ? (
+                        <DropdownMenuItem
+                          onClick={() => setIsInfoDialogOpen(true)}
+                          className="bg-transparent flex gap-4 items-center"
+                        >
+                          <img
+                            src="/icons/info-message.svg"
+                            className="w-6 h-6"
+                          />
+                          <div className="w-full text-md">View Info</div>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setIsSelectMode(true); // This should activate select mode
+                            setSelectedMessages([]); // Clear any previously selected messages
+                          }}
+                          className="bg-transparent flex gap-4 items-center"
+                        >
+                          <img
+                            src="/icons/select-message.svg"
+                            className="w-6 h-6"
+                          />
+                          <div className="w-full text-md">Select Messages</div>
+                        </DropdownMenuItem>
+                        {/* {selectedChannel?.is_group ? (
                         <DropdownMenuItem
                           onClick={() => setIsDeleteDialogOpen(true)}
                           className="bg-transparent flex gap-4 items-center text-destructive"
@@ -938,8 +951,9 @@ export default function Chats({ isFlutter, onViewChange }) {
                           <div className="w-full text-md">Clear Chat</div>
                         </DropdownMenuItem>
                       )} */}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : null}
                 </div>
 
                 {/* Send status indicator */}
@@ -1108,7 +1122,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                                     {message.read_at ? (
                                       <CheckCheck className="h-3 w-3" />
                                     ) : message.delivered_at ? (
-                                      <Check className="h-3 w-3" />
+                                      <CheckCheck className="h-3 w-3 text-red-300" />
                                     ) : (
                                       <Check className="h-3 w-3" />
                                     )}
@@ -1147,7 +1161,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                   )}
 
                   {/* Message input */}
-                  <div className="p-2 md:p-4">
+                  <div className="p-2 md:p-4 pt-5">
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();
@@ -1202,9 +1216,10 @@ export default function Chats({ isFlutter, onViewChange }) {
                                 handleSendMessage(newMessage);
                               }
                             }}
+                            maxLength={1000}
                           />
-                          <div className="absolute right-3 bottom-1 text-xs text-muted-foreground">
-                            {newMessage.length}/200
+                          <div className="absolute right-1 -bottom-4 text-xs text-muted-foreground">
+                            {newMessage.length}/1000
                           </div>
                         </div>
 
@@ -1216,7 +1231,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                             !isConnected ||
                             isSending ||
                             (!newMessage.trim() && !attachment) ||
-                            newMessage.length > 200
+                            newMessage.length > 1000
                           }
                         >
                           <Send className="h-4 w-4" />

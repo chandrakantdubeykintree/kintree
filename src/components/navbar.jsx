@@ -118,7 +118,7 @@ export default function Navbar() {
 
           {/* Search Results */}
           {searchQuery && (
-            <div className="absolute top-12 left-0 right-0 bg-background border rounded-lg shadow-lg z-50">
+            <div className="absolute top-12 left-0 right-0 bg-background border rounded-lg shadow-lg z-[100]">
               <div className="space-y-2 p-2 max-h-[60vh] overflow-y-scroll no_scrollbar">
                 {searchData?.pages?.flatMap((page) => page.data.users).length >
                 0 ? (
@@ -167,12 +167,12 @@ export default function Navbar() {
         <div className="sm:hidden">
           {showSearch && (
             <div
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/50 z-[98]"
               onClick={() => setShowSearch(false)}
             />
           )}
           {showSearch ? (
-            <div className="fixed top-0 left-0 right-0 z-50 pt-4 px-4">
+            <div className="fixed top-0 left-0 right-0 z-[99] pt-4 px-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input

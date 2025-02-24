@@ -81,17 +81,17 @@ class MessageService {
       }
     });
 
-    this.socket.on("reconnect", (attemptNumber) => {
-      console.log("Reconnected after", attemptNumber, "attempts");
-      useMessageStore.getState().setConnected(true);
-      useMessageStore.getState().setError(null);
+    // this.socket.on("reconnect", (attemptNumber) => {
+    //   console.log("Reconnected after", attemptNumber, "attempts");
+    //   useMessageStore.getState().setConnected(true);
+    //   useMessageStore.getState().setError(null);
 
-      // Rejoin current channel if any
-      const currentChannel = useMessageStore.getState().currentChannel;
-      if (currentChannel?.id) {
-        this.joinChannel(currentChannel.id);
-      }
-    });
+    //   // Rejoin current channel if any
+    //   const currentChannel = useMessageStore.getState().currentChannel;
+    //   if (currentChannel?.id) {
+    //     this.joinChannel(currentChannel.id);
+    //   }
+    // });
   }
 
   disconnect() {
@@ -182,21 +182,24 @@ class MessageService {
     });
 
     this.socket.on("new-message", (message) => {
+      console.log("New message received:", message);
+
       const currentChannel = useMessageStore.getState().currentChannel;
+      console.log("Current channel:", currentChannel);
 
-      // Add message to store
-      useMessageStore.getState().addMessage(message);
+      // Simply add the message if it's for the current channel
+      if (parseInt(currentChannel?.id) === parseInt(message.channel_id)) {
+        useMessageStore.getState().addMessage(message);
 
-      // Auto mark as delivered if we're in the channel
-      if (
-        currentChannel?.id === message.channel_id &&
-        !message.message_sent_by_me
-      ) {
-        this.markAsDelivered(message.channel_id, message.id);
-
-        // Also mark as read since we're actively viewing the channel
-        this.markAsRead(message.channel_id, message.id);
+        // Mark as delivered if not sent by current user
+        if (!message.message_sent_by_me) {
+          this.markAsDelivered(message.channel_id, message.id);
+          this.markAsRead(message.channel_id, message.id);
+        }
       }
+
+      // Update channels list with latest message
+      this.updateChannelsList(message);
     });
 
     // Message status events
@@ -320,6 +323,28 @@ class MessageService {
         useMessageStore.getState().setCurrentChannel(updatedChannel);
       }
     });
+  }
+
+  updateChannelsList(message) {
+    const channels = useMessageStore.getState().channelsList;
+    const currentChannel = useMessageStore.getState().currentChannel;
+
+    const updatedChannels = channels.map((channel) => {
+      if (parseInt(channel.id) === parseInt(message.channel_id)) {
+        return {
+          ...channel,
+          latest_message: message,
+          unread_message_count:
+            parseInt(currentChannel?.id) !== parseInt(message.channel_id) &&
+            !message.message_sent_by_me
+              ? (channel.unread_message_count || 0) + 1
+              : channel.unread_message_count,
+        };
+      }
+      return channel;
+    });
+
+    useMessageStore.getState().setChannels(updatedChannels);
   }
 
   createChannel(channelData) {
@@ -478,10 +503,7 @@ class MessageService {
 
     useMessageStore.getState().setLoading(true);
     useMessageStore.getState().setError(null);
-
-    // Mark channel as delivered and read
-    this.markChannelAsDelivered(channelId);
-    this.markChannelAsRead(channelId);
+    useMessageStore.getState().clearMessages(); // Clear existing messages
 
     this.socket.emit(
       "join-channel",
@@ -491,18 +513,16 @@ class MessageService {
         limit: 20,
       },
       (response) => {
-        if (response.success) {
-          // Update channel data with latest info
-          const updatedChannel = response.channel;
-          if (updatedChannel) {
-            useMessageStore.getState().setCurrentChannel(updatedChannel);
-          }
-        } else {
+        if (!response.success) {
           useMessageStore.getState().setError(response.error);
+          useMessageStore.getState().setLoading(false);
         }
-        useMessageStore.getState().setLoading(false);
       }
     );
+
+    // Mark as delivered and read after joining
+    this.markChannelAsDelivered(channelId);
+    this.markChannelAsRead(channelId);
   }
 
   markChannelAsDelivered(channelId) {
@@ -890,29 +910,32 @@ export const useMessageStore = create((set) => ({
 
   addMessage: (message) =>
     set((state) => {
-      // Check if message already exists to prevent duplicates
-      const messageExists = state.messages.some((msg) => msg.id === message.id);
-      if (messageExists) {
+      // Debug logging
+      console.log("Adding message to store:", message);
+      console.log("Current channel:", state.currentChannel);
+
+      // Ensure channel IDs match and convert to numbers for comparison
+      if (parseInt(state.currentChannel?.id) !== parseInt(message.channel_id)) {
+        console.log("Message channel doesn't match current channel");
         return state;
       }
 
-      // Update channels list with latest message
-      const updatedChannels = state.channelsList.map((channel) => {
-        if (channel.id === message.channel_id) {
-          return {
-            ...channel,
-            latest_message: message,
-            unread_message_count: !message.message_sent_by_me
-              ? (channel.unread_message_count || 0) + 1
-              : channel.unread_message_count,
-          };
-        }
-        return channel;
-      });
+      // Check for duplicates
+      const messageExists = state.messages.some((msg) => msg.id === message.id);
+      if (messageExists) {
+        console.log("Message already exists in store");
+        return state;
+      }
+
+      // Sort messages by timestamp
+      const updatedMessages = [...state.messages, message].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+
+      console.log("Updated messages:", updatedMessages);
 
       return {
-        messages: [...state.messages, message],
-        channelsList: updatedChannels,
+        messages: updatedMessages,
       };
     }),
 
