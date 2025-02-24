@@ -623,6 +623,15 @@ export default function Chats({ isFlutter, onViewChange }) {
     }
   };
 
+  const handleFileSelectFlutter = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    if (isFlutter) {
+      console.log("File selected");
+    }
+  };
+
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
@@ -680,6 +689,25 @@ export default function Chats({ isFlutter, onViewChange }) {
                             ?.toLowerCase()
                             .includes(searchTerm)
                         );
+                      })
+                      ?.sort((a, b) => {
+                        const aLatestTime = a.latest_message?.created_at
+                          ? new Date(a.latest_message.created_at).getTime()
+                          : 0;
+                        const bLatestTime = b.latest_message?.created_at
+                          ? new Date(b.latest_message.created_at).getTime()
+                          : 0;
+
+                        if (aLatestTime && bLatestTime) {
+                          return bLatestTime - aLatestTime;
+                        }
+
+                        if (aLatestTime) return -1;
+                        if (bLatestTime) return 1;
+
+                        const aCreatedTime = new Date(a.created_at).getTime();
+                        const bCreatedTime = new Date(b.created_at).getTime();
+                        return bCreatedTime - aCreatedTime;
                       })
                       ?.map((channel) => (
                         <div
@@ -1196,6 +1224,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         <label
                           htmlFor="attachment"
                           className="cursor-pointer p-2 hover:bg-muted rounded-full transition-colors"
+                          onClick={(e) => handleFileSelectFlutter(e)}
                         >
                           <Camera className="h-8 w-8 text-primary" />
                         </label>
