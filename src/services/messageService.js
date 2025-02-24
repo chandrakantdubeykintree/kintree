@@ -54,7 +54,8 @@ class MessageService {
     this.socket = io(SOCKET_URL, {
       transports: ["websocket", "polling"],
       reconnection: true,
-      reconnectionAttempts: 5,
+      reconnectionAttempts: 3,
+      autoConnect: true,
       reconnectionDelay: 1000,
       timeout: 10000,
       path: "/socket.io/",
@@ -77,6 +78,18 @@ class MessageService {
       // Fallback to polling if websocket fails
       if (error.type === "TransportError") {
         this.socket.io.opts.transports = ["polling"];
+      }
+    });
+
+    this.socket.on("reconnect", (attemptNumber) => {
+      console.log("Reconnected after", attemptNumber, "attempts");
+      useMessageStore.getState().setConnected(true);
+      useMessageStore.getState().setError(null);
+
+      // Rejoin current channel if any
+      const currentChannel = useMessageStore.getState().currentChannel;
+      if (currentChannel?.id) {
+        this.joinChannel(currentChannel.id);
       }
     });
   }
@@ -169,10 +182,20 @@ class MessageService {
     });
 
     this.socket.on("new-message", (message) => {
+      const currentChannel = useMessageStore.getState().currentChannel;
+
+      // Add message to store
       useMessageStore.getState().addMessage(message);
-      // Automatically mark as delivered when receiving new messages
-      if (!message.message_sent_by_me) {
+
+      // Auto mark as delivered if we're in the channel
+      if (
+        currentChannel?.id === message.channel_id &&
+        !message.message_sent_by_me
+      ) {
         this.markAsDelivered(message.channel_id, message.id);
+
+        // Also mark as read since we're actively viewing the channel
+        this.markAsRead(message.channel_id, message.id);
       }
     });
 
@@ -303,16 +326,34 @@ class MessageService {
     if (!this.socket?.connected) {
       return Promise.reject(new Error("Socket not connected"));
     }
-    // to work on the group channel creation
-    // const data = {};
-    // for (let [key, value] of channelData.entries()) {
-    //   data[key] = value;
-    // }
+
     return new Promise((resolve, reject) => {
       this.socket.emit("create-channel", channelData, (response) => {
         if (response.success) {
           useMessageStore.getState().setChannels(response.channels);
-          resolve(response);
+
+          // Find the newly created channel with updated logic
+          const newChannel = response.channels.find((channel) => {
+            if (channelData instanceof FormData) {
+              // For group chats
+              return channel.name === channelData.get("name");
+            } else {
+              // For direct messages - match by user_id
+              return (
+                channelData.user_ids &&
+                channel.user_id === channelData.user_ids[0]
+              );
+            }
+          });
+
+          if (newChannel) {
+            // Set as current channel in the store
+            useMessageStore.getState().setCurrentChannel(newChannel);
+            // Join the new channel immediately
+            this.joinChannel(newChannel.id, 1);
+          }
+
+          resolve({ ...response, newChannel });
         } else {
           useMessageStore.getState().setError(response.error);
           reject(new Error(response.error || "Failed to create channel"));
@@ -400,6 +441,31 @@ class MessageService {
     });
   }
 
+  async switchToChannel(channel) {
+    try {
+      if (!channel?.id) {
+        throw new Error("Invalid channel");
+      }
+
+      // Update current channel in store
+      useMessageStore.getState().setCurrentChannel(channel);
+
+      // Leave current channel if any
+      const currentChannel = useMessageStore.getState().currentChannel;
+      if (currentChannel && currentChannel.id !== channel.id) {
+        this.leaveChannel(currentChannel.id);
+      }
+
+      // Join new channel
+      await this.joinChannel(channel.id, 1);
+
+      return true;
+    } catch (error) {
+      useMessageStore.getState().setError(error.message);
+      return false;
+    }
+  }
+
   joinChannel(channelId, page = 1) {
     if (!channelId || isNaN(parseInt(channelId))) {
       useMessageStore.getState().setError("Invalid channel ID");
@@ -413,10 +479,8 @@ class MessageService {
     useMessageStore.getState().setLoading(true);
     useMessageStore.getState().setError(null);
 
-    // First mark all messages as delivered
+    // Mark channel as delivered and read
     this.markChannelAsDelivered(channelId);
-
-    // Then mark all messages as read
     this.markChannelAsRead(channelId);
 
     this.socket.emit(
@@ -427,10 +491,16 @@ class MessageService {
         limit: 20,
       },
       (response) => {
-        if (!response.success) {
+        if (response.success) {
+          // Update channel data with latest info
+          const updatedChannel = response.channel;
+          if (updatedChannel) {
+            useMessageStore.getState().setCurrentChannel(updatedChannel);
+          }
+        } else {
           useMessageStore.getState().setError(response.error);
-          useMessageStore.getState().setLoading(false);
         }
+        useMessageStore.getState().setLoading(false);
       }
     );
   }
@@ -638,25 +708,33 @@ class MessageService {
 
     try {
       return new Promise((resolve, reject) => {
-        this.socket.emit(
-          "clear-chat",
-          {
-            channelId: parseInt(channelId),
-            message_ids: messageIds,
-          },
-          (response) => {
-            if (response.success) {
-              if (messageIds.length === 0) {
-                useMessageStore.getState().clearMessages();
-              } else {
-                useMessageStore.getState().removeMessages(messageIds);
-              }
-              resolve(response);
-            } else {
-              reject(new Error(response.error || "Failed to clear chat"));
+        const payload = {
+          channelId: parseInt(channelId),
+          message_ids: messageIds,
+        };
+        this.socket.emit("clear-chat", payload, (response) => {
+          if (response.success) {
+            // Handle specific messages deletion
+            if (messageIds.length > 0) {
+              useMessageStore.getState().removeMessages(messageIds);
             }
+            // Handle complete chat clearing
+            else {
+              useMessageStore.getState().setMessages([]);
+            }
+
+            this.socket.emit("get-channels", (channelsResponse) => {
+              if (channelsResponse.success) {
+                useMessageStore
+                  .getState()
+                  .setChannels(channelsResponse.channels);
+              }
+            });
+            resolve(response);
+          } else {
+            reject(new Error(response.error || "Failed to clear chat"));
           }
-        );
+        });
       });
     } catch (error) {
       useMessageStore.getState().setError("Failed to clear chat");
@@ -762,7 +840,34 @@ export const useMessageStore = create((set) => ({
   setFamilyMembersLoading: (loading) => set({ familyMembersLoading: loading }),
   setChannels: (channels) => set({ channelsList: channels }),
   setChannelsLoading: (loading) => set({ channelsLoading: loading }),
-  setCurrentChannel: (channel) => set({ currentChannel: channel }),
+  setCurrentChannel: (channel) =>
+    set((state) => ({
+      currentChannel: channel
+        ? {
+            ...channel,
+            created_at: channel.created_at,
+            description: channel.description,
+            id: channel.id,
+            is_group: channel.is_group,
+            is_online: channel.is_online,
+            latest_message: channel.latest_message,
+            name: channel.name,
+            thumbnail_image_url: channel.thumbnail_image_url,
+            unread_message_count: channel.unread_message_count,
+            user_id: channel.user_id,
+          }
+        : null,
+    })),
+  updateChannelData: (channelId, data) =>
+    set((state) => ({
+      channelsList: state.channelsList.map((channel) =>
+        channel.id === channelId ? { ...channel, ...data } : channel
+      ),
+      currentChannel:
+        state.currentChannel?.id === channelId
+          ? { ...state.currentChannel, ...data }
+          : state.currentChannel,
+    })),
   setConnected: (isConnected) => set({ isConnected }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) =>
@@ -790,8 +895,24 @@ export const useMessageStore = create((set) => ({
       if (messageExists) {
         return state;
       }
+
+      // Update channels list with latest message
+      const updatedChannels = state.channelsList.map((channel) => {
+        if (channel.id === message.channel_id) {
+          return {
+            ...channel,
+            latest_message: message,
+            unread_message_count: !message.message_sent_by_me
+              ? (channel.unread_message_count || 0) + 1
+              : channel.unread_message_count,
+          };
+        }
+        return channel;
+      });
+
       return {
         messages: [...state.messages, message],
+        channelsList: updatedChannels,
       };
     }),
 
@@ -855,7 +976,7 @@ export const useMessageStore = create((set) => ({
   clearMessages: () =>
     set({
       messages: [],
-      currentChannel: null,
+      // currentChannel: null,
       pagination: {
         currentPage: 1,
         lastPage: 1,

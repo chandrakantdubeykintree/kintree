@@ -10,7 +10,6 @@ import {
   Send,
   X,
   UserPlus,
-  Users,
   Search,
   PlusIcon,
   Camera,
@@ -22,6 +21,7 @@ import {
   Pencil,
   CircleUserRound,
   Trash2Icon,
+  Users,
 } from "lucide-react";
 
 import { Label } from "@/components/ui/label";
@@ -339,14 +339,23 @@ export default function Chats({ isFlutter, onViewChange }) {
     } else {
       setIsMembersDialogOpen(false);
       try {
-        const res = await messageService.createChannel({
+        const channelData = {
           is_group: 0,
-          name: member.first_name + " " + member.last_name,
+          name: `${member.first_name} ${member.last_name}`,
           description: null,
           thumbnail_image: null,
           user_ids: [member.id],
-        });
-        setOpenSheet((prev) => ({ ...prev, createChannel: false }));
+        };
+
+        const response = await messageService.createChannel(channelData);
+
+        if (response.newChannel) {
+          setSelectedChannel(response.newChannel);
+          setShowMobileList(false);
+          setOpenSheet((prev) => ({ ...prev, createChannel: false }));
+        }
+
+        toast.success("Chat created successfully");
       } catch (error) {
         toast.error("Failed to create channel: " + error.message);
       }
@@ -415,13 +424,16 @@ export default function Chats({ isFlutter, onViewChange }) {
         formData.append("thumbnail_image", null);
       }
 
-      if (selectedMembers.length > 0) {
-        selectedMembers.forEach((member) => {
-          formData.append("user_ids[]", member.id);
-        });
-      }
+      selectedMembers.forEach((member) => {
+        formData.append("user_ids[]", member.id);
+      });
 
-      await messageService.createChannel(formData);
+      const response = await messageService.createChannel(formData);
+
+      if (response.newChannel) {
+        setSelectedChannel(response.newChannel);
+        setShowMobileList(false);
+      }
 
       setIsCreateDialogOpen(false);
       setIsMembersDialogOpen(false);
@@ -444,20 +456,26 @@ export default function Chats({ isFlutter, onViewChange }) {
     }
   };
 
-  const handleClearChat = async (messageIds = []) => {
-    if (!selectedChannel?.id) return;
-
+  const handleClearChat = async () => {
     try {
-      await messageService.clearChat(selectedChannel.id, messageIds);
-      toast.success(
-        messageIds.length > 0 ? "Messages deleted" : "Chat cleared"
-      );
-      setIsDeleteDialogOpen(false);
-      setIsInfoDialogOpen(false);
-    } catch (error) {
-      console.log(error);
+      if (!selectedChannel?.id) return;
 
-      toast.error("Failed to clear chat: " + error.message);
+      // For deleting selected messages
+      if (selectedMessages.length > 0) {
+        await messageService.clearChat(selectedChannel.id, selectedMessages);
+        setSelectedMessages([]);
+        setIsSelectMode(false);
+      }
+      // For clearing entire chat
+      else {
+        await messageService.clearChat(selectedChannel.id);
+      }
+
+      setIsDeleteDialogOpen(false);
+      toast.success("Messages cleared successfully");
+    } catch (error) {
+      console.error("Clear chat error:", error);
+      toast.error(error.message || "Failed to clear messages");
     }
   };
 
@@ -511,19 +529,24 @@ export default function Chats({ isFlutter, onViewChange }) {
   };
 
   // Handle message sending with better error handling
-  const handleSendMessage = async (message) => {
-    if (!selectedChannel || (!message.trim() && !attachment)) return;
+  const handleSendMessage = async (e) => {
+    // e.preventDefault();
+
+    if (!selectedChannel || (!newMessage.trim() && !attachment)) return;
 
     try {
       await messageService.sendMessage(
         selectedChannel.id,
-        message.trim(),
+        newMessage.trim(),
         attachment
       );
+
       setNewMessage(""); // Clear input after sending
       setAttachment(null); // Clear attachment
+      messageService.stopTyping(selectedChannel.id); // Stop typing indicator
+      scrollToBottom(); // Scroll to latest message
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error(error.message || "Failed to send message");
     }
   };
 
@@ -618,7 +641,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                   size="icon"
                   onClick={() => {
                     setIsGroupChatMode(false);
-                    // setIsSheetOpen(true);
                     setOpenSheet((prev) => ({
                       ...prev,
                       createChannel: true,
@@ -833,7 +855,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                             variant="ghost"
                             size="icon"
                             onClick={() => {
-                              // setMessageToDelete(selectedMessages[0]);
                               handleClearChat(selectedMessages);
                               setIsSelectMode(false);
                               setSelectedMessages([]);
@@ -850,7 +871,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                         variant="ghost"
                         size="icon"
                         className="md:hidden"
-                        // onClick={() => setShowMobileList(true)}
                         onClick={handleBack}
                       >
                         <ArrowLeft className="h-5 w-5" />
@@ -1901,7 +1921,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                   }}
                 />
               </div>
-              {isGroupChatMode ? (
+              {/* {isGroupChatMode ? (
                 <div className="flex items-center justify-between gap-2 cursor-pointer border-b py-4">
                   <div className="text-sm">
                     Total Members: {selectedMembers.length}
@@ -1923,10 +1943,8 @@ export default function Chats({ isFlutter, onViewChange }) {
                           familyMembers.filter((member) => member.is_active)
                             .length
                         ) {
-                          // Clear selected members instead of search query
                           setSelectedMembers([]);
                         } else {
-                          // Select all active members instead of setting search query
                           setSelectedMembers(
                             familyMembers.filter((item) => item.is_active)
                           );
@@ -1948,12 +1966,12 @@ export default function Chats({ isFlutter, onViewChange }) {
                     setIsGroupChatMode(true);
                   }}
                 >
-                  {/* <Button variant="outline" className="w-fit rounded-full h-10">
+                  <Button variant="outline" className="w-fit rounded-full h-10">
                     <Users className="w-6 h-6 text-primary" />
                     <span className="text-md">Create Group</span>
-                  </Button> */}
+                  </Button>
                 </div>
-              )}
+              )} */}
               {Array.isArray(familyMembers) &&
                 familyMembers
                   ?.filter((member) => {
@@ -1965,6 +1983,14 @@ export default function Chats({ isFlutter, onViewChange }) {
                       member.last_name?.toLowerCase().includes(searchTerm)
                     );
                   })
+                  ?.filter((member) => member.is_alive)
+                  ?.sort((a, b) => {
+                    if (a.is_active && !b.is_active) return -1;
+                    if (!a.is_active && b.is_active) return 1;
+                    return (a.first_name || "").localeCompare(
+                      b.first_name || ""
+                    );
+                  })
                   ?.map((member) => (
                     <div
                       key={member.id}
@@ -1973,7 +1999,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         isGroupChatMode &&
                           selectedMembers.some((m) => m.id === member.id) &&
                           "bg-primary/20",
-                        !member.is_active && "opacity-50",
+                        !member.is_active && "opacity-50 cursor-context-none",
                         "border-b"
                       )}
                       onClick={() => {
@@ -1989,7 +2015,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         className="w-10 h-10 border border-primary rounded-full object-cover"
                       />
                       <div className="flex-1">
-                        <div className="font-medium">
+                        <div className="font-medium line-clamp-1 text-ellipsis max-w-[175px]">
                           {member.first_name} {member.last_name}
                         </div>
                         {member.relation && (
@@ -1999,7 +2025,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         )}
                       </div>
                       {!member.is_active && (
-                        <div className="px-2 py-1 text-xs text-white bg-primary rounded-full absolute right-4 bottom-1">
+                        <div className="px-2 py-1 text-xs text-white bg-primary rounded-full absolute right-4 top-5">
                           Inactive
                         </div>
                       )}
