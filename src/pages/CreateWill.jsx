@@ -50,27 +50,29 @@ export default function CreateWill() {
     }
   }
   return (
-    <Card className="mx-auto p-6 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
-      {step !== "acknowledge" && (
-        <div className="mb-8 flex justify-between items-center overflow-x-scroll no_scrollbar w-full">
-          <Steps
-            steps={steps}
-            currentStep={step}
-            willId={willData?.data?.id}
-            completedSteps={[]}
-            onStepClick={() => {}}
-          />
+    <Card className="mx-auto p-0 py-4 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
+      <Card className="mx-auto p-2 py-4 md:p-4 lg:p-6 bg-background rounded-2xl border-0 shadow-none">
+        {step !== "acknowledge" && (
+          <div className="mb-8 flex justify-between items-center overflow-x-scroll no_scrollbar w-full">
+            <Steps
+              steps={steps}
+              currentStep={step}
+              willId={willData?.data?.id}
+              completedSteps={[]}
+              onStepClick={() => {}}
+            />
+          </div>
+        )}
+        <div className="bg-brandSecondary p-4 rounded-lg h-full">
+          {willCreationStep()}
         </div>
-      )}
-      <div className="bg-brandSecondary p-4 rounded-lg h-full">
-        {willCreationStep()}
-      </div>
 
-      <UnsavedChangesDialog
-        isOpen={showUnsavedDialog}
-        onClose={() => setShowUnsavedDialog(false)}
-        onConfirm={() => {}}
-      />
+        <UnsavedChangesDialog
+          isOpen={showUnsavedDialog}
+          onClose={() => setShowUnsavedDialog(false)}
+          onConfirm={() => {}}
+        />
+      </Card>
     </Card>
   );
 }

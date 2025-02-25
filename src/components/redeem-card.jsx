@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { IndianRupee, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -8,7 +8,6 @@ import {
   useKincoinsBalance,
   useRedeemKincoins,
 } from "@/hooks/useKincoins";
-import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,7 +20,7 @@ export default function RedeemCard({ data }) {
   const { mutate: redeemKincoins } = useRedeemKincoins();
   const isRedeeming = useIsRedeeming();
   const { data: balanceData } = useKincoinsBalance();
-
+  const timerRef = useRef(null);
   const queryClient = useQueryClient();
 
   const handleRedeem = () => {
@@ -59,10 +58,15 @@ export default function RedeemCard({ data }) {
   };
 
   const startTimer = () => {
-    const timer = setInterval(() => {
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer);
+          clearInterval(timerRef.current);
           setShowDialog(false);
           return 0;
         }
@@ -97,7 +101,17 @@ export default function RedeemCard({ data }) {
   useEffect(() => {
     if (!showDialog) {
       setTimeLeft(300);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     }
+
+    // Cleanup on unmount
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
   }, [showDialog]);
 
   return (

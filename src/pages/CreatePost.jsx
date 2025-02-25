@@ -33,6 +33,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { useKincoinRewardEvents } from "@/hooks/useMasters";
+import ReactConfetti from "react-confetti";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -183,7 +184,7 @@ export default function CreatePost() {
     values.privacy = values.privacy.id;
 
     createPost(values, {
-      onSuccess: () => {
+      onSuccess: (data) => {
         navigate("/", {
           state: { newPost: true },
         });
