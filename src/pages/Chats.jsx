@@ -635,7 +635,7 @@ export default function Chats({ isFlutter, onViewChange }) {
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-2xl">
-        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4 relative">
+        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4">
           {/* Channels list */}
           <div
             className={`${
@@ -643,7 +643,7 @@ export default function Chats({ isFlutter, onViewChange }) {
             } md:block md:col-span-2 h-full relative rounded-2xl bg-brandLight`}
           >
             {/* Fixed channels header */}
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-10 rounded-tl-2xl rounded-tr-2xl">
+            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-1 rounded-tl-2xl rounded-tr-2xl">
               <h2 className="font-bold text-lg">Chats</h2>
               <div className="flex items-center gap-2">
                 <Button
