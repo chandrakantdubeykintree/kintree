@@ -20,7 +20,7 @@ export default function RedeemCard({ data }) {
   const { mutate: redeemKincoins } = useRedeemKincoins();
   const isRedeeming = useIsRedeeming();
   const { data: balanceData } = useKincoinsBalance();
-  const timerRef = useRef(null);
+  // const timerRef = useRef(null);
   const queryClient = useQueryClient();
 
   const handleRedeem = () => {
@@ -57,16 +57,28 @@ export default function RedeemCard({ data }) {
     );
   };
 
-  const startTimer = () => {
-    // Clear any existing timer
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+  // const startTimer = () => {
+  //   // Clear any existing timer
+  //   if (timerRef.current) {
+  //     clearInterval(timerRef.current);
+  //   }
 
-    timerRef.current = setInterval(() => {
+  //   timerRef.current = setInterval(() => {
+  //     setTimeLeft((prev) => {
+  //       if (prev <= 1) {
+  //         clearInterval(timerRef.current);
+  //         setShowDialog(false);
+  //         return 0;
+  //       }
+  //       return prev - 1;
+  //     });
+  //   }, 1000);
+  // };
+  const startTimer = () => {
+    const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timerRef.current);
+          clearInterval(timer);
           setShowDialog(false);
           return 0;
         }
@@ -98,20 +110,25 @@ export default function RedeemCard({ data }) {
   };
 
   // Reset timer when dialog closes
+  // useEffect(() => {
+  //   if (!showDialog) {
+  //     setTimeLeft(300);
+  //     if (timerRef.current) {
+  //       clearInterval(timerRef.current);
+  //     }
+  //   }
+
+  //   // Cleanup on unmount
+  //   return () => {
+  //     if (timerRef.current) {
+  //       clearInterval(timerRef.current);
+  //     }
+  //   };
+  // }, [showDialog]);
   useEffect(() => {
     if (!showDialog) {
       setTimeLeft(300);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
     }
-
-    // Cleanup on unmount
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
   }, [showDialog]);
 
   return (
