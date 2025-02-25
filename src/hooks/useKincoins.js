@@ -1,6 +1,7 @@
 import { kintreeApi } from "../services/kintreeApi";
 import {
   useInfiniteQuery,
+  useIsMutating,
   useMutation,
   useQuery,
   useQueryClient,
@@ -44,6 +45,15 @@ export const fetchTransaction = async (transactionId) => {
     const response = await kintreeApi.get(
       `/kin-coins/transactions/${transactionId}`
     );
+    return response.data.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+export const fetchCoinsBalance = async (transactionId) => {
+  try {
+    const response = await kintreeApi.get(`/user/kincoins-balance`);
     return response.data.data;
   } catch (error) {
     return handleApiError(error);
@@ -100,11 +110,12 @@ export const useRedeemKincoins = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: ["redeem-kincoins"],
     mutationFn: redeemKincoins,
     onSuccess: (data) => {
       toast.success("Kincoins redeemed successfully!");
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.KINCOINS_TRANSACTIONS],
+        queryKey: ["kincoins-balance"],
       });
     },
     onError: (error) => {
@@ -112,6 +123,22 @@ export const useRedeemKincoins = () => {
         error.response?.data?.message ||
           "Failed to redeem Kincoins. Please try again."
       );
+    },
+  });
+};
+
+// Add this new hook to check if any redemption is in progress
+export const useIsRedeeming = () => {
+  return useIsMutating(["redeem-kincoins"]) > 0;
+};
+
+export const useKincoinsBalance = () => {
+  return useQuery({
+    queryKey: ["kincoins-balance"],
+    queryFn: fetchCoinsBalance,
+    refetchInterval: 30000, // Refresh every 30 seconds
+    onError: (error) => {
+      toast.error("Failed to fetch Kincoins balance. Please try again.");
     },
   });
 };

@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { useFamilyMembers } from "@/hooks/useFamily";
-import { useEventCategories } from "@/hooks/useMasters";
+import { useEventCategories, useKincoinRewardEvents } from "@/hooks/useMasters";
 import {
   Form,
   FormControl,
@@ -74,6 +74,10 @@ const createEventSchema = z.object({
 
 export default function CreateEvent() {
   const { t } = useTranslation();
+  const { data: rewardEvents } = useKincoinRewardEvents();
+  const coinEarnable = parseInt(
+    rewardEvents?.find((event) => event.name === "add_post")?.coins
+  );
   const [attachments, setAttachments] = useState([]);
   const navigate = useNavigate();
   const { mutateAsync: createEvent, isLoading } = useCreateEvent();
@@ -223,8 +227,15 @@ export default function CreateEvent() {
                 className="space-y-4"
               >
                 <div>
-                  <div className="text-2xl font-medium mb-4">
+                  <div className="text-2xl font-medium">
                     {t("create_new_event")}
+                  </div>
+                  <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold mb-4">
+                    You will earn {coinEarnable} kincoins&nbsp;
+                    <img
+                      src="/kincoins/kintree_coin.svg"
+                      className="w-[18px] h-[18px]"
+                    />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField

@@ -1,49 +1,58 @@
 import { useState, useEffect } from "react";
-import { IndianRupee, Copy, CheckCircle } from "lucide-react";
+import { IndianRupee, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { useRedeemKincoins } from "@/hooks/useKincoins";
+import {
+  useIsRedeeming,
+  useKincoinsBalance,
+  useRedeemKincoins,
+} from "@/hooks/useKincoins";
 import { useNavigate } from "react-router";
 import { toast } from "react-hot-toast";
-import { useAuth } from "@/context/AuthProvider";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function RedeemCard({ data }) {
-  const [showDialog, setShowDialog] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+  const [showDialog, setShowDialog] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(300);
   const [couponCode, setCouponCode] = useState("");
   const [copied, setCopied] = useState(false);
-  const navigate = useNavigate();
   const { mutate: redeemKincoins } = useRedeemKincoins();
-  const { user: userData } = useAuth(); // Get user's kincoin balance
+  const isRedeeming = useIsRedeeming();
+  const { data: balanceData } = useKincoinsBalance();
+
+  const queryClient = useQueryClient();
 
   const handleRedeem = () => {
-    const balance = userData?.kincoin_balance || 0;
-    const requiredCoins = data.price * 100; // Convert price to coins (1 rupee = 100 coins)
+    const balance = parseInt(balanceData?.coin_balance) || 0;
 
     if (balance < 1000) {
-      return toast.error("Minimum balance of 1000 kincoins required to redeem");
+      return toast.error(
+        "Minimum balance of 1,000 kincoins required to redeem"
+      );
     }
 
-    if (requiredCoins > 100000) {
-      return toast.error("Maximum 100000 kincoins can be redeemed at once");
-    }
+    const coinsToUse = Math.floor(Math.min(balance, 100000) / 100) * 100;
+    const rupeesWorth = coinsToUse / 100;
 
-    if (balance < requiredCoins) {
-      return toast.error("Insufficient kincoin balance");
+    if (balance > 100000) {
+      toast.success(`Only 1,00,000 kincoins will be used in this redemption`);
     }
 
     redeemKincoins(
       {
-        coins: requiredCoins,
-        amount: data.price,
+        coins: coinsToUse,
+        amount: rupeesWorth,
       },
       {
         onSuccess: (response) => {
-          setCouponCode(response.data.coupon_code);
+          setCouponCode(response.data.code);
           setShowDialog(true);
           startTimer();
+          queryClient.invalidateQueries({
+            queryKey: ["kincoins-balance"],
+          });
         },
       }
     );
@@ -74,7 +83,7 @@ export default function RedeemCard({ data }) {
 
   const handleRedeemNow = () => {
     handleCopy();
-    navigate("/dna");
+    window.open("https://kintree.com/dna/", "_blank");
   };
 
   // Format time left
@@ -102,8 +111,6 @@ export default function RedeemCard({ data }) {
               alt={data.name}
             />
           </div>
-
-          {/* Content section with fixed spacing */}
           <div className="flex flex-col h-[120px] mt-4">
             <div className="text-[#5E5F60] dark:text-[#9CA3AF] text-xs font-bold uppercase tracking-wide mb-2">
               {data.tag}
@@ -116,63 +123,79 @@ export default function RedeemCard({ data }) {
                 <IndianRupee className="text-primary h-[20px] p-0" />
                 {data.price?.toLocaleString()}
               </div>
-              <Button className="rounded-full" onClick={handleRedeem}>
-                Redeem
+              <Button
+                className="rounded-full"
+                onClick={handleRedeem}
+                disabled={isRedeeming}
+              >
+                {isRedeeming ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Redeeming...
+                  </>
+                ) : (
+                  "Redeem"
+                )}
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-sm text-center rounded-2xl">
+      <Dialog open={showDialog} onOpenChange={setShowDialog} modal={true}>
+        <DialogContent className="w-[300px] text-center max-w-[95%] sm:rounded-2xl rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-primary text-center">
               Congratulations!
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground text-center">
-              You can redeem the coupon for the product!
+              You can redeem coupon for product!
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            {/* Ticket shaped container */}
-            <div className="relative">
-              {/* Left notch */}
-              <div className="absolute -left-2 top-1/2 h-4 w-4 -mt-2 rounded-full bg-background" />
-              {/* Right notch */}
-              <div className="absolute -right-2 top-1/2 h-4 w-4 -mt-2 rounded-full bg-background" />
-              {/* Dashed border container */}
-              <div className="border-2 border-dashed border-primary/50 rounded-lg p-4 bg-muted/50">
-                <div className="flex items-center justify-center gap-3">
+          <div className="space-y-4 pt-4">
+            <div className="mx-auto overflow-hidden relative w-[250px]">
+              <div className="border-primary border text-white p-6 bg-[#FAF2F8]">
+                <div className="flex items-center justify-between space-x-2">
                   <code className="text-xl font-mono font-semibold text-primary line-clamp-1 max-w-52 overflow-ellipsis">
                     {couponCode}
                   </code>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0"
+                    className="h-8 w-8 p-0 bg-transparent active:bg-transparent focus:bg-transparent"
                     onClick={handleCopy}
                   >
                     {copied ? (
                       <CheckCircle className="h-4 w-4 text-green-500" />
                     ) : (
-                      <Copy className="h-4 w-4" />
+                      <Copy className="h-4 w-4 text-primary" />
                     )}
                   </Button>
                 </div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -top-3 left-0 -ml-2 border border-primary"></div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -top-3 right-0 -mr-2 border border-primary"></div>
+
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 right-0 -mr-2 border border-primary"></div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 left-0 -ml-2 border border-primary"></div>
+
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -top-3 right-20 -ml-2 border border-primary"></div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 right-20 -mr-2 border border-primary"></div>
               </div>
             </div>
 
             <Button
-              className="w-full rounded-full max-w-[200px] h-[48px] text-md gap-2"
+              className="w-full rounded-full max-w-[250px] h-[48px] text-md gap-2"
               onClick={handleRedeemNow}
             >
               <img src="/kincoins/redeem.svg" className="h-6 w-6 mr-2" />
               <span>Redeem Now</span>
             </Button>
             <p className="text-sm text-muted-foreground">
-              Time remaining: {formatTime(timeLeft)}
+              {formatTime(timeLeft)}
             </p>
+            <span className="text-xs text-muted-foreground text-center">
+              Coupon code is valid for 5 minutes only.
+            </span>
           </div>
         </DialogContent>
       </Dialog>

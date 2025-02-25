@@ -6,7 +6,7 @@ import RedeemKincoins from "./RedeemKincoins";
 import EarnKincoins from "./EarnKincoins";
 import KincoinsTransactions from "./KincoinsTransactions";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "@/context/AuthProvider";
+import { useKincoinsBalance } from "@/hooks/useKincoins";
 
 export default function Kincoins() {
   const { t } = useTranslation();
@@ -17,8 +17,8 @@ export default function Kincoins() {
     height: typeof window !== "undefined" ? window.innerHeight : 0,
   });
   const [showConfetti, setShowConfetti] = useState(false);
-  const { user } = useAuth();
-  const kincoinsBalnce = parseInt(user?.coins) || 0;
+  const { data: balanceData } = useKincoinsBalance();
+  const kincoinsBalnce = parseInt(balanceData?.coin_balance) || 0;
 
   useEffect(() => {
     const handleResize = () => {
@@ -143,7 +143,7 @@ export default function Kincoins() {
         <div className="grid gap-4 grid-cols-1 mt-4 mb-4 px-4">
           <div className="flex justify-start h-[54px] gap-2 border-b relative">
             <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
+              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
                 activeTab === "redeem"
                   ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
                   : ""
@@ -153,7 +153,7 @@ export default function Kincoins() {
               {t("redeem")}
             </div>
             <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
+              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
                 activeTab === "earn"
                   ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
                   : ""
@@ -163,7 +163,7 @@ export default function Kincoins() {
               {t("earn")}
             </div>
             <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 ${
+              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
                 activeTab === "transactions"
                   ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
                   : ""

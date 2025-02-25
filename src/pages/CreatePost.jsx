@@ -32,6 +32,8 @@ import {
 } from "@/components/ui/form";
 import { useTranslation } from "react-i18next";
 
+import { useKincoinRewardEvents } from "@/hooks/useMasters";
+
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -51,6 +53,10 @@ const defaultPrivacy = {
 export default function CreatePost() {
   const [mediaFiles, setMediaFiles] = useState([]);
   const { t } = useTranslation();
+  const { data: rewardEvents } = useKincoinRewardEvents();
+  const coinEarnable = parseInt(
+    rewardEvents?.find((event) => event.name === "add_post")?.coins
+  );
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
@@ -218,7 +224,16 @@ export default function CreatePost() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <CardHeader className="flex flex-row flex-wrap justify-between items-center">
-                <div className="text-xl font-bold">{t("create_post")}</div>
+                <div className="text-xl font-bold">
+                  {t("create_post")}
+                  <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold">
+                    You will earn {coinEarnable} kincoins&nbsp;
+                    <img
+                      src="/kincoins/kintree_coin.svg"
+                      className="w-[18px] h-[18px]"
+                    />
+                  </div>
+                </div>
                 <FormField
                   control={form.control}
                   name="privacy"

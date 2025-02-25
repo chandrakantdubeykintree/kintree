@@ -23,9 +23,14 @@ import CustomDateMonthYearPicker from "@/components/custom-ui/custom-dateMonthYe
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { addDays, addWeeks } from "date-fns";
 import { useTranslation } from "react-i18next";
+import { useKincoinRewardEvents } from "@/hooks/useMasters";
 
 export default function CreatePoll() {
   const { t } = useTranslation();
+  const { data: rewardEvents } = useKincoinRewardEvents();
+  const coinEarnable = parseInt(
+    rewardEvents?.find((event) => event.name === "add_post")?.coins
+  );
 
   const DURATION_OPTIONS = [
     {
@@ -171,10 +176,18 @@ export default function CreatePoll() {
         </div>
         <Card className="w-full rounded-2xl">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <CardHeader className="text-xl font-bold">
+            <CardHeader className="text-xl font-bold pb-2">
               {t("create_poll")}
             </CardHeader>
+
             <CardContent className="space-y-4">
+              <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold">
+                You will earn {coinEarnable} kincoins&nbsp;
+                <img
+                  src="/kincoins/kintree_coin.svg"
+                  className="w-[18px] h-[18px]"
+                />
+              </div>
               <div className="space-y-2">
                 <Label>{t("question")}</Label>
                 <Textarea

@@ -98,7 +98,11 @@ export default function KincoinsTransactions() {
                   : "text-red-600 dark:text-red-400"
               }`}
             >
-              {transaction.coins} coins
+              {parseInt(transaction?.coins)?.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              coins
             </span>
           </div>
         ))}
