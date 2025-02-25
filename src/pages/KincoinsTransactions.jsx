@@ -101,8 +101,7 @@ export default function KincoinsTransactions() {
               {parseInt(transaction?.coins)?.toLocaleString("en-US", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
-              })}{" "}
-              coins
+              })}
             </span>
           </div>
         ))}

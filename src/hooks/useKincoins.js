@@ -127,7 +127,6 @@ export const useRedeemKincoins = () => {
   });
 };
 
-// Add this new hook to check if any redemption is in progress
 export const useIsRedeeming = () => {
   return useIsMutating(["redeem-kincoins"]) > 0;
 };
@@ -136,7 +135,11 @@ export const useKincoinsBalance = () => {
   return useQuery({
     queryKey: ["kincoins-balance"],
     queryFn: fetchCoinsBalance,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 0, // Disable auto refetch interval
+    refetchOnWindowFocus: true,
+    refetchOnMount: true, // Add this to refetch when component mounts
+    staleTime: 0, // Add this to consider data always stale
+    cacheTime: 0, // Add this to disable caching
     onError: (error) => {
       toast.error("Failed to fetch Kincoins balance. Please try again.");
     },

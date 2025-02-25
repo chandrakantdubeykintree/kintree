@@ -52,8 +52,8 @@ export default function Kincoins() {
 
     const bannerTimer = setTimeout(() => {
       setShowBanner(false);
-      setShowConfetti(true); // Start confetti after banner is hidden
-    }, 2500); // Duration of the banner
+      setShowConfetti(true);
+    }, 2500);
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -64,8 +64,8 @@ export default function Kincoins() {
   useEffect(() => {
     if (showConfetti) {
       const confettiTimer = setTimeout(() => {
-        setShowConfetti(false); // Stop confetti after 3 seconds
-      }, 3000); // Duration of the confetti
+        setShowConfetti(false);
+      }, 3000);
 
       return () => clearTimeout(confettiTimer);
     }

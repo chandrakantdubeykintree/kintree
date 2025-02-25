@@ -21,7 +21,7 @@ export const mainNavLinks = [
   { path: "/chats", label: "chats", Icon: ChatsIcon },
   { path: "https://kintree.com/dna/", label: "dna", Icon: DnaIcon },
   { path: "/events", label: "events", Icon: EventsIcon },
-  { path: "/kincoins", label: "kincoins", Icon: KincoinsIcon },
+  { path: "/kin-coins", label: "kincoins", Icon: KincoinsIcon },
   { path: "/notifications", label: "notifications", Icon: NotificationsIcon },
   { path: "/will", label: "kin_will", Icon: WillIcon },
   { path: "/profile", label: "profile", Icon: ProfileIcon },

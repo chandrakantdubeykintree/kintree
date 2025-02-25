@@ -33,7 +33,7 @@ export const route_events_create_event = "/create-event";
 export const route_events_edit_event = "/edit-event";
 export const route_events_view_event = "/view-event";
 
-export const route_kincoins = "/kincoins";
+export const route_kincoins = "/kin-coins";
 
 export const route_notifications = "/notifications";
 
