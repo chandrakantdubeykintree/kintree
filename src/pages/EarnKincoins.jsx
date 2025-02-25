@@ -1,121 +1,74 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useKincoinRewardEvents } from "@/hooks/useMasters";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
+import ComponentLoading from "@/components/component-loading";
 
 export default function EarnKincoins() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { data: rewardEvents, isLoading } = useKincoinRewardEvents();
+
+  if (isLoading) {
+    return <ComponentLoading />;
+  }
+
+  const getIconPath = (eventType) => {
+    const iconMap = {
+      add_member: "/kincoins/add-member.png",
+      add_post: "/kincoins/post.png",
+      will_creation: "/kincoins/will.png",
+      profile_completion: "/kincoins/complete-profile.png",
+    };
+    return iconMap[eventType] || "/kincoins/default.png";
+  };
+
+  const getNavigationPath = (eventType) => {
+    const pathMap = {
+      add_member: "/familytree",
+      add_post: "/createpost",
+      will_creation: "/will",
+      profile_completion: "/profile",
+    };
+    return pathMap[eventType] || "/";
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <Card className="border-0">
-        <CardContent className="border-0 rounded-2xl p-4 flex items-center justify-between gap-4 bg-[#f8fafc] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-background">
-              <img
-                src="/kincoins/add-member.png"
-                className="h-10 w-[40px]"
-                alt={t("add_member_icon")}
-              />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 p-2 md:p-4">
+      {rewardEvents?.map((event) => (
+        <Card
+          key={event.id}
+          className="rounded-2xl hover:shadow-md transition-shadow"
+        >
+          <CardContent className="p-3 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
+            <div className="flex items-start md:items-center gap-3 md:gap-4 w-full md:w-auto">
+              <div className="p-3 md:p-4 bg-background rounded-xl shrink-0">
+                <img
+                  src={getIconPath(event.name)}
+                  className="h-8 w-8 md:h-10 md:w-10"
+                  alt={t(`${event.type}_icon`)}
+                />
+              </div>
+              <div className="flex flex-col flex-1 md:flex-none">
+                <h2 className="text-base md:text-lg font-medium text-foreground">
+                  {event.title || t(event.name)}
+                </h2>
+                <p className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-2 md:line-clamp-1">
+                  {t("earn")} {event.coins} {t("kincoins")}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <h2 className="text-lg font-medium">{t("add_family_member")}</h2>
-              <p className="text-sm font-medium text-[#8A8A8A]">
-                {t("earn_kincoins_add_member")}
-              </p>
-            </div>
-          </div>
-          <div className="justify-self-end">
+
             <Button
-              className="rounded-full px-8"
-              onClick={() => navigate("/familytree")}
+              className="rounded-full px-6 md:px-8 w-full md:w-auto"
+              onClick={() => navigate(getNavigationPath(event.name))}
             >
-              {t("add")}
+              {t("earn_now")}
             </Button>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="border-0">
-        <CardContent className="border-0 rounded-2xl p-4 flex items-center justify-between gap-4 bg-[#f8fafc] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-background">
-              <img
-                src="/kincoins/post.png"
-                className="h-10 w-[40px]"
-                alt={t("post_icon")}
-              />
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-lg font-medium">{t("post_on_foreroom")}</h2>
-              <p className="text-sm font-medium text-[#8A8A8A]">
-                {t("earn_kincoins_daily_post")}
-              </p>
-            </div>
-          </div>
-          <div className="justify-self-end">
-            <Button
-              className="rounded-full px-8"
-              onClick={() => navigate("/foreroom")}
-            >
-              {t("add")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="border-0">
-        <CardContent className="border-0 rounded-2xl p-4 flex items-center justify-between gap-4 bg-[#f8fafc] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-background">
-              <img
-                src="/kincoins/refer.png"
-                className="h-10 w-[40px]"
-                alt={t("refer_icon")}
-              />
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-lg font-medium">{t("refer_friend")}</h2>
-              <p className="text-sm font-medium text-[#8A8A8A]">
-                {t("earn_kincoins_refer")}
-              </p>
-            </div>
-          </div>
-          <div className="justify-self-end">
-            <Button
-              className="rounded-full px-8"
-              onClick={() => navigate("/profile")}
-            >
-              {t("add")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="border-0">
-        <CardContent className="border-0 rounded-2xl p-4 flex items-center justify-between gap-4 bg-[#f8fafc] shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-background">
-              <img
-                src="/kincoins/complete-profile.png"
-                className="h-10 w-[40px]"
-                alt={t("complete_profile_icon")}
-              />
-            </div>
-            <div className="flex flex-col">
-              <h2 className="text-lg font-medium">{t("complete_profile")}</h2>
-              <p className="text-sm font-medium text-[#8A8A8A]">
-                {t("earn_kincoins_complete_profile")}
-              </p>
-            </div>
-          </div>
-          <div className="justify-self-end">
-            <Button
-              className="rounded-full px-8"
-              onClick={() => navigate("/profile")}
-            >
-              {t("add")}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

@@ -20,6 +20,7 @@ export const QUERY_KEYS = {
   COUNTRIES: "countries",
   LANGUAGES: "languages",
   AGE_RANGES: "ageRanges",
+  KINCOIN_REWARD_EVENTS: "kincoin-reward-events",
 };
 
 const handleApiError = (error) => {
@@ -128,6 +129,12 @@ export const fetchLanguages = async () => {
 
 export const fetchAgeRanges = async () => {
   const response = await kintreeApi.get("/age-ranges");
+  if (!response.data.success) return handleApiError(response);
+  return response.data.data;
+};
+
+export const fetchKincoinRewardEvents = async () => {
+  const response = await kintreeApi.get("/kin-coin-reward-events");
   if (!response.data.success) return handleApiError(response);
   return response.data.data;
 };
@@ -357,6 +364,18 @@ export const useSubCastes = (religionId, casteId) => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch sub-castes");
+    },
+  });
+};
+
+export const useKincoinRewardEvents = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.KINCOIN_REWARD_EVENTS],
+    queryFn: fetchKincoinRewardEvents,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error("Failed to fetch kincoin reward events");
     },
   });
 };

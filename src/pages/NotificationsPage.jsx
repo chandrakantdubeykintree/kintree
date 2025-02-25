@@ -85,17 +85,17 @@ export default function NotificationsPage() {
 
     return (
       <div
-        onClick={() => handleNotificationClick(notification)}
+        onClick={() => notified_by && handleNotificationClick(notification)}
         className={`p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
           !readed_at ? "bg-blue-50" : "bg-white"
         }`}
       >
         <div className="flex items-start gap-4">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={notified_by.profile_pic_url} />
+            <AvatarImage src={notified_by?.profile_pic_url} />
             <AvatarFallback>
-              {notified_by.first_name.charAt(0)}
-              {notified_by.last_name.charAt(0)}
+              {notified_by?.first_name?.charAt(0) || "U"}
+              {notified_by?.last_name?.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -103,7 +103,7 @@ export default function NotificationsPage() {
               {message}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              @{notified_by.username}
+              @{notified_by?.username}
             </p>
           </div>
           {!readed_at && (

@@ -6,6 +6,7 @@ import RedeemKincoins from "./RedeemKincoins";
 import EarnKincoins from "./EarnKincoins";
 import KincoinsTransactions from "./KincoinsTransactions";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function Kincoins() {
   const { t } = useTranslation();
@@ -16,6 +17,8 @@ export default function Kincoins() {
     height: typeof window !== "undefined" ? window.innerHeight : 0,
   });
   const [showConfetti, setShowConfetti] = useState(false);
+  const { user } = useAuth();
+  const kincoinsBalnce = parseInt(user?.coins) || 0;
 
   useEffect(() => {
     const handleResize = () => {
@@ -71,7 +74,7 @@ export default function Kincoins() {
   const renderTabContent = () => {
     switch (activeTab) {
       case "redeem":
-        return <RedeemKincoins />;
+        return <RedeemKincoins kincoinsBalnce={kincoinsBalnce} />;
       case "earn":
         return <EarnKincoins />;
       case "transactions":
@@ -98,22 +101,34 @@ export default function Kincoins() {
         </div>
       )}
       <Card className="bg-background rounded-2xl h-full overflow-y-scroll no_scrollbar">
-        <div className="w-full flex items-center justify-between relative h-[227px] bg-primary rounded-t-2xl">
-          <div className="absolute left-[5%]">
+        <div className="w-full flex items-center justify-between relative h-[227px] bg-[url('/kincoins/kincoins_banner.png')] bg-no-repeat bg-cover rounded-t-2xl">
+          {/* <div className="absolute left-[5%]">
             <img
-              src="/kincoins/burst.svg"
-              className="h-full object-cover max-w-[250px]"
+              src="/kincoins/kintree_coin.svg"
+              className="h-full object-cover max-w-[250px] w-[125px]"
               style={{ zIndex: 1 }}
             />
-          </div>
+          </div> */}
           <div className="flex-1 flex gap-1 flex-col items-center justify-center z-10">
-            <div className="font-medium text-primary rounded-md px-2 py-1 bg-white flex items-center">
+            {/* <div className="font-medium text-primary rounded-md px-2 py-1 bg-white flex items-center">
               {t("rewards")}
+            </div> */}
+            <div className="flex items-center justify-center">
+              <img
+                src="/kincoins/kintree_coin.svg"
+                className="h-full object-cover max-w-[125px] w-[75px]"
+                style={{ zIndex: 1 }}
+              />
             </div>
-            <div className="text-white font-bold text-[20px]">
+            <div className="text-black font-bold text-[20px]">
               {t("your_kincoins_balance")}
             </div>
-            <div className="text-white font-bold text-[36px]">0</div>
+            <div className="text-black font-bold text-[36px]">
+              {kincoinsBalnce?.toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }) || 0}
+            </div>
           </div>
           {showConfetti && (
             <ReactConfetti
