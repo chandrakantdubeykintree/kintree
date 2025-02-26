@@ -70,7 +70,7 @@ export default function ProfileDropDown() {
         <DropdownMenuItem className="cursor-pointer">
           <div className="flex gap-4 items-center" onClick={handleUserLogout}>
             <img src="/icons/logout.svg" className="h-6 w-6" />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm">{t("logout")}</span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -153,7 +153,7 @@ export default function ProfileDropDown() {
             onClick={handleUserLogout}
           >
             <img src="/icons/logout.svg" className="h-6 w-6" />
-            <span className="text-sm">Logout</span>
+            <span className="text-sm">{t("logout")}</span>
           </div>
         </div>
       </SheetContent>

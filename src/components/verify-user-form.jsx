@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
+import { useTranslation } from "react-i18next";
 
 export default function VerifyUserForm({ setIsVerified }) {
   const [verifyType, setVerifyType] = useState("email");
@@ -29,18 +30,19 @@ export default function VerifyUserForm({ setIsVerified }) {
   const [resendOtp, setResendOtp] = useState(false);
   const [resendOTPIn, setResendOTPIn] = useState(30);
   const [otpLength, setOtpLength] = useState(6);
+  const { t } = useTranslation();
 
   const verifyUserSchema = z.object({
-    email: z.string().email("Invalid email address").optional(),
-    phone_no: z.string().min(10, "Invalid phone number").optional(),
+    email: z.string().email(t("invalid_email_address")).optional(),
+    phone_no: z.string().min(10, t("invalid_phone_number")).optional(),
     otp: z.object({
       otp: z
         .string()
         .refine(
           (val) => val.length === 4 || val.length === 6,
-          "OTP must be 4 or 6 digits"
+          t("otp_must_be_4_or_6_digits")
         )
-        .refine((val) => /^\d+$/.test(val), "OTP must contain only numbers"),
+        .refine((val) => /^\d+$/.test(val), t("otp_must_contain_only_numbers")),
     }),
   });
 
@@ -76,7 +78,7 @@ export default function VerifyUserForm({ setIsVerified }) {
         toast.error(res.data.message);
       }
     } catch (error) {
-      toast.error("Failed to resend OTP. Please try again.");
+      toast.error(t("failed_to_resend_otp_please_try_again"));
     }
   };
 
@@ -84,9 +86,9 @@ export default function VerifyUserForm({ setIsVerified }) {
     try {
       if (!values[verifyType]) {
         toast.error(
-          `Please enter a valid ${
-            verifyType === "email" ? "email" : "phone number"
-          }`
+          t("please_enter_a_valid") +
+            " " +
+            (verifyType === "email" ? t("email") : t("phone_number"))
         );
         return;
       }
@@ -105,11 +107,11 @@ export default function VerifyUserForm({ setIsVerified }) {
           setResendOtp(false);
           setResendOTPIn(30);
         } else {
-          toast.error(res.data.errors[verifyType][0] || "Failed to send OTP");
+          toast.error(t("failed_to_send_otp"));
         }
       } else {
         if (!values.otp || values.otp.length !== otpLength) {
-          toast.error(`Please enter a valid ${otpLength}-digit OTP`);
+          toast.error(t("please_enter_a_valid_otp", { otpLength }));
           return;
         }
 
@@ -145,12 +147,12 @@ export default function VerifyUserForm({ setIsVerified }) {
     <Card className="p-4 w-[320px]">
       <CardHeader className="flex items-center justify-center">
         <CardTitle className="text-[24px] font-semibold text-center">
-          {isOtpSent ? "OTP incoming!" : "Verify user"}
+          {isOtpSent ? t("otp_incoming!") : t("verify_user")}
         </CardTitle>
         <CardDescription>
           {isOtpSent && verifyType === "otp" && (
             <div className="text-[16px] text-gray-500 text-center">
-              Enter the {otpLength} digit OTP sent to{" "}
+              {t("enter_the_otp_sent_to", { otpLength })}{" "}
             </div>
           )}
         </CardDescription>
@@ -184,7 +186,7 @@ export default function VerifyUserForm({ setIsVerified }) {
                           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4" />
                           <Input
                             {...field}
-                            placeholder="Email"
+                            placeholder={t("email")}
                             type="email"
                             className="md:h-10 rounded-r-full rounded-l-full pl-10"
                           />
@@ -232,13 +234,13 @@ export default function VerifyUserForm({ setIsVerified }) {
               }
               className="w-full md:h-10 rounded-l-full rounded-r-full mt-2"
             >
-              {isOtpSent ? "Verify OTP" : "Send OTP"}
+              {isOtpSent ? t("verify_otp") : t("send_otp")}
             </Button>
 
             {isOtpSent && (
               <div className="flex flex-col justify-center items-center mt-4">
                 <div className="flex flex-col justify-center items-center gap-2 text-gray-500">
-                  <p>Didn't receive OTP?</p>
+                  <p>{t("didnt_receive_otp")}</p>{" "}
                   <Button
                     variant="ghost"
                     onClick={handleResendOTP}
@@ -246,8 +248,8 @@ export default function VerifyUserForm({ setIsVerified }) {
                     className="font-semibold text-[16px] cursor-pointer hover:underline text-brandPrimary hover:text-brandPrimary"
                   >
                     {resendOtp
-                      ? "Resend Code"
-                      : `Resend Code in ${resendOTPIn}'s`}
+                      ? t("resend_code")
+                      : t("resend_code_in", { resendOTPIn })}
                   </Button>
                 </div>
               </div>
@@ -263,7 +265,9 @@ export default function VerifyUserForm({ setIsVerified }) {
                     onClick={() => handleVerifyTypeChange("phone_no")}
                   >
                     <Phone className="h-5 w-5" />
-                    <span className="text-[16px]">Verify with Phone</span>
+                    <span className="text-[16px]">
+                      {t("verify_with_phone")}
+                    </span>
                   </Button>
                 ) : (
                   <Button
@@ -273,7 +277,9 @@ export default function VerifyUserForm({ setIsVerified }) {
                     onClick={() => handleVerifyTypeChange("email")}
                   >
                     <Mail className="h-5 w-5" />
-                    <span className="text-[16px]">Verify with Email</span>
+                    <span className="text-[16px]">
+                      {t("verify_with_email")}
+                    </span>
                   </Button>
                 )}
               </div>

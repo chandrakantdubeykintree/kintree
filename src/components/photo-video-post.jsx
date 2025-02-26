@@ -4,8 +4,10 @@ import LinkPreview from "./link-preview";
 
 import { useState } from "react";
 import PhotoVideoCarousel from "./photo-video-carousel";
+import { useTranslation } from "react-i18next";
 
 export default function PhotoVideoPost({ post }) {
+  const { t } = useTranslation();
   const {
     id,
     privacy,
@@ -84,7 +86,7 @@ export default function PhotoVideoPost({ post }) {
           onClick={() => setIsExpanded(!isExpanded)}
           className="text-brandPrimary hover:text-brandPrimary/80 text-sm font-medium mt-2 transition-colors duration-200"
         >
-          {isExpanded ? "see less" : "see more"}
+          {isExpanded ? t("see_less") : t("see_more")}
         </button>
       </div>
     );

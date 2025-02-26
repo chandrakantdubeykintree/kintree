@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -11,6 +12,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
   const [selectedFile, setSelectedFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [validationError, setValidationError] = useState(null);
+  const { t } = useTranslation();
 
   const { updateImage, isUpdating, updateError } = useProfile("user");
 
@@ -22,13 +24,14 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
 
     // Validate file type
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      setValidationError("Please select a file of type: jpg, jpeg, or png");
+      // setValidationError("Please select a file of type: jpg, jpeg, or png");
+      setValidationError(t("please_select_file_type") + "jpg, jpeg, or png");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > MAX_FILE_SIZE) {
-      setValidationError("Image size should be less than 5MB");
+      setValidationError(t("image_size_less_than_5mb"));
       return;
     }
 
@@ -77,7 +80,9 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
       <DialogContent className="sm:max-w-md w-[90%] rounded-2xl">
         <DialogHeader>
           <DialogTitle>
-            Upload {type === "cover" ? "Cover" : "Profile"} Image
+            {t(
+              type === "cover" ? "upload_cover_image" : "upload_profile_image"
+            )}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -110,7 +115,10 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
                     : "w-32 h-32 rounded-full"
                 }`}
               >
-                <p className="text-gray-500 text-center">No image selected</p>
+                <p className="text-gray-500 text-center">
+                  {" "}
+                  {t("no_image_selected")}
+                </p>
               </div>
             )}
 
@@ -122,7 +130,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
             )}
             {updateError && (
               <p className="text-sm text-red-500 text-center">
-                {updateError?.response?.data?.message || "Upload failed"}
+                {updateError?.response?.data?.message || t("upload_failed")}
               </p>
             )}
 
@@ -134,7 +142,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
                 disabled={isUpdating}
                 className="rounded-full"
               >
-                Select Image
+                {t("select_image")}
               </Button>
               <input
                 id="file-upload"
@@ -147,7 +155,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
             </label>
 
             <p className="text-xs text-gray-500 text-center">
-              Supported formats: JPG, JPEG, PNG (max 5MB)
+              {t("supported_formats")}
             </p>
           </div>
 
@@ -159,7 +167,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
               disabled={isUpdating}
               className="rounded-full"
             >
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleUpload}
@@ -169,7 +177,7 @@ export default function ImageUploadModal({ isOpen, onClose, type }) {
               {isUpdating ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                "Upload"
+                t("upload")
               )}
             </Button>
           </div>

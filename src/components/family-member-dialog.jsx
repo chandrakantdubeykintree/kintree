@@ -35,31 +35,7 @@ import {
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { useUpdateFamilyMember } from "@/hooks/useFamily";
-
-export const editRelativeSchema = z.object({
-  first_name: z
-    .string()
-    .min(1, "First name is required")
-    .max(20, "First name must be less than 20 characters"),
-  middle_name: z
-    .string()
-    .max(20, "Middle name must be less than 20 characters")
-    .optional(),
-  last_name: z
-    .string()
-    .min(1, "Last name is required")
-    .max(20, "Last name must be less than 20 characters"),
-  email: z.string().email("Invalid email address").or(z.literal("")),
-  phone_no: z
-    .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
-    .or(z.literal("")),
-  is_alive: z.number().min(0).max(1),
-  age_range: z
-    .number()
-    .min(1, "Age range is required")
-    .max(5, "Invalid age range"),
-});
+import { useTranslation } from "react-i18next";
 
 export function FamilyMemberDialog({
   isOpen,
@@ -68,6 +44,29 @@ export function FamilyMemberDialog({
   selectedMemberInfo,
   nodes,
 }) {
+  const { t } = useTranslation();
+
+  const editRelativeSchema = z.object({
+    first_name: z
+      .string()
+      .min(1, t("first_name_required"))
+      .max(20, t("first_name_max_length")),
+    middle_name: z.string().max(20, t("middle_name_max_length")).optional(),
+    last_name: z
+      .string()
+      .min(1, t("last_name_required"))
+      .max(20, t("last_name_max_length")),
+    email: z.string().email(t("invalid_email_address")).or(z.literal("")),
+    phone_no: z
+      .string()
+      .regex(/^\+?[1-9]\d{1,14}$/, t("invalid_phone_number"))
+      .or(z.literal("")),
+    is_alive: z.number().min(0).max(1),
+    age_range: z
+      .number()
+      .min(1, t("age_range_required"))
+      .max(5, t("invalid_age_range")),
+  });
   const father =
     nodes.find((node) => node.id === selectedMember?.fid)?.name || "--";
   const mother =
@@ -118,18 +117,18 @@ export function FamilyMemberDialog({
         is_alive: values.is_alive ? 1 : 0,
       });
       setIsEditing(false);
-      toast.success("Relative updated successfully");
+      toast.success(t("relative_updated_successfully"));
     } catch (error) {
-      toast.error("Failed to update relative");
+      toast.error(t("failed_to_update_relative"));
     }
   };
 
   const handleCopy = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(`Username and Password copied to clipboard`);
+      toast.success(t("username_and_password_copied_to_clipboard"));
     } catch (err) {
-      toast.error("Failed to copy to clipboard");
+      toast.error(t("failed_to_copy_to_clipboard"));
     }
   };
 
@@ -144,9 +143,9 @@ export function FamilyMemberDialog({
                 className="space-y-4"
               >
                 <DialogHeader>
-                  <DialogTitle>Edit Relative</DialogTitle>
+                  <DialogTitle>{t("edit_relative")}</DialogTitle>
                   <DialogDescription>
-                    Make changes to relative information here.
+                    {t("make_changes_to_relative_information_here")}
                   </DialogDescription>
                 </DialogHeader>
 
@@ -157,10 +156,10 @@ export function FamilyMemberDialog({
                     name="first_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
+                            placeholder={t("first_name")}
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>
@@ -173,10 +172,10 @@ export function FamilyMemberDialog({
                     name="middle_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Middle Name</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
+                            placeholder={t("middle_name")}
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>
@@ -189,10 +188,10 @@ export function FamilyMemberDialog({
                     name="last_name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
+                            placeholder={t("last_name")}
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>
@@ -205,11 +204,11 @@ export function FamilyMemberDialog({
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
                         <FormControl>
                           <Input
                             type="email"
                             {...field}
+                            placeholder={t("email_address")}
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>
@@ -222,7 +221,6 @@ export function FamilyMemberDialog({
                     name="phone_no"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
                         <FormControl>
                           <PhoneInput
                             international
@@ -232,6 +230,7 @@ export function FamilyMemberDialog({
                             onChange={field.onChange}
                             maxLength={15}
                             limitMaxLength
+                            placeholder={t("phone_number")}
                             className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                           />
                         </FormControl>
@@ -245,14 +244,15 @@ export function FamilyMemberDialog({
                     name="age_range"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Age Range</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger className="h-10 rounded-full text-foreground bg-background">
-                              <SelectValue placeholder="Select age range" />
+                              <SelectValue
+                                placeholder={t("select_age_range")}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -276,7 +276,7 @@ export function FamilyMemberDialog({
                     name="is_alive"
                     render={({ field }) => (
                       <FormItem className="flex items-center gap-2">
-                        <FormLabel>Living Status</FormLabel>
+                        <FormLabel>{t("living_status")}</FormLabel>
                         <FormControl>
                           <Switch
                             checked={field.value === 1}
@@ -301,10 +301,10 @@ export function FamilyMemberDialog({
                     onClick={() => setIsEditing(false)}
                     className="rounded-full"
                   >
-                    Cancel
+                    {t("cancel")}
                   </Button>
                   <Button type="submit" className="rounded-full bg-primary">
-                    Save changes
+                    {t("save_changes")}
                   </Button>
                 </DialogFooter>
               </form>
@@ -341,7 +341,7 @@ export function FamilyMemberDialog({
               </DialogTitle>
               <div className="grid grid-cols-2 gap-1 pt-4">
                 <div className="flex items-center gap-2">
-                  Relationship:{" "}
+                  {t("relationship")}:{" "}
                   <span
                     className="font-semibold line-clamp-1 text-wrap"
                     title={relation}
@@ -350,7 +350,7 @@ export function FamilyMemberDialog({
                   </span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  Living Status:{" "}
+                  {t("living_status")}:{" "}
                   <span className="font-semibold">{livingStatus}</span>
                 </div>
               </div>
@@ -362,11 +362,11 @@ export function FamilyMemberDialog({
               {/* Personal Info */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold">Gender:</span>
+                  <span className="font-semibold">{t("gender")}:</span>
                   <span>{gender}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Spouse:</span>
+                  <span className="font-semibold">{t("spouse")}:</span>
                   <span className="line-clamp-1 text-wrap" title={spouse}>
                     {spouse}
                   </span>
@@ -376,14 +376,14 @@ export function FamilyMemberDialog({
               {/* Family Info */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Father:</span>
+                  <span className="font-semibold">{t("father")}:</span>
                   <span className="line-clamp-1 text-wrap" title={father}>
                     {father}
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Mother:</span>
+                  <span className="font-semibold">{t("mother")}:</span>
                   <span className="line-clamp-1 text-wrap" title={mother}>
                     {mother}
                   </span>
@@ -395,7 +395,7 @@ export function FamilyMemberDialog({
             selectedMemberInfo?.is_active !== 1 ? (
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Username:</span>
+                  <span className="font-semibold">{t("username")}:</span>
                   <span
                     className="line-clamp-1 text-wrap text-ellipsis"
                     title={username}
@@ -404,7 +404,7 @@ export function FamilyMemberDialog({
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold">Password:</span>
+                  <span className="font-semibold">{t("password")}:</span>
                   <span className="line-clamp-1 text-wrap" title={password}>
                     {password}
                   </span>
@@ -423,7 +423,7 @@ export function FamilyMemberDialog({
                   )
                 }
               >
-                Share Login Details <Copy />
+                {t("share_login_details")} <Copy />
               </Button>
             ) : null}
 
@@ -435,7 +435,7 @@ export function FamilyMemberDialog({
                 className="rounded-full"
                 variant="outline"
               >
-                Add Relative
+                {t("add_relative")}
               </Button>
               {selectedMember?.is_user_added_by_me &&
               selectedMemberInfo?.is_active !== 1 ? (
@@ -443,7 +443,7 @@ export function FamilyMemberDialog({
                   onClick={() => setIsEditing(true)}
                   className="rounded-full"
                 >
-                  Edit Profile
+                  {t("edit_profile")}
                 </Button>
               ) : null}
             </DialogFooter>

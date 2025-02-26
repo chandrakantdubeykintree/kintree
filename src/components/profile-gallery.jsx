@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card } from "./ui/card";
 import { useInView } from "react-intersection-observer";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { kintreeApi } from "@/services/kintreeApi";
 import { Skeleton } from "./ui/skeleton";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent } from "./ui/dialog";
 import { cn } from "@/lib/utils";
-import { Loader2, X, ZoomIn } from "lucide-react";
+import { Loader2, ZoomIn } from "lucide-react";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { Button } from "./ui/button";
-import { useUploadAttachment } from "@/hooks/useAttachments";
-import { Label } from "./ui/label";
-import toast from "react-hot-toast";
+
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -121,140 +120,12 @@ const ImageDialog = ({ isOpen, onClose, item }) => {
   );
 };
 
-// const AddMediaDialog = ({ isOpen, onClose }) => {
-//   const [files, setFiles] = useState([]);
-//   const uploadMutation = useUploadAttachment();
-//   const queryClient = useQueryClient();
-
-//   const handleFileChange = (e) => {
-//     const selectedFiles = Array.from(e.target.files);
-
-//     // Filter out GIFs and limit to 10 files
-//     const validFiles = selectedFiles.filter(
-//       (file) =>
-//         (file.type.startsWith("image/") || file.type.startsWith("video/")) &&
-//         !file.name.endsWith(".gif")
-//     );
-
-//     if (validFiles.length + files.length > 10) {
-//       toast.error("You can only upload up to 10 media files.");
-//       return;
-//     }
-
-//     setFiles((prevFiles) => [...prevFiles, ...validFiles].slice(0, 10));
-//   };
-
-//   const handleUpload = () => {
-//     if (files.length > 0) {
-//       const formData = new FormData();
-//       files.forEach((file) => {
-//         formData.append("files[]", file); // Append each file to the FormData
-//       });
-
-//       uploadMutation.mutate(formData, {
-//         onSuccess: () => {
-//           toast.success("Files uploaded successfully!");
-//           setFiles([]);
-//           onClose();
-//           queryClient.invalidateQueries(["gallery"]);
-//         },
-//         onError: (error) => {
-//           toast.error(
-//             "Failed to upload files: " + (error.message || "Unknown error")
-//           );
-//         },
-//       });
-//     }
-//   };
-
-//   const removeFile = (index) => {
-//     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-//   };
-
-//   return (
-//     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
-//       <DialogContent className="max-w-[90%] w-[700px] max-h-[90%] rounded-lg flex flex-col p-4 justify-between">
-//         <DialogTitle className="text-lg font-semibold">
-//           Add Media Files
-//         </DialogTitle>
-
-//         <Card className="mt-4 bg-brandSecondary">
-//           <CardHeader>
-//             <Label>Select Media Files</Label>
-//           </CardHeader>
-//           <CardContent>
-//             <input
-//               type="file"
-//               multiple
-//               accept="image/*,video/*" // Accept images and videos
-//               onChange={handleFileChange}
-//               className="mt-2"
-//             />
-//             {files.length === 0 ? (
-//               <p className="mt-4 text-gray-500">
-//                 Select media files to upload.
-//               </p>
-//             ) : (
-//               <div className="mt-4">
-//                 <h3 className="text-sm font-medium">Selected Files:</h3>
-//                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-2">
-//                   {files.map((file, index) => (
-//                     <div key={index} className="relative">
-//                       {file.type.startsWith("image/") ? (
-//                         <img
-//                           src={URL.createObjectURL(file)}
-//                           alt={file.name}
-//                           className="w-full h-32 object-cover rounded"
-//                         />
-//                       ) : (
-//                         <video
-//                           src={URL.createObjectURL(file)}
-//                           controls
-//                           className="w-full h-32 object-cover rounded"
-//                         />
-//                       )}
-//                       <Button
-//                         type="button"
-//                         variant="destructive"
-//                         size="icon"
-//                         className="absolute top-1 right-1 rounded-full"
-//                         onClick={() => removeFile(index)}
-//                       >
-//                         <X className="h-4 w-4" />
-//                       </Button>
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             )}
-//           </CardContent>
-//         </Card>
-
-//         <div className="mt-4 flex justify-end">
-//           <Button
-//             onClick={handleUpload}
-//             disabled={uploadMutation.isLoading || files.length === 0}
-//           >
-//             Upload
-//           </Button>
-//           <Button
-//             variant="outline"
-//             onClick={onClose}
-//             className="ml-2 rounded-full"
-//           >
-//             Cancel
-//           </Button>
-//         </div>
-//       </DialogContent>
-//     </Dialog>
-//   );
-// };
-
 export default function ProfileGallery() {
   const { ref: loadMoreRef, inView } = useInView();
   const [selectedItem, setSelectedItem] = useState(null);
   // const [isDialogOpen, setIsDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     data,
     isLoading,
@@ -281,7 +152,7 @@ export default function ProfileGallery() {
     return (
       <Card className="border-none shadow-none bg-brandSecondary p-4">
         <div className="text-center text-red-500">
-          Error loading gallery. Please try again later.
+          {t("error_loading_gallery")}
         </div>
       </Card>
     );
@@ -318,7 +189,7 @@ export default function ProfileGallery() {
           onClick={() => navigate("/foreroom/createpost/post")}
           className="rounded-full"
         >
-          Create Post
+          {t("create_post")}
         </Button>
       </div>
 
@@ -343,7 +214,7 @@ export default function ProfileGallery() {
               <img src="/illustrations/no_media.png" />
             </div>
             <p className="text-gray-400">
-              Create new posts with attachments to add a new media item.
+              {t("create_new_posts_with_attachments")}
             </p>
           </div>
         )}

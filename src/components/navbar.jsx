@@ -19,6 +19,7 @@ import { useState, useEffect } from "react";
 import { useSearchUser } from "@/hooks/useUser";
 import { useInView } from "react-intersection-observer";
 import { encryptId } from "@/utils/encryption";
+import { useTranslation } from "react-i18next";
 
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
@@ -56,6 +57,7 @@ export default function Navbar() {
   const { theme } = useThemeLanguage();
   const { width } = useWindowSize();
   const { profile: user, isProfileLoading } = useProfile(api_user_profile);
+  const { t } = useTranslation();
 
   const { ref, inView } = useInView();
 
@@ -104,7 +106,7 @@ export default function Navbar() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search..."
+              placeholder={t("search")}
               className="w-full pl-10 pr-4 h-10 rounded-full"
               value={searchQuery}
               onChange={handleSearchInput}
@@ -151,13 +153,13 @@ export default function Navbar() {
                     {/* Infinite scroll trigger */}
                     <div ref={ref} className="h-10">
                       {isSearchLoading && (
-                        <div className="text-center py-2">Loading...</div>
+                        <div className="text-center py-2">{t("loading")}</div>
                       )}
                     </div>
                   </>
                 ) : (
                   <div className="text-center text-muted-foreground py-4">
-                    No results found
+                    {t("no_results_found")}
                   </div>
                 )}
               </div>
@@ -176,7 +178,7 @@ export default function Navbar() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder={t("search")}
                   className="w-full pl-10 pr-4 h-10 rounded-full bg-background"
                   value={searchQuery}
                   onChange={handleSearchInput}
@@ -225,13 +227,15 @@ export default function Navbar() {
                         {/* Infinite scroll trigger */}
                         <div ref={ref} className="h-10">
                           {isSearchLoading && (
-                            <div className="text-center py-2">Loading...</div>
+                            <div className="text-center py-2">
+                              {t("loading")}
+                            </div>
                           )}
                         </div>
                       </>
                     ) : (
                       <div className="text-center text-muted-foreground py-4">
-                        No results found
+                        {t("no_results_found")}
                       </div>
                     )}
                   </div>

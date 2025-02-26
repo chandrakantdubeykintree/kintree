@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 function ImagesDialog({ images, isOpen, onClose, initialIndex = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -96,6 +97,7 @@ export default function ViewEvent() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigate = useNavigate();
   const { mutate: deleteEvent, isLoading: isDeleting } = useDeleteEvent();
+  const { t } = useTranslation();
 
   const handleDelete = () => {
     deleteEvent(
@@ -194,7 +196,7 @@ export default function ViewEvent() {
                   src="/icons/blank-calendar.svg"
                   className="h-[14px] w-[14px]"
                 />
-                Date and Time
+                {t("date_and_time")}
               </p>
               <p className="text-lg font-medium text-brandPrimary">
                 {format(event?.start_at, "MM/dd/yyyy (EEEE)") || "--"}
@@ -204,7 +206,6 @@ export default function ViewEvent() {
                   parse(event?.start_at, "yyyy-MM-dd HH:mm:ss", new Date()),
                   "h:mm a"
                 )}{" "}
-                onwards
               </p>
             </div>
             <div className="mb-4">
@@ -213,7 +214,7 @@ export default function ViewEvent() {
                   src="/icons/navigation-arrow.svg"
                   className="h-[14px] w-[14px]"
                 />
-                Venue
+                {t("venue")}
               </p>
             </div>
             <p className="text-sm text-[#0D99FF] font-medium">
@@ -223,7 +224,7 @@ export default function ViewEvent() {
           <div className="col-span-12 md:col-span-5 mx-auto w-[204px] pt-5">
             <div className="mb-4">
               <p className="text-xs font-medium text-[#5E5F60] mb-3">
-                Organizer
+                {t("organizer")}
               </p>
               <div className="flex items-center gap-2">
                 <img
@@ -247,7 +248,7 @@ export default function ViewEvent() {
             </div>
             <div>
               <p className="text-xs font-medium text-[#5E5F60] mb-3">
-                Attendees
+                {t("attendees")}
               </p>
               <div className="flex flex-col max-h-[164px] gap-2 overflow-y-scroll no_scrollbar">
                 {event?.attendees?.map((attendee) => (
@@ -273,12 +274,12 @@ export default function ViewEvent() {
         </div>
         <div className="grid grid-cols-12 mx-auto max-w-[751px] w-[90%] -translate-y-10">
           <div className="col-span-12 md:col-span-7 p-5">
-            <h3 className="text-lg font-medium mb-3">Description</h3>
+            <h3 className="text-lg font-medium mb-3">{t("description")}</h3>
             <div className="text-sm text-[#5E5F60]">{event?.details}</div>
           </div>
           <div className="col-span-12 md:col-span-5 p-5">
             <div className="text-xs font-medium text-[#5E5F60] mb-3">
-              Attachment
+              {t("attachment")}
             </div>
             <div className="flex flex-wrap gap-2">
               {event?.attachments?.map((attachment, index) => (
@@ -316,7 +317,7 @@ export default function ViewEvent() {
                 className="rounded-full"
                 onClick={() => navigate(`/edit-event/${eventId}`)}
               >
-                Edit Event
+                {t("edit_event")}
               </Button>
               <Button
                 variant="destructive"
@@ -324,7 +325,7 @@ export default function ViewEvent() {
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={isDeleting}
               >
-                {isDeleting ? "Deleting..." : "Delete Event"}
+                {isDeleting ? t("deleting") : t("delete_event")}
               </Button>
             </>
           )}
@@ -332,19 +333,18 @@ export default function ViewEvent() {
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogTitle>{t("are_you_sure")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                event.
+                {t("this_action_cannot_be_undone")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
                 className="bg-red-600 hover:bg-red-700"
               >
-                Delete
+                {t("delete")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

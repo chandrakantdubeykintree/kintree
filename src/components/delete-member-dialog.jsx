@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useDeleteMember } from "@/hooks/useFamily";
+import { useTranslation } from "react-i18next";
 
 export function DeleteConfirmationDialog({
   isOpen,
@@ -17,24 +18,23 @@ export function DeleteConfirmationDialog({
   memberId,
 }) {
   const { mutateAsync, isLoading } = useDeleteMember();
+  const { t } = useTranslation();
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogTitle>{t("are_you_sure")}</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete{" "}
-            <span className="font-semibold">{memberName}</span>'s profile and
-            remove them from your family tree.
+            {t("delete_member_confirmation")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => mutateAsync(memberId)}
             className="bg-red-600 hover:bg-red-700"
           >
-            Delete
+            {isLoading ? t("deleting") : t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

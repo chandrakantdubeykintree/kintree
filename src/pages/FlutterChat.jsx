@@ -10,6 +10,8 @@ export default function FlutterChat() {
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { mobile } = useSearchParams();
+  console.log(mobile);
 
   useEffect(() => {
     const handleMobileParam = () => {

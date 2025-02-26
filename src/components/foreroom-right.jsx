@@ -21,7 +21,7 @@ export default function ForeroomRight({
             <CardTitle>{t("birthdays")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <h2 className="text-sm font-semibold">Today</h2>
+            <h2 className="text-sm font-semibold">{t("today")}</h2>
             <ul className="min-h-20">
               {birthDaysToday.length === 0 && (
                 <div className="flex justify-center items-center h-full">

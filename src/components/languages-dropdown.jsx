@@ -10,9 +10,11 @@ import {
 import { ICON_LANGUAGES } from "@/constants/iconUrls";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { LANGUAGE_METADATA, LANGUAGES } from "@/constants/languages";
+import { useTranslation } from "react-i18next";
 
 export default function LanguagesDropDown() {
   const { language, setLanguage } = useThemeLanguage();
+  const { t } = useTranslation();
 
   const handleLanguageChange = (languageCode) => {
     setLanguage(languageCode);
@@ -51,7 +53,7 @@ export default function LanguagesDropDown() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" side="bottom">
-        <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+        <DropdownMenuLabel>{t("select_language")}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="max-h-[300px] overflow-y-scroll no_scrollbar">
           <DropdownMenuGroup>{languagesList}</DropdownMenuGroup>

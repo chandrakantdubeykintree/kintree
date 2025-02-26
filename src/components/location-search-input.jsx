@@ -4,6 +4,7 @@ import { useLocation } from "@/hooks/useLocation";
 import { Input } from "./ui/input";
 import { cn } from "@/lib/utils";
 import AsyncComponent from "./async-component";
+import { useTranslation } from "react-i18next";
 
 export function LocationSearchInput({
   name,
@@ -17,6 +18,7 @@ export function LocationSearchInput({
   const [isFocused, setIsFocused] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+  const { t } = useTranslation();
 
   const { suggestions, isLoading, clearSuggestions } = useLocation(value);
 
@@ -59,7 +61,7 @@ export function LocationSearchInput({
             onChange={handleInputChange}
             onFocus={() => setIsFocused(true)}
             onBlur={onBlur}
-            placeholder={placeholder}
+            placeholder={t("search_location")}
             className={cn("pl-10", error && "border-red-500", className)}
           />
           <div className="absolute left-3 top-1/2 -translate-y-1/2">

@@ -6,11 +6,13 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import AsyncComponent from "@/components/async-component";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function ProfileMembers() {
   const { data: members, isLoading } = useFamilyMembers();
   const [filteredMembers, setFilteredMembers] = useState([]);
   const [filterBy, setFilterBy] = useState("all");
+  const { t } = useTranslation();
   useEffect(() => {
     function handleFilterMembers() {
       if (filterBy === "active") {
@@ -39,8 +41,8 @@ export default function ProfileMembers() {
   if (!members)
     return (
       <div>
-        <h1>No Members</h1>
-        <Button className="rounded-full">Add Members</Button>
+        <h1>{t("no_members")}</h1>
+        <Button className="rounded-full">{t("add_members")}</Button>
       </div>
     );
 
@@ -54,7 +56,7 @@ export default function ProfileMembers() {
           )}
           onClick={() => setFilterBy("all")}
         >
-          All ({members?.length || 0})
+          {t("all")} ({members?.length || 0})
         </Badge>
         <Badge
           className={cn(
@@ -63,7 +65,7 @@ export default function ProfileMembers() {
           )}
           onClick={() => setFilterBy("active")}
         >
-          Active (
+          {t("active")} (
           {members?.filter((member) => member?.is_active === 1)?.length || 0})
         </Badge>
         <Badge
@@ -73,7 +75,7 @@ export default function ProfileMembers() {
           )}
           onClick={() => setFilterBy("inactive")}
         >
-          Inactive (
+          {t("inactive")} (
           {members?.filter((member) => member?.is_active === 0)?.length || 0})
         </Badge>
       </div>
@@ -91,7 +93,7 @@ export default function ProfileMembers() {
         <div className="flex flex-col items-center justify-center gap-4">
           <img src="/illustrations/no_member_picture.png" />
           <p className="text-gray-400">
-            Click on the Add Members button to add a new member.
+            {t("click_on_the_add_members_button_to_add_a_new_member")}
           </p>
         </div>
       )}

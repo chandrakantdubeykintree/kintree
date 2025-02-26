@@ -119,7 +119,6 @@ export default function Chats({ isFlutter, onViewChange }) {
   } = useMessageStore();
 
   const [searchParams, setSearchParams] = useSearchParams();
-  // Add this effect to handle mobile parameter updates
   useEffect(() => {
     if (isFlutter) {
       setSearchParams({ mobile: showMobileList ? "true" : "false" });

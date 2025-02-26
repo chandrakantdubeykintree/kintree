@@ -11,6 +11,7 @@ import {
 import { toast } from "react-hot-toast";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 
 export default function RedeemCard({ data }) {
   const [showDialog, setShowDialog] = useState(false);
@@ -22,21 +23,20 @@ export default function RedeemCard({ data }) {
   const { data: balanceData } = useKincoinsBalance();
   // const timerRef = useRef(null);
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const handleRedeem = () => {
     const balance = parseInt(balanceData?.coin_balance) || 0;
 
     if (balance < 1000) {
-      return toast.error(
-        "Minimum balance of 1,000 kincoins required to redeem"
-      );
+      return toast.error(t("minimum_balance_required"));
     }
 
     const coinsToUse = Math.floor(Math.min(balance, 100000) / 100) * 100;
     const rupeesWorth = coinsToUse / 100;
 
     if (balance > 100000) {
-      toast.success(`Only 1,00,000 kincoins will be used in this redemption`);
+      toast.success(t("only_kincoins_will_be_used"));
     }
 
     redeemKincoins(
@@ -93,7 +93,7 @@ export default function RedeemCard({ data }) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      toast.error("Failed to copy code");
+      toast.error(t("failed_to_copy_code"));
     }
   };
 
@@ -162,10 +162,10 @@ export default function RedeemCard({ data }) {
                 {isRedeeming ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Redeeming...
+                    {t("redeeming")}
                   </>
                 ) : (
-                  "Redeem"
+                  t("redeem")
                 )}
               </Button>
             </div>
@@ -177,10 +177,10 @@ export default function RedeemCard({ data }) {
         <DialogContent className="w-[300px] text-center max-w-[95%] sm:rounded-2xl rounded-2xl">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-primary text-center">
-              Congratulations!
+              {t("congratulations")}
             </DialogTitle>
             <DialogDescription className="text-sm text-muted-foreground text-center">
-              You can redeem coupon for product!
+              {t("you_can_redeem_coupon")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
@@ -219,13 +219,13 @@ export default function RedeemCard({ data }) {
               onClick={handleRedeemNow}
             >
               <img src="/kincoinsImg/redeem.svg" className="h-6 w-6 mr-2" />
-              <span>Redeem Now</span>
+              <span>{t("redeem_now")}</span>
             </Button>
             <p className="text-sm text-muted-foreground">
               {formatTime(timeLeft)}
             </p>
             <span className="text-xs text-muted-foreground text-center">
-              Coupon code is valid for 5 minutes only.
+              {t("coupon_code_valid_for")}
             </span>
           </div>
         </DialogContent>

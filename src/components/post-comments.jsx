@@ -206,6 +206,7 @@ export default function PostComments({ postId, onCommentUpdate }) {
 
 const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
   const { postId } = useParams();
+  const { t } = useTranslation();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();
   const [isEditing, setIsEditing] = useState(false);
@@ -278,12 +279,14 @@ const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleEdit}>
+                    {t("edit")}
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleDelete}
                     className="text-red-600"
                   >
-                    Delete
+                    {t("delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -303,7 +306,7 @@ const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
                   onClick={handleSaveEdit}
                   className="rounded-full"
                 >
-                  Save
+                  {t("save")}
                 </Button>
                 <Button
                   size="sm"
@@ -311,7 +314,7 @@ const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
                   onClick={handleCancelEdit}
                   className="rounded-full"
                 >
-                  Cancel
+                  {t("cancel")}
                 </Button>
               </div>
             </div>
@@ -329,22 +332,26 @@ const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
               src={comment.user_reaction ? ICON_LIKEFILLED : ICON_LIKE}
               className="w-4 h-4"
             />
-            <span>{comment.reaction_counts?.like?.count || 0} likes</span>
+            <span>
+              {comment.reaction_counts?.like?.count || 0} {t("likes")}
+            </span>
           </button>
-          {canReply && <button onClick={() => onReply(comment)}>Reply</button>}
+          {canReply && (
+            <button onClick={() => onReply(comment)}>{t("reply")}</button>
+          )}
           <span className="text-gray-500">
             {formatTimeAgo(comment.created_at)}
           </span>
           {comment.updated_at !== comment.created_at && (
-            <span className="text-gray-500">(edited)</span>
+            <span className="text-gray-500">{t("edited")}</span>
           )}
         </div>
 
         {(updateCommentMutation.isPending ||
           deleteCommentMutation.isPending) && (
           <div className="text-sm text-gray-500">
-            {updateCommentMutation.isPending && "Updating comment..."}
-            {deleteCommentMutation.isPending && "Deleting comment..."}
+            {updateCommentMutation.isPending && t("updating_comment")}
+            {deleteCommentMutation.isPending && t("deleting_comment")}
           </div>
         )}
       </div>

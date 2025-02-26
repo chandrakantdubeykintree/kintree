@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ShareInviteDialog } from "@/components/share-invite-dialog";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 const MemberCard = ({ active, member }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const [viewShareInviteDialog, setViewShareInviteDialog] = useState(() => ({
     modalOpen: false,
     selectedMemberInfo: {
@@ -66,7 +69,7 @@ const MemberCard = ({ active, member }) => {
                     }))
                   }
                 >
-                  Share Invite
+                  {t("share_invite")}
                 </Button>
               ) : (
                 <Button
@@ -75,7 +78,7 @@ const MemberCard = ({ active, member }) => {
                   onClick={() => navigate(`/family-member/${member?.id}`)}
                   // disabled
                 >
-                  View Profile
+                  {t("view_profile")}
                 </Button>
               )}
             </div>

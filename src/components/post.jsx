@@ -97,7 +97,9 @@ export default function Post({ post, user, onReactionUpdate }) {
                   {updated_at && created_at !== updated_at && (
                     <>
                       <span>•</span>
-                      <span>Edited {formatTimeAgo(updated_at)}</span>
+                      <span>
+                        {t("edited")} {formatTimeAgo(updated_at)}
+                      </span>
                     </>
                   )}
                   <img

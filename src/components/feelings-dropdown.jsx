@@ -94,13 +94,6 @@ export default function FeelingsDropDown({
               </DropdownMenuItem>
             ))}
           </ul>
-          {/* <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setSelectedFeeling(null)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <span className="text-sm">Remove feeling</span>
-          </DropdownMenuItem> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

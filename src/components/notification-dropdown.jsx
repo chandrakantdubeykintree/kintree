@@ -12,8 +12,10 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { NavLink } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function NotificationDropDown() {
+  const { t } = useTranslation();
   const { notifications, unreadCount, isLoading, markAsRead } =
     useNotifications(10); // Limit to 5 notifications
 
@@ -75,12 +77,15 @@ export default function NotificationDropDown() {
 
       <DropdownMenuContent className="w-[275px]" align="end">
         <div className="p-4 space-y-2">
-          <CardTitle className="self-start">Notifications</CardTitle>
+          <CardTitle className="self-start">{t("notifications")}</CardTitle>
           <CardDescription>
-            You have {unreadCount} unread notification{unreadCount !== 1 && "s"}
+            {t("you_have")} {unreadCount}{" "}
+            {t(
+              unreadCount !== 1 ? "unread_notifications" : "unread_notification"
+            )}
           </CardDescription>
           <div className="px-2 flex justify-center items-center bg-primary py-1 text-white text-xs rounded-full cursor-pointer">
-            Mark all as read
+            {t("mark_all_as_read")}
           </div>
         </div>
 
@@ -100,7 +105,7 @@ export default function NotificationDropDown() {
             ))
           ) : (
             <div className="py-4 text-center text-sm text-muted-foreground">
-              No notifications
+              {t("no_notifications")}
             </div>
           )}
         </DropdownMenuGroup>
@@ -112,7 +117,7 @@ export default function NotificationDropDown() {
             to="/notifications"
             className="w-full text-center py-2 text-sm text-primary hover:text-primary/80 cursor-pointer font-semibold"
           >
-            View all notifications
+            {t("view_all_notifications")}
           </NavLink>
         </DropdownMenuItem>
       </DropdownMenuContent>

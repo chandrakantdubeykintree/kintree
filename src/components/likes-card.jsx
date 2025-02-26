@@ -5,8 +5,11 @@ import { getInitials } from "@/utils/stringFormat";
 import ComponentLoading from "./component-loading";
 import { useParams } from "react-router";
 import { Card } from "./ui/card";
+import { useTranslation } from "react-i18next";
 
 export default function LikesCard({ isOpen, onClose }) {
+  const { t } = useTranslation();
+
   const { postId } = useParams();
   const { data: likesData, isLoading } = useFetchPostReactions(postId);
 
@@ -48,7 +51,7 @@ export default function LikesCard({ isOpen, onClose }) {
             ))}
           </ul>
         ) : (
-          <p>No likes yet.</p>
+          <p>{t("no_likes_yet")}</p>
         )}
       </Card>
     </AsyncComponent>

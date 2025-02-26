@@ -25,32 +25,9 @@ import "react-phone-number-input/style.css";
 import toast from "react-hot-toast";
 import { useAgeRanges } from "@/hooks/useMasters";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 // Zod schema for form validation
-const editRelativeSchema = z.object({
-  first_name: z
-    .string()
-    .min(1, "First name is required")
-    .max(20, "First name must be less than 20 characters"),
-  middle_name: z
-    .string()
-    .max(20, "Middle name must be less than 20 characters")
-    .optional(),
-  last_name: z
-    .string()
-    .min(1, "Last name is required")
-    .max(20, "Last name must be less than 20 characters"),
-  email: z.string().email("Invalid email address").or(z.literal("")),
-  phone_no: z
-    .string()
-    .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
-    .or(z.literal("")),
-  is_alive: z.number().min(0).max(1),
-  age_range: z
-    .number()
-    .min(1, "Age range is required")
-    .max(12, "Invalid age range"),
-});
 
 export default function EditRelativeForm({
   id,
@@ -66,7 +43,30 @@ export default function EditRelativeForm({
 }) {
   const { mutateAsync: updateMember, isLoading: isSubmitting } =
     useUpdateFamilyMember();
+  const { t } = useTranslation();
   const { data: ageRanges } = useAgeRanges();
+  const editRelativeSchema = (t) =>
+    z.object({
+      first_name: z
+        .string()
+        .min(1, t("first_name_required"))
+        .max(20, t("first_name_max_length")),
+      middle_name: z.string().max(20, t("middle_name_max_length")).optional(),
+      last_name: z
+        .string()
+        .min(1, t("last_name_required"))
+        .max(20, t("last_name_max_length")),
+      email: z.string().email(t("invalid_email_address")).or(z.literal("")),
+      phone_no: z
+        .string()
+        .regex(/^\+?[1-9]\d{1,14}$/, t("invalid_phone_number"))
+        .or(z.literal("")),
+      is_alive: z.number().min(0).max(1),
+      age_range: z
+        .number()
+        .min(1, t("age_range_required"))
+        .max(12, t("invalid_age_range")),
+    });
 
   const form = useForm({
     resolver: zodResolver(editRelativeSchema),
@@ -88,9 +88,9 @@ export default function EditRelativeForm({
         ...values,
         is_alive: values.is_alive ? 1 : 0,
       });
-      onSuccess?.();
+      toast.success(t("member_updated_successfully"));
     } catch (error) {
-      toast.error("Failed to update member");
+      toast.error(t("failed_to_update_member"));
     }
   };
   const watchIsAlive = form.watch("is_alive");
@@ -109,10 +109,10 @@ export default function EditRelativeForm({
       >
         <div className="text-center mb-6">
           <h2 className="text-lg font-semibold text-primary">
-            Edit Member Details
+            {t("edit_member_details")}
           </h2>
           <p className="text-sm text-gray-500">
-            Update member information below
+            {t("update_member_information_below")}
           </p>
         </div>
 
@@ -123,10 +123,10 @@ export default function EditRelativeForm({
             name="first_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
+                    placeholder={t("first_name")}
                     className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                   />
                 </FormControl>
@@ -139,10 +139,10 @@ export default function EditRelativeForm({
             name="middle_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Middle Name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
+                    placeholder={t("middle_name")}
                     className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                   />
                 </FormControl>
@@ -155,10 +155,10 @@ export default function EditRelativeForm({
             name="last_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
+                    placeholder={t("last_name")}
                     className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                   />
                 </FormControl>
@@ -173,11 +173,11 @@ export default function EditRelativeForm({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
                         {...field}
+                        placeholder={t("email")}
                         className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
                       />
                     </FormControl>
@@ -190,7 +190,6 @@ export default function EditRelativeForm({
                 name="phone_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <PhoneInput
                         international
@@ -200,6 +199,7 @@ export default function EditRelativeForm({
                         onChange={field.onChange}
                         limitMaxLength
                         maxLength={15}
+                        placeholder={t("phone_number")}
                         className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
                       />
                     </FormControl>
@@ -215,14 +215,13 @@ export default function EditRelativeForm({
             name="age_range"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Age Range</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(Number(value))}
                   defaultValue={field.value?.toString()}
                 >
                   <FormControl>
                     <SelectTrigger className="h-10 rounded-full text-foreground bg-background">
-                      <SelectValue placeholder="Select age range" />
+                      <SelectValue placeholder={t("select_age_range")} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -249,7 +248,7 @@ export default function EditRelativeForm({
             name="is_alive"
             render={({ field }) => (
               <FormItem className="flex items-center gap-2">
-                <FormLabel>Living Status</FormLabel>
+                <FormLabel>{t("living_status")}</FormLabel>
                 <FormControl>
                   <Switch
                     checked={field.value === 1}
@@ -271,14 +270,14 @@ export default function EditRelativeForm({
             onClick={onCancel}
             className="rounded-full"
           >
-            Cancel
+            {t("cancel")}
           </Button>
           <Button
             type="submit"
             className="rounded-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Saving..." : "Save changes"}
+            {isSubmitting ? t("saving") : t("save_changes")}
           </Button>
         </div>
       </form>
