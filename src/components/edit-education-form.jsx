@@ -3,14 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "./ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +20,7 @@ import YearSelect from "./custom-ui/year-select";
 import SearchableDropdown from "./custom-ui/searchable-dropdown";
 import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditEducationForm() {
   const { t } = useTranslation();
@@ -47,6 +41,12 @@ export default function EditEducationForm() {
     start_year: z.string().min(1, t("start_year_required")).optional(),
     end_year: z.string().optional(),
   });
+
+  const calculateProfileCompletion = () => {
+    if (!educationTypeList) return 0;
+    return educationTypeList?.length > 0 ? 100 : 0;
+  };
+  const profileCompletion = calculateProfileCompletion();
 
   const form = useForm({
     resolver: zodResolver(educationSchema),
@@ -275,7 +275,21 @@ export default function EditEducationForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">{t("education")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">{t("education")}</h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={65}
+                strokeWidth={3}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-white"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
@@ -292,8 +306,22 @@ export default function EditEducationForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          {t("education")}
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px] border-none">
+          <div className="flex justify-between gap-4 items-center">
+            {t("education")}
+          </div>
+          <div className="flex items-center gap-1 py-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={3}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-white"
+              progressClassName="stroke-primary"
+            />
+          </div>
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

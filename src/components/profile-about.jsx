@@ -48,7 +48,7 @@ export default function ProfileAbout() {
   const renderContent = () => {
     if (width < 640) {
       return (
-        <div className="flex flex-col gap-2 h-full col-span-12 md:col-span-8 lg:col-span-9 accordionContainer">
+        <div className="flex flex-col gap-2 h-full col-span-12 md:col-span-8 lg:col-span-9">
           <EditBasicInfoForm />
           <EditContactForm />
           <EditAdditionalInfoForm />

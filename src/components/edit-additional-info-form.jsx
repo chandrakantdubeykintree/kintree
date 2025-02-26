@@ -24,16 +24,10 @@ import { LocationSearchInput } from "./location-search-input";
 import CustomMultiSelect from "./custom-ui/custom-multi-select";
 import SearchableDropdown from "./custom-ui/searchable-dropdown";
 import CustomDateMonthYearPicker from "./custom-ui/custom-dateMonthYearPicker";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Pen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditAdditionalInfoForm() {
   const { t } = useTranslation();
@@ -76,6 +70,38 @@ export default function EditAdditionalInfoForm() {
       relationship_status: "",
     },
   });
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    // Fields specific to additional information
+    const fields = [
+      "birth_place",
+      "blood_group",
+      "current_city",
+      "known_languages",
+      "mother_tongue",
+      "native_place",
+      "occupation",
+      "relationship_status",
+    ];
+
+    const totalFields = fields.length;
+    let completedFields = 0;
+
+    fields.forEach((field) => {
+      if (field === "known_languages") {
+        if (profile[field] && profile[field].length > 0) {
+          completedFields += 1;
+        }
+      } else if (profile[field] && profile[field].trim() !== "") {
+        completedFields += 1;
+      }
+    });
+
+    return Math.round((completedFields / totalFields) * 100);
+  };
+  const profileCompletion = calculateProfileCompletion(profile);
 
   useEffect(() => {
     if (profile) {
@@ -370,6 +396,23 @@ export default function EditAdditionalInfoForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">
+              {t("additional_information")}
+            </h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={65}
+                strokeWidth={3}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-white"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
           <h2 className="text-lg font-medium">{t("additional_information")}</h2>
           {!isEditing && (
             <button
@@ -387,8 +430,22 @@ export default function EditAdditionalInfoForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
-          {t("additional_information")}
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px]">
+          <div className="flex justify-between gap-4 items-center">
+            {t("additional_information")}
+          </div>
+          <div className="flex items-center gap-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={3}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-white"
+              progressClassName="stroke-primary"
+            />
+          </div>
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

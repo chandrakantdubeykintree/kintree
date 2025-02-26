@@ -24,6 +24,7 @@ import ComponentLoading from "./component-loading";
 import SearchableDropdown from "./custom-ui/searchable-dropdown";
 import { Pen } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditEthnicityForm() {
   const { t } = useTranslation();
@@ -58,6 +59,28 @@ export default function EditEthnicityForm() {
     isLoading: castesLoading,
     refetch: refetchCastes,
   } = useCastes(form.watch("religion_id") || profile?.religion?.id?.toString());
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    const fields = ["religion", "caste", "sub_caste", "gotra", "sect"];
+
+    const totalFields = fields.length;
+    let completedFields = 0;
+
+    fields.forEach((field) => {
+      if (
+        profile[field] &&
+        profile[field].name &&
+        profile[field].name.trim() !== ""
+      ) {
+        completedFields += 1;
+      }
+    });
+
+    return Math.round((completedFields / totalFields) * 100);
+  };
+  const profileCompletion = calculateProfileCompletion(profile);
 
   const {
     data: subCastes,
@@ -334,7 +357,21 @@ export default function EditEthnicityForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">{t("ethinicity")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">{t("ethinicity")}</h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={65}
+                strokeWidth={3}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-white"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
@@ -351,8 +388,22 @@ export default function EditEthnicityForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1 border-none" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          {t("ethinicity")}
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px] border-none">
+          <div className="flex justify-between gap-4 items-center">
+            {t("ethinicity")}
+          </div>
+          <div className="flex items-center gap-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={3}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-white"
+              progressClassName="stroke-primary"
+            />
+          </div>
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">

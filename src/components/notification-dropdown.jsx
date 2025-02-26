@@ -34,10 +34,10 @@ export default function NotificationDropDown() {
       >
         <div className="flex items-start gap-3 py-2 w-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={notified_by.profile_pic_url} />
+            <AvatarImage src={notified_by?.profile_pic_url} />
             <AvatarFallback>
-              {notified_by.first_name.charAt(0)}
-              {notified_by.last_name.charAt(0)}
+              {notified_by?.first_name?.charAt(0)}
+              {notified_by?.last_name?.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 space-y-1">
@@ -45,7 +45,7 @@ export default function NotificationDropDown() {
               {message}
             </p>
             <p className="text-xs text-gray-500 mt-1">
-              @{notified_by.username}
+              @{notified_by?.username}
             </p>
           </div>
           {!readed_at && (

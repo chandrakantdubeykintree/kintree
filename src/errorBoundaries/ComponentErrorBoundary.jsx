@@ -18,9 +18,11 @@ class ComponentErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="p-4 m-4 border border-red-500 rounded-lg">
-          <h3 className="text-xl font-bold text-red-500 mb-2">
-            Component Error
-          </h3>
+          {import.meta.env.DEV && (
+            <h3 className="text-xl font-bold text-red-500 mb-2">
+              Component Error
+            </h3>
+          )}
           <p className="text-gray-600 mb-4">
             Something went wrong, try again later.
           </p>

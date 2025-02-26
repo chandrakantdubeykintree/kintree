@@ -29,6 +29,7 @@ import ComponentLoading from "./component-loading";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditContactForm() {
   const { t } = useTranslation();
@@ -47,6 +48,25 @@ export default function EditContactForm() {
     phone_no: z.string().min(10, t("invalid_phone")).optional(),
     otp: z.string().optional(),
   });
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    // Fields specific to contact information
+    const fields = ["email", "phone_no"];
+
+    const totalFields = fields.length;
+    let completedFields = 0;
+
+    fields.forEach((field) => {
+      if (profile[field] && profile[field].trim() !== "") {
+        completedFields += 1;
+      }
+    });
+
+    return Math.round((completedFields / totalFields) * 100);
+  };
+  const profileCompletion = calculateProfileCompletion(profile);
 
   const form = useForm({
     resolver: zodResolver(contactFormSchema),
@@ -299,7 +319,21 @@ export default function EditContactForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">{t("contact_information")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">{t("contact_information")}</h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={65}
+                strokeWidth={3}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-white"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
         </div>
       </div>
       <div className="p-4 min-h-[280px] max-h-[280px]">
@@ -309,8 +343,22 @@ export default function EditContactForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full border-none">
       <AccordionItem value="item-1" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px]">
-          {t("contact_information")}
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px]">
+          <div className="flex justify-between gap-4 items-center">
+            {t("contact_information")}
+          </div>
+          <div className="flex items-center gap-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={3}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-white"
+              progressClassName="stroke-primary"
+            />
+          </div>
         </AccordionTrigger>
         <AccordionContent className="p-4">
           {isEditing ? renderEditForm() : renderContent()}

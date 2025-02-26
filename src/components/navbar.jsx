@@ -120,11 +120,11 @@ export default function Navbar() {
           {searchQuery && (
             <div className="absolute top-12 left-0 right-0 bg-background border rounded-lg shadow-lg z-[100]">
               <div className="space-y-2 p-2 max-h-[60vh] overflow-y-scroll no_scrollbar">
-                {searchData?.pages?.flatMap((page) => page.data.users).length >
-                0 ? (
+                {searchData?.pages?.flatMap((page) => page?.data?.users)
+                  ?.length > 0 ? (
                   <>
-                    {searchData.pages.map((page) =>
-                      page.data.users.map((user) => (
+                    {searchData?.pages?.map((page) =>
+                      page?.data?.users?.map((user) => (
                         <div
                           key={user.user_id}
                           className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
@@ -137,12 +137,12 @@ export default function Navbar() {
                           />
                           <div className="flex-1">
                             <div className="font-medium">
-                              {`${user.first_name} ${user.middle_name || ""} ${
-                                user.last_name
-                              }`}
+                              {`${user?.first_name} ${
+                                user?.middle_name || ""
+                              } ${user.last_name}`}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              @{user.username}
+                              @{user?.username}
                             </div>
                           </div>
                         </div>

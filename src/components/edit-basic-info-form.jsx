@@ -30,7 +30,6 @@ export default function EditBasicInfoForm() {
 
   const calculateProfileCompletion = (profile) => {
     if (!profile) return 0;
-
     const fields = [
       "first_name",
       "middle_name",
@@ -40,19 +39,15 @@ export default function EditBasicInfoForm() {
       "bio",
       "nickname",
     ];
-
     const totalFields = fields.length;
     let completedFields = 0;
-
     fields.forEach((field) => {
       if (profile[field] && profile[field].trim() !== "") {
         completedFields += 1;
       }
     });
-
     return Math.round((completedFields / totalFields) * 100);
   };
-
   const profileCompletion = calculateProfileCompletion(profile);
 
   const basicInfoSchema = z.object({
@@ -291,12 +286,12 @@ export default function EditBasicInfoForm() {
             <div className="flex items-center gap-1">
               <CustomCircularProgress
                 value={profileCompletion}
-                size={60}
-                strokeWidth={6}
+                size={65}
+                strokeWidth={3}
                 showLabel
                 labelClassName="text-[10px] font-bold"
                 renderLabel={(progress) => `${progress}%`}
-                className="stroke-primary/25"
+                className="stroke-white"
                 progressClassName="stroke-primary"
               />
             </div>
@@ -317,7 +312,7 @@ export default function EditBasicInfoForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-0">
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px] border-0">
           <div className="flex justify-between gap-4 items-center">
             {t("basic_information")}
           </div>
@@ -325,11 +320,11 @@ export default function EditBasicInfoForm() {
             <CustomCircularProgress
               value={profileCompletion}
               size={60}
-              strokeWidth={6}
+              strokeWidth={3}
               showLabel
               labelClassName="text-[10px] font-bold"
               renderLabel={(progress) => `${progress}%`}
-              className="stroke-primary/20"
+              className="stroke-white"
               progressClassName="stroke-primary"
             />
           </div>

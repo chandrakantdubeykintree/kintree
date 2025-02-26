@@ -33,14 +33,14 @@ import ComponentLoading from "@/components/component-loading";
 import toast from "react-hot-toast";
 import { Pen, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { CustomCircularProgress } from "./custom-ui/custom_circular_progress";
 
 export default function EditInterestsForm() {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const { profile, updateProfile, isLoading } = useProfile("/user/interests");
-  const { data: availableInterests, refetch: refetchInterests } =
-    useInterests();
+  const { data: availableInterests } = useInterests();
 
   const interestsSchema = z.object({
     interest_ids: z.array(z.string()).min(1, t("select_interest")),
@@ -53,6 +53,13 @@ export default function EditInterestsForm() {
 
   const { width } = useWindowSize();
   const { updateInterests } = useProfile("/user/store-custom-interests");
+
+  const calculateProfileCompletion = (profile) => {
+    if (!profile) return 0;
+
+    return profile?.length > 0 ? 100 : 0;
+  };
+  const profileCompletion = calculateProfileCompletion(profile);
 
   const form = useForm({
     resolver: zodResolver(interestsSchema),
@@ -266,7 +273,21 @@ export default function EditInterestsForm() {
     <>
       <div className="px-3">
         <div className="h-[60px] flex items-center justify-between border-b">
-          <h2 className="text-lg font-medium">{t("interests")}</h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-lg font-medium">{t("interests")}</h2>
+            <div className="flex items-center gap-1">
+              <CustomCircularProgress
+                value={profileCompletion}
+                size={65}
+                strokeWidth={3}
+                showLabel
+                labelClassName="text-[10px] font-bold"
+                renderLabel={(progress) => `${progress}%`}
+                className="stroke-white"
+                progressClassName="stroke-primary"
+              />
+            </div>
+          </div>
           {!isEditing && (
             <button
               className="flex items-center border-brandPrimary gap-2 border border-dark-border dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"
@@ -328,8 +349,22 @@ export default function EditInterestsForm() {
   ) : (
     <Accordion type="single" collapsible className="w-full">
       <AccordionItem value="item-1 border-none" className="border-none">
-        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[36px] border-none">
-          {t("interests")}
+        <AccordionTrigger className="bg-[#F3EAF3] px-4 rounded-[6px] text-brandPrimary text-[16px] h-[48px] border-none">
+          <div className="flex justify-between gap-4 items-center">
+            {t("interests")}
+          </div>
+          <div className="flex items-center gap-1">
+            <CustomCircularProgress
+              value={profileCompletion}
+              size={60}
+              strokeWidth={3}
+              showLabel
+              labelClassName="text-[10px] font-bold"
+              renderLabel={(progress) => `${progress}%`}
+              className="stroke-white"
+              progressClassName="stroke-primary"
+            />
+          </div>
         </AccordionTrigger>
         <AccordionContent className="border-none p-4 relative">
           <div className="flex absolute top-1 right-0 rounded-full w-10 h-10 cursor-pointer items-center justify-center">
