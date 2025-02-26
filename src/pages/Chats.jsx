@@ -67,8 +67,6 @@ const editChannelSchema = z.object({
 });
 
 export default function Chats({ isFlutter, onViewChange }) {
-  console.log(onViewChange, isFlutter);
-
   const [selectedChannel, setSelectedChannel] = useState(null);
   const navigate = useNavigate();
   const [openSheet, setOpenSheet] = useState({
@@ -134,17 +132,14 @@ export default function Chats({ isFlutter, onViewChange }) {
     }
   };
 
-  console.log(isFlutter);
-
-  const [newMembersToAdd, setNewMembersToAdd] = useState([]);
-  // Add this new handler function
-  const handleUpdateGroupMembers = (member) => {
-    setNewMembersToAdd((prev) =>
-      prev.some((m) => m.id === member.id)
-        ? prev.filter((m) => m.id !== member.id)
-        : [...prev, member]
-    );
-  };
+  // const [newMembersToAdd, setNewMembersToAdd] = useState([]);
+  // const handleUpdateGroupMembers = (member) => {
+  //   setNewMembersToAdd((prev) =>
+  //     prev.some((m) => m.id === member.id)
+  //       ? prev.filter((m) => m.id !== member.id)
+  //       : [...prev, member]
+  //   );
+  // };
 
   const handleTouchStart = (messageId) => {
     setIsTouchActive(true);
@@ -233,7 +228,6 @@ export default function Chats({ isFlutter, onViewChange }) {
   };
 
   // Add this function to handle file selection
-
   const handleFileSelect = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -259,6 +253,60 @@ export default function Chats({ isFlutter, onViewChange }) {
       setAttachment(file);
     }
   };
+  // const handleCameraClick = () => {
+  //   if (isFlutter && window.callbackHandler) {
+  //     // Send a message to Flutter to open the file picker
+  //     window.callbackHandler.postMessage(
+  //       JSON.stringify({
+  //         type: "openFilePicker",
+  //       })
+  //     );
+  //   } else {
+  //     // Fallback to the web file input
+  //     document.getElementById("attachment").click();
+  //   }
+  // };
+  // const handleFileFromFlutter = (file) => {
+  //   if (!file) return;
+
+  //   // Validate file size (5MB limit)
+  //   if (file.size > 5 * 1024 * 1024) {
+  //     toast.error("File size should not exceed 5MB");
+  //     return;
+  //   }
+
+  //   // Validate file type
+  //   const allowedTypes = [
+  //     "image/jpeg",
+  //     "image/png",
+  //     "image/gif",
+  //     "image/svg+xml",
+  //   ];
+  //   if (!allowedTypes.includes(file.type)) {
+  //     toast.error(
+  //       `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
+  //     );
+  //     return;
+  //   }
+
+  //   setAttachment(file);
+  // };
+
+  // Listen for messages from Flutter
+  // useEffect(() => {
+  //   if (isFlutter) {
+  //     window.addEventListener("message", (event) => {
+  //       const data = JSON.parse(event.data);
+  //       if (data.type === "fileSelected") {
+  //         // Convert the file data to a File object
+  //         const file = new File([data.file], data.fileName, {
+  //           type: data.fileType,
+  //         });
+  //         handleFileFromFlutter(file);
+  //       }
+  //     });
+  //   }
+  // }, [isFlutter]);
 
   // Add this function to handle message selection
   const handleMessageSelect = (messageId) => {
@@ -483,6 +531,8 @@ export default function Chats({ isFlutter, onViewChange }) {
   const handleChannelSelect = async (channel) => {
     if (selectedChannel?.id === channel.id) return;
 
+    setAttachment(null);
+
     if (selectedChannel) {
       messageService.leaveChannel(selectedChannel.id);
     }
@@ -536,6 +586,8 @@ export default function Chats({ isFlutter, onViewChange }) {
     if (!selectedChannel || (!newMessage.trim() && !attachment)) return;
 
     try {
+      setSendStatus({ type: "sending", message: "Sending..." });
+
       await messageService.sendMessage(
         selectedChannel.id,
         newMessage.trim(),
@@ -546,7 +598,16 @@ export default function Chats({ isFlutter, onViewChange }) {
       setAttachment(null); // Clear attachment
       messageService.stopTyping(selectedChannel.id); // Stop typing indicator
       scrollToBottom(); // Scroll to latest message
+
+      // Show success status briefly
+      setSendStatus({ type: "success", message: "Message sent!" });
+      setTimeout(() => setSendStatus(null), 2000); // Clear status after 2 seconds
     } catch (error) {
+      setSendStatus({
+        type: "error",
+        message: error.message || "Failed to send message",
+      });
+      setTimeout(() => setSendStatus(null), 3000); // Clear error after 3 seconds
       toast.error(error.message || "Failed to send message");
     }
   };
@@ -620,15 +681,6 @@ export default function Chats({ isFlutter, onViewChange }) {
       setMessageToDelete(null);
     } catch (error) {
       toast.error("Failed to delete message");
-    }
-  };
-
-  const handleFileSelectFlutter = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    if (isFlutter) {
-      console.log("File selected");
     }
   };
 
@@ -985,13 +1037,13 @@ export default function Chats({ isFlutter, onViewChange }) {
                 {/* Send status indicator */}
                 {sendStatus && (
                   <div
-                    className={`absolute top-[73px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
+                    className={`absolute top-[84px] left-1/2 -translate-x-1/2 z-20 px-4 py-1 rounded-full text-sm
                       ${
                         sendStatus.type === "success"
-                          ? "bg-green-500/10 text-green-500"
+                          ? "bg-green-500/10 text-green-700"
                           : sendStatus.type === "error"
-                          ? "bg-red-500/10 text-red-500"
-                          : "bg-blue-500/10 text-blue-500"
+                          ? "bg-red-500/10 text-red-700"
+                          : "bg-blue-500/10 text-blue-700"
                       }`}
                   >
                     {sendStatus.message}
@@ -1224,7 +1276,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                         <label
                           htmlFor="attachment"
                           className="cursor-pointer p-2 hover:bg-muted rounded-full transition-colors"
-                          onClick={(e) => handleFileSelectFlutter(e)}
+                          // onClick={handleCameraClick}
                         >
                           <Camera className="h-8 w-8 text-primary" />
                         </label>

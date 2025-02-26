@@ -36,7 +36,7 @@ class MessageService {
   handleUserStatus() {
     this.socket.on("user-status-changed", ({ userId, isOnline }) => {
       // Update UI to reflect user's online status
-      console.log(`User ${userId} is ${isOnline ? "online" : "offline"}`);
+      // console.log(`User ${userId} is ${isOnline ? "online" : "offline"}`);
     });
   }
 
@@ -909,7 +909,6 @@ export const useMessageStore = create((set) => ({
     set((state) => {
       // Ensure channel IDs match and convert to numbers for comparison
       if (parseInt(state.currentChannel?.id) !== parseInt(message.channel_id)) {
-        console.log("Message channel doesn't match current channel");
         return state;
       }
 
