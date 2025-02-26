@@ -1,8 +1,8 @@
 {
-  "language": "एन",
-  "name": "अंग्रेज़ी",
-  "nativeName": "अंग्रेज़ी",
-  "dir": "लीटर",
+  "language": "hi",
+  "name": "Hindi",
+  "nativeName": "हिंदी",
+  "dir": "ltr",
   "app_name": "किनट्री",
   "login": "लॉग इन करें",
   "logout": "लॉग आउट",

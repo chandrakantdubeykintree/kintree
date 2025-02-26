@@ -1,8 +1,8 @@
 {
-  "language": "عربي",
-  "name": "إنجليزي",
-  "nativeName": "إنجليزي",
-  "dir": "لتر",
+  "language": "ar",
+  "name": "العربية",
+  "nativeName": "العربية",
+  "dir": "rtl",
   "app_name": "كينتري",
   "login": "تسجيل الدخول",
   "logout": "تسجيل الخروج",

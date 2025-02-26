@@ -303,3 +303,7 @@ button[data-state="active"] {
     opacity: 1;
   }
 }
+
+.rtl {
+  direction: rtl;
+}

@@ -1,8 +1,8 @@
 {
-  "language": "en সম্পর্কে",
-  "name": "ইংরেজী",
-  "nativeName": "ইংরেজী",
-  "dir": "লেটার",
+  "language": "bn",
+  "name": "বাংলা",
+  "nativeName": "বাংলা",
+  "dir": "ltr",
   "app_name": "কিন্ট্রি",
   "login": "লগইন",
   "logout": "লগআউট",

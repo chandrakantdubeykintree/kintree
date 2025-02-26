@@ -66,6 +66,7 @@ export function ThemeLanguageProvider({
       const dir = LANGUAGE_METADATA[languageCode]?.dir || "ltr";
       document.documentElement.dir = dir;
       document.documentElement.lang = languageCode;
+      document.documentElement.classList.toggle("rtl", dir === "rtl");
 
       // Update configurations
       await updateProfile({

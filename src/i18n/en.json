@@ -3,13 +3,10 @@
   "name": "English",
   "nativeName": "English",
   "dir": "ltr",
-
   "app_name": "Kintree",
-
   "login": "Login",
   "logout": "Logout",
   "register": "Register",
-
   "email": "Email",
   "username": "Username",
   "password": "Password",
@@ -17,7 +14,6 @@
   "otp": "OTP",
   "male": "Male",
   "female": "Female",
-
   "enter_otp": "Enter OTP",
   "send_otp": "Send OTP",
   "enter_email": "Enter Email",
@@ -27,13 +23,11 @@
   "martial_status": "Martial Status",
   "select_martial_status": "Select Martial Status",
   "select_occupation": "Select Occupation",
-
   "verify_email": "Verify Email",
   "verify_username": "Verify Username",
   "verify_password": "Verify Password",
   "verify_phone": "Verify Phone",
   "verify_otp": "Verify OTP",
-
   "invalid_email": "Invalid email",
   "invalid_username": "Invalid username",
   "invalid_password": "Invalid password",
@@ -41,7 +35,6 @@
   "invalid_otp": "Invalid OTP",
   "invalid_username_password": "Invalid username or password",
   "invalid_email_password": "Invalid email or password",
-
   "edit_post": "Edit Post",
   "character_count": "{{count}}/{{max}} characters",
   "edit_post_placeholder": "Edit your post...",
@@ -51,10 +44,8 @@
   "unauthorized_edit": "You are not authorized to edit this post",
   "load_post_error": "Failed to load post",
   "update_post_error": "Failed to update post",
-
   "credentials_format": "Username: {{username}}\nPassword: {{password}}",
   "credentials_copied": "Credentials copied to clipboard!",
-
   "alive": "Alive",
   "deceased": "Deceased",
   "attachments": "Attachments",
@@ -66,7 +57,6 @@
   "delete_member_success": "Member deleted successfully",
   "delete_member_error": "Failed to delete member",
   "back_to_family_tree": "Back to Family Tree",
-
   "email_required": "Email Required",
   "username_required": "Username Required",
   "password_required": "Password Required",
@@ -85,10 +75,8 @@
   "institution_name_required": "Institution Name Required",
   "start_year_required": "Start Year Required",
   "interest_name_required": "Interest Name Required",
-
   "forgot_username": "Forgot Username",
   "forgot_password": "Forgot Password",
-
   "reset_password": "Reset Password",
   "new_password": "New Password",
   "current_password": "Current Password",
@@ -97,11 +85,9 @@
   "change_password": "Change Password",
   "update_account_password": "Update Account Password",
   "save_password": "Save Password",
-
   "username_not_found": "Username not found",
   "email_not_found": "Email not found",
   "phone_not_found": "Phone not found",
-
   "otp_sent": "OTP Sent",
   "otp_sent_to": "OTP sent to",
   "did_not_receive_otp": "Did not receive OTP?",
@@ -109,7 +95,6 @@
   "otp_incoming": "OTP incoming!",
   "enter_otp_4": "Enter the 4-digit OTP",
   "enter_otp_6": "Enter the 6-digit OTP",
-
   "or": "Or",
   "and": "And",
   "with": "With",
@@ -208,7 +193,6 @@
   "earn": "Earn",
   "rewards": "Rewards",
   "transactions": "Transactions",
-
   "add_member_icon": "Add member icon",
   "add_family_member": "Add a Family Member",
   "earn_kincoins_add_member": "Earn up to 1000 Kincoins!",
@@ -222,12 +206,10 @@
   "complete_profile": "Complete your profile",
   "earn_kincoins_complete_profile": "Get up to 2000 Kincoins!",
   "earn_now": "Earn Now",
-
   "start_transactions": "Start Transactions",
   "empty_transactions_image": "Empty transactions illustration",
   "ready_to_transaction": "Ready to make a transaction?",
   "redeem_kincoins_now": "Redeem your Kincoins now!",
-
   "events_banner_image": "Events banner illustration",
   "ongoing_events": "Ongoing Events",
   "past_events": "Past Events",
@@ -235,7 +217,6 @@
   "no_events_illustration": "No events illustration",
   "create_event_prompt": "Click on the Create Event button to plan a new event.",
   "scroll_to_load_more": "Scroll to load more",
-
   "angry": "Angry",
   "annoyed": "Annoyed",
   "awesome": "Awesome",
@@ -251,7 +232,6 @@
   "sad": "Sad",
   "shocked": "Shocked",
   "thinking": "Thinking",
-
   "basic_information": "Basic Information",
   "additional": "Additional",
   "additional_information": "Additional Information",
@@ -297,7 +277,6 @@
   "personal_information": "Personal Information",
   "address": "Address",
   "pincode": "Pincode",
-
   "add_feelings": "Add feelings",
   "add_location": "Add location",
   "total_votes": "Total Votes",
@@ -339,7 +318,6 @@
   "deactivate_account_confirmation": "Are you sure you want to deactivate your account?",
   "deactivate_account_warning": "Your account will be deactivated after 90 days. You can reactivate your account by logging in during this period.",
   "delete_account_warning": "Your account and all associated data will be permanently deleted in 30 days. This action cannot be undone.",
-
   "global": "Global",
   "family_tree": "Family Tree",
   "primary_family": "Primary Family",
@@ -349,7 +327,6 @@
   "primary_family_desc": "Your Primary Family Members",
   "only_me_desc": "Only you can see this",
   "default_public": "Default Public",
-
   "max_attachments_error": "Maximum 3 attachments allowed",
   "file_upload_error": "Failed to upload files",
   "back_to_events": "Back to Events",
@@ -365,7 +342,6 @@
   "upload_attachments": "Upload Attachments",
   "creating": "Creating...",
   "end_date_error": "End date & time must be after start date & time",
-
   "event_category_required": "Event category is required",
   "name_max_length": "Name must be 50 characters or less",
   "venue_required": "Venue is required",
@@ -374,7 +350,6 @@
   "end_date_future": "End date & time must be in the future",
   "details_max_length": "Details must be 200 characters or less",
   "attendees_required": "Attendees are required to create an event",
-
   "duration_1_day": "1 Day",
   "duration_2_days": "2 Days",
   "duration_1_week": "1 Week",
@@ -396,10 +371,8 @@
   "duration": "Duration",
   "creating_poll": "Creating...",
   "poll_creation_error": "Failed to create poll",
-
   "caption_min_length": "Caption must be at least 5 characters",
   "caption_max_length": "Caption cannot exceed 1000 characters",
-
   "file_format_error": "{{fileName}} - Unsupported file format. Supported formats are: {{formats}}",
   "file_size_error": "{{fileName}} - File is too large (max 10MB)",
   "max_files_error": "Maximum 10 files allowed",
@@ -408,7 +381,6 @@
   "empty_post_error": "Please add either a caption or media files",
   "post_creation_failed": "Failed to create post",
   "creating_post": "Creating Post...",
-
   "event_update_success": "Event updated successfully",
   "event_update_failed": "Failed to update event",
   "attachment_upload_failed": "Failed to upload attachments",
@@ -417,7 +389,6 @@
   "updating": "Updating...",
   "update_event": "Update Event",
   "back_to_event": "Back to Event",
-
   "try_another_way": "Try another way!",
   "continue_with_email": "Continue with Email",
   "continue_with_phone": "Continue with Phone",
@@ -547,7 +518,6 @@
   "no_notifications": "No notifications",
   "mark_as_read": "Mark as Read",
   "mark_as_unread": "Mark as Unread",
-
   "error_fetching_user_profile": "Error fetching user profile",
   "error_fetching_user_data": "Error fetching user data",
   "error_invalid_credentials": "Invalid credentials",
@@ -609,7 +579,6 @@
   "error_failed_to_update_will": "Failed to update will",
   "error_marking_notification_read": "Failed to mark notification as read",
   "failed_to_delete_notification": "Failed to delete notification",
-
   "will_acko_1": "The Kintree Will is a testament to your wisdom and a gift to those you cherish the most.",
   "will_acko_2": "We assure you that your data is safe and secured with us, as your privacy is our priority.",
   "will_acko_3": "It is mandatory to fill in your personal details such as Name, Date of Birth, Address and contact details.",
@@ -619,7 +588,6 @@
   "will_sound_checkbox": "I confirm that I am of sound mind and making this will voluntarily without any undue influence or coercion.",
   "will_truthful_checkbox": "I declare that all information provided in this will shall be truthful and accurate to the best of my knowledge.",
   "will_agree_checkbox": "I have read all the information mentioned above and I agree to make my Will.",
-
   "add_beneficiaries": "Add Beneficiaries",
   "asset_allocation": "Asset Allocation",
   "total_allocation": "Total Allocation",
@@ -656,7 +624,6 @@
   "member_added_successfully": "Member added successfully",
   "selfie_uploaded_successfully": "Selfie uploaded successfully",
   "notification_deleted_successfully": "Notification deleted successfully",
-
   "register_step_1_heading": "We'd love to know about yourself",
   "register_step_2_heading": "When were you born?",
   "register_step_3_heading": "What's your gender?",
@@ -669,7 +636,6 @@
   "register_step_4_desc": "Let others recognize you easily",
   "register_step_5_desc": "Let's honor the first branch in your family tree",
   "register_step_6_desc": "We can't wait to celebrate her impact on your life",
-
   "first_name": "First Name",
   "enter_name": "Enter Name",
   "last_name": "Last Name",
@@ -681,7 +647,6 @@
   "mother_name": "Mother's Name",
   "grandfather_name": "Grandfather's Name",
   "grandmother_name": "Grandmother's Name",
-
   "enter_first_name": "Enter First Name",
   "enter_middle_name": "Enter Middle Name",
   "enter_last_name": "Enter Last Name",
@@ -696,7 +661,6 @@
   "enter_mother_name": "Enter Mother's Name",
   "enter_grandfather_name": "Enter Grandfather's Name",
   "enter_grandmother_name": "Enter Grandmother's Name",
-
   "name_required": "Name Required",
   "father_name_required": "Father's Name Required",
   "mother_name_required": "Mother's Name Required",

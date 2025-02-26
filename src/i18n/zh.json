@@ -1,8 +1,8 @@
 {
-  "language": "英文",
-  "name": "英语",
-  "nativeName": "英语",
-  "dir": "升",
+  "language": "zh",
+  "name": "中文",
+  "nativeName": "中文",
+  "dir": "ltr",
   "app_name": "金翠",
   "login": "登录",
   "logout": "登出",

@@ -72,3 +72,68 @@ i18n.on("languageChanged", (lng) => {
 });
 
 export default i18n;
+
+// "language": "ar",
+// "name": "العربية",
+// "nativeName": "العربية",
+// "dir": "rtl",
+
+// "language": "bn",
+// "name": "বাংলা",
+// "nativeName": "বাংলা",
+// "dir": "ltr"
+
+// "language": "es",
+//   "name": "Español",
+//   "nativeName": "Español",
+//   "dir": "ltr"
+
+// "language": "fr",
+//   "name": "Français",
+//   "nativeName": "Français",
+//   "dir": "ltr"
+
+//  "language": "gu",
+//   "name": "ગુજરાતી",
+//   "nativeName": "ગુજરાતી",
+//   "dir": "ltr"
+
+//  "language": "hi",
+//   "name": "Hindi",
+//   "nativeName": "हिंदी",
+//   "dir": "ltr",
+
+// "language": "kn",
+//   "name": "ಕನ್ನಡ",
+//   "nativeName": "ಕನ್ನಡ",
+//   "dir": "ltr"
+
+//  "language": "ml",
+//   "name": "മലയാളം",
+//   "nativeName": "മലയാളം",
+//   "dir": "ltr"
+
+//  "language": "mr",
+//   "name": "मराठी",
+//   "nativeName": "मराठी",
+//   "dir": "ltr"
+
+//  "language": "ta",
+//   "name": "தமிழ்",
+//   "nativeName": "தமிழ்",
+//   "dir": "ltr"
+
+// "language": "te",
+//   "name": "తెలుగు",
+//   "nativeName": "తెలుగు",
+//   "dir": "ltr"
+
+// "language": "ur",
+//   "name": "اردو",
+//   "nativeName": "اردو",
+//   "dir": "ltr"
+
+// "language": "zh",
+// "name": "中文",
+// "nativeName": "中文",
+// "dir": "ltr"
