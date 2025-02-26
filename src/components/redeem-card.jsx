@@ -218,7 +218,7 @@ export default function RedeemCard({ data }) {
               className="w-full rounded-full max-w-[250px] h-[48px] text-md gap-2"
               onClick={handleRedeemNow}
             >
-              <img src="/kincoins/redeem.svg" className="h-6 w-6 mr-2" />
+              <img src="/kincoinsImg/redeem.svg" className="h-6 w-6 mr-2" />
               <span>Redeem Now</span>
             </Button>
             <p className="text-sm text-muted-foreground">

@@ -101,10 +101,10 @@ export default function Kincoins() {
         </div>
       )}
       <Card className="bg-background rounded-2xl h-full overflow-y-scroll no_scrollbar">
-        <div className="w-full flex items-center justify-between relative h-[227px] bg-[url('/kincoins/kincoins_banner.png')] bg-no-repeat bg-cover rounded-t-2xl">
+        <div className="w-full flex items-center justify-between relative h-[227px] bg-[url('/kincoinsImg/kincoins_banner.png')] bg-no-repeat bg-cover rounded-t-2xl">
           {/* <div className="absolute left-[5%]">
             <img
-              src="/kincoins/kintree_coin.svg"
+              src="/kincoinsImg/kintree_coin.svg"
               className="h-full object-cover max-w-[250px] w-[125px]"
               style={{ zIndex: 1 }}
             />
@@ -115,7 +115,7 @@ export default function Kincoins() {
             </div> */}
             <div className="flex items-center justify-center">
               <img
-                src="/kincoins/kintree_coin.svg"
+                src="/kincoinsImg/kintree_coin.svg"
                 className="h-full object-cover max-w-[125px] w-[75px]"
                 style={{ zIndex: 1 }}
               />

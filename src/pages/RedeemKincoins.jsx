@@ -6,28 +6,28 @@ const redeemKincoinsProduct = [
     name: "Myfitgene™ DNA Test Kit: 40+",
     tag: "Mapmy genome",
     price: 6999,
-    url: "/kincoins/myfitgene.png",
+    url: "/kincoinsImg/myfitgene.png",
   },
   {
     id: 2,
     name: "BeautyMap™ - Skin & Hair Genetic",
     tag: "Mapmy genome",
     price: 6999,
-    url: "/kincoins/beautymap.png",
+    url: "/kincoinsImg/beautymap.png",
   },
   {
     id: 3,
     name: "Genomepatri™ - The Ultimate",
     tag: "Mapmy genome",
     price: 7999,
-    url: "/kincoins/genomepatri.png",
+    url: "/kincoinsImg/genomepatri.png",
   },
   {
     id: 4,
     name: "Genomepatri™ Heritage – DNA Ancestry Test",
     tag: "Mapmy genome",
     price: 7999,
-    url: "/kincoins/genomepatri-heritage.png",
+    url: "/kincoinsImg/genomepatri-heritage.png",
   },
 ];
 

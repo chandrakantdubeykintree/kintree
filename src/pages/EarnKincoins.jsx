@@ -16,12 +16,12 @@ export default function EarnKincoins() {
 
   const getIconPath = (eventType) => {
     const iconMap = {
-      add_member: "/kincoins/add-member.png",
-      add_post: "/kincoins/post.png",
-      will_creation: "/kincoins/will.png",
-      profile_completion: "/kincoins/complete-profile.png",
+      add_member: "/kincoinsImg/add-member.png",
+      add_post: "/kincoinsImg/post.png",
+      will_creation: "/kincoinsImg/will.png",
+      profile_completion: "/kincoinsImg/complete-profile.png",
     };
-    return iconMap[eventType] || "/kincoins/default.png";
+    return iconMap[eventType] || "/kincoinsImg/kintree_coin.svg";
   };
 
   const getNavigationPath = (eventType) => {

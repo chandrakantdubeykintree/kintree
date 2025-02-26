@@ -184,7 +184,7 @@ export default function CreatePoll() {
               <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold">
                 You will earn {coinEarnable} kincoins&nbsp;
                 <img
-                  src="/kincoins/kintree_coin.svg"
+                  src="/kincoinsImg/kintree_coin.svg"
                   className="w-[18px] h-[18px]"
                 />
               </div>

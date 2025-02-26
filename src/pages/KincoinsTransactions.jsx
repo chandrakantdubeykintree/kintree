@@ -35,7 +35,7 @@ export default function KincoinsTransactions() {
         </div>
         <div className="max-w-[300px] md:max-w-[400px] px-4">
           <img
-            src="/kincoins/empty-transactions.svg"
+            src="/kincoinsImg/empty-transactions.svg"
             className="w-full h-auto"
             alt={t("empty_transactions_image")}
           />
@@ -70,7 +70,7 @@ export default function KincoinsTransactions() {
             <div className="flex gap-3 md:gap-4 items-center min-w-0">
               <div className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
                 <img
-                  src="/kincoins/kintree_coin.svg"
+                  src="/kincoinsImg/kintree_coin.svg"
                   alt="Kincoin"
                   className="w-full h-full"
                 />
