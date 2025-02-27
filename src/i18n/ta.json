@@ -364,6 +364,7 @@
   "question": "கேள்வி",
   "question_placeholder": "உங்கள் கேள்வியை இங்கே தட்டச்சு செய்யவும்.",
   "options": "விருப்பங்கள்",
+  "option_placeholder": "விருப்பம் {{எண்}}",
   "add_option": "விருப்பத்தைச் சேர்",
   "start_date": "தொடக்க தேதி",
   "duration": "கால அளவு",

@@ -364,6 +364,7 @@
   "question": "प्रश्न",
   "question_placeholder": "तुमचा प्रश्न येथे टाइप करा.",
   "options": "पर्याय",
+  "option_placeholder": "पर्याय {{संख्या}}",
   "add_option": "पर्याय जोडा",
   "start_date": "प्रारंभ तारीख",
   "duration": "कालावधी",

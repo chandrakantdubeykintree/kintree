@@ -3,7 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router";
 import { tokenService } from "../services/tokenService";
 
 import { toast } from "react-hot-toast";
-import Chats from "./Chats";
+import ChatFlutter from "./ChatFlutter";
 
 export default function FlutterChat() {
   const { token } = useParams();
@@ -80,7 +80,7 @@ export default function FlutterChat() {
               overscrollBehavior: "contain",
             }}
           >
-            <Chats
+            <ChatFlutter
               isFlutter={true}
               onViewChange={(isChannelList) => {
                 setSearchParams({ mobile: isChannelList ? "true" : "false" });

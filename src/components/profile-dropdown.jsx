@@ -36,7 +36,7 @@ export default function ProfileDropDown() {
   const { data: unreadMessages } = useUnreadMessages();
   const unreadedMessageCount = unreadMessages?.data?.unreaded_message_count;
   const handleNavLinkClick = () => {
-    setIsSheetOpen(false); // Close the sheet
+    setIsSheetOpen(false);
   };
 
   function handleUserLogout() {
@@ -118,6 +118,7 @@ export default function ProfileDropDown() {
               to={path}
               onMouseEnter={() => setHoveredPath(path)}
               onMouseLeave={() => setHoveredPath(null)}
+              onClick={handleNavLinkClick}
               className={`flex items-center justify-between h-12 font-medium px-4 rounded-xl text-base ${
                 location?.pathname.includes(path)
                   ? "bg-brandPrimary text-white hover:bg-brandPrimary"

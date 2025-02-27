@@ -364,6 +364,7 @@
   "question": "પ્રશ્ન",
   "question_placeholder": "તમારો પ્રશ્ન અહીં લખો.",
   "options": "વિકલ્પો",
+  "option_placeholder": "વિકલ્પ {{નંબર}}",
   "add_option": "વિકલ્પ ઉમેરો",
   "start_date": "શરૂઆત તારીખ",
   "duration": "સમયગાળો",

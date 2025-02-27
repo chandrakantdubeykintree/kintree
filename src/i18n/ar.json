@@ -364,6 +364,7 @@
   "question": "سؤال",
   "question_placeholder": "اكتب سؤالك هنا.",
   "options": "خيارات",
+  "option_placeholder": "الخيار {{number}}",
   "add_option": "إضافة خيار",
   "start_date": "تاريخ البدء",
   "duration": "مدة",

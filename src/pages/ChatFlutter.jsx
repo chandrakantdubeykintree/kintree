@@ -66,7 +66,7 @@ const editChannelSchema = z.object({
   thumbnail_image: z.any().optional(),
 });
 
-export default function Chats({ isFlutter, onViewChange }) {
+export default function ChatFlutter({ isFlutter, onViewChange }) {
   const [selectedChannel, setSelectedChannel] = useState(null);
   const navigate = useNavigate();
   const [openSheet, setOpenSheet] = useState({
@@ -265,15 +265,16 @@ export default function Chats({ isFlutter, onViewChange }) {
       document.getElementById("attachment").click();
     }
   };
-  const handleMobileBack = () => {
-    if (isFlutter && window.callbackHandler) {
-      window.callbackHandler.postMessage(
-        JSON.stringify({
-          type: "leaveChatPage",
-        })
-      );
-    }
-  };
+  // const handleMobileBack = () => {
+  //   if (isFlutter && window.callbackHandler) {
+  //     window.callbackHandler.postMessage(
+  //       JSON.stringify({
+  //         type: "leaveChatPage",
+  //       })
+  //     );
+  //   }
+  // };
+
   // useEffect(() => {
   //   window.handleFileSelect = function (fileName, fileExtension, base64File) {
   //     const fileType = `image/${fileExtension}`;
@@ -361,6 +362,31 @@ export default function Chats({ isFlutter, onViewChange }) {
   //     delete window.handleFileSelect;
   //   };
   // }, []);
+
+  useEffect(() => {
+    // Set up the handler for Flutter back button
+    window.handleBackButtonPress = () => {
+      // Check if any sheet is open
+      // toast.success("Go Back, from navigate!");
+
+      setOpenSheet({
+        createChannel: false,
+        updateChannel: false,
+        deleteChannel: false,
+        channelInfo: false,
+        clearChat: false,
+        messageInfo: false,
+        deleteMessage: false,
+      });
+
+      handleBack();
+
+      // Cleanup function
+      return () => {
+        delete window.handleBackButtonPress;
+      };
+    };
+  }, []);
 
   useEffect(() => {
     window.handleFileSelect = function (dataUrl) {
@@ -724,10 +750,6 @@ export default function Chats({ isFlutter, onViewChange }) {
     }
   };
 
-  const handleBack = () => {
-    handleShowMobileList(true);
-  };
-
   // Add this to clear attachment
   const clearAttachment = () => {
     setAttachment(null);
@@ -795,6 +817,9 @@ export default function Chats({ isFlutter, onViewChange }) {
       toast.error("Failed to delete message");
     }
   };
+  const handleBack = () => {
+    handleShowMobileList(true);
+  };
 
   return (
     <AsyncComponent>
@@ -808,16 +833,6 @@ export default function Chats({ isFlutter, onViewChange }) {
           >
             {/* Fixed channels header */}
             <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-1 rounded-tl-2xl rounded-tr-2xl">
-              {isFlutter ? (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="md:hidden"
-                  onClick={handleMobileBack}
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Button>
-              ) : null}
               <h2 className="font-bold text-lg">Chats</h2>
               <div className="flex items-center gap-2">
                 <Button
@@ -1134,23 +1149,6 @@ export default function Chats({ isFlutter, onViewChange }) {
                           />
                           <div className="w-full text-md">Select Messages</div>
                         </DropdownMenuItem>
-                        {/* {selectedChannel?.is_group ? (
-                        <DropdownMenuItem
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                          className="bg-transparent flex gap-4 items-center text-destructive"
-                        >
-                          <img src="/icons/delete.svg" className="w-6 h-6" />
-                          <div className="w-full text-md">Leave Chat</div>
-                        </DropdownMenuItem>
-                      ) : (
-                        <DropdownMenuItem
-                          onClick={() => setIsDeleteDialogOpen(true)}
-                          className="bg-transparent flex gap-4 items-center text-destructive"
-                        >
-                          <img src="/icons/delete.svg" className="w-6 h-6" />
-                          <div className="w-full text-md">Clear Chat</div>
-                        </DropdownMenuItem>
-                      )} */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   ) : null}
