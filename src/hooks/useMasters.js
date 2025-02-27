@@ -21,12 +21,47 @@ export const QUERY_KEYS = {
   LANGUAGES: "languages",
   AGE_RANGES: "ageRanges",
   KINCOIN_REWARD_EVENTS: "kincoin-reward-events",
+  PRODUCTS: "products",
+  SUB_CASTES: "subCastes",
 };
 
 const handleApiError = (error) => {
   const message = error.response?.data?.message || "Something went wrong";
   toast.error(message);
   return Promise.reject(error);
+};
+
+export const fetchProducts = async () => {
+  // const consumerKey = "ck_97d58331f790680929e55505b4d8e27f70075ee4";
+  // const consumerSecret = "cs_4b940025f049ef61ab8c9ba571be953743a6a30c";
+  // const url = "https://web.kintree.info/wp-json/wc/v3/products";
+  // const authString = btoa(`${consumerKey}:${consumerSecret}`);
+
+  const myHeaders = new Headers();
+  myHeaders.append(
+    "Authorization",
+    "Basic Y2tfOTdkNTgzMzFmNzkwNjgwOTI5ZTU1NTA1YjRkOGUyN2Y3MDA3NWVlNDpjc180Yjk0MDAyNWYwNDllZjYxYWI4YzliYTU3MWJlOTUzNzQzYTZhMzBj"
+  );
+
+  const requestOptions = {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow",
+  };
+
+  const response = await fetch(
+    "https://web.kintree.info/wp-json/wc/v3/products",
+    requestOptions
+  );
+  console.log(response);
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    return handleApiError({ response: { data: data } });
+  }
+
+  return data;
 };
 
 export const fetchFeelings = async () => {
@@ -137,6 +172,18 @@ export const fetchKincoinRewardEvents = async () => {
   const response = await kintreeApi.get("/kin-coin-reward-events");
   if (!response.data.success) return handleApiError(response);
   return response.data.data;
+};
+
+export const useFetchProducts = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.PRODUCTS],
+    queryFn: fetchProducts,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error("Failed to fetch products");
+    },
+  });
 };
 
 export const useFeelings = () => {

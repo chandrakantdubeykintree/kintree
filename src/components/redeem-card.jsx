@@ -19,7 +19,7 @@ export default function RedeemCard({ data }) {
   const [couponCode, setCouponCode] = useState("");
   const [copied, setCopied] = useState(false);
   const { mutate: redeemKincoins } = useRedeemKincoins();
-  // const isRedeeming = useIsRedeeming();
+  const isRedeemingCoupon = useIsRedeeming();
   const [isRedeeming, setIsRedeeming] = useState(false);
   const { data: balanceData } = useKincoinsBalance();
   const queryClient = useQueryClient();
@@ -82,7 +82,11 @@ export default function RedeemCard({ data }) {
 
   const handleRedeemNow = () => {
     handleCopy();
-    window.open("https://kintree.com/dna/", "_blank");
+    // window.open("https://kintree.com/dna/", "_blank");
+    window.open(
+      `https://web.kintree.info/cart-webview/?add-to-cart=${data.productId}&coupon=${couponCode}`,
+      "_blank"
+    );
   };
 
   // Format time left
@@ -124,7 +128,7 @@ export default function RedeemCard({ data }) {
               <Button
                 className="rounded-full"
                 onClick={handleRedeem}
-                disabled={isRedeeming}
+                disabled={isRedeeming || isRedeemingCoupon}
               >
                 {isRedeeming ? (
                   <>
@@ -151,7 +155,7 @@ export default function RedeemCard({ data }) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div className="mx-auto relative w-[200px]">
+            <div className="mx-auto relative w-[200px] overflow-hidden">
               <div className="border-primary border text-white p-6 bg-[#FAF2F8]">
                 <div className="flex items-center justify-center space-x-2">
                   <code className="text-xl font-mono font-semibold text-primary line-clamp-1 max-w-52 overflow-ellipsis">
