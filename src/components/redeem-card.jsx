@@ -27,7 +27,6 @@ export default function RedeemCard({ data }) {
 
   const handleRedeem = () => {
     const balance = parseInt(balanceData?.coin_balance) || 0;
-    setIsRedeeming(true);
     if (balance < 1000) {
       return toast.error(t("minimum_balance_required"));
     }
@@ -39,6 +38,7 @@ export default function RedeemCard({ data }) {
       toast.success(t("only_kincoins_will_be_used"));
     }
 
+    setIsRedeeming(true);
     redeemKincoins(
       {
         coins: coinsToUse,
@@ -84,7 +84,7 @@ export default function RedeemCard({ data }) {
     handleCopy();
     // window.open("https://kintree.com/dna/", "_blank");
     window.open(
-      `https://web.kintree.info/cart-webview/?add-to-cart=${data.productId}&coupon=${couponCode}`,
+      `https://web.kintree.info/cart/?add-to-cart=${data.productId}&coupon=${couponCode}`,
       "_blank"
     );
   };

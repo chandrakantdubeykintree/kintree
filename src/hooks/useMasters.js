@@ -53,7 +53,6 @@ export const fetchProducts = async () => {
     "https://web.kintree.info/wp-json/wc/v3/products",
     requestOptions
   );
-  console.log(response);
 
   const data = await response.json();
 
@@ -122,6 +121,7 @@ export const fetchRelationshipTypes = async () => {
 
 export const fetchOccupations = async () => {
   const response = await kintreeApi.get("/occupations");
+
   if (!response.data.success) return handleApiError(response);
   return response.data.data;
 };

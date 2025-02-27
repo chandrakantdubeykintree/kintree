@@ -364,7 +364,6 @@
   "question": "सवाल",
   "question_placeholder": "यहाँ अपने प्रश्न लिखें।",
   "options": "विकल्प",
-  "option_placeholder": "विकल्प {{संख्या}}",
   "add_option": "विकल्प जोड़ें",
   "start_date": "आरंभ करने की तिथि",
   "duration": "अवधि",

@@ -26,9 +26,12 @@ import "react-phone-number-input/style.css";
 import toast from "react-hot-toast";
 import CustomDateMonthYearPicker from "../custom-ui/custom-dateMonthYearPicker";
 import { useTranslation } from "react-i18next";
+import { useOccupations } from "@/hooks/useMasters";
 
 export default function PersonalInfo({ setStep, willId }) {
   const { t } = useTranslation();
+  const { data: occupations } = useOccupations();
+
   const personalInfoSchema = z.object({
     name: z.string().min(1, t("name_required")),
     father_name: z.string().min(1, t("father_name_required")),
@@ -63,19 +66,18 @@ export default function PersonalInfo({ setStep, willId }) {
       }
     }, t("invalid_phone_number")),
     phone_country_code: z.string().min(1, t("country_code_required")),
-    marital_status: z.enum([
-      t("single")?.toLowerCase(),
-      t("married")?.toLowerCase(),
-      t("divorced")?.toLowerCase(),
-      t("widowed")?.toLowerCase(),
-    ]),
+    marital_status: z.enum(["single", "married", "divorced", "widowed"]),
     occupation: z.enum([
-      t("salaried")?.toLowerCase(),
-      t("business")?.toLowerCase(),
-      t("professional")?.toLowerCase(),
-      t("retired")?.toLowerCase(),
-      t("other")?.toLowerCase(),
+      "business owner",
+      "housewife",
+      "salaried",
+      "self employed",
+      "social worker",
+      "student",
+      "unemployed",
+      "other",
     ]),
+
     designation: z.string().min(1, t("designation_required")),
     address: z.string().min(1, t("address_required")),
     city: z.string().min(1, t("city_required")),
@@ -261,10 +263,10 @@ export default function PersonalInfo({ setStep, willId }) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>{t("select_martial_status")}</SelectLabel>
-                      <SelectItem value="single">{t("single")}</SelectItem>
-                      <SelectItem value="married">{t("married")}</SelectItem>
-                      <SelectItem value="divorced">{t("divorced")}</SelectItem>
-                      <SelectItem value="widowed">{t("widowed")}</SelectItem>
+                      <SelectItem value="single">{"Single"}</SelectItem>
+                      <SelectItem value="married">{"Married"}</SelectItem>
+                      <SelectItem value="divorced">{"Divorced"}</SelectItem>
+                      <SelectItem value="widowed">{"Widowed"}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -287,14 +289,12 @@ export default function PersonalInfo({ setStep, willId }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>{t("select_occpuation")}</SelectLabel>
-                      <SelectItem value="salaried">{t("salaried")}</SelectItem>
-                      <SelectItem value="business">{t("business")}</SelectItem>
-                      <SelectItem value="professional">
-                        {t("professional")}
-                      </SelectItem>
-                      <SelectItem value="retired">{t("retired")}</SelectItem>
-                      <SelectItem value="other">{t("other")}</SelectItem>
+                      <SelectLabel>{t("select_occupation")}</SelectLabel>
+                      {occupations?.map((occupation) => (
+                        <SelectItem key={occupation.id} value={occupation.id}>
+                          {occupation.name}
+                        </SelectItem>
+                      ))}
                     </SelectGroup>
                   </SelectContent>
                 </Select>

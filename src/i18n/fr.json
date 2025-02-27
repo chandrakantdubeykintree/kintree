@@ -364,7 +364,6 @@
   "question": "Question",
   "question_placeholder": "Tapez votre question ici.",
   "options": "Options",
-  "option_placeholder": "Option {{numéro}}",
   "add_option": "Ajouter une option",
   "start_date": "Date de début",
   "duration": "Durée",

@@ -364,7 +364,6 @@
   "question": "প্রশ্ন",
   "question_placeholder": "আপনার প্রশ্ন এখানে লিখুন।",
   "options": "বিকল্পগুলি",
-  "option_placeholder": "বিকল্প {{সংখ্যা}}",
   "add_option": "বিকল্প যোগ করুন",
   "start_date": "শুরুর তারিখ",
   "duration": "সময়কাল",

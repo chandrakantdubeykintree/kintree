@@ -364,7 +364,6 @@
   "question": "Question",
   "question_placeholder": "Type your question here.",
   "options": "Options",
-  "option_placeholder": "Option {{number}}",
   "add_option": "Add Option",
   "start_date": "Start Date",
   "duration": "Duration",
@@ -771,5 +770,10 @@
   "venue": "Venue",
   "organizer": "Organizer",
   "attendees": "Attendees",
-  "attachment": "Attachment"
+  "attachment": "Attachment",
+
+  "delete_event": "Delete Event",
+  "update": "Update",
+  "option_placeholder": "Option",
+  "select_occupation": "Select Occupation"
 }

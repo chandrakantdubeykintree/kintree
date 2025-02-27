@@ -364,7 +364,6 @@
   "question": "Pregunta",
   "question_placeholder": "Escriba su pregunta aquí.",
   "options": "Opciones",
-  "option_placeholder": "Opción {{number}}",
   "add_option": "Agregar opción",
   "start_date": "Fecha de inicio",
   "duration": "Duración",

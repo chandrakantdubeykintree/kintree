@@ -364,7 +364,6 @@
   "question": "问题",
   "question_placeholder": "在这里输入您的问题。",
   "options": "选项",
-  "option_placeholder": "选项 {{number}}",
   "add_option": "添加选项",
   "start_date": "开始日期",
   "duration": "期间",

@@ -46,19 +46,30 @@ export default function Settings() {
     .object({
       current_password: z
         .string()
-        .min(1, "Current password is required")
-        .max(20, "Current password must be less than 20 characters"),
+        .nonempty({ message: "Current password is required" })
+        .min(6, { message: "Password must be at least 6 characters" })
+        .max(20, { message: "Password must be less than 20 characters" }),
       password: z
         .string()
-        .min(5, "Password must be at least 5 characters")
-        .max(20, "Password must be less than 20 characters")
-        .refine((val, ctx) => val !== ctx.data.current_password, {
-          message: "New password must be different from current password",
-        }),
+        .nonempty({ message: "New password is required" })
+        .min(6, { message: "Password must be at least 6 characters" })
+        .max(20, { message: "Password must be less than 20 characters" })
+        .refine(
+          (value, ctx) => {
+            const formValues = ctx.parent;
+            if (!formValues?.current_password) return true;
+            return value !== formValues.current_password;
+          },
+          {
+            message: "New password must be different from current password",
+            path: ["password"],
+          }
+        ),
       password_confirmation: z
         .string()
-        .min(5, "Password confirmation must be at least 5 characters")
-        .max(20, "Password confirmation must be less than 20 characters"),
+        .nonempty({ message: "Password confirmation is required" })
+        .min(6, { message: "Password must be at least 6 characters" })
+        .max(20, { message: "Password must be less than 20 characters" }),
     })
     .refine((data) => data.password === data.password_confirmation, {
       message: "Passwords must match",

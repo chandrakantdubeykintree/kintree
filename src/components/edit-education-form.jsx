@@ -42,8 +42,6 @@ export default function EditEducationForm() {
     end_year: z.string().optional(),
   });
 
-  console.log(educations);
-
   const calculateProfileCompletion = () => {
     if (!educations) return 0;
     return educations?.length > 0 ? 100 : 0;

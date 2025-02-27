@@ -208,9 +208,7 @@ export default function CreatePoll() {
                   <div key={index} className="flex gap-2">
                     <Input
                       {...register(`pollOptions.${index}`)}
-                      placeholder={t("option_placeholder", {
-                        number: index + 1,
-                      })}
+                      placeholder={t("option") + " " + (index + 1)}
                       className="rounded-full h-10 md:h-12 px-4 md:px-6"
                     />
                     {pollOptions.length > 2 && (

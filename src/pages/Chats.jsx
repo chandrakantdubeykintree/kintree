@@ -256,20 +256,17 @@ export default function Chats({ isFlutter, onViewChange }) {
   };
   const handleCameraClick = () => {
     if (isFlutter && window.callbackHandler) {
-      // Send a message to Flutter to open the file picker
       window.callbackHandler.postMessage(
         JSON.stringify({
           type: "openFilePicker",
         })
       );
     } else {
-      // Fallback to the web file input
       document.getElementById("attachment").click();
     }
   };
   useEffect(() => {
-    // Add the global function to handle file selection from Flutter
-    window.handleFileSelect = (fileName, fileExtension, base64File) => {
+    window.handleFileSelect = function (fileName, fileExtension, base64File) {
       const fileType = `image/${fileExtension}`;
       const byteCharacters = atob(base64File);
       const byteNumbers = new Array(byteCharacters.length);
@@ -299,69 +296,12 @@ export default function Chats({ isFlutter, onViewChange }) {
         return;
       }
 
-      // Set the file as an attachment
       setAttachment(file);
     };
-
-    // Cleanup the global function when the component unmounts
     return () => {
       delete window.handleFileSelect;
     };
   }, []);
-  // const handleCameraClick = () => {
-  //   if (isFlutter && window.callbackHandler) {
-  //     // Send a message to Flutter to open the file picker
-  //     window.callbackHandler.postMessage(
-  //       JSON.stringify({
-  //         type: "openFilePicker",
-  //       })
-  //     );
-  //   } else {
-  //     // Fallback to the web file input
-  //     document.getElementById("attachment").click();
-  //   }
-  // };
-  // const handleFileFromFlutter = (file) => {
-  //   if (!file) return;
-
-  //   // Validate file size (5MB limit)
-  //   if (file.size > 5 * 1024 * 1024) {
-  //     toast.error("File size should not exceed 5MB");
-  //     return;
-  //   }
-
-  //   // Validate file type
-  //   const allowedTypes = [
-  //     "image/jpeg",
-  //     "image/png",
-  //     "image/gif",
-  //     "image/svg+xml",
-  //   ];
-  //   if (!allowedTypes.includes(file.type)) {
-  //     toast.error(
-  //       `Invalid file type. Allowed types: ${allowedTypes.join(", ")}`
-  //     );
-  //     return;
-  //   }
-
-  //   setAttachment(file);
-  // };
-
-  // Listen for messages from Flutter
-  // useEffect(() => {
-  //   if (isFlutter) {
-  //     window.addEventListener("message", (event) => {
-  //       const data = JSON.parse(event.data);
-  //       if (data.type === "fileSelected") {
-  //         // Convert the file data to a File object
-  //         const file = new File([data.file], data.fileName, {
-  //           type: data.fileType,
-  //         });
-  //         handleFileFromFlutter(file);
-  //       }
-  //     });
-  //   }
-  // }, [isFlutter]);
 
   // Add this function to handle message selection
   const handleMessageSelect = (messageId) => {
@@ -1328,14 +1268,13 @@ export default function Chats({ isFlutter, onViewChange }) {
                           className="hidden"
                           onChange={handleFileSelect}
                         />
-
-                        <label
-                          htmlFor="attachment"
+                        <button
+                          type="button"
                           className="cursor-pointer p-2 hover:bg-muted rounded-full transition-colors"
                           onClick={handleCameraClick}
                         >
                           <Camera className="h-8 w-8 text-primary" />
-                        </label>
+                        </button>
 
                         <div className="relative flex-1">
                           <Textarea
