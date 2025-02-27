@@ -118,17 +118,17 @@ export default function Chats({ isFlutter, onViewChange }) {
     error: socketError,
   } = useMessageStore();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  useEffect(() => {
-    if (isFlutter) {
-      setSearchParams({ mobile: showMobileList ? "true" : "false" });
-    }
-  }, [showMobileList, isFlutter, setSearchParams]);
+  // const [searchParams, setSearchParams] = useSearchParams();
+  // useEffect(() => {
+  //   if (isFlutter) {
+  //     setSearchParams({ mobile: showMobileList ? "true" : "false" });
+  //   }
+  // }, [showMobileList, isFlutter, setSearchParams]);
   const handleShowMobileList = (show) => {
     setShowMobileList(show);
-    if (isFlutter && onViewChange) {
-      onViewChange(show);
-    }
+    // if (isFlutter && onViewChange) {
+    //   onViewChange(show);
+    // }
   };
 
   // const [newMembersToAdd, setNewMembersToAdd] = useState([]);

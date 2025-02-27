@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { IndianRupee, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -19,15 +19,15 @@ export default function RedeemCard({ data }) {
   const [couponCode, setCouponCode] = useState("");
   const [copied, setCopied] = useState(false);
   const { mutate: redeemKincoins } = useRedeemKincoins();
-  const isRedeeming = useIsRedeeming();
+  // const isRedeeming = useIsRedeeming();
+  const [isRedeeming, setIsRedeeming] = useState(false);
   const { data: balanceData } = useKincoinsBalance();
-  // const timerRef = useRef(null);
   const queryClient = useQueryClient();
   const { t } = useTranslation();
 
   const handleRedeem = () => {
     const balance = parseInt(balanceData?.coin_balance) || 0;
-
+    setIsRedeeming(true);
     if (balance < 1000) {
       return toast.error(t("minimum_balance_required"));
     }
@@ -52,28 +52,11 @@ export default function RedeemCard({ data }) {
           queryClient.invalidateQueries({
             queryKey: ["kincoins-balance"],
           });
+          setIsRedeeming(false);
         },
       }
     );
   };
-
-  // const startTimer = () => {
-  //   // Clear any existing timer
-  //   if (timerRef.current) {
-  //     clearInterval(timerRef.current);
-  //   }
-
-  //   timerRef.current = setInterval(() => {
-  //     setTimeLeft((prev) => {
-  //       if (prev <= 1) {
-  //         clearInterval(timerRef.current);
-  //         setShowDialog(false);
-  //         return 0;
-  //       }
-  //       return prev - 1;
-  //     });
-  //   }, 1000);
-  // };
   const startTimer = () => {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -109,22 +92,6 @@ export default function RedeemCard({ data }) {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  // Reset timer when dialog closes
-  // useEffect(() => {
-  //   if (!showDialog) {
-  //     setTimeLeft(300);
-  //     if (timerRef.current) {
-  //       clearInterval(timerRef.current);
-  //     }
-  //   }
-
-  //   // Cleanup on unmount
-  //   return () => {
-  //     if (timerRef.current) {
-  //       clearInterval(timerRef.current);
-  //     }
-  //   };
-  // }, [showDialog]);
   useEffect(() => {
     if (!showDialog) {
       setTimeLeft(300);
@@ -184,22 +151,22 @@ export default function RedeemCard({ data }) {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <div className="mx-auto overflow-hidden relative w-[250px]">
+            <div className="mx-auto relative w-[200px]">
               <div className="border-primary border text-white p-6 bg-[#FAF2F8]">
-                <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center justify-center space-x-2">
                   <code className="text-xl font-mono font-semibold text-primary line-clamp-1 max-w-52 overflow-ellipsis">
                     {couponCode}
                   </code>
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0 bg-transparent active:bg-transparent focus:bg-transparent"
+                    className="p-0 bg-transparent active:bg-transparent focus:bg-transparent"
                     onClick={handleCopy}
                   >
                     {copied ? (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="text-primary" />
                     ) : (
-                      <Copy className="h-4 w-4 text-primary" />
+                      <Copy size={32} className="text-primary" />
                     )}
                   </Button>
                 </div>
@@ -209,8 +176,8 @@ export default function RedeemCard({ data }) {
                 <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 right-0 -mr-2 border border-primary"></div>
                 <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 left-0 -ml-2 border border-primary"></div>
 
-                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -top-3 right-20 -ml-2 border border-primary"></div>
-                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-3 right-20 -mr-2 border border-primary"></div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -top-4 right-20 -ml-2 border border-primary"></div>
+                <div className="w-6 h-6 bg-white z-1 rounded-full absolute transform -bottom-4 right-[85px] -mr-2 border border-primary"></div>
               </div>
             </div>
 

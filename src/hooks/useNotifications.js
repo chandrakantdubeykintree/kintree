@@ -60,6 +60,7 @@ export function useNotifications(limit = 10) {
           })),
         };
       });
+      queryClient.invalidateQueries(["notifications-unread-count"]);
     },
   });
 
@@ -87,6 +88,7 @@ export function useNotifications(limit = 10) {
       });
       // Invalidate the unread count query
       queryClient.invalidateQueries(["notifications-unread-count"]);
+      queryClient.invalidateQueries(["notifications"]);
     },
   });
 
@@ -104,7 +106,7 @@ export function useNotifications(limit = 10) {
       );
       return response.data.data.unreaded_count;
     },
-    refetchInterval: 60000, // Refetch every minute to keep count updated
+    refetchInterval: 60000,
   });
 
   // Mark notification as unread
@@ -129,6 +131,7 @@ export function useNotifications(limit = 10) {
           })),
         };
       });
+      queryClient.invalidateQueries(["notifications-unread-count"]);
     },
   });
 
@@ -152,6 +155,7 @@ export function useNotifications(limit = 10) {
           })),
         };
       });
+      queryClient.invalidateQueries(["notifications-unread-count"]);
     },
   });
 

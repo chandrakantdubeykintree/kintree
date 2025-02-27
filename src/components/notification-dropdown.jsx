@@ -16,13 +16,22 @@ import { useTranslation } from "react-i18next";
 
 export default function NotificationDropDown() {
   const { t } = useTranslation();
-  const { notifications, unreadCount, isLoading, markAsRead } =
-    useNotifications(10); // Limit to 5 notifications
+  const {
+    notifications,
+    unreadCount,
+    isLoading,
+    markAsRead,
+    markAllAsRead,
+    isMarkingAllAsRead,
+  } = useNotifications(10); // Limit to 5 notifications
 
   const handleNotificationClick = (notification) => {
     if (!notification.readed_at) {
       markAsRead(notification.id);
     }
+  };
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
   };
 
   const NotificationItem = ({ notification }) => {
@@ -84,9 +93,17 @@ export default function NotificationDropDown() {
               unreadCount !== 1 ? "unread_notifications" : "unread_notification"
             )}
           </CardDescription>
-          <div className="px-2 flex justify-center items-center bg-primary py-1 text-white text-xs rounded-full cursor-pointer">
-            {t("mark_all_as_read")}
-          </div>
+          <button
+            className="px-2 flex justify-center items-center bg-primary py-1 text-white text-xs rounded-full cursor-pointer mx-auto disabled:opacity-70"
+            onClick={handleMarkAllAsRead}
+            disabled={isMarkingAllAsRead || unreadCount < 1}
+          >
+            {isMarkingAllAsRead ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              t("mark_all_as_read")
+            )}
+          </button>
         </div>
 
         <DropdownMenuSeparator />
@@ -96,7 +113,7 @@ export default function NotificationDropDown() {
             <div className="flex justify-center items-center py-4">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
-          ) : notifications.length > 0 ? (
+          ) : unreadCount > 0 ? (
             notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
@@ -112,7 +129,7 @@ export default function NotificationDropDown() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild className="flex justify-center">
           <NavLink
             to="/notifications"
             className="w-full text-center py-2 text-sm text-primary hover:text-primary/80 cursor-pointer font-semibold"

@@ -13,35 +13,35 @@ export default function FlutterChat() {
   const { mobile } = useSearchParams();
   console.log(mobile);
 
-  useEffect(() => {
-    const handleMobileParam = () => {
-      const currentMobile = searchParams.get("mobile");
-      const showingOnlyChannelsList = !document.querySelector(
-        ".messages-container"
-      );
+  // useEffect(() => {
+  //   const handleMobileParam = () => {
+  //     const currentMobile = searchParams.get("mobile");
+  //     const showingOnlyChannelsList = !document.querySelector(
+  //       ".messages-container"
+  //     );
 
-      if (showingOnlyChannelsList && currentMobile !== "true") {
-        setSearchParams({ mobile: "true" });
-      } else if (!showingOnlyChannelsList && currentMobile !== "false") {
-        setSearchParams({ mobile: "false" });
-      }
-    };
+  //     if (showingOnlyChannelsList && currentMobile !== "true") {
+  //       setSearchParams({ mobile: "true" });
+  //     } else if (!showingOnlyChannelsList && currentMobile !== "false") {
+  //       setSearchParams({ mobile: "false" });
+  //     }
+  //   };
 
-    // Initial check
-    handleMobileParam();
+  //   // Initial check
+  //   handleMobileParam();
 
-    // Set up mutation observer to watch for DOM changes
-    const observer = new MutationObserver(handleMobileParam);
-    observer.observe(document.body, { childList: true, subtree: true });
+  //   // Set up mutation observer to watch for DOM changes
+  //   const observer = new MutationObserver(handleMobileParam);
+  //   observer.observe(document.body, { childList: true, subtree: true });
 
-    return () => observer.disconnect();
-  }, [setSearchParams]);
+  //   return () => observer.disconnect();
+  // }, [setSearchParams]);
 
-  useEffect(() => {
-    if (!searchParams.has("mobile")) {
-      setSearchParams({ mobile: "false" });
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (!searchParams.has("mobile")) {
+  //     setSearchParams({ mobile: "false" });
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (token) {
