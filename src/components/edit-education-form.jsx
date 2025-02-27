@@ -42,9 +42,11 @@ export default function EditEducationForm() {
     end_year: z.string().optional(),
   });
 
+  console.log(educations);
+
   const calculateProfileCompletion = () => {
-    if (!educationTypeList) return 0;
-    return educationTypeList?.length > 0 ? 100 : 0;
+    if (!educations) return 0;
+    return educations?.length > 0 ? 100 : 0;
   };
   const profileCompletion = calculateProfileCompletion();
 

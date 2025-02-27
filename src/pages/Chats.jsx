@@ -1276,6 +1276,11 @@ export default function Chats({ isFlutter, onViewChange }) {
                           htmlFor="attachment"
                           className="cursor-pointer p-2 hover:bg-muted rounded-full transition-colors"
                           // onClick={handleCameraClick}
+                          // onClick={() => {
+                          //   window.callbackHandler.postMessage(
+                          //     JSON.stringify({ type: "openFilePicker" })
+                          //   );
+                          // }}
                         >
                           <Camera className="h-8 w-8 text-primary" />
                         </label>

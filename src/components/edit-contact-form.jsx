@@ -267,7 +267,7 @@ export default function EditContactForm() {
                   >
                     {canResend
                       ? t("resend_otp")
-                      : `${t("resend_otp_in")} ${countdown} ${t("seconds")}`}
+                      : `${t("resend_otp")} ${countdown} ${t("seconds")}`}
                   </button>
                 </div>
               </FormItem>

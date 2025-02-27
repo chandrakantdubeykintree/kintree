@@ -186,7 +186,7 @@ export default function ProfileGallery() {
 
       <div className="flex justify-end">
         <Button
-          onClick={() => navigate("/foreroom/createpost/post")}
+          onClick={() => navigate("/createpost")}
           className="rounded-full"
         >
           {t("create_post")}
