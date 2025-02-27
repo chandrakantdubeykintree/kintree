@@ -1,5 +1,5 @@
 import { useFamily, useMember } from "@/hooks/useFamily";
-import { Link, NavLink, useNavigate, useParams } from "react-router";
+import { NavLink, useNavigate, useParams } from "react-router";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
@@ -12,9 +12,10 @@ import AddRelativeForm from "@/components/add-relative-form";
 
 import ComponentLoading from "@/components/component-loading";
 import { decryptId } from "@/utils/encryption";
+import { Button } from "@/components/ui/button";
+import MergeRequestForm from "@/components/merge-request-form";
 
 export default function KintreeMember() {
-  // const { id } = useParams();
   const { id: encryptedId } = useParams();
   const navigate = useNavigate();
   const id = decryptId(encryptedId);
@@ -28,6 +29,7 @@ export default function KintreeMember() {
   const { data: familyMember, isLoading } = useMember(id);
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
 
   const { data: familyTree } = useFamily();
 
@@ -162,6 +164,24 @@ export default function KintreeMember() {
                 )}
               </div>
 
+              <div className="flex justify-center mb-8">
+                <Button
+                  onClick={() => setIsMergeModalOpen(true)}
+                  className="flex items-center gap-2 rounded-full"
+                >
+                  Request Tree Merge
+                </Button>
+
+                {/* <Button
+                  onClick={() => setIsMergeModalOpen(true)}
+                  variant="outline"
+                  className="flex items-center gap-2 rounded-full border border-primary text-primary"
+                >
+                  <GitMerge className="w-4 h-4" />
+                  Cancel Tree Merge
+                </Button> */}
+              </div>
+
               {/* Statistics */}
               <div className="grid grid-cols-3 gap-4 mb-8 text-center">
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -233,6 +253,14 @@ export default function KintreeMember() {
           )}
         </Card>
       </div>
+      {isMergeModalOpen ? (
+        <MergeRequestForm
+          isOpen={isMergeModalOpen}
+          onClose={() => setIsMergeModalOpen(false)}
+          userId={familyMember?.id}
+          familyMembers={familyTree}
+        />
+      ) : null}
     </AsyncComponent>
   );
 }

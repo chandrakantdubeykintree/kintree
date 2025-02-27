@@ -771,5 +771,8 @@
   "venue": "Venue",
   "organizer": "Organizer",
   "attendees": "Attendees",
-  "attachment": "Attachment"
+  "attachment": "Attachment",
+
+  "merge_requests": "Merge Requests",
+  "no_merge_requests": "No merge requests"
 }

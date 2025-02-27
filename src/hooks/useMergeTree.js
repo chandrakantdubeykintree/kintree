@@ -1,0 +1,164 @@
+import { kintreeApi } from "../services/kintreeApi";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
+export const QUERY_KEYS = {
+  MERGE_REQUESTS: "merge-requests",
+  MERGE_REQUEST: "merge-request",
+};
+
+// Fetch merge requests with pagination
+export const fetchMergeRequests = async ({ pageParam = 1, limit = 12 }) => {
+  try {
+    const response = await kintreeApi.get(`/tree-merge-requests`, {
+      params: {
+        limit,
+        page: pageParam,
+      },
+    });
+
+    return {
+      data: response.data.data,
+      success: response.data.success,
+      message: response.data.message,
+      status_code: response.data.status_code,
+      pageParam,
+    };
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Fetch single merge request
+export const fetchMergeRequest = async (requestId) => {
+  try {
+    const response = await kintreeApi.get(`/tree-merge-requests/${requestId}`);
+    return response.data.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Create merge request
+export const createMergeRequest = async ({
+  user_id,
+  requestor_id_on_receiver_tree,
+  relation_type,
+}) => {
+  try {
+    const response = await kintreeApi.post("/tree-merge-requests", {
+      user_id,
+      requestor_id_on_receiver_tree,
+      relation_type,
+    });
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Respond to merge request
+export const respondToMergeRequest = async ({
+  requestId,
+  is_accepted,
+  same_persons,
+}) => {
+  try {
+    const response = await kintreeApi.put(
+      `/tree-merge-requests/${requestId}/respond`,
+      {
+        is_accepted,
+        same_persons,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Hook for fetching merge requests
+export const useMergeRequests = (limit = 12) => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.MERGE_REQUESTS, limit],
+    queryFn: ({ pageParam = 1 }) => fetchMergeRequests({ pageParam, limit }),
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.data || !lastPage.success) return undefined;
+      return lastPage.data.current_page < lastPage.data.last_page
+        ? lastPage.data.current_page + 1
+        : undefined;
+    },
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error("Failed to fetch merge requests. Please try again later.");
+    },
+  });
+};
+
+// Hook for fetching single merge request
+export const useMergeRequest = (requestId) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.MERGE_REQUEST, requestId],
+    queryFn: () => fetchMergeRequest(requestId),
+    enabled: Boolean(requestId),
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error("Failed to fetch merge request details.");
+    },
+  });
+};
+
+// Hook for creating merge request
+export const useCreateMergeRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createMergeRequest,
+    onSuccess: (data) => {
+      toast.success("Merge request created successfully!");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MERGE_REQUESTS],
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to create merge request. Please try again."
+      );
+    },
+  });
+};
+
+// Hook for responding to merge request
+export const useRespondToMergeRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: respondToMergeRequest,
+    onSuccess: (data) => {
+      toast.success("Response submitted successfully!");
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MERGE_REQUESTS],
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to respond to merge request. Please try again."
+      );
+    },
+  });
+};
+
+const handleApiError = (error) => {
+  const message = error.response?.data?.message || "Something went wrong";
+  toast.error(message);
+  return Promise.reject(error);
+};
