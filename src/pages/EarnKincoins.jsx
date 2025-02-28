@@ -41,7 +41,7 @@ export default function EarnKincoins() {
           key={event.id}
           className="rounded-2xl hover:shadow-md transition-shadow"
         >
-          <CardContent className="p-3 md:p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
+          <CardContent className="p-3 md:p-4 flex flex-col lg:flex-row items-start md:items-center justify-between gap-3 md:gap-4">
             <div className="flex items-start md:items-center gap-3 md:gap-4 w-full md:w-auto">
               <div className="p-3 md:p-4 bg-background rounded-xl shrink-0">
                 <img

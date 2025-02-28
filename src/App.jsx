@@ -40,7 +40,6 @@ import {
   route_will_view_will,
   route_will_edit_will,
   route_profile,
-  route_profile_view_profile,
   route_settings,
   route_settings_edit_settings,
   route_kintree_member,
@@ -51,7 +50,6 @@ import PageNotFound from "./pages/PageNotFound";
 import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import FlutterChat from "./pages/FlutterChat";
-import Test from "./pages/Test";
 import ViewTreeMergeRequest from "./pages/ViewTreeMergeRequest";
 
 const {
@@ -74,7 +72,6 @@ const {
   ViewMember,
   Chats,
   Profile,
-  ViewProfile,
   Settings,
   EditSettings,
   NotificationsPage,
@@ -206,15 +203,12 @@ export default function App() {
                                 path={route_tree_merge_request + "/:requestId"}
                                 element={<ViewTreeMergeRequest />}
                               />
-                              <Route path={route_chats} element={<Chats />} />
+                              {/* <Route path={route_chats} element={<Chats />} /> */}
                               <Route
                                 path={route_profile}
                                 element={<Profile />}
                               />
-                              <Route
-                                path={route_profile_view_profile}
-                                element={<ViewProfile />}
-                              />
+
                               <Route
                                 path={route_settings}
                                 element={<Settings />}
@@ -261,7 +255,6 @@ export default function App() {
                             </Route>
                           </Route>
                           <Route path="*" element={<PageNotFound />} />
-                          <Route path="/test" element={<Test />} />
                         </Routes>
                       </Suspense>
                     </AuthProvider>

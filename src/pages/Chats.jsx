@@ -1390,7 +1390,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                       <div className="relative flex items-end gap-2">
                         {!isFlutter ? (
                           <>
-                            <input
+                            {/* <input
                               type="file"
                               id="attachment"
                               accept=".jpg,.jpeg,.png,.gif,.svg"
@@ -1403,7 +1403,7 @@ export default function Chats({ isFlutter, onViewChange }) {
                               onClick={handleCameraClick}
                             >
                               <Camera className="h-8 w-8 text-primary" />
-                            </button>
+                            </button> */}
                           </>
                         ) : null}
 

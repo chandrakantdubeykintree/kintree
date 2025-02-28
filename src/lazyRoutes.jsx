@@ -27,7 +27,6 @@ export const Chats = lazy(() => import("./pages/Chats"));
 export const ViewChat = lazy(() => import("./pages/ViewChat"));
 
 export const Profile = lazy(() => import("./pages/Profile"));
-export const ViewProfile = lazy(() => import("./pages/ViewProfile"));
 
 export const Settings = lazy(() => import("./pages/Settings"));
 

@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
 import CustomScrollArea from "@/components/ui/custom-scroll-area";
@@ -83,6 +83,12 @@ export default function ViewTreeMergeRequest() {
       });
     }
   };
+
+  useEffect(() => {
+    if (mergeRequest) {
+      setDuplicateMembers(findDuplicates());
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -182,22 +188,16 @@ export default function ViewTreeMergeRequest() {
           </CustomScrollArea>
         </div>
 
-        {/* Duplicate Members Section */}
-        {findDuplicates().length > 0 && (
+        {duplicateMembers.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
-                Potential Duplicate Members
-              </h2>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  checked={noDuplicates}
-                  onCheckedChange={setNoDuplicates}
-                  id="noDuplicates"
-                />
-                <label htmlFor="noDuplicates" className="text-sm text-gray-600">
-                  These are different people despite same names
-                </label>
+              <div>
+                <h2 className="text-lg font-semibold">
+                  Potential Duplicate Members ({duplicateMembers.length})
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Review and confirm if these members are the same person
+                </p>
               </div>
             </div>
 
@@ -206,12 +206,16 @@ export default function ViewTreeMergeRequest() {
                 className="rounded-2xl border p-4"
                 maxHeight="400px"
               >
-                {findDuplicates().map((dup, index) => (
-                  <div key={index} className="mb-4 last:mb-0">
-                    <div className="flex items-center justify-between bg-gray-50 rounded-lg py-4">
+                {duplicateMembers.map((dup, index) => (
+                  <div
+                    key={index}
+                    className="mb-4 last:mb-0 bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      {/* Left side - Receiver */}
                       <div className="flex-1">
                         <div className="flex items-center space-x-4">
-                          <Avatar className="h-10 w-10">
+                          <Avatar className="h-12 w-12">
                             <AvatarImage src={dup.receiver.profile_pic_url} />
                             <AvatarFallback>
                               {dup.receiver.first_name?.charAt(0)}
@@ -223,39 +227,55 @@ export default function ViewTreeMergeRequest() {
                               {dup.receiver.first_name} {dup.receiver.last_name}
                             </p>
                             <p className="text-xs text-gray-500">Your tree</p>
+                            {dup.receiver.date_of_birth && (
+                              <p className="text-xs text-gray-500">
+                                DOB: {formatDate(dup.receiver.date_of_birth)}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>
 
-                      <div className="mx-4 flex flex-col items-center">
+                      {/* Center - Checkbox */}
+                      <div className="mx-8 flex flex-col items-center">
                         <Checkbox
                           checked={dup.checked}
                           onCheckedChange={(checked) => {
                             const newDuplicates = [...duplicateMembers];
-                            newDuplicates[index].checked = checked;
+                            newDuplicates[index] = {
+                              ...newDuplicates[index],
+                              checked,
+                            };
                             setDuplicateMembers(newDuplicates);
                           }}
+                          className="h-5 w-5"
                         />
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-gray-500 mt-2">
                           Same person
                         </p>
                       </div>
 
+                      {/* Right side - Sender */}
                       <div className="flex-1">
-                        <div className="flex items-center space-x-4">
-                          <Avatar className="h-10 w-10">
+                        <div className="flex items-center justify-end space-x-4">
+                          <div className="text-right">
+                            <p className="text-sm font-medium">
+                              {dup.sender.first_name} {dup.sender.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500">Their tree</p>
+                            {dup.sender.date_of_birth && (
+                              <p className="text-xs text-gray-500">
+                                DOB: {formatDate(dup.sender.date_of_birth)}
+                              </p>
+                            )}
+                          </div>
+                          <Avatar className="h-12 w-12">
                             <AvatarImage src={dup.sender.profile_pic_url} />
                             <AvatarFallback>
                               {dup.sender.first_name?.charAt(0)}
                               {dup.sender.last_name?.charAt(0)}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="text-sm font-medium">
-                              {dup.sender.first_name} {dup.sender.last_name}
-                            </p>
-                            <p className="text-xs text-gray-500">Their tree</p>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -263,6 +283,19 @@ export default function ViewTreeMergeRequest() {
                 ))}
               </CustomScrollArea>
             )}
+
+            {
+              <div className="flex items-center space-x-2 mt-4">
+                <Checkbox
+                  checked={noDuplicates}
+                  onCheckedChange={setNoDuplicates}
+                  id="noDuplicates"
+                />
+                <label htmlFor="noDuplicates" className="text-sm text-gray-600">
+                  These are different people despite same names
+                </label>
+              </div>
+            }
           </div>
         )}
 

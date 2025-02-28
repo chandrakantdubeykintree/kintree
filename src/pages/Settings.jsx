@@ -384,7 +384,7 @@ export default function Settings() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Select
                       onValueChange={(value) =>
                         setLanguageValue("language", value)
@@ -408,7 +408,7 @@ export default function Settings() {
                         {languageErrors.language.message}
                       </p>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-end gap-2">
                     <Button
@@ -433,7 +433,7 @@ export default function Settings() {
                         {capitalizeName(profile?.theme)}
                       </span>
                     </p>
-                    <p className="text-gray-600 dark:text-gray-200">
+                    {/* <p className="text-gray-600 dark:text-gray-200">
                       {t("current_language")}:{" "}
                       <span className="font-semibold">
                         {
@@ -442,7 +442,7 @@ export default function Settings() {
                           )?.[1]
                         }
                       </span>
-                    </p>
+                    </p> */}
                   </div>
                   <Button
                     onClick={() => setActiveForm("language")}
