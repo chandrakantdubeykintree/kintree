@@ -129,6 +129,9 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
     // if (isFlutter && onViewChange) {
     //   onViewChange(show);
     // }
+    if (show) {
+      setSelectedChannel(null);
+    }
   };
 
   // const [newMembersToAdd, setNewMembersToAdd] = useState([]);
@@ -819,11 +822,12 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
   };
   const handleBack = () => {
     handleShowMobileList(true);
+    setSelectedChannel(null);
   };
 
   return (
     <AsyncComponent>
-      <Card className="h-full bg-background rounded-2xl">
+      <Card className="h-full bg-background rounded-none p-0">
         <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4">
           {/* Channels list */}
           <div
@@ -832,7 +836,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
             } md:block md:col-span-2 h-full relative rounded-2xl bg-brandLight`}
           >
             {/* Fixed channels header */}
-            <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-1 rounded-tl-2xl rounded-tr-2xl">
+            {/* <div className="absolute top-0 left-0 right-0 flex items-center justify-between p-4 border-b bg-brandLight z-1 rounded-tl-2xl rounded-tr-2xl">
               <h2 className="font-bold text-lg">Chats</h2>
               <div className="flex items-center gap-2">
                 <Button
@@ -850,23 +854,41 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
                   <PlusIcon className="text-primary w-10 h-10" />
                 </Button>
               </div>
-            </div>
+            </div> */}
 
             {/* Scrollable channels list */}
-            <div className="absolute top-[73px] bottom-0 left-0 right-0 overflow-y-auto no_scrollbar">
+            <div className="absolute top-0 bottom-0 left-0 right-0 overflow-y-auto no_scrollbar">
               <div className="p-4 space-y-2">
                 {channelsLoading ? (
                   <ComponentLoading />
                 ) : channelsList?.length > 0 ? (
                   <>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
-                      <Input
-                        placeholder="Search chats..."
-                        className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
-                        value={channelSearchQuery}
-                        onChange={(e) => setChannelSearchQuery(e.target.value)}
-                      />
+                    <div className="flex justify-between">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
+                        <Input
+                          placeholder="Search chats..."
+                          className="w-full pl-10 pr-4 h-10 md:h-12 rounded-full outline-none ring-0 bg-background"
+                          value={channelSearchQuery}
+                          onChange={(e) =>
+                            setChannelSearchQuery(e.target.value)
+                          }
+                        />
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          setIsGroupChatMode(false);
+                          setOpenSheet((prev) => ({
+                            ...prev,
+                            createChannel: true,
+                          }));
+                        }}
+                        className="rounded-full bg-muted"
+                      >
+                        <PlusIcon className="text-primary w-10 h-10" />
+                      </Button>
                     </div>
                     {channelsList
                       ?.filter((channel) => {
