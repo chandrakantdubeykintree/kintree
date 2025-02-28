@@ -23,6 +23,9 @@ import AsyncComponent from "@/components/async-component";
 import { CustomTabs, CustomTabPanel } from "@/components/ui/custom-tabs";
 import { capitalizeName } from "@/utils/stringFormat";
 import { useCancelMergeRequest } from "@/hooks/useMergeTree";
+import { useNavigate } from "react-router";
+import { route_tree_merge_request } from "@/constants/routeEnpoints";
+import { encryptId } from "@/utils/encryption";
 
 const formatDate = (dateString) => {
   const [datePart, timePart] = dateString.split(" ");
@@ -54,6 +57,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
   const { data: mergeRequest, isLoading } = useMergeRequest(requestId, {
     enabled: isOpen,
   });
+  const navigate = useNavigate();
 
   const { mutate: respondToRequest, isLoading: isResponding } =
     useRespondToMergeRequest();
@@ -71,6 +75,11 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
         },
       }
     );
+  };
+  const handleViewDetailRequest = (requestId) => {
+    onClose();
+    const id = encryptId(requestId);
+    navigate(`${route_tree_merge_request}/${id}`);
   };
 
   return (
@@ -152,16 +161,19 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                   >
                     Cancel
                   </Button>
-                  <Button
-                    onClick={handleAccept}
-                    disabled={isResponding}
-                    className="rounded-full"
-                  >
-                    {isResponding ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    Accept & Merge
-                  </Button>
+                  {mergeRequest?.is_request_received ? (
+                    <Button
+                      // onClick={handleAccept}
+                      onClick={() => handleViewDetailRequest(requestId)}
+                      disabled={isResponding}
+                      className="rounded-full"
+                    >
+                      {isResponding ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : null}
+                      View Detailed Request
+                    </Button>
+                  ) : null}
                 </div>
               )}
           </div>

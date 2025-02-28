@@ -28,6 +28,8 @@ export default function RightSidebar() {
         return <ForeroomRight />;
       case "createpoll":
         return <ForeroomRight />;
+      case "tree-merge-request":
+        return <FamilyMemberRight />;
       default:
         return null;
     }

@@ -44,6 +44,7 @@ import {
   route_settings,
   route_settings_edit_settings,
   route_kintree_member,
+  route_tree_merge_request,
 } from "./constants/routeEnpoints";
 import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./pages/PageNotFound";
@@ -51,6 +52,7 @@ import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import FlutterChat from "./pages/FlutterChat";
 import Test from "./pages/Test";
+import ViewTreeMergeRequest from "./pages/ViewTreeMergeRequest";
 
 const {
   RootLayout,
@@ -199,6 +201,10 @@ export default function App() {
                               <Route
                                 path={route_kintree_member + "/:id"}
                                 element={<KintreeMember />}
+                              />
+                              <Route
+                                path={route_tree_merge_request + "/:requestId"}
+                                element={<ViewTreeMergeRequest />}
                               />
                               <Route path={route_chats} element={<Chats />} />
                               <Route

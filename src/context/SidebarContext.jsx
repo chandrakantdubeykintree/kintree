@@ -30,6 +30,7 @@ export function SidebarProvider({ children }) {
     "/will/view-will": { left: true, right: false },
     "/profile": { left: true, right: false },
     "/settings": { left: true, right: false },
+    "tree-merge-request": { left: true, right: true },
   });
 
   const [currentRoute, setCurrentRoute] = useState("/");

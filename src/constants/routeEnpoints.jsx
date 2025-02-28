@@ -47,3 +47,4 @@ export const route_profile_view_profile = "/profile/view-profile";
 
 export const route_settings = "/settings";
 export const route_settings_edit_settings = "/settings/edit-settings";
+export const route_tree_merge_request = "/tree-merge-request";

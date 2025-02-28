@@ -178,14 +178,12 @@ export default function KintreeMember() {
                     Request Tree Merge
                   </Button>
                 ) : null}
-                {!familyMember?.is_relative &&
+                {/* {!familyMember?.is_relative &&
                 familyMember?.is_request_received ? (
                   <Button
                     onClick={() => {
                       cancelMergeRequest(familyMember.merge_request_id, {
-                        onSuccess: () => {
-                          // Optional: Add any additional success handling
-                        },
+                        onSuccess: () => {},
                       });
                     }}
                     variant="outline"
@@ -194,7 +192,7 @@ export default function KintreeMember() {
                   >
                     {isCancelling ? "Cancelling..." : "Cancel Tree Merge"}
                   </Button>
-                ) : null}
+                ) : null} */}
               </div>
 
               {/* Statistics */}

@@ -12,7 +12,7 @@ const CustomScrollArea = ({
         scrollbarColor: "#cbd5e1 transparent",
       }}
     >
-      <style jsx>{`
+      <style>{`
         div::-webkit-scrollbar {
           width: 6px;
         }
