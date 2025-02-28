@@ -14,9 +14,162 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "react-hot-toast";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
-import { useMergeRequests } from "@/hooks/useMergeTree";
+import {
+  useMergeRequest,
+  useMergeRequests,
+  useRespondToMergeRequest,
+} from "@/hooks/useMergeTree";
 import AsyncComponent from "@/components/async-component";
 import { CustomTabs, CustomTabPanel } from "@/components/ui/custom-tabs";
+import { capitalizeName } from "@/utils/stringFormat";
+import { useCancelMergeRequest } from "@/hooks/useMergeTree";
+
+const formatDate = (dateString) => {
+  const [datePart, timePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("-");
+  return new Date(`${year}-${month}-${day}T${timePart}`).toLocaleString(
+    "en-US",
+    {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    }
+  );
+};
+
+const calculateMyRelativesCount = (mergeRequest) => {
+  if (mergeRequest?.is_request_sent)
+    return mergeRequest?.sender_relatives_count || 0;
+  if (mergeRequest?.is_request_received)
+    return mergeRequest?.receiver_relatives_count || 0;
+};
+const calculateMembersRelativesCount = (mergeRequest) => {
+  if (mergeRequest?.is_request_sent)
+    return mergeRequest?.receiver_relatives_count || 0;
+  if (mergeRequest?.is_request_received)
+    return mergeRequest?.sender_relatives_count || 0;
+};
+
+const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
+  const { data: mergeRequest, isLoading } = useMergeRequest(requestId, {
+    enabled: isOpen,
+  });
+
+  const { mutate: respondToRequest, isLoading: isResponding } =
+    useRespondToMergeRequest();
+
+  const handleAccept = () => {
+    respondToRequest(
+      {
+        requestId,
+        is_accepted: true,
+        same_persons: [],
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      }
+    );
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-[90%] sm:max-w-sm rounded-2xl sm:rounded-2xl">
+        <DialogHeader>
+          <DialogTitle>Merge Request Details</DialogTitle>
+        </DialogHeader>
+
+        {isLoading ? (
+          <div className="flex justify-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : mergeRequest ? (
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
+                <AvatarFallback>
+                  {mergeRequest.requested_by?.first_name?.charAt(0)}
+                  {mergeRequest.requested_by?.last_name?.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <p className="font-medium">
+                  {mergeRequest.is_request_sent ? (
+                    <>
+                      You requested to merge family tree with{" "}
+                      {capitalizeName(mergeRequest.requested_to?.first_name)}{" "}
+                      {capitalizeName(mergeRequest.requested_to?.last_name)}
+                    </>
+                  ) : (
+                    <>
+                      {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
+                      {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
+                      wants to merge
+                    </>
+                  )}
+                  &nbsp; as{" "}
+                  <span className="text-primary">
+                    {mergeRequest.type?.name}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>Their Tree Members:</span>
+                <span className="font-medium">
+                  {calculateMembersRelativesCount(mergeRequest) || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Your Tree Members:</span>
+                <span className="font-medium">
+                  {calculateMyRelativesCount(mergeRequest) || 0}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Status:</span>
+                <span className="font-medium">
+                  {mergeRequest.is_accepted === null
+                    ? "Pending"
+                    : mergeRequest.is_accepted
+                    ? "Accepted"
+                    : "Declined"}
+                </span>
+              </div>
+            </div>
+
+            {!mergeRequest.is_request_sent &&
+              mergeRequest.is_accepted === null && (
+                <div className="flex justify-end gap-2 mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={onClose}
+                    className="rounded-full"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAccept}
+                    disabled={isResponding}
+                    className="rounded-full"
+                  >
+                    {isResponding ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Accept & Merge
+                  </Button>
+                </div>
+              )}
+          </div>
+        ) : null}
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 export default function NotificationsPage() {
   const { t } = useTranslation();
@@ -86,127 +239,144 @@ export default function NotificationsPage() {
   };
 
   const [activeTab, setActiveTab] = useState("notifications");
+  const { mutate: cancelMergeRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
 
   const getUnreadCount = () => {
     return notifications.filter((n) => !n.readed_at).length;
   };
 
   const getMergeRequestsCount = () => {
-    return mergeRequests?.pages?.[0]?.data?.length || 0;
-  };
-
-  // const formatDate = (dateString) => {
-  //   const [datePart, timePart] = dateString.split(" ");
-  //   const [day, month, year] = datePart.split("-");
-  //   return new Date(`${year}-${month}-${day}T${timePart}`).toLocaleString(
-  //     "en-US",
-  //     {
-  //       day: "numeric",
-  //       month: "short",
-  //       year: "numeric",
-  //       hour: "numeric",
-  //       minute: "numeric",
-  //     }
-  //   );
-  // };
-
-  const formatDate = (dateString) => {
-    const [datePart, timePart] = dateString.split(" ");
-    const [day, month, year] = datePart.split("-");
-    return new Date(`${year}-${month}-${day}T${timePart}`).toLocaleString(
-      "en-US",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }
-    );
+    return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
   };
 
   const MergeRequestCard = ({ mergeRequest }) => {
-    return (
-      <div className="p-3 md:p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-orange-900/20">
-        <div className="flex flex-col md:flex-row items-start gap-3 md:gap-4">
-          {/* Avatar Section */}
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
-            <AvatarFallback>
-              {mergeRequest.requested_by?.first_name?.charAt(0) || "U"}
-              {mergeRequest.requested_by?.last_name?.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-          {/* Content Section */}
-          <div className="flex-1 space-y-2">
-            <div className="space-y-1">
+    const handleCancelRequest = (e) => {
+      e.stopPropagation();
+      cancelMergeRequest(mergeRequest.id, {
+        onSuccess: () => {
+          toast.success("Merge request cancelled successfully");
+        },
+      });
+    };
+    return (
+      <AsyncComponent>
+        <div className="p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-orange-900/20">
+          {/* Main Content */}
+          <div className="flex gap-4">
+            {/* Avatar */}
+            <Avatar className="h-10 w-10 flex-shrink-0">
+              <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
+              <AvatarFallback>
+                {mergeRequest.requested_by?.first_name?.charAt(0) || "U"}
+                {mergeRequest.requested_by?.last_name?.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+
+            {/* Text Content */}
+            <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {mergeRequest.requested_by?.first_name}{" "}
-                {mergeRequest.requested_by?.last_name}{" "}
+                {mergeRequest.is_request_sent ? (
+                  <>
+                    You requested to merge your family tree with{" "}
+                    <span>
+                      {capitalizeName(mergeRequest.requested_to?.first_name)}
+                      &nbsp;
+                      {capitalizeName(mergeRequest.requested_to?.last_name)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
+                    {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
+                  </>
+                )}
                 <span className="font-normal">
-                  wants to merge their family tree as{" "}
+                  {mergeRequest.is_request_sent
+                    ? "as "
+                    : "wants to merge their family tree as "}
                 </span>
                 <span className="text-primary font-semibold">
                   {mergeRequest.type?.name}
                 </span>
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                @{mergeRequest.requested_by?.username}
-              </p>
-            </div>
 
-            {/* Tree Info */}
-            <div className="flex flex-col gap-1.5">
-              <div className="text-xs text-gray-600 dark:text-gray-300">
-                <span className="font-medium">Sender Tree:</span>{" "}
-                <span className="text-gray-500 dark:text-gray-400">
-                  {mergeRequest.senderRelatives.length} members
-                </span>
+              {/* Date - Desktop */}
+              <div className="hidden md:block text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {formatDate(mergeRequest.created_at)}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-300">
-                <span className="font-medium">Your Tree:</span>{" "}
-                <span className="text-gray-500 dark:text-gray-400">
-                  {mergeRequest.receiverRelatives.length} members
-                </span>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-wrap gap-2 mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full h-8 px-4 text-sm dark:bg-gray-800 dark:hover:bg-gray-700 dark:border-gray-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Handle reject
-                }}
-              >
-                Decline
-              </Button>
-              <Button
-                size="sm"
-                className="rounded-full h-8 px-4 text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Handle accept
-                }}
-              >
-                Accept
-              </Button>
             </div>
           </div>
 
-          {/* Date - Hidden on mobile, shown on larger screens */}
-          <div className="hidden md:block text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          {/* Date - Mobile */}
+          <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-3">
             {formatDate(mergeRequest.created_at)}
           </div>
 
-          {/* Date - Shown on mobile, hidden on larger screens */}
-          <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-2">
-            {formatDate(mergeRequest.created_at)}
+          {/* Actions */}
+          <div className="flex flex-wrap gap-3 mt-4">
+            {mergeRequest.is_request_sent ? (
+              <>
+                <Button
+                  size="sm"
+                  className="rounded-full h-8 px-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsViewModalOpen(true);
+                  }}
+                >
+                  View Request
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full h-8 px-4 text-sm text-primary"
+                  onClick={handleCancelRequest}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  Cancel Request
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  size="sm"
+                  className="rounded-full h-8 px-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsViewModalOpen(true);
+                  }}
+                >
+                  View Request
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full h-8 px-4 text-sm text-primary"
+                  onClick={handleCancelRequest}
+                  disabled={isCancelling}
+                >
+                  {isCancelling ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  Decline
+                </Button>
+              </>
+            )}
           </div>
         </div>
-      </div>
+
+        <MergeRequestDialog
+          isOpen={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          requestId={mergeRequest.id}
+        />
+      </AsyncComponent>
     );
   };
 
@@ -255,7 +425,7 @@ export default function NotificationsPage() {
 
   return (
     <AsyncComponent>
-      <Card className="container max-w-2xl mx-auto py-8 px-4 rounded-2xl h-full">
+      <Card className="container max-w-2xl mx-auto py-8 px-4 rounded-2xl h-full overflow-y-scroll no_scrollbar">
         <h1 className="text-2xl font-bold mb-6">{t("notifications")}</h1>
 
         <CustomTabs
@@ -307,9 +477,9 @@ export default function NotificationsPage() {
         <CustomTabPanel value="merge-requests" activeTab={activeTab}>
           <div className="space-y-2">
             {!isMergeRequestsLoading &&
-            mergeRequests?.pages?.[0]?.data?.length > 0 ? (
+            mergeRequests?.pages?.[0]?.data?.requests?.length > 0 ? (
               mergeRequests.pages.map((page) =>
-                page.data.map((request) => (
+                page.data.requests.map((request) => (
                   <MergeRequestCard key={request.id} mergeRequest={request} />
                 ))
               )

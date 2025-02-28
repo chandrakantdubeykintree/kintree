@@ -13,6 +13,7 @@ import { useCreateMergeRequest } from "@/hooks/useMergeTree";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { getInitials } from "@/utils/stringFormat";
 import CustomScrollArea from "./ui/custom-scroll-area";
+import toast from "react-hot-toast";
 
 // Add this helper function at the top of your component
 const getRelationLabel = (value) => {
@@ -40,12 +41,26 @@ export default function MergeRequestForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Add validation check
+    if (!formData.relation_type) {
+      toast.error("Please select a relation type");
+      return;
+    }
+
+    if (!formData.requestor_id_on_receiver_tree) {
+      toast.error("Please select a family member");
+      return;
+    }
+
     createRequest(formData, {
       onSuccess: () => {
         onClose();
       },
     });
   };
+
+  const isFormValid = Boolean(formData.relation_type);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -152,7 +167,11 @@ export default function MergeRequestForm({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading} className="rounded-full">
+            <Button
+              type="submit"
+              disabled={isLoading || !isFormValid}
+              className="rounded-full"
+            >
               {isLoading ? "Sending..." : "Send Request"}
             </Button>
           </div>

@@ -14,6 +14,7 @@ import ComponentLoading from "@/components/component-loading";
 import { decryptId } from "@/utils/encryption";
 import { Button } from "@/components/ui/button";
 import MergeRequestForm from "@/components/merge-request-form";
+import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 
 export default function KintreeMember() {
   const { id: encryptedId } = useParams();
@@ -33,6 +34,9 @@ export default function KintreeMember() {
 
   const { data: familyTree } = useFamily();
 
+  const { mutate: cancelMergeRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
+
   const familyMemberSelected = familyTree?.find((member) => member?.id === +id);
 
   const InfoSection = ({ title, children }) => (
@@ -43,7 +47,6 @@ export default function KintreeMember() {
   );
 
   const InfoItem = ({ label, value }) => {
-    // if (!value) return null;
     return (
       <div className="flex flex-col">
         <span className="text-sm text-gray-800 dark:text-gray-400">
@@ -165,21 +168,33 @@ export default function KintreeMember() {
               </div>
 
               <div className="flex justify-center mb-8">
-                <Button
-                  onClick={() => setIsMergeModalOpen(true)}
-                  className="flex items-center gap-2 rounded-full"
-                >
-                  Request Tree Merge
-                </Button>
-
-                {/* <Button
-                  onClick={() => setIsMergeModalOpen(true)}
-                  variant="outline"
-                  className="flex items-center gap-2 rounded-full border border-primary text-primary"
-                >
-                  <GitMerge className="w-4 h-4" />
-                  Cancel Tree Merge
-                </Button> */}
+                {!familyMember?.is_relative &&
+                !familyMember?.is_request_sent &&
+                !familyMember?.is_request_received ? (
+                  <Button
+                    onClick={() => setIsMergeModalOpen(true)}
+                    className="flex items-center gap-2 rounded-full"
+                  >
+                    Request Tree Merge
+                  </Button>
+                ) : null}
+                {!familyMember?.is_relative &&
+                familyMember?.is_request_received ? (
+                  <Button
+                    onClick={() => {
+                      cancelMergeRequest(familyMember.merge_request_id, {
+                        onSuccess: () => {
+                          // Optional: Add any additional success handling
+                        },
+                      });
+                    }}
+                    variant="outline"
+                    disabled={isCancelling}
+                    className="flex items-center gap-2 rounded-full border border-primary text-primary"
+                  >
+                    {isCancelling ? "Cancelling..." : "Cancel Tree Merge"}
+                  </Button>
+                ) : null}
               </div>
 
               {/* Statistics */}

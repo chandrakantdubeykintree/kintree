@@ -10,7 +10,10 @@ import toast from "react-hot-toast";
 export const QUERY_KEYS = {
   MERGE_REQUESTS: "merge-requests",
   MERGE_REQUEST: "merge-request",
+  CANCEL_MERGE_REQUEST: "cancel-merge-request",
 };
+
+import { QUERY_KEYS as FAMILY_QUERY_KEYS } from "./useFamily";
 
 // Fetch merge requests with pagination
 export const fetchMergeRequests = async ({ pageParam = 1, limit = 12 }) => {
@@ -23,7 +26,13 @@ export const fetchMergeRequests = async ({ pageParam = 1, limit = 12 }) => {
     });
 
     return {
-      data: response.data.data,
+      data: {
+        requests: response.data.data.requests,
+        current_page: response.data.data.current_page,
+        last_page: response.data.data.last_page,
+        total_record: response.data.data.total_record,
+        filtered_record: response.data.data.filtered_record,
+      },
       success: response.data.success,
       message: response.data.message,
       status_code: response.data.status_code,
@@ -82,6 +91,46 @@ export const respondToMergeRequest = async ({
   }
 };
 
+// Add this new function to handle canceling merge requests
+export const cancelMergeRequest = async (requestId) => {
+  try {
+    const response = await kintreeApi.delete(
+      `/tree-merge-requests/${requestId}`
+    );
+    return response.data;
+  } catch (error) {
+    return handleApiError(error);
+  }
+};
+
+// Add this new hook for canceling merge requests
+export const useCancelMergeRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cancelMergeRequest,
+    onSuccess: (data, requestId) => {
+      toast.success("Merge request cancelled successfully!");
+
+      // Invalidate merge requests list
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MERGE_REQUESTS],
+      });
+
+      // Invalidate member data
+      queryClient.invalidateQueries({
+        queryKey: [FAMILY_QUERY_KEYS.MEMBER],
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to cancel merge request. Please try again."
+      );
+    },
+  });
+};
+
 // Hook for fetching merge requests
 export const useMergeRequests = (limit = 12) => {
   return useInfiniteQuery({
@@ -102,11 +151,11 @@ export const useMergeRequests = (limit = 12) => {
 };
 
 // Hook for fetching single merge request
-export const useMergeRequest = (requestId) => {
+export const useMergeRequest = (requestId, options = {}) => {
   return useQuery({
     queryKey: [QUERY_KEYS.MERGE_REQUEST, requestId],
     queryFn: () => fetchMergeRequest(requestId),
-    enabled: Boolean(requestId),
+    enabled: Boolean(requestId) && options.enabled !== false,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
