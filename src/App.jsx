@@ -272,7 +272,13 @@ export default function App() {
           </BrowserRouter>
         </QueryClientProvider>
       </GlobalErrorBoundary>
-      <Toaster position="top-right" reverseOrder={false} />
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        toastOptions={{
+          duration: 1500,
+        }}
+      />
     </RootLayout>
   );
 }

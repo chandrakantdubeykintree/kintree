@@ -23,6 +23,7 @@ import {
   route_will,
   route_family_member,
   route_kintree_member,
+  route_tree_merge_request,
 } from "./routeEnpoints";
 
 const routeTitles = {
@@ -50,6 +51,7 @@ const routeTitles = {
   [route_events]: "Events",
   [route_kincoins]: "Kincoins",
   [route_will]: "Will",
+  [route_tree_merge_request]: "Tree Merge Request",
 };
 
 export default routeTitles;

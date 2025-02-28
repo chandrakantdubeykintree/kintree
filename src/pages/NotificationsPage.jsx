@@ -76,6 +76,16 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
       }
     );
   };
+  const { mutate: cancelRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
+
+  const handleDecline = () => {
+    cancelRequest(requestId, {
+      onSuccess: () => {
+        onClose();
+      },
+    });
+  };
   const handleViewDetailRequest = (requestId) => {
     onClose();
     const id = encryptId(requestId);
@@ -155,11 +165,15 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
               mergeRequest.is_accepted === null && (
                 <div className="flex justify-end gap-2 mt-4">
                   <Button
-                    variant="outline"
-                    onClick={onClose}
+                    variant="destructive"
+                    onClick={handleDecline}
+                    disabled={isCancelling}
                     className="rounded-full"
                   >
-                    Cancel
+                    {isCancelling ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : null}
+                    Decline
                   </Button>
                   {mergeRequest?.is_request_received ? (
                     <Button
@@ -264,6 +278,17 @@ export default function NotificationsPage() {
 
   const MergeRequestCard = ({ mergeRequest }) => {
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const { mutate: cancelRequest, isLoading: isCancelling } =
+      useCancelMergeRequest();
+
+    const handleDecline = (e) => {
+      e.stopPropagation();
+      cancelRequest(mergeRequest.id, {
+        onSuccess: () => {
+          toast.success("Merge request declined successfully");
+        },
+      });
+    };
 
     const handleCancelRequest = (e) => {
       e.stopPropagation();

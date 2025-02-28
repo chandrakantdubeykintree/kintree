@@ -262,7 +262,9 @@ export default function EditEducationForm() {
           </div>
         ))
       ) : (
-        <div className="text-center text-gray-500">{}</div>
+        <div className="text-center text-gray-500">
+          {t("no_education_added")}
+        </div>
       )}
     </div>
   );

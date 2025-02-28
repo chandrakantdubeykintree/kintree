@@ -1,11 +1,12 @@
 import AsyncComponent from "@/components/async-component";
 import { Card } from "@/components/ui/card";
 import {
+  useCancelMergeRequest,
   useMergeRequest,
   useRespondToMergeRequest,
 } from "@/hooks/useMergeTree";
 import { decryptId } from "@/utils/encryption";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -13,6 +14,7 @@ import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
 import CustomScrollArea from "@/components/ui/custom-scroll-area";
+import { route_family_tree } from "@/constants/routeEnpoints";
 
 export default function ViewTreeMergeRequest() {
   let { requestId } = useParams();
@@ -22,6 +24,19 @@ export default function ViewTreeMergeRequest() {
   const { mutate: respondToRequest, isLoading: isResponding } =
     useRespondToMergeRequest();
   const [duplicateMembers, setDuplicateMembers] = useState([]);
+  const [noDuplicates, setNoDuplicates] = useState(false);
+  const navigate = useNavigate();
+  const { mutate: cancelRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
+
+  // Add handleDecline function
+  const handleDecline = () => {
+    cancelRequest(requestId, {
+      onSuccess: () => {
+        navigate(route_family_tree, { replace: true });
+      },
+    });
+  };
 
   // Function to find potential duplicates
   const findDuplicates = () => {
@@ -47,18 +62,26 @@ export default function ViewTreeMergeRequest() {
   };
 
   const handleAccept = () => {
-    const samePerson = duplicateMembers
-      .filter((dup) => dup.checked)
-      .map((dup) => ({
-        sender_id: dup.sender.id,
-        receiver_id: dup.receiver.id,
-      }));
+    if (findDuplicates().length > 0 && !noDuplicates) {
+      const samePerson = duplicateMembers
+        .filter((dup) => dup.checked)
+        .map((dup) => ({
+          sender_relative_id: dup.sender.id,
+          receiver_relative_id: dup.receiver.id,
+        }));
 
-    respondToRequest({
-      requestId,
-      is_accepted: true,
-      same_persons: samePerson,
-    });
+      respondToRequest({
+        requestId,
+        is_accepted: true,
+        same_persons: samePerson,
+      });
+    } else {
+      respondToRequest({
+        requestId,
+        is_accepted: true,
+        // same_persons: [],
+      });
+    }
   };
 
   if (isLoading) {
@@ -113,8 +136,8 @@ export default function ViewTreeMergeRequest() {
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4">Members to be merged</h2>
           <CustomScrollArea
-            className="h-[450px] rounded-2xl border no_scrollbar"
-            maxHeight="500px"
+            className="rounded-2xl border no_scrollbar"
+            maxHeight="400px"
           >
             <div className="p-4 space-y-3">
               {mergeRequest?.sender_relatives?.map((relative) => (
@@ -162,37 +185,98 @@ export default function ViewTreeMergeRequest() {
         {/* Duplicate Members Section */}
         {findDuplicates().length > 0 && (
           <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Potential Duplicate Members
-            </h2>
-            <CustomScrollArea className="h-[200px] rounded-md border p-4">
-              {findDuplicates().map((dup, index) => (
-                <div key={index} className="flex items-center space-x-4 py-2">
-                  <Checkbox
-                    checked={dup.checked}
-                    onCheckedChange={(checked) => {
-                      const newDuplicates = [...duplicateMembers];
-                      newDuplicates[index].checked = checked;
-                      setDuplicateMembers(newDuplicates);
-                    }}
-                  />
-                  <div>
-                    <p className="text-sm font-medium">
-                      {dup.sender.first_name} {dup.sender.last_name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Appears in both trees
-                    </p>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">
+                Potential Duplicate Members
+              </h2>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  checked={noDuplicates}
+                  onCheckedChange={setNoDuplicates}
+                  id="noDuplicates"
+                />
+                <label htmlFor="noDuplicates" className="text-sm text-gray-600">
+                  These are different people despite same names
+                </label>
+              </div>
+            </div>
+
+            {!noDuplicates && (
+              <CustomScrollArea
+                className="rounded-2xl border p-4"
+                maxHeight="400px"
+              >
+                {findDuplicates().map((dup, index) => (
+                  <div key={index} className="mb-4 last:mb-0">
+                    <div className="flex items-center justify-between bg-gray-50 rounded-lg py-4">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={dup.receiver.profile_pic_url} />
+                            <AvatarFallback>
+                              {dup.receiver.first_name?.charAt(0)}
+                              {dup.receiver.last_name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {dup.receiver.first_name} {dup.receiver.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500">Your tree</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mx-4 flex flex-col items-center">
+                        <Checkbox
+                          checked={dup.checked}
+                          onCheckedChange={(checked) => {
+                            const newDuplicates = [...duplicateMembers];
+                            newDuplicates[index].checked = checked;
+                            setDuplicateMembers(newDuplicates);
+                          }}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Same person
+                        </p>
+                      </div>
+
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={dup.sender.profile_pic_url} />
+                            <AvatarFallback>
+                              {dup.sender.first_name?.charAt(0)}
+                              {dup.sender.last_name?.charAt(0)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="text-sm font-medium">
+                              {dup.sender.first_name} {dup.sender.last_name}
+                            </p>
+                            <p className="text-xs text-gray-500">Their tree</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </CustomScrollArea>
+                ))}
+              </CustomScrollArea>
+            )}
           </div>
         )}
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-3">
-          <Button variant="outline" className="rounded-full">
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={handleDecline}
+            disabled={isCancelling}
+          >
+            {isCancelling ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : null}
             Decline
           </Button>
           <Button

@@ -48,10 +48,10 @@ export default function MergeRequestForm({
       return;
     }
 
-    if (!formData.requestor_id_on_receiver_tree) {
-      toast.error("Please select a family member");
-      return;
-    }
+    // if (!formData.requestor_id_on_receiver_tree) {
+    //   toast.error("Please select a family member");
+    //   return;
+    // }
 
     createRequest(formData, {
       onSuccess: () => {
@@ -70,7 +70,7 @@ export default function MergeRequestForm({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Select Family Member</Label>
+            <Label>Are you in reciever's family tree?</Label>
             <Select
               value={formData.requestor_id_on_receiver_tree?.toString()}
               onValueChange={(value) =>

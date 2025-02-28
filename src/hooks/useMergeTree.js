@@ -14,6 +14,8 @@ export const QUERY_KEYS = {
 };
 
 import { QUERY_KEYS as FAMILY_QUERY_KEYS } from "./useFamily";
+import { useNavigate } from "react-router";
+import { route_family_tree } from "@/constants/routeEnpoints";
 
 // Fetch merge requests with pagination
 export const fetchMergeRequests = async ({ pageParam = 1, limit = 12 }) => {
@@ -78,13 +80,10 @@ export const respondToMergeRequest = async ({
   same_persons,
 }) => {
   try {
-    const response = await kintreeApi.put(
-      `/tree-merge-requests/${requestId}/respond`,
-      {
-        is_accepted,
-        same_persons,
-      }
-    );
+    const response = await kintreeApi.put(`/tree-merge-requests/${requestId}`, {
+      is_accepted,
+      same_persons,
+    });
     return response.data;
   } catch (error) {
     return handleApiError(error);
@@ -188,6 +187,7 @@ export const useCreateMergeRequest = () => {
 // Hook for responding to merge request
 export const useRespondToMergeRequest = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: respondToMergeRequest,
@@ -196,6 +196,10 @@ export const useRespondToMergeRequest = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MERGE_REQUESTS],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.MERGE_REQUESTS],
+      });
+      navigate(route_family_tree, { replace: true });
     },
     onError: (error) => {
       toast.error(

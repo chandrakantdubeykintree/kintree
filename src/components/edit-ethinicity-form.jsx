@@ -41,6 +41,8 @@ export default function EditEthnicityForm() {
     sect_id: z.string().optional(),
   });
 
+  console.log(profile);
+
   const form = useForm({
     resolver: zodResolver(ethnicitySchema),
     defaultValues: {
@@ -316,37 +318,51 @@ export default function EditEthnicityForm() {
         </div>
       </form>
     </Form>
-  ) : (
+  ) : profile?.religion ? (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-      <div>
-        <p className="text-sm">{t("religion")}</p>
-        <h3 className="text-md font-semibold">
-          {profile?.religion?.name || "--"}
-        </h3>
-      </div>
-      <div>
-        <p className="text-sm">{t("caste")}</p>
-        <h3 className="text-md font-semibold">
-          {profile?.caste?.name || "--"}
-        </h3>
-      </div>
-      <div>
-        <p className="text-sm">{t("sub_caste")}</p>
-        <h3 className="text-md font-semibold">
-          {profile?.sub_caste?.name || "--"}
-        </h3>
-      </div>
-      <div>
-        <p className="text-sm">{t("gotra")}</p>
-        <h3 className="text-md font-semibold">
-          {profile?.gotra?.name || "--"}
-        </h3>
-      </div>
-      <div>
-        <p className="text-sm">{t("sect")}</p>
-        <h3 className="text-md font-semibold">{profile?.sect?.name || "--"}</h3>
-      </div>
+      {profile?.religion?.name ? (
+        <div>
+          <p className="text-sm">{t("religion")}</p>
+          <h3 className="text-md font-semibold">
+            {profile?.religion?.name || "--"}
+          </h3>
+        </div>
+      ) : null}
+      {profile?.caste?.name ? (
+        <div>
+          <p className="text-sm">{t("caste")}</p>
+          <h3 className="text-md font-semibold">
+            {profile?.caste?.name || "--"}
+          </h3>
+        </div>
+      ) : null}
+      {profile?.sub_caste?.name ? (
+        <div>
+          <p className="text-sm">{t("sub_caste")}</p>
+          <h3 className="text-md font-semibold">
+            {profile?.sub_caste?.name || "--"}
+          </h3>
+        </div>
+      ) : null}
+      {profile?.gotra?.name ? (
+        <div>
+          <p className="text-sm">{t("gotra")}</p>
+          <h3 className="text-md font-semibold">
+            {profile?.gotra?.name || "--"}
+          </h3>
+        </div>
+      ) : null}
+      {profile?.sect?.name ? (
+        <div>
+          <p className="text-sm">{t("sect")}</p>
+          <h3 className="text-md font-semibold">
+            {profile?.sect?.name || "--"}
+          </h3>
+        </div>
+      ) : null}
     </div>
+  ) : (
+    <div>{t("no_ethinicity_added")}</div>
   );
 
   if (isLoading) {
