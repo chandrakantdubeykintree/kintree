@@ -192,9 +192,9 @@ export default function RedeemCard({ data }) {
               <img src="/kincoinsImg/redeem.svg" className="h-6 w-6 mr-2" />
               <span>{t("redeem_now")}</span>
             </Button>
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               {formatTime(timeLeft)}
-            </p>
+            </p> */}
             <span className="text-xs text-muted-foreground text-center">
               {t("coupon_code_valid_for")}
             </span>

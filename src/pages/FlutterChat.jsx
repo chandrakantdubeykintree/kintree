@@ -4,70 +4,62 @@ import { tokenService } from "../services/tokenService";
 
 import { toast } from "react-hot-toast";
 import ChatFlutter from "./ChatFlutter";
+import GlobalSpinner from "@/components/global-spinner";
 
 export default function FlutterChat() {
   const { token } = useParams();
   const navigate = useNavigate();
   const [isValidToken, setIsValidToken] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const { mobile } = useSearchParams();
-  console.log(mobile);
-
-  // useEffect(() => {
-  //   const handleMobileParam = () => {
-  //     const currentMobile = searchParams.get("mobile");
-  //     const showingOnlyChannelsList = !document.querySelector(
-  //       ".messages-container"
-  //     );
-
-  //     if (showingOnlyChannelsList && currentMobile !== "true") {
-  //       setSearchParams({ mobile: "true" });
-  //     } else if (!showingOnlyChannelsList && currentMobile !== "false") {
-  //       setSearchParams({ mobile: "false" });
-  //     }
-  //   };
-
-  //   // Initial check
-  //   handleMobileParam();
-
-  //   // Set up mutation observer to watch for DOM changes
-  //   const observer = new MutationObserver(handleMobileParam);
-  //   observer.observe(document.body, { childList: true, subtree: true });
-
-  //   return () => observer.disconnect();
-  // }, [setSearchParams]);
-
-  // useEffect(() => {
-  //   if (!searchParams.has("mobile")) {
-  //     setSearchParams({ mobile: "false" });
-  //   }
-  // }, []);
 
   useEffect(() => {
     if (token) {
-      // Set the token from the URL
       tokenService.setLoginToken(token);
 
-      // Basic token validation (you can add more complex validation if needed)
       if (tokenService.isLoginTokenValid()) {
         setIsValidToken(true);
       } else {
         toast.error("Invalid or expired token");
-        navigate("/"); // Redirect to home or any other page
       }
     } else {
       toast.error("No token provided");
-      navigate("/"); // Redirect to home or any other page
     }
+    setIsLoading(false);
   }, [token, navigate]);
 
   if (!isValidToken) {
-    return null; // Or a loading spinner
+    return null;
+  }
+
+  if (isLoading) {
+    return <GlobalSpinner />;
+  }
+
+  if (!isValidToken) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center p-4">
+        <img
+          src="/illustrations/unauthorized.svg"
+          alt="Unauthorized"
+          className="w-64 h-64 mb-8"
+        />
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">
+          Unauthorized Access
+        </h1>
+        <p className="text-gray-600 text-center max-w-md">
+          You are not authorized to access this chat. Please check your link or
+          contact support.
+        </p>
+      </div>
+    );
   }
 
   return (
     <div className="mx-auto">
-      <main className={`max-w-[1370px] mx-auto px-1`}>
+      <main className={`max-w-[1370px] mx-auto`}>
         <div className="grid grid-cols-12 gap-4 h-[100vh]">
           <div
             className={`

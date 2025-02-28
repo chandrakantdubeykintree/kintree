@@ -19,9 +19,19 @@ class ComponentErrorBoundary extends Component {
       return (
         <div className="p-4 m-4 border border-red-500 rounded-lg">
           {import.meta.env.DEV && (
-            <h3 className="text-xl font-bold text-red-500 mb-2">
-              Component Error
-            </h3>
+            <>
+              <h3 className="text-xl font-bold text-red-500 mb-2">
+                Component Error
+              </h3>
+              <pre className="bg-gray-100 p-4 rounded-lg mb-4 overflow-auto text-sm">
+                {this.state.error?.message || "Unknown error occurred"}
+                {this.state.error?.stack && (
+                  <div className="mt-2 text-gray-600">
+                    {this.state.error.stack}
+                  </div>
+                )}
+              </pre>
+            </>
           )}
           <p className="text-gray-600 mb-4">
             Something went wrong, try again later.

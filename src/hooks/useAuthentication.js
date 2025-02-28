@@ -17,6 +17,7 @@ import {
 } from "../constants/apiEndpoints";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import axios from "axios";
 
 // Query keys
 export const AUTH_QUERY_KEYS = {
@@ -359,10 +360,20 @@ export const useAuthentication = () => {
 
   const resetPasswordMutation = useMutation({
     mutationFn: async (credentials) => {
-      const response = await kintreeApi.put(
-        api_auth_reset_password,
-        credentials
+      const resetToken = tokenService.getResetPasswordToken();
+
+      // Set the reset password token in the headers
+      const response = await axios.put(
+        `${import.meta.env.VITE_KINTREE_BASE_URL}${api_auth_reset_password}`,
+        credentials,
+        {
+          headers: {
+            Authorization: `Bearer ${resetToken}`,
+            "x-api-key": "kintreerestapi",
+          },
+        }
       );
+
       if (!response.data.success) {
         throw new ApiError(
           response.data.message,

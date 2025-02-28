@@ -369,42 +369,23 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
   useEffect(() => {
     window.handleBackButtonPress = () => {
       // First check if any sheet is open and close it
-      if (
-        openSheet.createChannel ||
-        openSheet.updateChannel ||
-        openSheet.deleteChannel ||
-        openSheet.channelInfo ||
-        openSheet.clearChat ||
-        openSheet.messageInfo ||
-        openSheet.deleteMessage ||
-        isInfoDialogOpen ||
-        isDeleteDialogOpen ||
-        messageToDelete ||
-        isMembersDialogOpen ||
-        isCreateDialogOpen ||
-        messageInfoData
-      ) {
-        // Close all sheets
-        setOpenSheet({
-          createChannel: false,
-          updateChannel: false,
-          deleteChannel: false,
-          channelInfo: false,
-          clearChat: false,
-          messageInfo: false,
-          deleteMessage: false,
-        });
-        // Close all other dialogs
-        setIsInfoDialogOpen(false);
-        setIsDeleteDialogOpen(false);
-        setMessageToDelete(null);
-        setIsMembersDialogOpen(false);
-        setIsCreateDialogOpen(false);
-        setMessageInfoData(null);
 
-        // Return early without calling handleBack()
-        return;
-      }
+      // Close all sheets
+      setOpenSheet({
+        createChannel: false,
+        updateChannel: false,
+        deleteChannel: false,
+        channelInfo: false,
+        clearChat: false,
+        messageInfo: false,
+        deleteMessage: false,
+      });
+      setIsInfoDialogOpen(false);
+      setIsDeleteDialogOpen(false);
+      setMessageToDelete(null);
+      setIsMembersDialogOpen(false);
+      setIsCreateDialogOpen(false);
+      setMessageInfoData(null);
 
       // If no sheets are open, handle the back navigation
       handleBack();
@@ -851,7 +832,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
   return (
     <AsyncComponent>
       <Card className="h-full bg-background rounded-none p-0">
-        <div className="grid md:grid-cols-8 gap-4 h-full p-2 lg:p-4">
+        <div className="grid md:grid-cols-8 gap-4 h-full">
           {/* Channels list */}
           <div
             className={`${
@@ -962,7 +943,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
                               alt={channel?.name?.substring(0, 1)}
                               className="w-12 h-12 border border-primary rounded-full object-cover flex items-center justify-center bg-brandSecondary"
                             />
-                            {channel.is_online && (
+                            {channel?.is_online && (
                               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                             )}
                           </div>
@@ -1544,7 +1525,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
                       <Pencil className="h-4 w-4 text-white" />
                     </div>
                   ) : null}
-                  {selectedChannel.is_online && (
+                  {selectedChannel?.is_online && (
                     <div className="absolute bottom-2 right-[10px] w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
@@ -1620,7 +1601,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
 
               {!selectedChannel?.is_group ? (
                 <div className="flex flex-col mt-4">
-                  <div
+                  {/* <div
                     className="p-3 bg-background flex gap-4 border-b hover:cursor-pointer"
                     onClick={() =>
                       navigate(`/family-member/${selectedChannel?.user_id}`)
@@ -1631,7 +1612,7 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
                       className="text-primary w-6"
                     />
                     <span>View Profile</span>
-                  </div>
+                  </div> */}
                   <div
                     className="p-3 bg-background flex gap-4 hover:cursor-pointer"
                     onClick={handleClearChat}

@@ -46,9 +46,6 @@ export default function ViewTreeMergeRequest() {
     return duplicates;
   };
 
-  console.log(findDuplicates());
-  console.log(mergeRequest.sender_relatives);
-
   const handleAccept = () => {
     const samePerson = duplicateMembers
       .filter((dup) => dup.checked)
@@ -120,7 +117,7 @@ export default function ViewTreeMergeRequest() {
             maxHeight="500px"
           >
             <div className="p-4 space-y-3">
-              {mergeRequest?.sender_relatives.map((relative) => (
+              {mergeRequest?.sender_relatives?.map((relative) => (
                 <div
                   key={relative.id}
                   className="flex items-center gap-3 p-3 rounded-lg bg-gray-50"

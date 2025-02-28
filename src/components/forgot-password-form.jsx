@@ -277,12 +277,12 @@ export function ForgotPasswordForm({ setOpenTerms }) {
         <CardTitle className="text-[24px] font-semibold text-center">
           {loginType === "reset_password"
             ? t("reset_password")
-            : isOtpSent
+            : loginType === "otp"
             ? t("enter_otp")
-            : t("reset_password")}
+            : t("forgot_password")}
         </CardTitle>
         <CardDescription className="space-y-4">
-          {isOtpSent && (
+          {isOtpSent && loginType === "otp" && (
             <div className="text-[16px] text-gray-400 text-center mb-2">
               {(countryCode === "+91") & (loginType === "phone_no")
                 ? t("enter_otp_4")

@@ -413,7 +413,6 @@ export default function EditAdditionalInfoForm() {
               />
             </div>
           </div>
-          <h2 className="text-lg font-medium">{t("additional_information")}</h2>
           {!isEditing && (
             <button
               className="flex items-center gap-2 border border-brandPrimary border-dark-border dark:border-dark-card text-light-text rounded-l-full rounded-r-full px-4 py-2 cursor-pointer hover:bg-brandPrimary hover:text-white"

@@ -35,6 +35,10 @@ class TokenService {
     Cookies.remove(this.resetPasswordTokenKey);
   }
 
+  getResetPasswordToken() {
+    return Cookies.get(this.resetPasswordTokenKey);
+  }
+
   setRegistrationToken(token) {
     Cookies.set(this.registrationTokenKey, token);
   }
