@@ -367,24 +367,47 @@ export default function ChatFlutter({ isFlutter, onViewChange }) {
   // }, []);
 
   useEffect(() => {
-    // Set up the handler for Flutter back button
     window.handleBackButtonPress = () => {
-      // Check if any sheet is open
-      // toast.success("Go Back, from navigate!");
+      // First check if any sheet is open and close it
+      if (
+        openSheet.createChannel ||
+        openSheet.updateChannel ||
+        openSheet.deleteChannel ||
+        openSheet.channelInfo ||
+        openSheet.clearChat ||
+        openSheet.messageInfo ||
+        openSheet.deleteMessage ||
+        isInfoDialogOpen ||
+        isDeleteDialogOpen ||
+        messageToDelete ||
+        isMembersDialogOpen ||
+        isCreateDialogOpen ||
+        messageInfoData
+      ) {
+        // Close all sheets
+        setOpenSheet({
+          createChannel: false,
+          updateChannel: false,
+          deleteChannel: false,
+          channelInfo: false,
+          clearChat: false,
+          messageInfo: false,
+          deleteMessage: false,
+        });
+        // Close all other dialogs
+        setIsInfoDialogOpen(false);
+        setIsDeleteDialogOpen(false);
+        setMessageToDelete(null);
+        setIsMembersDialogOpen(false);
+        setIsCreateDialogOpen(false);
+        setMessageInfoData(null);
 
-      setOpenSheet({
-        createChannel: false,
-        updateChannel: false,
-        deleteChannel: false,
-        channelInfo: false,
-        clearChat: false,
-        messageInfo: false,
-        deleteMessage: false,
-      });
+        // Return early without calling handleBack()
+        return;
+      }
 
+      // If no sheets are open, handle the back navigation
       handleBack();
-
-      // Cleanup function
       return () => {
         delete window.handleBackButtonPress;
       };
