@@ -41,8 +41,6 @@ export default function EditEthnicityForm() {
     sect_id: z.string().optional(),
   });
 
-  console.log(profile);
-
   const form = useForm({
     resolver: zodResolver(ethnicitySchema),
     defaultValues: {

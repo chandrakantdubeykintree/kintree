@@ -19,6 +19,7 @@ import { useMergeRelationTypes } from "@/hooks/useMasters";
 
 export default function KintreeMember() {
   const { id: encryptedId } = useParams();
+  const [isMergeRequsetSent, setIsMergeRequestSent] = useState(false);
   const navigate = useNavigate();
   const id = decryptId(encryptedId);
   useEffect(() => {
@@ -29,9 +30,9 @@ export default function KintreeMember() {
   }, [encryptedId, navigate]);
 
   const { data: mergeRelationType } = useMergeRelationTypes();
-  console.log(mergeRelationType);
 
   const { data: familyMember, isLoading } = useMember(id);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingRelative, setIsAddingRelative] = useState(false);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
@@ -174,7 +175,8 @@ export default function KintreeMember() {
               <div className="flex justify-center mb-8">
                 {!familyMember?.is_relative &&
                 !familyMember?.is_request_sent &&
-                !familyMember?.is_request_received ? (
+                !familyMember?.is_request_received &&
+                !isMergeRequsetSent ? (
                   <Button
                     onClick={() => setIsMergeModalOpen(true)}
                     className="flex items-center gap-2 rounded-full"
@@ -275,8 +277,9 @@ export default function KintreeMember() {
           isOpen={isMergeModalOpen}
           onClose={() => setIsMergeModalOpen(false)}
           userId={familyMember?.id}
-          familyMembers={familyTree}
+          familyMembers={familyMember?.members}
           mergeRelationType={mergeRelationType}
+          setIsMergeRequestSent={setIsMergeRequestSent}
         />
       ) : null}
     </AsyncComponent>

@@ -1,16 +1,20 @@
 import { usePosts } from "@/hooks/usePosts";
 import ComponentErrorBoundary from "../errorBoundaries/ComponentErrorBoundary";
 import CreatePostCard from "../components/create-post-card";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import GlobalSpinner from "../components/global-spinner";
 import ComponentLoading from "../components/component-loading";
 import Posts from "../components/posts";
 import { getInitials } from "@/utils/stringFormat";
 import { useProfile } from "@/hooks/useProfile";
 import { api_user_profile } from "@/constants/apiEndpoints";
+import { CustomTabPanel, CustomTabs } from "@/components/ui/custom-tabs";
+import { useTranslation } from "react-i18next";
 
 export default function Foreroom() {
   const { profile: user } = useProfile(api_user_profile);
+  const { t } = useTranslation();
+  const [activeTab, setActiveTab] = useState("posts");
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePosts();
 
@@ -47,6 +51,21 @@ export default function Foreroom() {
             getInitials(user?.basic_info?.last_name),
         }}
       />
+      <CustomTabs
+        tabs={[
+          {
+            label: t("posts"),
+            value: "posts",
+          },
+          {
+            label: t("reciepes"),
+            value: "reciepes",
+          },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
+      <CustomTabPanel />
       <ComponentErrorBoundary>
         <div className="w-full mx-auto">
           <div className="w-full mx-auto">

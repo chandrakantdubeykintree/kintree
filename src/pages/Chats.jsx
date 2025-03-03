@@ -364,8 +364,6 @@ export default function Chats({ isFlutter, onViewChange }) {
 
   useEffect(() => {
     window.handleFileSelect = function (dataUrl) {
-      console.log("Data URL received:", dataUrl);
-
       // Validate the data URL
       if (
         !dataUrl ||
@@ -380,8 +378,6 @@ export default function Chats({ isFlutter, onViewChange }) {
       fetch(dataUrl)
         .then((response) => response.blob())
         .then((blob) => {
-          console.log("File fetched successfully:", blob);
-
           // Create a File object from the blob
           const file = new File([blob], "image.jpg", { type: blob.type });
 

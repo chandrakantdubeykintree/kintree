@@ -169,17 +169,17 @@ export const useCreateMergeRequest = () => {
 
   return useMutation({
     mutationFn: createMergeRequest,
-    onSuccess: (data) => {
-      toast.success("Merge request created successfully!");
+    onSuccess: (data, variables) => {
+      // Invalidate merge requests list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MERGE_REQUESTS],
       });
+
+      return data;
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to create merge request. Please try again."
-      );
+      console.error("Merge request creation failed:", error);
+      throw error;
     },
   });
 };

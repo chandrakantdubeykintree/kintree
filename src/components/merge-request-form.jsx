@@ -9,13 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { QUERY_KEYS as FAMILY_QUERY_KEYS } from "@/hooks/useFamily";
 import { useCreateMergeRequest } from "@/hooks/useMergeTree";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { getInitials } from "@/utils/stringFormat";
 import CustomScrollArea from "./ui/custom-scroll-area";
 import toast from "react-hot-toast";
-import { useQueryClient } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/hooks/useFamily";
+import { queryClient } from "@/services/queryClient";
 
 export default function MergeRequestForm({
   isOpen,
@@ -23,9 +23,9 @@ export default function MergeRequestForm({
   userId,
   familyMembers,
   mergeRelationType,
+  setIsMergeRequestSent,
 }) {
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
-  const queryClient = useQueryClient();
 
   const getRelationLabel = (value) => {
     const relations = {
@@ -48,12 +48,18 @@ export default function MergeRequestForm({
       toast.error("Please select a relation type");
       return;
     }
+
     createRequest(formData, {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.MEMBER, userId],
-        });
+        setIsMergeRequestSent(true);
+        toast.success("Merge request created successfully!");
         onClose();
+      },
+      onError: (error) => {
+        console.error("Form submission failed:", error);
+        toast.error(
+          error?.response?.data?.message || "Failed to send merge request"
+        );
       },
     });
   };
@@ -91,13 +97,18 @@ export default function MergeRequestForm({
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={member.photo} alt={member.name} />
+                          <AvatarImage
+                            src={member.profile_pic_url}
+                            alt={member.first_name}
+                          />
                           <AvatarFallback>
-                            {getInitials(member.name)}
+                            {getInitials(member.first_name, member.last_name)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex flex-col">
-                          <span className="font-medium">{member.name}</span>
+                          <span className="font-medium">
+                            {member.first_name}&nbsp;{member.last_name}
+                          </span>
                           <span className="text-sm text-gray-500">
                             {member.relation}
                           </span>

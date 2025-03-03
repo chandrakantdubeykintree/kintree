@@ -267,8 +267,6 @@ export function LoginForm({ setOpenTerms }) {
     };
   }, [isOtpSent, resendOTPIn]);
 
-  console.log("loginType", loginType, countryCode);
-
   return (
     <Card className="max-w-sm mx-8 sm:mx-0 rounded-2xl">
       <CardHeader className="flex items-center justify-center">
