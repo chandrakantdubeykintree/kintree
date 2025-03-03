@@ -26,6 +26,7 @@ import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 import { useNavigate } from "react-router";
 import { route_tree_merge_request } from "@/constants/routeEnpoints";
 import { encryptId } from "@/utils/encryption";
+import { useMergeRelationTypes } from "@/hooks/useMasters";
 
 const formatDate = (dateString) => {
   const [datePart, timePart] = dateString.split(" ");

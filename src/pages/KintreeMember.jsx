@@ -15,6 +15,7 @@ import { decryptId } from "@/utils/encryption";
 import { Button } from "@/components/ui/button";
 import MergeRequestForm from "@/components/merge-request-form";
 import { useCancelMergeRequest } from "@/hooks/useMergeTree";
+import { useMergeRelationTypes } from "@/hooks/useMasters";
 
 export default function KintreeMember() {
   const { id: encryptedId } = useParams();
@@ -26,6 +27,9 @@ export default function KintreeMember() {
       navigate("/familytree", { replace: true });
     }
   }, [encryptedId, navigate]);
+
+  const { data: mergeRelationType } = useMergeRelationTypes();
+  console.log(mergeRelationType);
 
   const { data: familyMember, isLoading } = useMember(id);
   const [isEditing, setIsEditing] = useState(false);
@@ -272,6 +276,7 @@ export default function KintreeMember() {
           onClose={() => setIsMergeModalOpen(false)}
           userId={familyMember?.id}
           familyMembers={familyTree}
+          mergeRelationType={mergeRelationType}
         />
       ) : null}
     </AsyncComponent>

@@ -267,6 +267,8 @@ export function LoginForm({ setOpenTerms }) {
     };
   }, [isOtpSent, resendOTPIn]);
 
+  console.log("loginType", loginType, countryCode);
+
   return (
     <Card className="max-w-sm mx-8 sm:mx-0 rounded-2xl">
       <CardHeader className="flex items-center justify-center">
@@ -285,9 +287,7 @@ export function LoginForm({ setOpenTerms }) {
         <CardDescription className="space-y-4">
           {isOtpSent && (
             <div className="text-[16px] text-gray-400 text-center mb-4">
-              {(countryCode === "+91") & (loginType === "phone_no")
-                ? t("enter_otp_4")
-                : t("enter_otp_6")}
+              {countryCode === "+91" ? t("enter_otp_4") : t("enter_otp_6")}
             </div>
           )}
           {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
@@ -369,7 +369,7 @@ export function LoginForm({ setOpenTerms }) {
               >
                 {resendOtp
                   ? t("resend_otp")
-                  : `${t("resend_otp")} - ${resendOTPIn}' ${t(
+                  : `${t("resend_otp")} - ${resendOTPIn} ${t(
                       "seconds"
                     ).toLocaleLowerCase()}`}
               </Button>

@@ -23,6 +23,7 @@ export const QUERY_KEYS = {
   KINCOIN_REWARD_EVENTS: "kincoin-reward-events",
   PRODUCTS: "products",
   SUB_CASTES: "subCastes",
+  MERGE_RELATION_TYPES: "mergeRelationTypes",
 };
 
 const handleApiError = (error) => {
@@ -61,6 +62,12 @@ export const fetchProducts = async () => {
   }
 
   return data;
+};
+
+export const getMergeRelationTypes = async () => {
+  const response = await kintreeApi.get("/relation-types");
+  if (!response.data.success) return handleApiError(response);
+  return response.data.data;
 };
 
 export const fetchFeelings = async () => {
@@ -194,6 +201,18 @@ export const useFeelings = () => {
     retry: 2,
     onError: (error) => {
       toast.error("Failed to fetch feelings");
+    },
+  });
+};
+
+export const useMergeRelationTypes = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.MERGE_RELATION_TYPES],
+    queryFn: getMergeRelationTypes,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error("Failed to fetch relationship types");
     },
   });
 };

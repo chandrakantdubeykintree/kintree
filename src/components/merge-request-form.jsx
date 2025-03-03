@@ -17,25 +17,25 @@ import toast from "react-hot-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/hooks/useFamily";
 
-// Add this helper function at the top of your component
-const getRelationLabel = (value) => {
-  const relations = {
-    1: "Parent",
-    2: "Child",
-    3: "Spouse",
-    4: "Sibling",
-  };
-  return relations[value] || "";
-};
-
 export default function MergeRequestForm({
   isOpen,
   onClose,
   userId,
   familyMembers,
+  mergeRelationType,
 }) {
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
   const queryClient = useQueryClient();
+
+  const getRelationLabel = (value) => {
+    const relations = {
+      1: "Parent",
+      2: "Partner",
+      3: "Sibling",
+      4: "Children",
+    };
+    return relations[value] || "";
+  };
   const [formData, setFormData] = useState({
     user_id: userId,
     requestor_id_on_receiver_tree: null,
@@ -44,24 +44,16 @@ export default function MergeRequestForm({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Add validation check
     if (!formData.relation_type) {
       toast.error("Please select a relation type");
       return;
     }
-
-    // if (!formData.requestor_id_on_receiver_tree) {
-    //   toast.error("Please select a family member");
-    //   return;
-    // }
-
     createRequest(formData, {
       onSuccess: () => {
-        onClose();
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.MEMBER, userId],
         });
+        onClose();
       },
     });
   };
@@ -136,30 +128,15 @@ export default function MergeRequestForm({
                 />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
-                <SelectItem
-                  value="1"
-                  className="h-10 rounded-2xl cursor-pointer"
-                >
-                  Parent
-                </SelectItem>
-                <SelectItem
-                  value="2"
-                  className="h-10 rounded-2xl cursor-pointer"
-                >
-                  Child
-                </SelectItem>
-                <SelectItem
-                  value="3"
-                  className="h-10 rounded-2xl cursor-pointer"
-                >
-                  Spouse
-                </SelectItem>
-                <SelectItem
-                  value="4"
-                  className="h-10 rounded-2xl cursor-pointer"
-                >
-                  Sibling
-                </SelectItem>
+                {mergeRelationType?.map((relation) => (
+                  <SelectItem
+                    key={relation.id}
+                    value={relation.id.toString()}
+                    className="h-10 rounded-2xl cursor-pointer"
+                  >
+                    {relation.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
