@@ -82,7 +82,6 @@ export default function RedeemCard({ data }) {
 
   const handleRedeemNow = () => {
     handleCopy();
-    // window.open("https://kintree.com/dna/", "_blank");
     window.open(
       // `https://web.kintree.info/cart/?add-to-cart=${data.productId}&coupon=${couponCode}`,
       `https://kintree.com/cart/?add-to-cart=${data.productId}&coupon=${couponCode}`,

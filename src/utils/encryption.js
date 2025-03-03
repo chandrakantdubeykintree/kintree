@@ -1,6 +1,5 @@
 import CryptoJS from "crypto-js";
 
-// Use a strong secret key (store this in environment variables for production)
 const SECRET_KEY = import.meta.env.VITE_APP_ENCRYPTION_KEY || "your-secret-key";
 
 export const encryptId = (id) => {

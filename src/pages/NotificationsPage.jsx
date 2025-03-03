@@ -216,8 +216,8 @@ export default function NotificationsPage() {
   } = useNotifications(10);
 
   const { ref, inView } = useInView();
-  // const { data: mergeRequests, isLoading: isMergeRequestsLoading } =
-  //   useMergeRequests();
+  const { data: mergeRequests, isLoading: isMergeRequestsLoading } =
+    useMergeRequests();
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -473,11 +473,11 @@ export default function NotificationsPage() {
               value: "notifications",
               count: getUnreadCount(),
             },
-            // {
-            //   label: t("merge_requests"),
-            //   value: "merge-requests",
-            //   count: getMergeRequestsCount(),
-            // },
+            {
+              label: t("merge_requests"),
+              value: "merge-requests",
+              count: getMergeRequestsCount(),
+            },
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -512,7 +512,7 @@ export default function NotificationsPage() {
           </div>
         </CustomTabPanel>
 
-        {/* <CustomTabPanel value="merge-requests" activeTab={activeTab}>
+        <CustomTabPanel value="merge-requests" activeTab={activeTab}>
           <div className="space-y-2">
             {!isMergeRequestsLoading &&
             mergeRequests?.pages?.[0]?.data?.requests?.length > 0 ? (
@@ -531,7 +531,7 @@ export default function NotificationsPage() {
               </div>
             )}
           </div>
-        </CustomTabPanel> */}
+        </CustomTabPanel>
       </Card>
       <Dialog
         open={!!selectedNotification}

@@ -41,37 +41,6 @@ import { Card } from "@/components/ui/card";
 import CustomDateTimePicker from "@/components/custom-ui/custom-date-time-picker";
 import { useTranslation } from "react-i18next";
 
-const createEventSchema = z.object({
-  event_category_id: z.string().min(1, "Event category is required"),
-  name: z
-    .string()
-    .min(1, "Name is required")
-    .max(50, "Name must be 50 characters or less"),
-  venue: z.string().min(1, "Venue is required"),
-  start_at: z
-    .string()
-    .min(1, "Start date is required")
-    .refine(
-      (date) => new Date(date) > new Date(),
-      "Start date & time must be in the future"
-    ),
-  end_at: z
-    .string()
-    .optional()
-    .refine(
-      (date) => !date || new Date(date) > new Date(),
-      "End date & time must be in the future"
-    ),
-  details: z
-    .string()
-    .max(200, "Details must be 200 characters or less")
-    .optional(),
-  attachment_ids: z.array(z.number()).optional(),
-  attendee_ids: z
-    .array(z.number())
-    .min(1, "Attendees are required to create an event"),
-});
-
 export default function CreateEvent() {
   const { t } = useTranslation();
   const { data: rewardEvents } = useKincoinRewardEvents();

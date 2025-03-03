@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -39,46 +39,41 @@ import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { CustomPasswordInput } from "@/components/custom-ui/custom_pasword_input";
+import { useNavigate } from "react-router";
 
 export default function Settings() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const PasswordSchema = z
     .object({
       current_password: z
         .string()
-        .nonempty({ message: "Current password is required" })
-        .min(6, { message: "Password must be at least 6 characters" })
-        .max(20, { message: "Password must be less than 20 characters" }),
+        .nonempty({ message: t("current_password_required") })
+        .min(6, { message: t("password_min_length") })
+        .max(20, { message: t("password_max_length") }),
       password: z
         .string()
-        .nonempty({ message: "New password is required" })
-        .min(6, { message: "Password must be at least 6 characters" })
-        .max(20, { message: "Password must be less than 20 characters" })
-        .refine(
-          (value, ctx) => {
-            const formValues = ctx.parent;
-            if (!formValues?.current_password) return true;
-            return value !== formValues.current_password;
-          },
-          {
-            message: "New password must be different from current password",
-            path: ["password"],
-          }
-        ),
+        .nonempty({ message: t("new_password_required") })
+        .min(6, { message: t("password_min_length") })
+        .max(20, { message: t("password_max_length") })
+        .refine((data) => data.current_password === data.password, {
+          message: t("new_password_must_be_different"),
+          path: ["password"],
+        }),
       password_confirmation: z
         .string()
-        .nonempty({ message: "Password confirmation is required" })
-        .min(6, { message: "Password must be at least 6 characters" })
-        .max(20, { message: "Password must be less than 20 characters" }),
+        .nonempty({ message: t("password_confirmation_required") })
+        .min(6, { message: t("password_min_length") })
+        .max(20, { message: t("password_max_length") }),
     })
     .refine((data) => data.password === data.password_confirmation, {
-      message: "Passwords must match",
+      message: t("passwords_must_match"),
       path: ["password_confirmation"],
     });
 
   const LanguageSchema = z.object({
     theme: z.enum(["light", "dark"]),
-    language: z.string().min(1, "Language is required"),
+    language: z.string().min(1, t("language_required")),
   });
 
   const PhonePrivacySchema = z.object({
@@ -93,8 +88,8 @@ export default function Settings() {
     type: z.enum(["deactivate", "deletion"]),
     comment: z
       .string()
-      .min(10, "Comment must be at least 10 characters")
-      .max(200, "Comment must be less than 200 characters"),
+      .min(10, t("comment_min_length"))
+      .max(200, t("comment_max_length")),
   });
 
   const [activeForm, setActiveForm] = useState(null);
@@ -109,6 +104,7 @@ export default function Settings() {
     register: passwordRegister,
     handleSubmit: handlePasswordSubmit,
     formState: { errors: passwordErrors },
+    reset: resetPasswordForm,
   } = useForm({
     resolver: zodResolver(PasswordSchema),
     defaultValues: {
@@ -124,6 +120,7 @@ export default function Settings() {
     setValue: setLanguageValue,
     watch: watchLanguage,
     formState: { errors: languageErrors },
+    reset: resetLanguageForm,
   } = useForm({
     resolver: zodResolver(LanguageSchema),
     defaultValues: {
@@ -164,6 +161,7 @@ export default function Settings() {
     setValue: setAccountValue,
     watch: watchAccount,
     formState: { errors: accountErrors },
+    reset: resetAccountForm,
   } = useForm({
     resolver: zodResolver(AccountSchema),
     defaultValues: {
@@ -171,6 +169,35 @@ export default function Settings() {
       comment: "",
     },
   });
+
+  const handleCloseForm = (formType) => {
+    setActiveForm(null);
+
+    // Reset the appropriate form based on type
+    switch (formType) {
+      case "password":
+        resetPasswordForm({
+          current_password: "",
+          password: "",
+          password_confirmation: "",
+        });
+        break;
+      case "language":
+        resetLanguageForm({
+          theme: profile?.theme || "light",
+          language: profile?.language || "en",
+        });
+        break;
+      case "account":
+        resetAccountForm({
+          type: "deactivate",
+          comment: "",
+        });
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleSubmitPhonePrivacy = async (values) => {
     const dataToSend = {
@@ -184,9 +211,9 @@ export default function Settings() {
         data: dataToSend,
         method: "PATCH",
       });
-      toast.success("Phone privacy updated successfully");
+      toast.success(t("phone_privacy_update_success"));
     } catch (error) {
-      toast.error("Failed to update phone privacy");
+      toast.error(t("phone_privacy_update_error"));
     }
   };
 
@@ -202,14 +229,14 @@ export default function Settings() {
         data: dataToSend,
         method: "PATCH",
       });
-      toast.success("Email privacy updated successfully");
+      toast.success(t("email_privacy_update_success"));
       setActiveForm(null);
     } catch (error) {
-      toast.error("Failed to update email privacy");
+      toast.error(t("email_privacy_update_error"));
     }
   };
 
-  const handleSubmit = (values, formType) => {
+  const handleSubmit = async (values, formType) => {
     const endpoints = {
       password: "/user/change-password",
       language: "/user/configurations",
@@ -222,37 +249,73 @@ export default function Settings() {
       return;
     }
 
-    updateProfile({
-      url: endpoints[formType],
-      data: values,
-    });
+    try {
+      if (formType === "language") {
+        // First update theme and language through context
+        await setTheme(values.theme);
+        await setLanguage(values.language);
 
-    if (formType === "language") {
-      setTheme(values.theme);
-      setLanguage(values.language);
-    }
+        // Reset form with new values
+        resetLanguageForm({
+          theme: values.theme,
+          language: values.language,
+        });
+      } else {
+        // For other forms, make direct API call
+        await updateProfile({
+          url: endpoints[formType],
+          data: values,
+        });
+      }
 
-    setActiveForm(null);
-  };
+      // Show success message
+      toast.success(t(`${formType}_update_success`));
 
-  const handleAccountAction = () => {
-    if (accountAction) {
-      updateProfile({
-        url: "/user/settings/deactivate-or-deletion",
-        data: accountAction,
-        method: "POST",
-      });
-      setShowConfirmDialog(false);
-      setAccountAction(null);
+      // Close the form
       setActiveForm(null);
-      toast.success(
-        `Account ${
-          accountAction.type === "deactivate" ? "deactivated" : "deleted"
-        } successfully`
-      );
-      handleLogout();
+    } catch (error) {
+      toast.error(t(`${formType}_update_error`));
     }
   };
+
+  const handleAccountAction = async () => {
+    if (accountAction) {
+      try {
+        // First make the API call
+        await updateProfile({
+          url: "/user/settings/deactivate-or-deletion",
+          data: accountAction,
+          method: "POST",
+        });
+
+        // Show success message
+        toast.success(
+          accountAction.type === "deactivate"
+            ? t("account_deactivated_successfully")
+            : t("account_deleted_successfully")
+        );
+
+        // Clean up UI state
+        setShowConfirmDialog(false);
+        setAccountAction(null);
+        setActiveForm(null);
+
+        // Finally handle logout which should trigger navigation
+        handleLogout();
+      } catch (error) {
+        toast.error(t("account_action_failed"));
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (profile) {
+      resetLanguageForm({
+        theme: profile.theme || "light",
+        language: profile.language || "en",
+      });
+    }
+  }, [profile, resetLanguageForm]);
 
   return (
     <AsyncComponent isLoading={isProfileLoading}>
@@ -314,7 +377,8 @@ export default function Settings() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setActiveForm(null)}
+                      // onClick={() => setActiveForm(null)}
+                      onClick={() => handleCloseForm("password")}
                       className="rounded-full"
                     >
                       {t("cancel")}
@@ -336,12 +400,22 @@ export default function Settings() {
                       <span className="font-semibold">{user?.email}</span>
                     </p>
                   </div>
-                  <Button
-                    onClick={() => setActiveForm("password")}
-                    className="rounded-full"
-                  >
-                    {t("change_password")}
-                  </Button>
+
+                  {user?.is_system_generated_password ? (
+                    <Button
+                      onClick={() => navigate("/reset-password")}
+                      className="rounded-full"
+                    >
+                      {t("reset_password")}
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => setActiveForm("password")}
+                      className="rounded-full"
+                    >
+                      {t("change_password")}
+                    </Button>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -370,7 +444,7 @@ export default function Settings() {
                       className="bg-background text-foreground"
                     >
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
-                        <SelectValue placeholder="Select theme" />
+                        <SelectValue placeholder={t("select_theme")} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="light">{t("light")}</SelectItem>
@@ -384,7 +458,7 @@ export default function Settings() {
                     )}
                   </div>
 
-                  {/* <div className="space-y-2">
+                  <div className="space-y-2">
                     <Select
                       onValueChange={(value) =>
                         setLanguageValue("language", value)
@@ -393,7 +467,7 @@ export default function Settings() {
                       className="bg-background text-foreground"
                     >
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
-                        <SelectValue placeholder="Select language" />
+                        <SelectValue placeholder={t("select_language")} />
                       </SelectTrigger>
                       <SelectContent>
                         {Object.entries(LANGUAGES)?.map(([code, name]) => (
@@ -408,13 +482,14 @@ export default function Settings() {
                         {languageErrors.language.message}
                       </p>
                     )}
-                  </div> */}
+                  </div>
 
                   <div className="flex justify-end gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setActiveForm(null)}
+                      // onClick={() => setActiveForm(null)}
+                      onClick={() => handleCloseForm("language")}
                       className="rounded-full"
                     >
                       {t("cancel")}
@@ -433,7 +508,7 @@ export default function Settings() {
                         {capitalizeName(profile?.theme)}
                       </span>
                     </p>
-                    {/* <p className="text-gray-600 dark:text-gray-200">
+                    <p className="text-gray-600 dark:text-gray-200">
                       {t("current_language")}:{" "}
                       <span className="font-semibold">
                         {
@@ -442,7 +517,7 @@ export default function Settings() {
                           )?.[1]
                         }
                       </span>
-                    </p> */}
+                    </p>
                   </div>
                   <Button
                     onClick={() => setActiveForm("language")}
@@ -546,7 +621,7 @@ export default function Settings() {
                   onClick={() => setActiveForm("contact")}
                   className="rounded-full"
                 >
-                  Edit Contact Privacy
+                  {t("edit_contact_privacy")}{" "}
                 </Button>
               )}
             </CardContent>
@@ -575,7 +650,7 @@ export default function Settings() {
                       className="bg-background text-foreground"
                     >
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
-                        <SelectValue placeholder="Select action" />
+                        <SelectValue placeholder={t("select_action")} />{" "}
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="deactivate">
@@ -614,7 +689,8 @@ export default function Settings() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => setActiveForm(null)}
+                      // onClick={() => setActiveForm(null)}
+                      onClick={() => handleCloseForm("account")}
                       className="rounded-full"
                     >
                       {t("cancel")}
@@ -641,8 +717,17 @@ export default function Settings() {
           </Card>
 
           {/* Confirmation Dialog */}
-          <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-            <DialogContent className="max-w-[500px] rounded-2xl w-[90%]">
+          <Dialog
+            open={showConfirmDialog}
+            onOpenChange={(open) => {
+              setShowConfirmDialog(open);
+              if (!open) {
+                setAccountAction(null);
+                handleCloseForm("account");
+              }
+            }}
+          >
+            <DialogContent className="max-w-[350px] rounded-2xl w-[90%]">
               <DialogHeader>
                 <DialogTitle>
                   {accountAction?.type === "deactivate"

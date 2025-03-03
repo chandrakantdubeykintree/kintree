@@ -203,7 +203,7 @@ export default function App() {
                                 path={route_tree_merge_request + "/:requestId"}
                                 element={<ViewTreeMergeRequest />}
                               />
-                              {/* <Route path={route_chats} element={<Chats />} /> */}
+                              <Route path={route_chats} element={<Chats />} />
                               <Route
                                 path={route_profile}
                                 element={<Profile />}

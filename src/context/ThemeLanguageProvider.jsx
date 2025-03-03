@@ -1,7 +1,14 @@
 import { useProfile } from "@/hooks/useProfile";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import i18n from "@/i18n";
 import { LANGUAGE_METADATA, LANGUAGES } from "@/constants/languages";
+
 const initialState = {
   theme: "light",
   language: "en",
@@ -20,72 +27,33 @@ export function ThemeLanguageProvider({
   ...props
 }) {
   const { configurations, updateProfile } = useProfile("user/configurations");
-  const [theme, setTheme] = useState(() => {
+  const [theme, setThemeState] = useState(() => {
     const savedTheme = localStorage.getItem(storageKey);
-    if (savedTheme) return savedTheme;
-
-    if (configurations?.theme) return configurations.theme;
-
-    return defaultTheme;
+    return savedTheme || configurations?.theme || defaultTheme;
   });
 
-  const [language, setLanguage] = useState(() => {
+  const [language, setLanguageState] = useState(() => {
     const savedLanguage = localStorage.getItem(languageStorageKey);
-    if (savedLanguage && LANGUAGES[savedLanguage]) return savedLanguage;
-    if (configurations?.language && LANGUAGES[configurations.language])
-      return configurations.language;
-    return defaultLanguage;
+    return (
+      (savedLanguage && LANGUAGES[savedLanguage]) ||
+      (configurations?.language && LANGUAGES[configurations.language]) ||
+      defaultLanguage
+    );
   });
 
+  // Initialize theme and language once when configurations are loaded
   useEffect(() => {
-    const savedTheme = localStorage.getItem(storageKey);
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (configurations?.theme) {
-      setTheme(configurations.theme);
-      localStorage.setItem(storageKey, configurations.theme);
+    if (configurations && !localStorage.getItem(storageKey)) {
+      setThemeState(configurations.theme || defaultTheme);
+      localStorage.setItem(storageKey, configurations.theme || defaultTheme);
     }
-  }, [configurations, storageKey]);
-
-  useEffect(() => {
-    const savedLanguage = localStorage.getItem(languageStorageKey);
-    if (savedLanguage) {
-      setLanguage(savedLanguage);
-    } else if (configurations?.language) {
-      setLanguage(configurations.language);
-      localStorage.setItem(languageStorageKey, configurations.language);
-    }
-  }, [configurations, languageStorageKey]);
-
-  const changeLanguage = async (languageCode) => {
-    if (LANGUAGES[languageCode]) {
-      setLanguage(languageCode);
-      await i18n.changeLanguage(languageCode);
-
-      // Update document direction
-      const dir = LANGUAGE_METADATA[languageCode]?.dir || "ltr";
-      document.documentElement.dir = dir;
-      document.documentElement.lang = languageCode;
-      document.documentElement.classList.toggle("rtl", dir === "rtl");
-
-      // Update configurations
-      await updateProfile({
-        url: "user/configurations",
-        data: {
-          language: languageCode,
-          theme: configurations?.theme,
-        },
-      });
-
-      // Update localStorage
-      localStorage.setItem(languageStorageKey, languageCode);
-    }
-  };
-
-  useEffect(() => {
-    if (configurations?.language) {
-      setLanguage(configurations.language);
-      i18n.changeLanguage(configurations.language);
+    if (configurations && !localStorage.getItem(languageStorageKey)) {
+      const configLanguage = configurations.language || defaultLanguage;
+      if (LANGUAGES[configLanguage]) {
+        setLanguageState(configLanguage);
+        localStorage.setItem(languageStorageKey, configLanguage);
+        i18n.changeLanguage(configLanguage);
+      }
     }
   }, [configurations]);
 
@@ -96,23 +64,60 @@ export function ThemeLanguageProvider({
     root.classList.add(theme);
   }, [theme]);
 
+  // Debounced update function to prevent multiple API calls
+  const debouncedUpdate = useCallback(
+    (() => {
+      let timeoutId = null;
+      return (newSettings) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          updateProfile({
+            url: "user/configurations",
+            data: newSettings,
+          });
+        }, 500);
+      };
+    })(),
+    [updateProfile]
+  );
+
+  const setTheme = useCallback(
+    (newTheme) => {
+      if (newTheme === theme) return;
+      localStorage.setItem(storageKey, newTheme);
+      setThemeState(newTheme);
+      debouncedUpdate({ theme: newTheme, language });
+    },
+    [theme, language, storageKey, debouncedUpdate]
+  );
+
+  const setLanguage = useCallback(
+    async (newLanguage) => {
+      if (!LANGUAGES[newLanguage] || newLanguage === language) return;
+
+      setLanguageState(newLanguage);
+      await i18n.changeLanguage(newLanguage);
+
+      // Update document direction
+      const dir = LANGUAGE_METADATA[newLanguage]?.dir || "ltr";
+      document.documentElement.dir = dir;
+      document.documentElement.lang = newLanguage;
+      document.documentElement.classList.toggle("rtl", dir === "rtl");
+
+      // Update localStorage
+      localStorage.setItem(languageStorageKey, newLanguage);
+
+      // Update configurations with debounce
+      debouncedUpdate({ theme, language: newLanguage });
+    },
+    [theme, language, languageStorageKey, debouncedUpdate]
+  );
+
   const value = {
     theme,
     language,
-    setTheme: (newTheme) => {
-      localStorage.setItem(storageKey, newTheme);
-      setTheme(newTheme);
-      updateProfile({
-        url: "user/configurations",
-        data: {
-          theme: newTheme,
-          language: configurations?.language,
-        },
-      });
-    },
-    setLanguage: (newLanguage) => {
-      changeLanguage(newLanguage);
-    },
+    setTheme,
+    setLanguage,
   };
 
   return (
@@ -125,10 +130,11 @@ export function ThemeLanguageProvider({
 export const useThemeLanguage = () => {
   const context = useContext(ThemeLanguageProviderContext);
 
-  if (context === undefined)
+  if (context === undefined) {
     throw new Error(
       "useThemeLanguage must be used within a ThemeLanguageProvider"
     );
+  }
 
   return context;
 };
