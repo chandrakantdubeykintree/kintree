@@ -14,6 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { getInitials } from "@/utils/stringFormat";
 import CustomScrollArea from "./ui/custom-scroll-area";
 import toast from "react-hot-toast";
+import { useQueryClient } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/hooks/useFamily";
 
 // Add this helper function at the top of your component
 const getRelationLabel = (value) => {
@@ -33,6 +35,7 @@ export default function MergeRequestForm({
   familyMembers,
 }) {
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     user_id: userId,
     requestor_id_on_receiver_tree: null,
@@ -56,6 +59,9 @@ export default function MergeRequestForm({
     createRequest(formData, {
       onSuccess: () => {
         onClose();
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.MEMBER, userId],
+        });
       },
     });
   };

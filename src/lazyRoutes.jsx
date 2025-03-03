@@ -15,6 +15,10 @@ export const CreatePost = lazy(() => import("./pages/CreatePost"));
 export const EditPost = lazy(() => import("./pages/EditPost"));
 export const ViewPost = lazy(() => import("./pages/ViewPost"));
 
+export const CreateReciepe = lazy(() => import("./pages/CreateReciepe"));
+export const EditReciepe = lazy(() => import("./pages/EditReciepe"));
+export const ViewReciepe = lazy(() => import("./pages/ViewReciepe"));
+
 export const CreatePoll = lazy(() => import("./pages/CreatePoll"));
 export const ViewPoll = lazy(() => import("./pages/ViewPoll"));
 

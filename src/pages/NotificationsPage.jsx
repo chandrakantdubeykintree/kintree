@@ -273,8 +273,7 @@ export default function NotificationsPage() {
   };
 
   const getMergeRequestsCount = () => {
-    // return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
-    return 0;
+    return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
   };
 
   const MergeRequestCard = ({ mergeRequest }) => {
@@ -333,7 +332,7 @@ export default function NotificationsPage() {
                 )}
                 <span className="font-normal">
                   {mergeRequest.is_request_sent
-                    ? "as "
+                    ? " as "
                     : "wants to merge their family tree as "}
                 </span>
                 <span className="text-primary font-semibold">

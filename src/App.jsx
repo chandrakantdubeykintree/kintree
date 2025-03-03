@@ -44,6 +44,9 @@ import {
   route_settings_edit_settings,
   route_kintree_member,
   route_tree_merge_request,
+  route_create_reciepe,
+  route_edit_reciepe,
+  route_view_reciepe,
 } from "./constants/routeEnpoints";
 import { SidebarProvider } from "./context/SidebarContext";
 import PageNotFound from "./pages/PageNotFound";
@@ -67,6 +70,9 @@ const {
   CreatePost,
   EditPost,
   ViewPost,
+  CreateReciepe,
+  EditReciepe,
+  ViewReciepe,
   CreatePoll,
   ViewPoll,
   ViewMember,
@@ -182,6 +188,18 @@ export default function App() {
                               <Route
                                 path={route_edit_post + "/:postId"}
                                 element={<EditPost />}
+                              />
+                              <Route
+                                path={route_create_reciepe}
+                                element={<CreateReciepe />}
+                              />
+                              <Route
+                                path={route_edit_reciepe + "/:reciepeId"}
+                                element={<EditReciepe />}
+                              />
+                              <Route
+                                path={route_view_reciepe + "/:reciepeId"}
+                                element={<ViewReciepe />}
                               />
                               <Route
                                 path={route_family_tree}
