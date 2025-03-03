@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 export default function Foreroom() {
   const { profile: user } = useProfile(api_user_profile);
   const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState("posts");
+  const [activeTab, setActiveTab] = useState("global_feed");
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
     usePosts();
 
@@ -51,21 +51,21 @@ export default function Foreroom() {
             getInitials(user?.basic_info?.last_name),
         }}
       />
-      <CustomTabs
+      {/* <CustomTabs
         tabs={[
           {
-            label: t("posts"),
-            value: "posts",
+            label: t("global_feed"),
+            value: "global_feed",
           },
           {
-            label: t("reciepes"),
-            value: "reciepes",
+            label: t("recipes"),
+            value: "recipes",
           },
         ]}
         activeTab={activeTab}
         onChange={setActiveTab}
       />
-      <CustomTabPanel />
+      <CustomTabPanel></CustomTabPanel> */}
       <ComponentErrorBoundary>
         <div className="w-full mx-auto">
           <div className="w-full mx-auto">

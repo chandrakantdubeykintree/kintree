@@ -4,7 +4,7 @@ import { route_foreroom } from "@/constants/routeEnpoints";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
 
-export default function ViewReciepe() {
+export default function ViewRecipe() {
   const { t } = useTranslation();
   return (
     <AsyncComponent>
@@ -32,7 +32,7 @@ export default function ViewReciepe() {
             {t("back_to_foreroom")}
           </NavLink>
         </div>
-        <Card className="w-full">View Reciepe</Card>
+        <Card className="w-full">View Recipe</Card>
       </div>
     </AsyncComponent>
   );

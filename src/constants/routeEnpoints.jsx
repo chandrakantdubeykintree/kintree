@@ -10,9 +10,9 @@ export const route_create_post = "/createpost";
 export const route_edit_post = "/editpost";
 export const route_view_post = "/viewpost";
 
-export const route_create_reciepe = "/createrecipe";
-export const route_edit_reciepe = "/editrecipe";
-export const route_view_reciepe = "/viewrecipe";
+export const route_create_recipe = "/createrecipe";
+export const route_edit_recipe = "/editrecipe";
+export const route_view_recipe = "/viewrecipe";
 
 export const route_create_poll = "/createpoll";
 export const route_edit_poll = "/editpoll";

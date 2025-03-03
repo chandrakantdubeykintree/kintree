@@ -796,5 +796,7 @@
   "account_deactivated_successfully": "Account deactivated successfully",
   "account_deactivation_error": "Failed to deactivate account",
   "account_deleted_successfully": "Account deleted successfully",
-  "account_deletion_error": "Failed to delete account"
+  "account_deletion_error": "Failed to delete account",
+  "recipes": "Recipes",
+  "global_feed": "Global Feed"
 }
