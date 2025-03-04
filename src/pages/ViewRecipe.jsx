@@ -1,11 +1,23 @@
 import AsyncComponent from "@/components/async-component";
 import { Card } from "@/components/ui/card";
 import { route_foreroom } from "@/constants/routeEnpoints";
+import { decryptId } from "@/utils/encryption";
 import { useTranslation } from "react-i18next";
-import { NavLink } from "react-router";
+import { NavLink, useNavigate, useParams } from "react-router";
+
+// const { data, isLoading } = useRecipes();
+// const { mutate: createRecipe } = useCreateRecipe();
+// const { data: recipe } = useRecipe(recipeId);
+// const { mutate: updateRecipe } = useEditRecipe();
+// const { mutate: deleteRecipe } = useDeleteRecipe();
+// const { data: comments } = useRecipeComments(recipeId);
+// const { mutate: addComment } = useCreateRecipeComment();
 
 export default function ViewRecipe() {
   const { t } = useTranslation();
+  const { id: encryptedId } = useParams();
+  const navigate = useNavigate();
+  const id = decryptId(encryptedId);
   return (
     <AsyncComponent>
       <div className="w-full mx-auto lg:px-0 pb-6 rounded-2xl">
