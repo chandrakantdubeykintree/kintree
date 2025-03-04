@@ -13,7 +13,7 @@ export default function EventCard({ event, status }) {
             }
             className="w-full h-full rounded-lg object-cover"
           />
-          <div className="h-10 absolute bottom-0 bg-black dark:bg-white opacity-60 z-10 w-full text-white dark:text-black text-sm font-medium flex justify-center items-center">
+          <div className="h-10 absolute bottom-0 bg-black dark:bg-white opacity-90 z-10 w-full text-white dark:text-black text-sm font-medium flex justify-center items-center">
             {format(event?.start_at, "MM/dd/yyyy (EEEE)") || "--"}
           </div>
         </div>

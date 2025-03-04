@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
+import { capitalizeName } from "@/utils/stringFormat";
 
 function ImagesDialog({ images, isOpen, onClose, initialIndex = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -178,7 +179,7 @@ export default function ViewEvent() {
           <div className="col-span-12 md:col-span-7 border-b md:border-b-0 md:border-r border-dashed border-[#475569] pb-5">
             <div className="flex items-center gap-2">
               <Button className="rounded-full bg-brandPrimary py-2 text-white cursor-text hover:bg-brandPrimary/10">
-                {event?.category?.name || "--"}
+                {capitalizeName(event?.category?.name) || "--"}
               </Button>
               <Button
                 className={`rounded-full py-2 cursor-text hover:text-white hover:bg-opacity-80 ${

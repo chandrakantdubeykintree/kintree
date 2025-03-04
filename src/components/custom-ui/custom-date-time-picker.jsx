@@ -163,7 +163,7 @@ const CustomDateTimePicker = React.forwardRef(
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-4 rounded-2xl" align="start">
-          <div className="space-y-4">
+          <div className="space-y-1">
             {/* Date Selection */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -184,7 +184,7 @@ const CustomDateTimePicker = React.forwardRef(
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Select
                     value={selectedDate.getMonth().toString()}
                     onValueChange={(value) =>
@@ -264,7 +264,7 @@ const CustomDateTimePicker = React.forwardRef(
             </div>
 
             {/* Time Selection */}
-            <div className="flex gap-4 pt-4 border-t">
+            <div className="flex gap-4 pt-1">
               <div className="flex-1">
                 <label className="text-sm font-medium mb-2 block">Hour</label>
                 <Select
