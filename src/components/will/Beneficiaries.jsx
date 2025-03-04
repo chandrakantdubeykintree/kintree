@@ -134,7 +134,7 @@ export default function Beneficiaries({ setStep, willId }) {
                 {t("add_non_relative")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[90vh] h-[550px] overflow-y-scroll no_scrollbar">
+            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[90vh] overflow-y-scroll no_scrollbar">
               <DialogHeader>
                 <DialogTitle>{t("add_new_beneficary")}</DialogTitle>
               </DialogHeader>

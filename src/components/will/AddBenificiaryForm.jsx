@@ -113,7 +113,7 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
                 <FormControl>
                   <CustomDateMonthYearPicker
                     {...field}
-                    placeholder={t("select_date_of_birth")}
+                    placeholder={t("date_of_birth")}
                     maxDate={new Date()}
                     className="rounded-full h-10 md:h-12"
                   />

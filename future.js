@@ -22,6 +22,8 @@ export default function MergeRequestForm({
   familyMembers,
   mergeRelationType,
   setIsMergeRequestSent,
+  currentUser,
+  requesterData,
 }) {
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
 
@@ -39,6 +41,63 @@ export default function MergeRequestForm({
     requestor_id_on_receiver_tree: null,
     relation_type: "",
   });
+
+  const getFilteredFamilyMembers = () => {
+    if (!familyMembers || !formData.relation_type || !currentUser) return [];
+
+    switch (formData.relation_type) {
+      case 1: // Parent
+        // Show members who have the current user as their father or mother
+        return familyMembers.filter(
+          (member) =>
+            member.fid === currentUser.id || member.mid === currentUser.id
+        );
+
+      case 2: // Partner
+        // If user has no pid, return empty array
+        if (!currentUser.pid || currentUser.pid.length === 0) return [];
+        // Otherwise show only the pid member
+        return familyMembers.filter((member) =>
+          currentUser.pid.includes(member.id)
+        );
+
+      case 3: // Sibling
+        // Show members with same pid and mid as current user
+        return familyMembers.filter(
+          (member) =>
+            member.id !== currentUser.id && // Exclude self
+            member.fid === currentUser.fid &&
+            member.mid === currentUser.mid
+        );
+
+      case 4: // Children
+        // Show people who have the same parents as the current user
+        return familyMembers.filter(
+          (member) =>
+            member.fid === currentUser.fid && member.mid === currentUser.mid
+        );
+
+      default:
+        return [];
+    }
+  };
+  const isPartnerSelectionDisabled =
+    formData.relation_type === 2 &&
+    (!currentUser?.pid || currentUser.pid.length === 0);
+
+  // Update the relation type Select to disable partner option if needed
+  const handleRelationTypeChange = (value) => {
+    const numValue = Number(value);
+    if (numValue === 2 && isPartnerSelectionDisabled) {
+      toast.error("You don't have a partner in the receiver's tree");
+      return;
+    }
+    setFormData({
+      ...formData,
+      relation_type: numValue,
+      requestor_id_on_receiver_tree: null,
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -72,6 +131,35 @@ export default function MergeRequestForm({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
+            <Label htmlFor="relation_type">Relation Type</Label>
+            <Select
+              value={formData.relation_type?.toString()}
+              onValueChange={handleRelationTypeChange}
+            >
+              <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
+                <SelectValue
+                  placeholder={
+                    formData.relation_type
+                      ? getRelationLabel(formData.relation_type)
+                      : "Select relation type"
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl">
+                {mergeRelationType?.map((relation) => (
+                  <SelectItem
+                    key={relation.id}
+                    value={relation.id.toString()}
+                    className="h-10 rounded-2xl cursor-pointer"
+                    disabled={relation.id === 2 && isPartnerSelectionDisabled}
+                  >
+                    {relation.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
             <Label>Are you in reciever's family tree?</Label>
             <Select
               value={formData.requestor_id_on_receiver_tree?.toString()}
@@ -81,13 +169,14 @@ export default function MergeRequestForm({
                   requestor_id_on_receiver_tree: Number(value),
                 })
               }
+              disabled={!formData.relation_type} // Add this line
             >
               <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
                 <SelectValue placeholder="Select family member" />
               </SelectTrigger>
               <SelectContent className="rounded-2xl">
                 <CustomScrollArea maxHeight="200px">
-                  {familyMembers?.map((member) => (
+                  {getFilteredFamilyMembers?.()?.map((member) => (
                     <SelectItem
                       key={member.id}
                       value={member.id.toString()}
@@ -115,37 +204,6 @@ export default function MergeRequestForm({
                     </SelectItem>
                   ))}
                 </CustomScrollArea>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="relation_type">Relation Type</Label>
-            <Select
-              value={formData.relation_type?.toString()}
-              onValueChange={(value) =>
-                setFormData({ ...formData, relation_type: Number(value) })
-              }
-            >
-              <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
-                <SelectValue
-                  placeholder={
-                    formData.relation_type
-                      ? getRelationLabel(formData.relation_type)
-                      : "Select relation type"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                {mergeRelationType?.map((relation) => (
-                  <SelectItem
-                    key={relation.id}
-                    value={relation.id.toString()}
-                    className="h-10 rounded-2xl cursor-pointer"
-                  >
-                    {relation.name}
-                  </SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </div>

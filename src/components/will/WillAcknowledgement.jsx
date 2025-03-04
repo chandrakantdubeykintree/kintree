@@ -38,7 +38,7 @@ export default function WillAcknowledgement({ setStep }) {
   };
 
   return (
-    <div className="mx-auto p-6 flex flex-col gap-12">
+    <div className="mx-auto lg:p-6 flex flex-col gap-12">
       <h2 className="text-2xl font-bold text-center">
         {t("before_will_creation")}
       </h2>
@@ -59,8 +59,9 @@ export default function WillAcknowledgement({ setStep }) {
             onCheckedChange={(checked) =>
               setAccepted((prev) => ({ ...prev, terms: checked }))
             }
+            className="mt-1 md:mt-0"
           />
-          <label htmlFor="terms" className="text-sm">
+          <label htmlFor="terms" className="text-sm leading-normal">
             {t("will_terms_checkbox")}
           </label>
         </div>
@@ -72,8 +73,9 @@ export default function WillAcknowledgement({ setStep }) {
             onCheckedChange={(checked) =>
               setAccepted((prev) => ({ ...prev, sound: checked }))
             }
+            className="mt-1 md:mt-0"
           />
-          <label htmlFor="sound" className="text-sm">
+          <label htmlFor="sound" className="text-sm leading-normal">
             {t("will_sound_checkbox")}
           </label>
         </div>
@@ -85,8 +87,9 @@ export default function WillAcknowledgement({ setStep }) {
             onCheckedChange={(checked) =>
               setAccepted((prev) => ({ ...prev, truthful: checked }))
             }
+            className="mt-1 md:mt-0"
           />
-          <label htmlFor="truthful" className="text-sm">
+          <label htmlFor="truthful" className="text-sm leading-normal">
             {t("will_truthful_checkbox")}
           </label>
         </div>
@@ -98,8 +101,9 @@ export default function WillAcknowledgement({ setStep }) {
             onCheckedChange={(checked) =>
               setAccepted((prev) => ({ ...prev, agree: checked }))
             }
+            className="mt-1 md:mt-0"
           />
-          <label htmlFor="agree" className="text-sm">
+          <label htmlFor="agree" className="text-sm leading-normal">
             {t("will_agree_checkbox")}
           </label>
         </div>

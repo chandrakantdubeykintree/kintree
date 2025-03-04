@@ -62,7 +62,6 @@ export default function KintreeMember() {
     );
   };
 
-  // Remove the direct navigation
   if (isLoading) {
     return <ComponentLoading />;
   }
@@ -71,7 +70,6 @@ export default function KintreeMember() {
     <AsyncComponent>
       <div className="w-full">
         <Card className="w-full shadow-sm border-0 rounded-2xl overflow-hidden">
-          {/* Cover Image */}
           <div
             className="relative w-full h-[200px] bg-cover bg-center"
             style={{
@@ -280,6 +278,7 @@ export default function KintreeMember() {
           familyMembers={familyMember?.members}
           mergeRelationType={mergeRelationType}
           setIsMergeRequestSent={setIsMergeRequestSent}
+          currentUser={familyMember}
         />
       ) : null}
     </AsyncComponent>

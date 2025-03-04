@@ -132,7 +132,7 @@ export default function Review({ setStep, willId }) {
               <div>
                 <p className="font-medium">{beneficiary.name}</p>
                 <p className="text-sm text-gray-500">
-                  {beneficiary.relation || "No relation specified"}
+                  {beneficiary.relation || "N/A"}
                 </p>
               </div>
               <p className="font-medium">{beneficiary.percentage}%</p>

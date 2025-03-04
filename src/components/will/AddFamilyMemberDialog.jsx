@@ -76,7 +76,7 @@ export default function AddFamilyMemberDialog({
                 <div>
                   <h3 className="font-semibold">{member?.first_name}</h3>
                   <p className="text-sm text-gray-500">
-                    {member?.relation || "No relation specified"}
+                    {member?.relation || "N/A"}
                   </p>
                   <div className="text-sm text-gray-500 mt-1">
                     {member?.email && <div>{member?.email}</div>}
