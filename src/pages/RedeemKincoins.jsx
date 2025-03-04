@@ -1,6 +1,4 @@
 import RedeemCard from "@/components/redeem-card";
-import { fetchProducts, useFetchProducts } from "@/hooks/useMasters";
-import { useEffect } from "react";
 
 const redeemKincoinsProduct = [
   {

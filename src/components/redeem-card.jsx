@@ -84,7 +84,9 @@ export default function RedeemCard({ data }) {
     handleCopy();
     window.open(
       // `https://web.kintree.info/cart/?add-to-cart=${data.productId}&coupon=${couponCode}`,
-      `https://kintree.com/cart/?add-to-cart=${data.productId}&coupon=${couponCode}`,
+      `${import.meta.env.VITE_KINCOINS_CART}/?add-to-cart=${
+        data.productId
+      }&coupon=${couponCode}`,
       "_blank"
     );
   };
@@ -104,7 +106,7 @@ export default function RedeemCard({ data }) {
 
   return (
     <>
-      <Card className="bg-[#F8FAFC] dark:bg-[#1F2937] w-full rounded-2xl h-full hover:shadow-md transition-shadow border-0">
+      <Card className="bg-[#F8FAFC] dark:bg-[#1F2937] w-full rounded-2xl h-full hover:shadow-lg shadow-md border transition-shadow">
         <CardContent className="p-4 rounded-2xl flex flex-col h-full">
           <div className="w-full pb-[90%] relative">
             <img

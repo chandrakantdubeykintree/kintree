@@ -1,6 +1,6 @@
 export default function KincoinsEntryBanner() {
   return (
-    <div className="w-full h-full flex items-center justify-center z-50">
+    <div className="w-full h-full flex items-center justify-center">
       <div className="w-full max-w-40 relative animate-fadeOut">
         <img
           src="/kincoinsImg/kintree_coin.svg"

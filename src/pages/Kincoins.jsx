@@ -7,6 +7,7 @@ import EarnKincoins from "./EarnKincoins";
 import KincoinsTransactions from "./KincoinsTransactions";
 import { useTranslation } from "react-i18next";
 import { useKincoinsBalance } from "@/hooks/useKincoins";
+import { CustomTabs, CustomTabPanel } from "@/components/ui/custom-tabs";
 
 export default function Kincoins() {
   const { t } = useTranslation();
@@ -19,26 +20,6 @@ export default function Kincoins() {
   const [showConfetti, setShowConfetti] = useState(false);
   const { data: balanceData } = useKincoinsBalance();
   const kincoinsBalnce = parseInt(balanceData?.coin_balance) || 0;
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    const timer = setTimeout(() => {
-      setShowBanner(false);
-    }, 2500);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-      clearTimeout(timer);
-    };
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -71,18 +52,11 @@ export default function Kincoins() {
     }
   }, [showConfetti]);
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "redeem":
-        return <RedeemKincoins kincoinsBalnce={kincoinsBalnce} />;
-      case "earn":
-        return <EarnKincoins />;
-      case "transactions":
-        return <KincoinsTransactions />;
-      default:
-        return null;
-    }
-  };
+  const tabs = [
+    { value: "redeem", label: t("redeem") },
+    { value: "earn", label: t("earn") },
+    { value: "transactions", label: t("transactions") },
+  ];
 
   return (
     <>
@@ -102,17 +76,7 @@ export default function Kincoins() {
       )}
       <Card className="bg-background rounded-2xl h-full overflow-y-scroll no_scrollbar">
         <div className="w-full flex items-center justify-between relative h-[227px] bg-[url('/kincoinsImg/kincoins_banner.png')] bg-no-repeat bg-cover rounded-t-2xl">
-          {/* <div className="absolute left-[5%]">
-            <img
-              src="/kincoinsImg/kintree_coin.svg"
-              className="h-full object-cover max-w-[250px] w-[125px]"
-              style={{ zIndex: 1 }}
-            />
-          </div> */}
           <div className="flex-1 flex gap-1 flex-col items-center justify-center z-10">
-            {/* <div className="font-medium text-primary rounded-md px-2 py-1 bg-white flex items-center">
-              {t("rewards")}
-            </div> */}
             <div className="flex items-center justify-center">
               <img
                 src="/kincoinsImg/kintree_coin.svg"
@@ -124,9 +88,9 @@ export default function Kincoins() {
               {t("your_kincoins_balance")}
             </div>
             <div className="text-black font-bold text-[36px]">
-              {kincoinsBalnce?.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+              {kincoinsBalnce?.toLocaleString("en-IN", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
               }) || 0}
             </div>
           </div>
@@ -140,40 +104,43 @@ export default function Kincoins() {
             />
           )}
         </div>
-        <div className="grid gap-4 grid-cols-1 mt-4 mb-4 px-4">
-          <div className="flex justify-start h-[54px] gap-2 border-b relative">
-            <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
-                activeTab === "redeem"
-                  ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
-                  : ""
-              }`}
-              onClick={() => setActiveTab("redeem")}
-            >
-              {t("redeem")}
-            </div>
-            <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
-                activeTab === "earn"
-                  ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
-                  : ""
-              }`}
-              onClick={() => setActiveTab("earn")}
-            >
-              {t("earn")}
-            </div>
-            <div
-              className={`text-sm flex items-center cursor-pointer hover:bg-primary/90 hover:text-white hover:font-semibold hover:rounded-lg px-4 font-semibold ${
-                activeTab === "transactions"
-                  ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
-                  : ""
-              }`}
-              onClick={() => setActiveTab("transactions")}
-            >
-              {t("transactions")}
-            </div>
-          </div>
-          {renderTabContent()}
+        {/* <div className="grid gap-4 grid-cols-1 mt-4 mb-4 px-4">
+          <CustomTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            variant="underline"
+          />
+          <CustomTabPanel value="redeem" activeTab={activeTab}>
+            <RedeemKincoins kincoinsBalnce={kincoinsBalnce} />
+          </CustomTabPanel>
+          <CustomTabPanel value="earn" activeTab={activeTab}>
+            <EarnKincoins />
+          </CustomTabPanel>
+          <CustomTabPanel value="transactions" activeTab={activeTab}>
+            <KincoinsTransactions />
+          </CustomTabPanel>
+        </div> */}
+        <div className="sticky top-0 bg-background z-20 px-4 pt-4">
+          <CustomTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            variant="underline"
+          />
+        </div>
+
+        {/* Scrollable content area */}
+        <div className="flex-1 overflow-y-auto px-4 pb-4">
+          <CustomTabPanel value="redeem" activeTab={activeTab}>
+            <RedeemKincoins kincoinsBalnce={kincoinsBalnce} />
+          </CustomTabPanel>
+          <CustomTabPanel value="earn" activeTab={activeTab}>
+            <EarnKincoins />
+          </CustomTabPanel>
+          <CustomTabPanel value="transactions" activeTab={activeTab}>
+            <KincoinsTransactions />
+          </CustomTabPanel>
         </div>
       </Card>
     </>

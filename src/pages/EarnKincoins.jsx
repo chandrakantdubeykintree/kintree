@@ -55,7 +55,7 @@ export default function EarnKincoins() {
                   {event.title || t(event.name)}
                 </h2>
                 <p className="text-xs md:text-sm font-medium text-muted-foreground line-clamp-2 md:line-clamp-1">
-                  {t("earn")} {event.coins} {t("kincoins")}
+                  {t("earn")} {parseInt(event.coins)} {t("kincoins")}
                 </p>
               </div>
             </div>

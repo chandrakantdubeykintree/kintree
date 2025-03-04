@@ -54,12 +54,12 @@ export default function KincoinsTransactions() {
 
   return (
     <div className="space-y-4 md:p-4 w-full">
-      <div className="text-sm text-muted-foreground flex items-center justify-between">
+      {/* <div className="text-sm text-muted-foreground flex items-center justify-between">
         <h1 className="text-lg md:text-xl font-semibold text-foreground">
           Transaction History
         </h1>
         <span>Total: {totalRecords}</span>
-      </div>
+      </div> */}
 
       <div className="space-y-2 md:space-y-3">
         {transactions.map((transaction) => (
@@ -98,9 +98,9 @@ export default function KincoinsTransactions() {
                   : "text-red-600 dark:text-red-400"
               }`}
             >
-              {parseInt(transaction?.coins)?.toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
+              {parseInt(transaction?.coins)?.toLocaleString("en-IN", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
               })}
             </span>
           </div>
