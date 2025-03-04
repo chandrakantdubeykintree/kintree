@@ -18,7 +18,7 @@ import ChatsIcon from "@/components/custom-icons/chatsIcon";
 export const mainNavLinks = [
   { path: "/foreroom", label: "foreroom", Icon: ForeroomIcon },
   { path: "/familytree", label: "family_tree", Icon: FamilyTreeIcon },
-  // { path: "/chats", label: "chats", Icon: ChatsIcon },
+  { path: "/chats", label: "chats", Icon: ChatsIcon },
   { path: "https://kintree.com/dna/", label: "dna", Icon: DnaIcon },
   { path: "/events", label: "events", Icon: EventsIcon },
   { path: "/kin-coins", label: "kincoins", Icon: KincoinsIcon },

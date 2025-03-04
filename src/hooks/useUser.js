@@ -32,14 +32,25 @@ export function useSearchUser(searchTerm, limit = 10) {
       const response = await kintreeApi.get(
         `/search-users?q=${searchTerm}&limit=${limit}&page=${pageParam}`
       );
-      return response.data;
+      // Return both the data and pagination info
+      return {
+        users: response.data.data.users,
+        pagination: {
+          currentPage: response.data.data.current_page,
+          lastPage: response.data.data.last_page,
+          totalRecords: response.data.data.total_record,
+          filteredRecords: response.data.data.filtered_record,
+        },
+      };
     },
     getNextPageParam: (lastPage) => {
-      if (lastPage.data.current_page < lastPage.data.last_page) {
-        return lastPage.data.current_page + 1;
+      if (lastPage.pagination.currentPage >= lastPage.pagination.lastPage) {
+        return undefined;
       }
-      return undefined;
+      return lastPage.pagination.currentPage + 1;
     },
-    enabled: Boolean(searchTerm),
+    enabled: Boolean(searchTerm?.trim()),
+    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 2, // 5 minutes
   });
 }

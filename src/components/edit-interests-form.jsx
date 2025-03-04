@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { useProfile } from "@/hooks/useProfile";
+import { useInterestsMutation, useProfile } from "@/hooks/useProfile";
 import { useWindowSize } from "@/hooks/useWindowSize";
 import {
   Accordion,
@@ -52,7 +52,7 @@ export default function EditInterestsForm() {
   });
 
   const { width } = useWindowSize();
-  const { updateInterests } = useProfile("/user/store-custom-interests");
+  const { createInterest } = useInterestsMutation();
 
   const calculateProfileCompletion = (profile) => {
     if (!profile) return 0;
@@ -79,10 +79,20 @@ export default function EditInterestsForm() {
   const handleEditClick = () => {
     setIsEditing(true);
   };
-
   const handleCancelEdit = () => {
     setIsEditing(false);
     form.reset();
+  };
+  const handleCreateModal = () => {
+    const searchQuery = form.getValues("searchQuery");
+    if (searchQuery) {
+      createInterestForm.setValue("name", searchQuery);
+    }
+    setShowCreateModal(true);
+  };
+  const handleCancelCreate = () => {
+    setShowCreateModal(false);
+    createInterestForm.reset();
   };
 
   const onSubmit = async (values) => {
@@ -96,14 +106,14 @@ export default function EditInterestsForm() {
       toast.error(t("error_failed_to_update_interests"));
     }
   };
-
   const onCreateInterest = async (values) => {
     try {
-      await updateInterests({
+      await createInterest({
         name: values.name,
       });
       setShowCreateModal(false);
       createInterestForm.reset();
+      form.setValue("searchQuery", "");
     } catch (error) {
       toast.error(t("error_failed_to_create_interest"));
     }
@@ -153,13 +163,20 @@ export default function EditInterestsForm() {
                 </FormItem>
               )}
             />
-            <Button
+            {/* <Button
               type="button"
               onClick={() => setShowCreateModal(true)}
               className="rounded-full"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus />
               {t("add_interest")}
+            </Button> */}
+            <Button
+              type="button"
+              onClick={handleCreateModal}
+              className="rounded-full"
+            >
+              <Plus />
             </Button>
           </div>
         </div>
@@ -170,7 +187,7 @@ export default function EditInterestsForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <div className="flex flex-wrap gap-2 overflow-hidden overflow-y-scroll max-h-[300px] p-2">
+                <div className="flex flex-wrap gap-2 overflow-hidden overflow-y-scroll no_scrollbar max-h-[300px] p-2">
                   {filteredInterests?.map((interest) => {
                     const isSelected = field.value.includes(
                       interest.id.toString()
@@ -214,15 +231,17 @@ export default function EditInterestsForm() {
         />
 
         <div className="flex justify-end gap-2">
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleRemoveAll}
-            className="rounded-full"
-          >
-            <Trash2 className="w-4 h-4" />
-            {t("remove_all")}
-          </Button>
+          {
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleRemoveAll}
+              className="rounded-full"
+            >
+              <Trash2 className="w-4 h-4" />
+              {t("remove_all")}
+            </Button>
+          }
           <Button
             type="button"
             variant="outline"
@@ -257,13 +276,13 @@ export default function EditInterestsForm() {
   );
 
   useEffect(() => {
-    if (profile) {
+    if (profile && !isLoading) {
       form.reset({
         interest_ids: profile.map((interest) => interest.id.toString()),
         searchQuery: "",
       });
     }
-  }, [profile, form]);
+  }, [profile, form, isLoading]);
 
   if (isLoading) {
     return <ComponentLoading />;
@@ -300,51 +319,66 @@ export default function EditInterestsForm() {
         </div>
       </div>
       <div className="p-4">{content}</div>
-      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{t("create_new_interest")}</DialogTitle>
-          </DialogHeader>
-          <Form {...createInterestForm}>
-            <form onSubmit={createInterestForm.handleSubmit(onCreateInterest)}>
-              <div className="grid gap-4 py-4">
-                <FormField
-                  control={createInterestForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder={t("interest_name")}
-                          className="rounded-full"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowCreateModal(false);
-                    createInterestForm.reset();
-                  }}
-                  className="rounded-full"
-                >
-                  {t("cancel")}
-                </Button>
-                <Button type="submit" className="rounded-full">
-                  {t("add_interest")}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      {showCreateModal ? (
+        <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{t("create_new_interest")}</DialogTitle>
+            </DialogHeader>
+            <Form {...createInterestForm}>
+              <form
+                onSubmit={createInterestForm.handleSubmit(onCreateInterest)}
+              >
+                <div className="grid gap-4 py-4">
+                  <FormField
+                    control={createInterestForm.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder={t("interest_name")}
+                            className="rounded-full"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <DialogFooter>
+                  {/* <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      createInterestForm.reset();
+                    }}
+                    className="rounded-full"
+                  >
+                    {t("cancel")}
+                  </Button>
+                  <Button type="submit" className="rounded-full">
+                    {t("add_interest")}
+                  </Button> */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelCreate}
+                    className="rounded-full"
+                  >
+                    {t("cancel")}
+                  </Button>
+                  <Button type="submit" className="rounded-full">
+                    {t("add_interest")}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </DialogContent>
+        </Dialog>
+      ) : null}
     </>
   ) : (
     <Accordion type="single" collapsible className="w-full">

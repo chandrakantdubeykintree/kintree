@@ -15,15 +15,18 @@ import { route_foreroom } from "@/constants/routeEnpoints";
 import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchUser } from "@/hooks/useUser";
 import { useInView } from "react-intersection-observer";
 import { encryptId } from "@/utils/encryption";
 import { useTranslation } from "react-i18next";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebounce(searchQuery, 1500);
+
   const navigate = useNavigate();
   const [recentSearches, setRecentSearches] = useState(() => {
     const saved = localStorage.getItem("recentSearches");
@@ -59,20 +62,31 @@ export default function Navbar() {
   const { profile: user, isProfileLoading } = useProfile(api_user_profile);
   const { t } = useTranslation();
 
-  const { ref, inView } = useInView();
-
   const {
     data: searchData,
     fetchNextPage,
     hasNextPage,
+    isFetchingNextPage,
     isLoading: isSearchLoading,
-  } = useSearchUser(searchQuery, 10);
+  } = useSearchUser(debouncedSearchQuery, 10);
+
+  const loadingRef = useRef(null);
+
+  // Update the InView hook configuration
+  const { ref, inView } = useInView({
+    threshold: 0,
+    onChange: (inView) => {
+      if (inView && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+  });
 
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, hasNextPage]);
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const handleBlur = () => {
     if (!searchQuery) {
@@ -90,6 +104,61 @@ export default function Navbar() {
 
     navigate(`/kintree-member/${encryptedId}`);
     setSearchQuery("");
+  };
+
+  const renderSearchResults = () => {
+    const allUsers = searchData?.pages?.flatMap((page) => page.users) || [];
+    const hasUsers = allUsers.length > 0;
+    const totalUsers = searchData?.pages?.[0]?.pagination?.totalRecords || 0;
+
+    return (
+      <div className="space-y-2 p-2 max-h-[60vh] overflow-y-auto no_scrollbar">
+        {hasUsers ? (
+          <>
+            {allUsers.map((user) => (
+              <div
+                key={user.user_id}
+                className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
+                onClick={() => handleResultClick(user.user_id)}
+              >
+                <img
+                  src={user.profile_pic_url}
+                  alt={user.first_name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <div className="font-medium">
+                    {[user.first_name, user.middle_name, user.last_name]
+                      .filter(Boolean)
+                      .join(" ")}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    @{user.username}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* Loading indicator and intersection observer target */}
+            <div ref={ref} className="h-10 flex items-center justify-center">
+              {isFetchingNextPage && (
+                <div className="text-center py-2">{t("loading")}</div>
+              )}
+            </div>
+
+            {/* Show total results count */}
+            <div className="text-xs text-muted-foreground text-center pt-2">
+              {t("showing")} {allUsers.length} {t("of")} {totalUsers}{" "}
+              {t("results")}
+            </div>
+          </>
+        ) : (
+          <div className="text-center text-muted-foreground py-4">
+            {isSearchLoading ? t("loading") : t("no_results_found")}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -119,50 +188,9 @@ export default function Navbar() {
           </div>
 
           {/* Search Results */}
-          {searchQuery && (
+          {debouncedSearchQuery && (
             <div className="absolute top-12 left-0 right-0 bg-background border rounded-lg shadow-lg z-[100]">
-              <div className="space-y-2 p-2 max-h-[60vh] overflow-y-scroll no_scrollbar">
-                {searchData?.pages?.flatMap((page) => page?.data?.users)
-                  ?.length > 0 ? (
-                  <>
-                    {searchData?.pages?.map((page) =>
-                      page?.data?.users?.map((user) => (
-                        <div
-                          key={user.user_id}
-                          className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
-                          onClick={() => handleResultClick(user.user_id)}
-                        >
-                          <img
-                            src={user.profile_pic_url}
-                            alt={user.first_name}
-                            className="w-10 h-10 rounded-full object-cover"
-                          />
-                          <div className="flex-1">
-                            <div className="font-medium">
-                              {`${user?.first_name} ${
-                                user?.middle_name || ""
-                              } ${user.last_name}`}
-                            </div>
-                            <div className="text-sm text-muted-foreground">
-                              @{user?.username}
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                    {/* Infinite scroll trigger */}
-                    <div ref={ref} className="h-10">
-                      {isSearchLoading && (
-                        <div className="text-center py-2">{t("loading")}</div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center text-muted-foreground py-4">
-                    {t("no_results_found")}
-                  </div>
-                )}
-              </div>
+              {renderSearchResults()}
             </div>
           )}
         </div>
@@ -193,52 +221,9 @@ export default function Navbar() {
               </div>
 
               {/* Mobile Search Results */}
-              {searchQuery.trim() && (
+              {debouncedSearchQuery.trim() && (
                 <div className="mt-2 bg-background border rounded-lg shadow-lg">
-                  <div className="space-y-2 p-2 max-h-[60vh] overflow-y-scroll no_scrollbar">
-                    {searchData?.pages?.flatMap((page) => page.data.users)
-                      .length > 0 ? (
-                      <>
-                        {searchData.pages.map((page) =>
-                          page.data.users.map((user) => (
-                            <div
-                              key={user.user_id}
-                              className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg cursor-pointer"
-                              onClick={() => handleResultClick(user.user_id)}
-                            >
-                              <img
-                                src={user.profile_pic_url}
-                                alt={user.first_name}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                              <div className="flex-1">
-                                <div className="font-medium">
-                                  {`${user.first_name} ${
-                                    user.middle_name || ""
-                                  } ${user.last_name}`}
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  @{user.username}
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                        {/* Infinite scroll trigger */}
-                        <div ref={ref} className="h-10">
-                          {isSearchLoading && (
-                            <div className="text-center py-2">
-                              {t("loading")}
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center text-muted-foreground py-4">
-                        {t("no_results_found")}
-                      </div>
-                    )}
-                  </div>
+                  {renderSearchResults()}
                 </div>
               )}
             </div>

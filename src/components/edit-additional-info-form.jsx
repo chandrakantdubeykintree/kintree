@@ -45,7 +45,10 @@ export default function EditAdditionalInfoForm() {
     known_language_ids: z
       .array(z.string())
       .min(1, t("known_languages_required")),
-    mother_tongue: z.string().min(1, t("mother_tongue_required")),
+    // mother_tongue: z.string().min(1, t("mother_tongue_required")),
+    mother_tongue: z
+      .union([z.string(), z.number()]) // Accept both string and number
+      .transform((value) => value.toString()),
     native_place: z.string().min(1, t("native_place_required")),
     occupation: z.string().min(1, t("occupation_required")),
     relationship_status: z.string().min(1, t("relationship_status_required")),

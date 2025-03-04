@@ -97,7 +97,8 @@ export const useProfile = (infoType) => {
       return response;
     },
     onSuccess: (response) => {
-      queryClient.invalidateQueries(["profile", infoType]);
+      queryClient.invalidateQueries(["interests"]);
+      queryClient.invalidateQueries(["profile", "/user/interests"]);
       toast.success(response.data.message);
     },
     onError: (error) => {
@@ -118,5 +119,36 @@ export const useProfile = (infoType) => {
     isUpdating: updateImageMutation.isPending,
     updateError: updateImageMutation.error,
     updateInterests: updateInterestsMutation.mutate,
+  };
+};
+
+export const useInterestsMutation = () => {
+  const queryClient = useQueryClient();
+
+  const { mutate: createInterest, isPending } = useMutation({
+    mutationFn: async (data) => {
+      const response = await kintreeApi({
+        method: "POST",
+        url: "/user/store-custom-interests",
+        data,
+      });
+      return response;
+    },
+    onSuccess: (response) => {
+      // Only invalidate necessary queries
+      queryClient.invalidateQueries(["interests"]);
+      queryClient.invalidateQueries(["profile", "/user/interests"]);
+      toast.success(response.data.message);
+    },
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to create interest"
+      );
+    },
+  });
+
+  return {
+    createInterest,
+    isPending,
   };
 };

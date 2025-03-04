@@ -77,8 +77,8 @@ export default function NotificationDropDown() {
             alt="Notifications"
           />
           {
-            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 text-xs font-bold text-white flex items-center justify-center bg-red-500 rounded-full">
-              {unreadCount}
+            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 text-[10px] font-bold text-white flex items-center justify-center bg-red-500 rounded-full">
+              {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           }
         </div>
