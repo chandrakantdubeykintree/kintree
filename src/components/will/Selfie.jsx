@@ -50,21 +50,32 @@ export default function Selfie({ setStep, willId }) {
         <p className="text-gray-600 mb-6">
           {t("self_authentication_description")}
         </p>
+        <h3 className="text-lg font-semibold mb-1">
+          {t("selfie_instructions")}
+        </h3>
+        <ul className="list-disc list-inside text-gray-600 mb-2">
+          <li>{t("selfie_instructions_1")}</li>
+          <li>{t("selfie_instructions_2")}</li>
+          <li>{t("selfie_instructions_3")}</li>
+          <li>{t("selfie_instructions_4")}</li>
+        </ul>
 
-        <div className="grid gap-6">
-          <Card className="p-6">
-            <div className="flex flex-col items-center space-y-4">
-              <Camera className="w-12 h-12 text-primary" />
-              <h3 className="font-semibold">{t("take_a_selfie")}</h3>
-              <Button
-                onClick={() => setShowWebcam(true)}
-                className="rounded-full h-10 md:h-12 px-4 md:px-6"
-              >
-                {t("open_camera")}
-              </Button>
-            </div>
-          </Card>
-        </div>
+        {!showWebcam ? (
+          <div className="grid gap-6">
+            <Card className="p-6">
+              <div className="flex flex-col items-center space-y-4">
+                <Camera className="w-12 h-12 text-primary" />
+                <h3 className="font-semibold">{t("take_a_selfie")}</h3>
+                <Button
+                  onClick={() => setShowWebcam(true)}
+                  className="rounded-full h-10 md:h-12 px-4 md:px-6"
+                >
+                  {t("open_camera")}
+                </Button>
+              </div>
+            </Card>
+          </div>
+        ) : null}
 
         {showWebcam && (
           <div className="mt-6">
@@ -76,6 +87,7 @@ export default function Selfie({ setStep, willId }) {
                   className="w-full rounded-lg"
                 />
               </div>
+
               <div className="flex justify-center items-center mt-8 flex-col sm:flex-row gap-2 sm:space-x-4 w-full sm:w-auto px-4 sm:px-0">
                 <Button
                   onClick={handleCapture}

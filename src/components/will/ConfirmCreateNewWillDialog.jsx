@@ -17,7 +17,7 @@ export default function ConfirmCreateNewWillDialog({
   const { t } = useTranslation();
   return (
     <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-[90%] w-[375px] rounded-2xl sm:rounded-2xl">
         <DialogHeader>
           <DialogTitle>{t("create_new_will")}</DialogTitle>
           <DialogDescription>{t("existing_will_warning")}</DialogDescription>
@@ -31,7 +31,7 @@ export default function ConfirmCreateNewWillDialog({
           >
             {t("cancel")}
           </Button>
-          <Button variant="destructive" onClick={handleConfirmNewWill}>
+          <Button onClick={handleConfirmNewWill} className="rounded-full">
             {t("create_new")}
           </Button>
         </DialogFooter>

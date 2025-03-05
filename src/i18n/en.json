@@ -798,5 +798,13 @@
   "account_deleted_successfully": "Account deleted successfully",
   "account_deletion_error": "Failed to delete account",
   "recipes": "Recipes",
-  "global_feed": "Global Feed"
+  "global_feed": "Global Feed",
+  "selfie_instruction": "Please provide a clear selfie with government id for identity verification.",
+  "selfie_instructions": "Selfie Instructions",
+  "selfie_instructions_1": "Try moving away from direct light.",
+  "selfie_instructions_2": "Please make sure your face is clearly visible.",
+  "selfie_instructions_3": "Please make sure your Government ID is clearly visible.",
+  "selfie_instructions_4": "Make sure all the text on your ID card is clearly visible.",
+  "will_consent": "I hereby declare that my property located in India/Abroad shall be distributed among the following individual(s).",
+  "will_terms_conditions": "I have read and understood the terms and conditions.."
 }
