@@ -76,7 +76,7 @@ export default function Kincoins() {
       )}
       <Card className="bg-background rounded-2xl h-full overflow-y-scroll no_scrollbar">
         <div className="w-full flex items-center justify-between relative h-[227px] bg-[url('/kincoinsImg/kincoins_banner.png')] bg-no-repeat bg-cover rounded-t-2xl">
-          <div className="flex-1 flex gap-1 flex-col items-center justify-center z-10">
+          <div className="flex-1 flex gap-1 flex-col items-center justify-center">
             <div className="flex items-center justify-center">
               <img
                 src="/kincoinsImg/kintree_coin.svg"
