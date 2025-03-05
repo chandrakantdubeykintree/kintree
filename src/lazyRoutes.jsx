@@ -25,10 +25,8 @@ export const ViewPoll = lazy(() => import("./pages/ViewPoll"));
 export const FamilyTree = lazy(() => import("./pages/FamilyTree"));
 export const FamilyMember = lazy(() => import("./pages/FamilyMember"));
 export const KintreeMember = lazy(() => import("./pages/KintreeMember"));
-export const ViewMember = lazy(() => import("./pages/ViewMember"));
 
 export const Chats = lazy(() => import("./pages/Chats"));
-export const ViewChat = lazy(() => import("./pages/ViewChat"));
 
 export const Profile = lazy(() => import("./pages/Profile"));
 

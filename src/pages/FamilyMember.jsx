@@ -14,9 +14,11 @@ import { useAuth } from "@/context/AuthProvider";
 import EditRelativeForm from "@/components/edit-relative-form";
 import AddRelativeForm from "@/components/add-relative-form";
 import { useTranslation } from "react-i18next";
+import { decryptId } from "@/utils/encryption";
 
 export default function FamilyMember() {
-  const { id } = useParams();
+  const { id: encryptedId } = useParams();
+  const id = decryptId(encryptedId);
   const { data: familyMember, isLoading } = useMember(id);
   const { user } = useAuth();
   const is_user_added_by_me = familyMember?.added_by?.id === user?.id;
@@ -311,31 +313,32 @@ export default function FamilyMember() {
               ) : null}
 
               {/* Credentials Section */}
-              <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-primary">
-                    {t("login_credentials")}
-                  </h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleShareCredentials}
-                    className="flex items-center gap-2 rounded-full"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    {t("share_credentials")}
-                  </Button>
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {t("username")}
-                    </span>
-                    <span className="font-medium">
-                      {familyMember?.username}
-                    </span>
+              {familyMember?.password ? (
+                <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-primary">
+                      {t("login_credentials")}
+                    </h2>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleShareCredentials}
+                      className="flex items-center gap-2 rounded-full"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      {t("share_credentials")}
+                    </Button>
                   </div>
-                  {familyMember?.password ? (
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("username")}
+                      </span>
+                      <span className="font-medium">
+                        {familyMember?.username}
+                      </span>
+                    </div>
+
                     <div className="flex flex-col">
                       <span className="text-sm text-gray-500 dark:text-gray-400">
                         {t("password")}
@@ -344,9 +347,9 @@ export default function FamilyMember() {
                         {familyMember?.password}
                       </span>
                     </div>
-                  ) : null}
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               {/* Action Buttons */}
               <div className="flex gap-4 mt-8 justify-end">

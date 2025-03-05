@@ -41,10 +41,12 @@ import CustomDateTimePicker from "@/components/custom-ui/custom-date-time-picker
 import ComponentLoading from "@/components/component-loading";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { decryptId } from "@/utils/encryption";
 
 export default function EditEvent() {
   const { t } = useTranslation();
-  const { eventId } = useParams();
+  const { eventId: encryptedId } = useParams();
+  const eventId = decryptId(encryptedId);
   const navigate = useNavigate();
   const { data: event, isLoading: isLoadingEvent } = useEvent(eventId);
   const { mutateAsync: editEvent, isLoading } = useEditEvent();

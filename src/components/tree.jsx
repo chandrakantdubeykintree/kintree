@@ -18,6 +18,7 @@ import TutorialVideoDialog from "./tutorial-dialog";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { useSidebar } from "@/context/SidebarContext";
 import { useNavigate } from "react-router";
+import { encryptId } from "@/utils/encryption";
 
 const Tree = ({ nodes, familyMembers }) => {
   const [showTutorial, setShowTutorial] = useState(false);
@@ -255,7 +256,14 @@ const Tree = ({ nodes, familyMembers }) => {
     familyRef.current = family;
     family.on("click", function (sender, args) {
       const data = sender.get(args.node.id);
-      navigate(`/family-member/${data?.id}`);
+      const encryptedId = encryptId(data?.id);
+      if (!encryptedId) {
+        console.error("Encryption failed");
+        return;
+      }
+
+      navigate(`/family-member/${encryptedId}`);
+      // navigate(`/family-member/${data?.id}`);
     });
     const search = family.search(config?.search, ["name"], ["name"]);
     family.center(

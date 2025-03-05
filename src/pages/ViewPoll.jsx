@@ -10,10 +10,12 @@ import PostComments from "@/components/post-comments";
 import toast from "react-hot-toast";
 import { useEffect } from "react";
 import { checkPostAccess } from "@/services/privacyChecks";
+import { decryptId } from "@/utils/encryption";
 
 export default function ViewPost() {
   const { user } = useAuth();
-  const { pollId } = useParams();
+  const { pollId: encryptedId } = useParams();
+  const pollId = decryptId(encryptedId);
   const navigate = useNavigate();
   const { data, isLoading, refetch, error } = usePost(pollId);
   const { data: pollData } = usePoll(data?.post_data?.id);

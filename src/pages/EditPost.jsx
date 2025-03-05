@@ -14,6 +14,7 @@ import PrivacyDropdown from "@/components/privacy-dropdown";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
+import { decryptId } from "@/utils/encryption";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -33,7 +34,8 @@ export default function EditPost() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { postId } = useParams();
+  const { postId: encryptedId } = useParams();
+  const postId = decryptId(encryptedId);
   const [privacy, setPrivacy] = useState({
     id: 1,
     title: "Global",

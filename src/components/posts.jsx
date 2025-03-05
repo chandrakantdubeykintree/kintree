@@ -32,6 +32,7 @@ import LikesDialog from "./likes-dialog";
 import { BadgeCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { format } from "date-fns";
+import { encryptId } from "@/utils/encryption";
 
 export default function Posts({ post, user }) {
   const { width } = useWindowSize();
@@ -213,7 +214,7 @@ export default function Posts({ post, user }) {
               <NavLink
                 to={`${
                   type === "normal" ? route_view_post : route_view_poll
-                }/${id}`}
+                }/${encryptId(id)}`}
                 className="flex items-center gap-2 h-18 w-18"
               >
                 <img
@@ -249,7 +250,7 @@ export default function Posts({ post, user }) {
             <NavLink
               to={`${
                 type === "normal" ? route_view_post : route_view_poll
-              }/${id}`}
+              }/${encryptId(id)}`}
               className="w-full"
             >
               <Input

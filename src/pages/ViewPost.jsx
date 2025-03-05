@@ -9,11 +9,13 @@ import ComponentLoading from "@/components/component-loading";
 import PostComments from "@/components/post-comments";
 import toast from "react-hot-toast";
 import { useTranslation } from "react-i18next";
+import { decryptId } from "@/utils/encryption";
 
 export default function ViewPost() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { postId } = useParams();
+  const { postId: encryptedId } = useParams();
+  const postId = decryptId(encryptedId);
   const { data, isLoading, refetch, error } = usePost(postId);
   const navigate = useNavigate();
   const handlePostUpdate = () => {

@@ -1,10 +1,16 @@
+import { encryptId } from "@/utils/encryption";
 import { capitalizeName } from "@/utils/stringFormat";
 import { format, parse } from "date-fns";
 import { NavLink } from "react-router";
 
 export default function EventCard({ event, status }) {
+  const encryptedId = encryptId(event?.id);
+  if (!encryptedId) {
+    console.error("Encryption failed");
+    return;
+  }
   return (
-    <NavLink to={`/view-event/${event?.id}`}>
+    <NavLink to={`/view-event/${encryptedId}`}>
       <div className="flex flex-col shadow-sm border rounded-2xl bg-background max-h-[300px] cursor-pointer">
         <div className="w-full relative h-[150px] rounded-lg">
           <img

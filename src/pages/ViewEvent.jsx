@@ -20,6 +20,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { capitalizeName } from "@/utils/stringFormat";
+import { decryptId } from "@/utils/encryption";
 
 function ImagesDialog({ images, isOpen, onClose, initialIndex = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -90,7 +91,8 @@ function ImagesDialog({ images, isOpen, onClose, initialIndex = 0 }) {
 }
 
 export default function ViewEvent() {
-  const { eventId } = useParams();
+  const { eventId: encryptedId } = useParams();
+  const eventId = decryptId(encryptedId);
   const { data: event, isLoading } = useEvent(eventId);
   const [isImagesDialogOpen, setIsImagesDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);

@@ -75,7 +75,6 @@ const {
   ViewRecipe,
   CreatePoll,
   ViewPoll,
-  ViewMember,
   Chats,
   Profile,
   Settings,
@@ -209,10 +208,7 @@ export default function App() {
                                 path={route_family_member + "/:id"}
                                 element={<FamilyMember />}
                               />
-                              <Route
-                                path={route_family_tree_view_member}
-                                element={<ViewMember />}
-                              />
+
                               <Route
                                 path={route_kintree_member + "/:id"}
                                 element={<KintreeMember />}
