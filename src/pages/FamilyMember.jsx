@@ -285,28 +285,30 @@ export default function FamilyMember() {
               </InfoSection>
 
               {/* Added By Information */}
-              <InfoSection title={t("added_by")}>
-                <div className="col-span-2 flex items-center gap-4">
-                  <Avatar className="w-12 h-12">
-                    <AvatarImage
-                      src={familyMember?.added_by?.profile_pic_url}
-                      alt="Added by"
-                    />
-                    <AvatarFallback>
-                      {getInitials(familyMember?.added_by?.first_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">
-                      {capitalizeName(familyMember?.added_by?.first_name)}{" "}
-                      {capitalizeName(familyMember?.added_by?.last_name)}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      @{familyMember?.added_by?.username}
-                    </p>
+              {familyMember?.added_by ? (
+                <InfoSection title={t("added_by")}>
+                  <div className="col-span-2 flex items-center gap-4">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage
+                        src={familyMember?.added_by?.profile_pic_url}
+                        alt="Added by"
+                      />
+                      <AvatarFallback>
+                        {getInitials(familyMember?.added_by?.first_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">
+                        {capitalizeName(familyMember?.added_by?.first_name)}{" "}
+                        {capitalizeName(familyMember?.added_by?.last_name)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        @{familyMember?.added_by?.username}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </InfoSection>
+                </InfoSection>
+              ) : null}
 
               {/* Credentials Section */}
               <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -333,14 +335,16 @@ export default function FamilyMember() {
                       {familyMember?.username}
                     </span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {t("password")}
-                    </span>
-                    <span className="font-medium">
-                      {familyMember?.password}
-                    </span>
-                  </div>
+                  {familyMember?.password ? (
+                    <div className="flex flex-col">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {t("password")}
+                      </span>
+                      <span className="font-medium">
+                        {familyMember?.password}
+                      </span>
+                    </div>
+                  ) : null}
                 </div>
               </div>
 

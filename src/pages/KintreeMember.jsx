@@ -16,12 +16,15 @@ import { Button } from "@/components/ui/button";
 import MergeRequestForm from "@/components/merge-request-form";
 import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 import { useMergeRelationTypes } from "@/hooks/useMasters";
+import { useAuth } from "@/context/AuthProvider";
 
 export default function KintreeMember() {
   const { id: encryptedId } = useParams();
   const [isMergeRequsetSent, setIsMergeRequestSent] = useState(false);
   const navigate = useNavigate();
   const id = decryptId(encryptedId);
+  const { user: profile } = useAuth();
+
   useEffect(() => {
     const id = decryptId(encryptedId);
     if (!id) {
@@ -279,6 +282,7 @@ export default function KintreeMember() {
           mergeRelationType={mergeRelationType}
           setIsMergeRequestSent={setIsMergeRequestSent}
           currentUser={familyMember}
+          profile={profile}
         />
       ) : null}
     </AsyncComponent>

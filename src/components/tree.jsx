@@ -255,7 +255,9 @@ const Tree = ({ nodes, familyMembers }) => {
     familyRef.current = family;
     family.on("click", function (sender, args) {
       const data = sender.get(args.node.id);
-      navigate(`/family-member/${data?.id}`);
+      console.log(data);
+
+      data?.relation !== "Myself" && navigate(`/family-member/${data?.id}`);
     });
     const search = family.search(config?.search, ["name"], ["name"]);
     family.center(
