@@ -104,23 +104,7 @@ export default function Kincoins() {
             />
           )}
         </div>
-        {/* <div className="grid gap-4 grid-cols-1 mt-4 mb-4 px-4">
-          <CustomTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-            variant="underline"
-          />
-          <CustomTabPanel value="redeem" activeTab={activeTab}>
-            <RedeemKincoins kincoinsBalnce={kincoinsBalnce} />
-          </CustomTabPanel>
-          <CustomTabPanel value="earn" activeTab={activeTab}>
-            <EarnKincoins />
-          </CustomTabPanel>
-          <CustomTabPanel value="transactions" activeTab={activeTab}>
-            <KincoinsTransactions />
-          </CustomTabPanel>
-        </div> */}
+
         <div className="sticky top-0 bg-background z-20 px-4 pt-4">
           <CustomTabs
             tabs={tabs}

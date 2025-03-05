@@ -24,6 +24,7 @@ export default function MergeRequestForm({
   setIsMergeRequestSent,
   currentUser,
   requesterData,
+  profile,
 }) {
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
 
@@ -71,10 +72,9 @@ export default function MergeRequestForm({
         );
 
       case 4: // Children
-        // Show people who have the current user as parent
         return familyMembers.filter(
           (member) =>
-            member.fid === currentUser.id || member.mid === currentUser.id
+            member.id === currentUser.fid || member.id === currentUser.mid
         );
 
       default:
