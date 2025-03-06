@@ -76,7 +76,6 @@ export default function ViewTreeMergeRequest() {
     }, []);
   }, [senderRelatives, receiverRelatives]);
 
-  // Update duplicateMembers when findDuplicates changes
   useEffect(() => {
     setDuplicateMembers(findDuplicates);
   }, [findDuplicates]);
@@ -120,8 +119,6 @@ export default function ViewTreeMergeRequest() {
       </div>
     );
   }
-
-  // ... Rest of the JSX remains the same ...
   return (
     <AsyncComponent>
       <Card className="container max-w-3xl mx-auto p-6 rounded-2xl h-full overflow-y-scroll no_scrollbar">
@@ -187,11 +184,11 @@ export default function ViewTreeMergeRequest() {
                       {relative.first_name} {relative.middle_name}{" "}
                       {relative.last_name}
                     </p>
-                    {relative.date_of_birth && (
+                    {/* {relative.date_of_birth && (
                       <p className="text-xs text-gray-500">
                         DOB: {formatDate(relative.date_of_birth)}
                       </p>
-                    )}
+                    )} */}
                     {relative.relation && (
                       <p className="text-xs text-gray-500">
                         Relation: {relative.relation}

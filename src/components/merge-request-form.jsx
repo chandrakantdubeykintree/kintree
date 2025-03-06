@@ -51,15 +51,15 @@ export default function MergeRequestForm({
         // Show members who have the current user as their father or mother
         return familyMembers.filter(
           (member) =>
-            member.fid === currentUser.id || member.mid === currentUser.id
+            member.id === currentUser.fid || member.id === currentUser.mid
         );
 
       case 2: // Partner
         // If user has no pid, return empty array
-        if (!currentUser.pid || currentUser.pid.length === 0) return [];
+        if (!currentUser.pids || currentUser.pids.length === 0) return [];
         // Otherwise show only the pid member
         return familyMembers.filter((member) =>
-          currentUser.pid.includes(member.id)
+          currentUser.pids.includes(member.id)
         );
 
       case 3: // Sibling
@@ -74,7 +74,7 @@ export default function MergeRequestForm({
       case 4: // Children
         return familyMembers.filter(
           (member) =>
-            member.id === currentUser.fid || member.id === currentUser.mid
+            member.fid === currentUser.id || member.mid === currentUser.id
         );
 
       default:
@@ -83,7 +83,7 @@ export default function MergeRequestForm({
   };
   const isPartnerSelectionDisabled =
     formData.relation_type === 2 &&
-    (!currentUser?.pid || currentUser.pid.length === 0);
+    (!currentUser?.pids || currentUser.pids.length === 0);
 
   // Update the relation type Select to disable partner option if needed
   const handleRelationTypeChange = (value) => {
