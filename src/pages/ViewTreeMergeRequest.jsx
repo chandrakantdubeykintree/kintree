@@ -10,7 +10,7 @@ import { useNavigate, useParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
 import CustomScrollArea from "@/components/ui/custom-scroll-area";
@@ -20,35 +20,50 @@ export default function ViewTreeMergeRequest() {
   let { requestId } = useParams();
   requestId = decryptId(requestId);
 
+  const navigate = useNavigate();
   const { data: mergeRequest, isLoading } = useMergeRequest(requestId);
   const { mutate: respondToRequest, isLoading: isResponding } =
     useRespondToMergeRequest();
-  const [duplicateMembers, setDuplicateMembers] = useState([]);
-  const [noDuplicates, setNoDuplicates] = useState(false);
-  const navigate = useNavigate();
   const { mutate: cancelRequest, isLoading: isCancelling } =
     useCancelMergeRequest();
 
-  // Add handleDecline function
-  const handleDecline = () => {
-    cancelRequest(requestId, {
-      onSuccess: () => {
-        navigate(route_family_tree, { replace: true });
-      },
-    });
-  };
+  const [duplicateMembers, setDuplicateMembers] = useState([]);
+  const [noDuplicates, setNoDuplicates] = useState(false);
 
-  // Function to find potential duplicates
-  const findDuplicates = () => {
-    if (!mergeRequest) return [];
+  // Memoize sender relatives to avoid unnecessary re-renders
+  const senderRelatives = useMemo(
+    () => mergeRequest?.sender_relatives || [],
+    [mergeRequest?.sender_relatives]
+  );
 
-    const duplicates = [];
-    mergeRequest.sender_relatives.forEach((sender) => {
-      mergeRequest.receiver_relatives.forEach((receiver) => {
+  // Memoize receiver relatives
+  const receiverRelatives = useMemo(
+    () => mergeRequest?.receiver_relatives || [],
+    [mergeRequest?.receiver_relatives]
+  );
+
+  // Find duplicates comparing sender and receiver relatives
+  const findDuplicates = useMemo(() => {
+    if (!senderRelatives.length || !receiverRelatives.length) return [];
+
+    return senderRelatives.reduce((duplicates, sender) => {
+      receiverRelatives.forEach((receiver) => {
+        const senderName = `${sender.first_name || ""} ${
+          sender.last_name || ""
+        }`
+          .toLowerCase()
+          .trim();
+        const receiverName = `${receiver.first_name || ""} ${
+          receiver.last_name || ""
+        }`
+          .toLowerCase()
+          .trim();
+
         if (
-          sender.first_name.toLowerCase() ===
-            receiver.first_name.toLowerCase() &&
-          sender.last_name.toLowerCase() === receiver.last_name.toLowerCase()
+          senderName &&
+          receiverName &&
+          senderName === receiverName &&
+          sender.id !== receiver.id
         ) {
           duplicates.push({
             sender,
@@ -57,38 +72,46 @@ export default function ViewTreeMergeRequest() {
           });
         }
       });
+      return duplicates;
+    }, []);
+  }, [senderRelatives, receiverRelatives]);
+
+  // Update duplicateMembers when findDuplicates changes
+  useEffect(() => {
+    setDuplicateMembers(findDuplicates);
+  }, [findDuplicates]);
+
+  const handleDuplicateCheck = (index, checked) => {
+    setDuplicateMembers((prev) =>
+      prev.map((dup, i) => (i === index ? { ...dup, checked } : dup))
+    );
+  };
+
+  const handleDecline = () => {
+    cancelRequest(requestId, {
+      onSuccess: () => {
+        navigate(route_family_tree, { replace: true });
+      },
     });
-    return duplicates;
   };
 
   const handleAccept = () => {
-    if (findDuplicates().length > 0 && !noDuplicates) {
-      const samePerson = duplicateMembers
-        .filter((dup) => dup.checked)
-        .map((dup) => ({
-          sender_relative_id: dup.sender.id,
-          receiver_relative_id: dup.receiver.id,
-        }));
+    const same_persons =
+      !noDuplicates && duplicateMembers.length > 0
+        ? duplicateMembers
+            .filter((dup) => dup.checked)
+            .map((dup) => ({
+              sender_relative_id: dup.sender.id,
+              receiver_relative_id: dup.receiver.id,
+            }))
+        : [];
 
-      respondToRequest({
-        requestId,
-        is_accepted: true,
-        same_persons: samePerson,
-      });
-    } else {
-      respondToRequest({
-        requestId,
-        is_accepted: true,
-        // same_persons: [],
-      });
-    }
+    respondToRequest({
+      requestId,
+      is_accepted: true,
+      same_persons,
+    });
   };
-
-  useEffect(() => {
-    if (mergeRequest) {
-      setDuplicateMembers(findDuplicates());
-    }
-  }, []);
 
   if (isLoading) {
     return (
@@ -98,6 +121,7 @@ export default function ViewTreeMergeRequest() {
     );
   }
 
+  // ... Rest of the JSX remains the same ...
   return (
     <AsyncComponent>
       <Card className="container max-w-3xl mx-auto p-6 rounded-2xl h-full overflow-y-scroll no_scrollbar">
@@ -175,7 +199,7 @@ export default function ViewTreeMergeRequest() {
                     )}
                   </div>
                   {/* Indicate if this member is part of a duplicate pair */}
-                  {findDuplicates().some(
+                  {duplicateMembers.some(
                     (dup) => dup.sender.id === relative.id
                   ) && (
                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
@@ -201,7 +225,7 @@ export default function ViewTreeMergeRequest() {
               </div>
             </div>
 
-            {!noDuplicates && (
+            {!noDuplicates ? (
               <CustomScrollArea
                 className="rounded-2xl border p-4"
                 maxHeight="400px"
@@ -240,14 +264,9 @@ export default function ViewTreeMergeRequest() {
                       <div className="mx-8 flex flex-col items-center">
                         <Checkbox
                           checked={dup.checked}
-                          onCheckedChange={(checked) => {
-                            const newDuplicates = [...duplicateMembers];
-                            newDuplicates[index] = {
-                              ...newDuplicates[index],
-                              checked,
-                            };
-                            setDuplicateMembers(newDuplicates);
-                          }}
+                          onCheckedChange={(checked) =>
+                            handleDuplicateCheck(index, checked)
+                          }
                           className="h-5 w-5"
                         />
                         <p className="text-xs text-gray-500 mt-2">
@@ -282,7 +301,7 @@ export default function ViewTreeMergeRequest() {
                   </div>
                 ))}
               </CustomScrollArea>
-            )}
+            ) : null}
 
             {
               <div className="flex items-center space-x-2 mt-4">

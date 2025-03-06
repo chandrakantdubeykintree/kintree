@@ -12,7 +12,7 @@ export function LocationSearchInput({
   onChange,
   onBlur,
   className,
-  placeholder = "Search location...",
+  placeholder = t("search_location"),
   error,
 }) {
   const [isFocused, setIsFocused] = useState(false);
@@ -69,7 +69,7 @@ export function LocationSearchInput({
             onClick={handleInputClick}
             onFocus={() => setIsFocused(true)}
             onBlur={onBlur}
-            placeholder={t("search_location")}
+            placeholder={placeholder}
             className={cn(
               "pl-10 pr-8 cursor-pointer",
               error && "border-red-500",
