@@ -57,7 +57,7 @@ export default function BeneficiaryCard({
               {beneficiary.name}
             </h3>
             <p className="text-sm text-gray-500 text-wrap break-words max-w-[100%]">
-              {beneficiary.relation || "N/A"}
+              {beneficiary.relation || "NA"}
             </p>
           </div>
         </div>

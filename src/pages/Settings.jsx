@@ -40,7 +40,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTranslation } from "react-i18next";
 import { CustomPasswordInput } from "@/components/custom-ui/custom_pasword_input";
 import { useNavigate } from "react-router";
-import { route_forgot_username } from "@/constants/routeEnpoints";
+import {
+  route_forgot_password,
+  route_forgot_username,
+} from "@/constants/routeEnpoints";
 
 export default function Settings() {
   const { t } = useTranslation();
@@ -318,8 +321,6 @@ export default function Settings() {
     }
   }, [profile, resetLanguageForm]);
 
-  console.log(user);
-
   return (
     <AsyncComponent isLoading={isProfileLoading}>
       <Card className="w-full shadow-sm border-0 rounded-2xl h-full overflow-y-scroll no_scrollbar">
@@ -406,7 +407,7 @@ export default function Settings() {
 
                   {!user?.is_system_generated_password ? (
                     <Button
-                      onClick={() => navigate(route_forgot_username)}
+                      onClick={() => navigate(route_forgot_password)}
                       className="rounded-full"
                     >
                       {t("reset_password")}

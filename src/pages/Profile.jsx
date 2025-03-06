@@ -58,7 +58,7 @@ export default function Profile() {
             <span className="text-md">{t("edit")}</span>
           </Button>
           {/* Profile Image */}
-          <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] lg:w-[120px] lg:h-[120px] border-brandPrimary rounded-full absolute z-10 bottom-[-25%] left-[5%] border-[2px] overflow-hidden group bg-background">
+          <div className="w-[60px] h-[60px] md:w-[80px] md:h-[80px] lg:w-[120px] lg:h-[120px] border-brandPrimary rounded-full absolute z-1 bottom-[-25%] left-[5%] border-[2px] overflow-hidden group bg-background">
             <Avatar className="rounded-full border-2 transition-transform duration-300 ease-in-out group-hover:scale-105 w-full h-full">
               <AvatarImage
                 src={user?.basic_info?.profile_pic_url}

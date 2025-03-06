@@ -15,6 +15,8 @@ export const locationApi = axios.create({
 
 export const searchLocation = async (location) => {
   if (!location?.trim()) return [];
+  console.log(import.meta.env.VITE_GOOGLE_LOCATION_KEY);
+
   try {
     const response = await locationApi.get("", {
       params: {

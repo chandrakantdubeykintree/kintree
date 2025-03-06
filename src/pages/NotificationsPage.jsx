@@ -129,7 +129,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                       wants to merge
                     </>
                   )}
-                  &nbsp; as{" "}
+                  &nbsp;as{" "}
                   <span className="text-primary">
                     {mergeRequest.type?.name}
                   </span>
@@ -246,6 +246,8 @@ export default function NotificationsPage() {
       toast.success(t("notification_deleted_successfully"));
     } catch (error) {
       toast.error(t("failed_to_delete_notification"));
+    } finally {
+      setSelectedNotification(null);
     }
   };
 
@@ -262,6 +264,8 @@ export default function NotificationsPage() {
       }
     } catch (error) {
       toast.error(t("failed_to_update_notification"));
+    } finally {
+      setSelectedNotification(null);
     }
   };
 

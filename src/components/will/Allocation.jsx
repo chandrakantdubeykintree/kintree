@@ -120,7 +120,7 @@ export default function Allocation({ setStep, willId }) {
                     <div>
                       <h3 className="font-medium">{beneficiary.name}</h3>
                       <p className="text-sm text-gray-500">
-                        {beneficiary.relation || "N/A"}
+                        {beneficiary.relation || "NA"}
                       </p>
                     </div>
                   </div>

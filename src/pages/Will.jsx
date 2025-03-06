@@ -107,7 +107,7 @@ export default function Will() {
               <span className="font-medium dark:text-background">
                 {willData?.data?.updated_at
                   ? new Date(willData?.data?.updated_at).toLocaleDateString()
-                  : "N/A"}
+                  : "NA"}
               </span>
             </div>
           </div>
