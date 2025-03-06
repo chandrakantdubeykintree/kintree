@@ -137,7 +137,7 @@ export default function KintreeMember() {
                   {capitalizeName(familyMember?.basic_info?.middle_name)}{" "}
                   {capitalizeName(familyMember?.basic_info?.last_name)}
                 </h1>
-                <p className="text-gray-600">@{familyMember?.username}</p>
+                {/* <p className="text-gray-600">@{familyMember?.username}</p> */}
                 <div className="flex gap-2 justify-center mt-2">
                   {familyMember?.relation ? (
                     <Badge
@@ -201,6 +201,44 @@ export default function KintreeMember() {
                   </Button>
                 ) : null} */}
               </div>
+
+              {/* Basic Information */}
+              <InfoSection title="Basic Information">
+                <InfoItem
+                  label="User ID"
+                  value={familyMember?.basic_info?.user_id}
+                />
+                <InfoItem
+                  label="First Name"
+                  value={familyMember?.basic_info?.first_name}
+                />
+                <InfoItem
+                  label="Middle Name"
+                  value={familyMember?.basic_info?.middle_name || "--"}
+                />
+                <InfoItem
+                  label="Last Name"
+                  value={familyMember?.basic_info?.last_name}
+                />
+                <InfoItem
+                  label="Date of Birth"
+                  value={familyMember?.basic_info?.date_of_birth || "--"}
+                />
+                <InfoItem
+                  label="Gender"
+                  value={
+                    familyMember?.basic_info?.gender === "m" ? "Male" : "Female"
+                  }
+                />
+                <InfoItem
+                  label="Nickname"
+                  value={familyMember?.basic_info?.nickname || "--"}
+                />
+                <InfoItem
+                  label="Username"
+                  value={familyMember?.basic_info?.username}
+                />
+              </InfoSection>
 
               {/* Statistics */}
               <div className="grid grid-cols-3 gap-4 mb-8 text-center">

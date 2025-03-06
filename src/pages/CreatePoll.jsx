@@ -264,45 +264,44 @@ export default function CreatePoll() {
                     </p>
                   )}
                 </div>
-
-                <div className="flex flex-col gap-2">
-                  <Label>{t("duration")}</Label>
-                  <Controller
-                    control={control}
-                    name="duration"
-                    render={({ field }) => (
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="grid grid-cols-2 gap-2"
-                      >
-                        {DURATION_OPTIONS.map((option) => (
-                          <div key={option.value}>
-                            <RadioGroupItem
-                              value={option.value}
-                              id={option.value}
-                              className="peer hidden"
-                            />
-                            <Label
-                              htmlFor={option.value}
-                              className="flex p-2 cursor-pointer rounded-full border border-muted 
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label>{t("duration")}</Label>
+                <Controller
+                  control={control}
+                  name="duration"
+                  render={({ field }) => (
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="grid grid-cols-2 md:grid-cols-4 gap-2"
+                    >
+                      {DURATION_OPTIONS.map((option) => (
+                        <div key={option.value}>
+                          <RadioGroupItem
+                            value={option.value}
+                            id={option.value}
+                            className="peer hidden"
+                          />
+                          <Label
+                            htmlFor={option.value}
+                            className="flex px-2 py-4 text-center cursor-pointer rounded-full border border-primary 
                                 peer-data-[state=checked]:border-primary 
                                 peer-data-[state=checked]:bg-primary/10
                                 hover:bg-muted/50"
-                            >
-                              {option.label}
-                            </Label>
-                          </div>
-                        ))}
-                      </RadioGroup>
-                    )}
-                  />
-                  {errors.duration && (
-                    <p className="text-sm text-red-500">
-                      {errors.duration.message}
-                    </p>
+                          >
+                            {option.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
                   )}
-                </div>
+                />
+                {errors.duration && (
+                  <p className="text-sm text-red-500">
+                    {errors.duration.message}
+                  </p>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">

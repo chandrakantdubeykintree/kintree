@@ -25,7 +25,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchQuery = useDebounce(searchQuery, 1500);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const navigate = useNavigate();
   const [recentSearches, setRecentSearches] = useState(() => {

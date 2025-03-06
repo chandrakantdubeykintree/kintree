@@ -430,7 +430,7 @@ export default function NotificationsPage() {
       <div
         onClick={() => notified_by && handleNotificationClick(notification)}
         className={`p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 ${
-          !readed_at ? "bg-blue-50 dark:bg-blue-300" : ""
+          !readed_at ? "bg-blue-50 dark:bg-gray-500" : "hover:text-black"
         }`}
       >
         <div className="flex items-start gap-4">
@@ -442,16 +442,10 @@ export default function NotificationsPage() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <p
-              className={`text-sm text-black ${
-                !readed_at ? "font-semibold" : ""
-              }`}
-            >
+            <p className={`text-sm ${!readed_at ? "font-semibold" : ""}`}>
               {message}
             </p>
-            <p className="text-xs text-gray-500 mt-1">
-              @{notified_by?.username}
-            </p>
+            <p className="text-xs mt-1">@{notified_by?.username}</p>
           </div>
           {!readed_at && (
             <div className="h-2 w-2 rounded-full bg-blue-500"></div>
