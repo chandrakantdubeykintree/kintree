@@ -58,10 +58,35 @@ export const deleteMember = async (memberId) => {
 };
 
 export const addFamilyMember = async (memberData) => {
+  const formData = new FormData();
+
+  // Handle profile image if provided and valid
+  if (memberData.profile_image && memberData.profile_image instanceof File) {
+    formData.append("profile_image", memberData.profile_image);
+  }
+
+  // Append other member data, excluding null/undefined values
+  Object.entries(memberData).forEach(([key, value]) => {
+    if (
+      key !== "profile_image" &&
+      value !== null &&
+      value !== undefined &&
+      value !== ""
+    ) {
+      formData.append(key, value);
+    }
+  });
+
   const response = await kintreeApi.post(
     `${api_family_tree_members}`,
-    memberData
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
+
   if (!response.data.success) {
     return handleApiError(response);
   }
@@ -69,10 +94,72 @@ export const addFamilyMember = async (memberData) => {
 };
 
 export const updateFamilyMember = async (memberData) => {
+  const formData = new FormData();
+
+  // // Essential fields that must be included
+  // const requiredFields = ["first_name", "last_name", "is_alive", "id"];
+  // const optionalFields = [
+  //   "middle_name",
+  //   "email",
+  //   "phone_no",
+  //   "age_range",
+  //   "native_place",
+  // ];
+
+  // // Handle profile image if provided and valid
+  // if (memberData.profile_image instanceof File) {
+  //   formData.append("profile_image", memberData.profile_image);
+  // }
+
+  // // First append all required fields
+  // requiredFields.forEach((field) => {
+  //   if (memberData[field] !== undefined) {
+  //     formData.append(field, memberData[field]);
+  //   }
+  // });
+
+  // // Then append optional fields if they exist
+  // optionalFields.forEach((field) => {
+  //   if (
+  //     memberData[field] !== undefined &&
+  //     memberData[field] !== null &&
+  //     memberData[field] !== ""
+  //   ) {
+  //     formData.append(field, memberData[field]);
+  //   }
+  // });
+
+  // // For debugging - log the FormData contents
+  // for (let pair of formData.entries()) {
+  //   console.log(pair[0] + ": " + pair[1]);
+  // }
+
+  if (memberData.profile_image && memberData.profile_image instanceof File) {
+    formData.append("profile_image", memberData.profile_image);
+  }
+
+  // Append other member data, excluding null/undefined values
+  Object.entries(memberData).forEach(([key, value]) => {
+    if (
+      key !== "profile_image" &&
+      value !== null &&
+      value !== undefined &&
+      value !== ""
+    ) {
+      formData.append(String(key), value);
+    }
+  });
+
   const response = await kintreeApi.put(
     `${api_family_tree_members}/${memberData.id}`,
-    memberData
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
+
   if (!response.data.success) {
     return handleApiError(response);
   }
@@ -130,8 +217,8 @@ export const useAddFamilyMember = () => {
       });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Failed to add family member"
+      Object.entries(error.data.errors)?.map((error) =>
+        toast.error(error[1][0])
       );
     },
   });
@@ -143,6 +230,8 @@ export const useUpdateFamilyMember = () => {
     mutationFn: updateFamilyMember,
     onSuccess: async (data, variables) => {
       toast.success("Member updated successfully");
+      console.log(data, variables);
+
       // Invalidate family tree data
       try {
         // First invalidate family tree
@@ -166,7 +255,9 @@ export const useUpdateFamilyMember = () => {
       }
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update member");
+      Object.entries(error.data.errors)?.map((error) =>
+        toast.error(error[1][0])
+      );
     },
   });
 };

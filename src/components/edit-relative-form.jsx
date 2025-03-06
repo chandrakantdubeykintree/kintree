@@ -26,8 +26,57 @@ import toast from "react-hot-toast";
 import { useAgeRanges } from "@/hooks/useMasters";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import AsyncComponent from "./async-component";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
+import ProfileImageUpload from "./profileImageUpload";
+import { LocationSearchInput } from "./location-search-input";
 
-// Zod schema for form validation
+const editRelativeSchema = z.object({
+  first_name: z
+    .string({
+      required_error: "First Name is required",
+    })
+    .max(20, "Must be 20 characters or less"),
+
+  middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
+
+  last_name: z
+    .string({
+      required_error: "Last Name is required",
+    })
+    .max(20, "Must be 20 characters or less"),
+
+  email: z
+    .string()
+    .email("Invalid email address")
+    .max(254, "Email must be less than 255 characters")
+    .transform((val) => (val === "" ? null : val))
+    .nullable()
+    .optional(),
+
+  phone_no: z
+    .string()
+    .refine((val) => {
+      if (!val) return true; // Optional
+      return (
+        /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
+      );
+    }, "Phone number must be valid")
+    .transform((val) => (val === "" ? null : val))
+    .nullable()
+    .optional(),
+
+  age_range: z
+    .number({
+      required_error: "Age Group is required",
+    })
+    .min(1, "Age Group is required"),
+  native_place: z.string().optional(),
+
+  profile_image: z.any().optional(),
+  is_alive: z.number().min(0).max(1),
+});
 
 export default function EditRelativeForm({
   id,
@@ -38,6 +87,7 @@ export default function EditRelativeForm({
   phone_no,
   is_alive,
   age_range_id,
+  profile_pic_url,
   onCancel,
   onSuccess,
 }) {
@@ -45,28 +95,6 @@ export default function EditRelativeForm({
     useUpdateFamilyMember();
   const { t } = useTranslation();
   const { data: ageRanges } = useAgeRanges();
-  const editRelativeSchema = (t) =>
-    z.object({
-      first_name: z
-        .string()
-        .min(1, t("first_name_required"))
-        .max(20, t("first_name_max_length")),
-      middle_name: z.string().max(20, t("middle_name_max_length")).optional(),
-      last_name: z
-        .string()
-        .min(1, t("last_name_required"))
-        .max(20, t("last_name_max_length")),
-      email: z.string().email(t("invalid_email_address")).or(z.literal("")),
-      phone_no: z
-        .string()
-        .regex(/^\+?[1-9]\d{1,14}$/, t("invalid_phone_number"))
-        .or(z.literal("")),
-      is_alive: z.number().min(0).max(1),
-      age_range: z
-        .number()
-        .min(1, t("age_range_required"))
-        .max(12, t("invalid_age_range")),
-    });
 
   const form = useForm({
     resolver: zodResolver(editRelativeSchema),
@@ -78,19 +106,22 @@ export default function EditRelativeForm({
       phone_no: phone_no || "",
       is_alive: is_alive ? 1 : 0,
       age_range: age_range_id || 1,
+      native_place: "",
+      profile_image: null,
     },
   });
 
   const onSubmit = async (values) => {
     try {
       await updateMember({
-        id,
         ...values,
+        id: id,
         is_alive: values.is_alive ? 1 : 0,
       });
       toast.success(t("member_updated_successfully"));
+      onSuccess?.();
     } catch (error) {
-      toast.error(t("failed_to_update_member"));
+      console.log(t("failed_to_update_member"));
     }
   };
   const watchIsAlive = form.watch("is_alive");
@@ -102,185 +133,232 @@ export default function EditRelativeForm({
     }
   }, [watchIsAlive, form]);
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6 mt-16 p-2 md:p-4 lg:p-6"
+    <AsyncComponent>
+      <div
+        className="relative w-full h-[150px] md:h-[200px] bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${"/illustrations/illustration_bg.png"})`,
+        }}
       >
-        <div className="text-center mb-6">
-          <h2 className="text-lg font-semibold text-primary">
+        <div className="text-center text-white pt-12">
+          <h2 className="text-xl font-semibold text-white">
             {t("edit_member_details")}
-          </h2>
-          <p className="text-sm text-gray-500">
-            {t("update_member_information_below")}
-          </p>
+          </h2>{" "}
         </div>
-
-        {/* Name Fields */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
+          <Link onClick={onCancel}>
+            <ArrowLeft className="w-5 h-5 text-primary-foreground" />
+          </Link>
+        </div>
+      </div>
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 mt-16 p-2 md:p-4 lg:p-6"
+        >
           <FormField
             control={form.control}
-            name="first_name"
+            name="profile_image"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="absolute md:top-36 top-24 left-1/2 transform -translate-x-1/2 flex m-auto">
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={t("first_name")}
-                    className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                  <ProfileImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    firstName={form.watch("first_name")}
+                    lastName={form.watch("last_name")}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="middle_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={t("middle_name")}
-                    className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="last_name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={t("last_name")}
-                    className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {watchIsAlive === 1 && (
-            <>
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        {...field}
-                        placeholder={t("email")}
-                        className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone_no"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <PhoneInput
-                        international
-                        countryCallingCodeEditable={false}
-                        defaultCountry="IN"
-                        value={field.value}
-                        onChange={field.onChange}
-                        limitMaxLength
-                        maxLength={15}
-                        placeholder={t("phone_number")}
-                        className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </>
-          )}
-
-          <FormField
-            control={form.control}
-            name="age_range"
-            render={({ field }) => (
-              <FormItem>
-                <Select
-                  onValueChange={(value) => field.onChange(Number(value))}
-                  defaultValue={field.value?.toString()}
-                >
+          {/* Name Fields */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="first_name"
+              render={({ field }) => (
+                <FormItem>
                   <FormControl>
-                    <SelectTrigger className="h-10 rounded-full text-foreground bg-background">
-                      <SelectValue placeholder={t("select_age_range")} />
-                    </SelectTrigger>
+                    <Input
+                      {...field}
+                      placeholder={t("first_name")}
+                      className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {ageRanges?.map((ageRange) => (
-                      <SelectItem
-                        key={ageRange.id}
-                        value={ageRange.id.toString()}
-                      >
-                        {ageRange.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="middle_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("middle_name")}
+                      className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("last_name")}
+                      className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {watchIsAlive === 1 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          {...field}
+                          placeholder={t("email")}
+                          className={`border bg-background border-gray-300 rounded-r-full rounded-l-full h-10 px-4`}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <PhoneInput
+                          international
+                          countryCallingCodeEditable={false}
+                          defaultCountry="IN"
+                          value={field.value}
+                          onChange={field.onChange}
+                          limitMaxLength
+                          maxLength={15}
+                          placeholder={t("phone_number")}
+                          className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
             )}
-          />
-        </div>
 
-        {/* Contact Fields */}
-        <div className="grid md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="is_alive"
-            render={({ field }) => (
-              <FormItem className="flex items-center gap-2">
-                <FormLabel>{t("living_status")}</FormLabel>
-                <FormControl>
-                  <Switch
-                    checked={field.value === 1}
-                    onCheckedChange={(checked) =>
-                      field.onChange(checked ? 1 : 0)
-                    }
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="age_range"
+              render={({ field }) => (
+                <FormItem>
+                  <Select
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    defaultValue={field.value?.toString()}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="h-10 rounded-full text-foreground bg-background">
+                        <SelectValue placeholder={t("select_age_range")} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {ageRanges?.map((ageRange) => (
+                        <SelectItem
+                          key={ageRange.id}
+                          value={ageRange.id.toString()}
+                        >
+                          {ageRange.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <div className="flex justify-end gap-4 mt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-            className="rounded-full"
-          >
-            {t("cancel")}
-          </Button>
-          <Button
-            type="submit"
-            className="rounded-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? t("saving") : t("save_changes")}
-          </Button>
-        </div>
-      </form>
-    </Form>
+          {/* Contact Fields */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="native_place"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <LocationSearchInput
+                      value={field.value}
+                      onChange={field.onChange}
+                      onBlur={field.onBlur}
+                      name={field.name}
+                      placeholder="Search for native place..."
+                      error={form.formState.errors.native_place?.message}
+                      className="rounded-full"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="is_alive"
+              render={({ field }) => (
+                <FormItem className="flex items-end gap-4">
+                  <FormLabel>{t("living_status")}</FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value === 1}
+                      onCheckedChange={(checked) =>
+                        field.onChange(checked ? 1 : 0)
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="flex justify-end gap-4 mt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+              className="rounded-full"
+            >
+              {t("cancel")}
+            </Button>
+            <Button
+              type="submit"
+              className="rounded-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? t("saving") : t("save_changes")}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </AsyncComponent>
   );
 }

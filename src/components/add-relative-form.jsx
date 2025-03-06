@@ -25,11 +25,13 @@ import {
 } from "@/components/ui/select";
 import PhoneInput from "react-phone-number-input";
 import { relationshipTypes } from "@/constants/dropDownConstants";
-import toast from "react-hot-toast";
 import { SelectLabel } from "@/components/ui/select";
 import { LocationSearchInput } from "./location-search-input";
 import AsyncComponent from "./async-component";
 import { Map } from "./map";
+import ProfileImageUpload from "./profileImageUpload";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
 
 const addRelativeSchema = z.object({
   relation: z.string({
@@ -77,7 +79,7 @@ const addRelativeSchema = z.object({
     .min(1, "Age Group is required"),
 
   native_place: z.string().optional(),
-
+  profile_image: z.any().optional(),
   is_alive: z.number().min(0).max(1).default(1),
 });
 
@@ -221,25 +223,49 @@ export default function AddRelativeForm({
       await addMember(memberData);
       onSuccess?.();
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to add member");
+      console.log("Error adding member", error);
     }
   };
 
   return (
     <AsyncComponent>
+      <div
+        className="relative w-full h-[150px] md:h-[200px] bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${"/illustrations/illustration_bg.png"})`,
+        }}
+      >
+        <div className="text-center text-white pt-12">
+          <h2 className="text-xl font-semibold">Add New Relative</h2>
+        </div>
+        <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
+          <Link onClick={onCancel}>
+            <ArrowLeft className="w-5 h-5 text-primary-foreground" />
+          </Link>
+        </div>
+      </div>
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 mt-16 p-2 md:p-4 lg:p-6"
+          className="space-y-6 p-2 md:p-4 lg:p-6 mt-16"
         >
-          <div className="text-center mb-6">
-            <h2 className="text-lg font-semibold text-primary">
-              Add New Relative
-            </h2>
-            <p className="text-sm text-gray-500">
-              Enter relative's information below
-            </p>
-          </div>
+          <FormField
+            control={form.control}
+            name="profile_image"
+            render={({ field }) => (
+              <FormItem className="absolute md:top-36 top-24 left-1/2 transform -translate-x-1/2 flex m-auto">
+                <FormControl>
+                  <ProfileImageUpload
+                    value={field.value}
+                    onChange={field.onChange}
+                    firstName={form.watch("first_name")}
+                    lastName={form.watch("last_name")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <div className="grid md:grid-cols-2 gap-4">
             <FormField
@@ -416,12 +442,12 @@ export default function AddRelativeForm({
               )}
             />
 
-            <div className="flex items-center">
+            <div className="flex items-end">
               <FormField
                 control={form.control}
                 name="is_alive"
                 render={({ field }) => (
-                  <FormItem className="flex items-center gap-2">
+                  <FormItem className="flex items-end gap-2">
                     <FormLabel>Living Status</FormLabel>
                     <FormControl>
                       <Switch

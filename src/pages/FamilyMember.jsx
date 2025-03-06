@@ -85,9 +85,9 @@ export default function FamilyMember() {
 
   return (
     <AsyncComponent isLoading={isLoading}>
-      <div className="w-full">
-        <Card className="w-full shadow-sm border-0 rounded-2xl overflow-hidden">
-          {/* Cover Image */}
+      <Card className="w-full shadow-sm border-0 rounded-2xl overflow-y-scroll h-full no_scrollbar">
+        {/* Cover Image */}
+        {!isEditing && !isAddingRelative ? (
           <div
             className="relative w-full h-[200px] bg-cover bg-center"
             style={{
@@ -99,293 +99,286 @@ export default function FamilyMember() {
           >
             {/* Profile Image */}
             <Avatar className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 w-24 h-24 border-4 border-white">
-              <AvatarImage src={familyMember?.profile_pic_url} alt="Profile" />
+              <AvatarImage
+                src={familyMember?.basic_info?.profile_pic_url}
+                alt="Profile"
+              />
               <AvatarFallback className="text-2xl">
                 {getInitials(familyMember?.basic_info?.first_name) +
                   " " +
                   getInitials(familyMember?.basic_info?.last_name)}
               </AvatarFallback>
             </Avatar>
-
             <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
               <Link to="/familytree">
                 <ArrowLeft className="w-5 h-5 text-primary-foreground" />
               </Link>
             </div>
           </div>
+        ) : null}
 
-          {isEditing ? (
-            <EditRelativeForm
-              id={familyMember.id}
-              first_name={familyMember.basic_info.first_name}
-              middle_name={familyMember.basic_info.middle_name}
-              last_name={familyMember.basic_info.last_name}
-              email={familyMember.email}
-              phone_no={familyMember.phone_no}
-              is_alive={familyMember.is_alive}
-              age_range_id={familyMember.age_range_id}
-              onCancel={() => setIsEditing(false)}
-              onSuccess={() => {
-                setIsEditing(false);
-              }}
-            />
-          ) : isAddingRelative ? (
-            <AddRelativeForm
-              id={familyMemberSelected?.id}
-              fid={familyMemberSelected?.fid}
-              mid={familyMemberSelected?.mid}
-              pid={familyMemberSelected?.pids[0]}
-              gender={familyMemberSelected?.gender}
-              onCancel={() => setIsAddingRelative(false)}
-              onSuccess={() => {
-                setIsAddingRelative(false);
-                // Optionally refresh data
-              }}
-            />
-          ) : (
-            /* Existing profile view JSX */
-            <div className="mt-16 p-2 md:p-4 lg:p-6">
-              {/* Basic Info Header */}
-              <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold">
-                  {capitalizeName(familyMember?.basic_info?.first_name)}{" "}
-                  {capitalizeName(familyMember?.basic_info?.middle_name)}{" "}
-                  {capitalizeName(familyMember?.basic_info?.last_name)}
-                </h1>
-                <p className="text-gray-600">@{familyMember?.username}</p>
-                <div className="flex gap-2 justify-center mt-2">
-                  <Badge
-                    variant="outline"
-                    className="text-primary rounded-full"
-                  >
-                    {t(familyMember?.relation)}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className="text-primary rounded-full"
-                  >
-                    {t(familyMember?.gender === "f" ? "female" : "male")}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className={
-                      familyMember?.is_alive
-                        ? "text-green-600 rounded-full"
-                        : "text-red-600 rounded-full"
-                    }
-                  >
-                    {t(familyMember?.is_alive ? "alive" : "deceased")}
-                  </Badge>
-                </div>
-                {familyMember?.basic_info?.bio && (
-                  <p className="mt-4 text-gray-600">
-                    {familyMember.basic_info.bio}
-                  </p>
-                )}
+        {isEditing ? (
+          <EditRelativeForm
+            id={familyMember.id}
+            first_name={familyMember.basic_info.first_name}
+            middle_name={familyMember.basic_info.middle_name}
+            last_name={familyMember.basic_info.last_name}
+            email={familyMember.email}
+            phone_no={familyMember.phone_no}
+            is_alive={familyMember.is_alive}
+            age_range_id={familyMember.age_range_id}
+            onCancel={() => setIsEditing(false)}
+            profile_pic_url={familyMember.profile_pic_url}
+            onSuccess={() => {
+              setIsEditing(false);
+            }}
+          />
+        ) : isAddingRelative ? (
+          <AddRelativeForm
+            id={familyMemberSelected?.id}
+            fid={familyMemberSelected?.fid}
+            mid={familyMemberSelected?.mid}
+            pid={familyMemberSelected?.pids[0]}
+            gender={familyMemberSelected?.gender}
+            onCancel={() => setIsAddingRelative(false)}
+            onSuccess={() => {
+              setIsAddingRelative(false);
+              // Optionally refresh data
+            }}
+          />
+        ) : (
+          /* Existing profile view JSX */
+          <div className="mt-16 p-2 md:p-4 lg:p-6">
+            {/* Basic Info Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-2xl font-bold">
+                {capitalizeName(familyMember?.basic_info?.first_name)}{" "}
+                {capitalizeName(familyMember?.basic_info?.middle_name)}{" "}
+                {capitalizeName(familyMember?.basic_info?.last_name)}
+              </h1>
+              <p className="text-gray-600">@{familyMember?.username}</p>
+              <div className="flex gap-2 justify-center mt-2">
+                <Badge variant="outline" className="text-primary rounded-full">
+                  {t(familyMember?.relation)}
+                </Badge>
+                <Badge variant="outline" className="text-primary rounded-full">
+                  {t(familyMember?.gender === "f" ? "female" : "male")}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={
+                    familyMember?.is_alive
+                      ? "text-green-600 rounded-full"
+                      : "text-red-600 rounded-full"
+                  }
+                >
+                  {t(familyMember?.is_alive ? "alive" : "deceased")}
+                </Badge>
               </div>
+              {familyMember?.basic_info?.bio && (
+                <p className="mt-4 text-gray-600">
+                  {familyMember.basic_info.bio}
+                </p>
+              )}
+            </div>
 
-              {/* Statistics */}
-              <div className="grid grid-cols-3 gap-4 mb-8 text-center">
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.post_count}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t("posts")}
-                  </p>
+            {/* Statistics */}
+            <div className="grid grid-cols-3 gap-4 mb-8 text-center">
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="text-2xl font-bold">{familyMember?.post_count}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("posts")}
+                </p>
+              </div>
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="text-2xl font-bold">
+                  {familyMember?.event_count}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("events")}
+                </p>
+              </div>
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <p className="text-2xl font-bold">
+                  {familyMember?.attachments?.length || 0}
+                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {t("attachments")}
+                </p>
+              </div>
+            </div>
+
+            {/* Contact Information */}
+            <InfoSection title={t("contact_information")}>
+              <InfoItem label={t("email")} value={familyMember?.email} />
+              <InfoItem label={t("phone")} value={familyMember?.phone_no} />
+              <InfoItem label={t("username")} value={familyMember?.username} />
+            </InfoSection>
+
+            {/* Additional Information */}
+            <InfoSection title={t("additional_information")}>
+              <InfoItem
+                label={t("birth_place")}
+                value={familyMember?.additional_info?.birth_place}
+              />
+              <InfoItem
+                label={t("native_place")}
+                value={familyMember?.additional_info?.native_place}
+              />
+              <InfoItem
+                label={t("current_city")}
+                value={familyMember?.additional_info?.current_city}
+              />
+              <InfoItem
+                label={t("blood_group")}
+                value={familyMember?.additional_info?.blood_group}
+              />
+              <InfoItem
+                label={t("occupation")}
+                value={familyMember?.additional_info?.occupation}
+              />
+              <InfoItem
+                label={t("relationship_status")}
+                value={t(familyMember?.additional_info?.relationship_status)}
+              />
+              <InfoItem
+                label={t("mother_tongue")}
+                value={familyMember?.additional_info?.mother_tongue}
+              />
+              {familyMember?.additional_info?.known_languages?.length > 0 && (
+                <InfoItem
+                  label={t("known_languages")}
+                  value={familyMember.additional_info.known_languages.join(
+                    ", "
+                  )}
+                />
+              )}
+            </InfoSection>
+
+            {/* Regional Information */}
+            <InfoSection title={t("regional_information")}>
+              <InfoItem
+                label={t("religion")}
+                value={familyMember?.regional_info?.religion}
+              />
+              <InfoItem
+                label={t("caste")}
+                value={familyMember?.regional_info?.caste}
+              />
+              <InfoItem
+                label={t("sub_caste")}
+                value={familyMember?.regional_info?.sub_caste}
+              />
+              <InfoItem
+                label={t("gotra")}
+                value={familyMember?.regional_info?.gotra}
+              />
+              <InfoItem
+                label={t("sect")}
+                value={familyMember?.regional_info?.sect}
+              />
+            </InfoSection>
+
+            {/* Added By Information */}
+            {familyMember?.added_by ? (
+              <InfoSection title={t("added_by")}>
+                <div className="col-span-2 flex items-center gap-4">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage
+                      src={familyMember?.added_by?.profile_pic_url}
+                      alt="Added by"
+                    />
+                    <AvatarFallback>
+                      {getInitials(familyMember?.added_by?.first_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">
+                      {capitalizeName(familyMember?.added_by?.first_name)}{" "}
+                      {capitalizeName(familyMember?.added_by?.last_name)}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      @{familyMember?.added_by?.username}
+                    </p>
+                  </div>
                 </div>
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.event_count}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t("events")}
-                  </p>
+              </InfoSection>
+            ) : null}
+
+            {/* Credentials Section */}
+            {familyMember?.password ? (
+              <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-lg font-semibold text-primary">
+                    {t("login_credentials")}
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleShareCredentials}
+                    className="flex items-center gap-2 rounded-full"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    {t("share_credentials")}
+                  </Button>
                 </div>
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.attachments?.length || 0}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t("attachments")}
-                  </p>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {t("username")}
+                    </span>
+                    <span className="font-medium">
+                      {familyMember?.username}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                      {t("password")}
+                    </span>
+                    <span className="font-medium">
+                      {familyMember?.password}
+                    </span>
+                  </div>
                 </div>
               </div>
+            ) : null}
 
-              {/* Contact Information */}
-              <InfoSection title={t("contact_information")}>
-                <InfoItem label={t("email")} value={familyMember?.email} />
-                <InfoItem label={t("phone")} value={familyMember?.phone_no} />
-                <InfoItem
-                  label={t("username")}
-                  value={familyMember?.username}
-                />
-              </InfoSection>
-
-              {/* Additional Information */}
-              <InfoSection title={t("additional_information")}>
-                <InfoItem
-                  label={t("birth_place")}
-                  value={familyMember?.additional_info?.birth_place}
-                />
-                <InfoItem
-                  label={t("native_place")}
-                  value={familyMember?.additional_info?.native_place}
-                />
-                <InfoItem
-                  label={t("current_city")}
-                  value={familyMember?.additional_info?.current_city}
-                />
-                <InfoItem
-                  label={t("blood_group")}
-                  value={familyMember?.additional_info?.blood_group}
-                />
-                <InfoItem
-                  label={t("occupation")}
-                  value={familyMember?.additional_info?.occupation}
-                />
-                <InfoItem
-                  label={t("relationship_status")}
-                  value={t(familyMember?.additional_info?.relationship_status)}
-                />
-                <InfoItem
-                  label={t("mother_tongue")}
-                  value={familyMember?.additional_info?.mother_tongue}
-                />
-                {familyMember?.additional_info?.known_languages?.length > 0 && (
-                  <InfoItem
-                    label={t("known_languages")}
-                    value={familyMember.additional_info.known_languages.join(
-                      ", "
-                    )}
-                  />
-                )}
-              </InfoSection>
-
-              {/* Regional Information */}
-              <InfoSection title={t("regional_information")}>
-                <InfoItem
-                  label={t("religion")}
-                  value={familyMember?.regional_info?.religion}
-                />
-                <InfoItem
-                  label={t("caste")}
-                  value={familyMember?.regional_info?.caste}
-                />
-                <InfoItem
-                  label={t("sub_caste")}
-                  value={familyMember?.regional_info?.sub_caste}
-                />
-                <InfoItem
-                  label={t("gotra")}
-                  value={familyMember?.regional_info?.gotra}
-                />
-                <InfoItem
-                  label={t("sect")}
-                  value={familyMember?.regional_info?.sect}
-                />
-              </InfoSection>
-
-              {/* Added By Information */}
-              {familyMember?.added_by ? (
-                <InfoSection title={t("added_by")}>
-                  <div className="col-span-2 flex items-center gap-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage
-                        src={familyMember?.added_by?.profile_pic_url}
-                        alt="Added by"
-                      />
-                      <AvatarFallback>
-                        {getInitials(familyMember?.added_by?.first_name)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">
-                        {capitalizeName(familyMember?.added_by?.first_name)}{" "}
-                        {capitalizeName(familyMember?.added_by?.last_name)}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        @{familyMember?.added_by?.username}
-                      </p>
-                    </div>
-                  </div>
-                </InfoSection>
-              ) : null}
-
-              {/* Credentials Section */}
-              {familyMember?.password ? (
-                <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-primary">
-                      {t("login_credentials")}
-                    </h2>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleShareCredentials}
-                      className="flex items-center gap-2 rounded-full"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      {t("share_credentials")}
-                    </Button>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {t("username")}
-                      </span>
-                      <span className="font-medium">
-                        {familyMember?.username}
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {t("password")}
-                      </span>
-                      <span className="font-medium">
-                        {familyMember?.password}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Action Buttons */}
-              <div className="flex gap-4 mt-8 justify-end">
+            {/* Action Buttons */}
+            <div className="flex gap-4 mt-8 justify-end">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 rounded-full"
+                onClick={handleAddRelative}
+              >
+                <UserPlus className="w-4 h-4" />
+                {t("add_relative")}
+              </Button>
+              {is_user_added_by_me && !familyMember?.is_active && (
                 <Button
                   variant="outline"
                   className="flex items-center gap-2 rounded-full"
-                  onClick={handleAddRelative}
+                  onClick={handleEdit}
                 >
-                  <UserPlus className="w-4 h-4" />
-                  {t("add_relative")}
+                  <Edit className="w-4 h-4" />
+                  {t("edit")}
                 </Button>
-                {is_user_added_by_me && !familyMember?.is_active && (
-                  <Button
-                    variant="outline"
-                    className="flex items-center gap-2 rounded-full"
-                    onClick={handleEdit}
-                  >
-                    <Edit className="w-4 h-4" />
-                    {t("edit")}
-                  </Button>
-                )}
-                {is_user_added_by_me && !familyMember?.is_active && (
-                  <Button
-                    variant="destructive"
-                    className="flex items-center gap-2 rounded-full"
-                    onClick={handleDelete}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                    {t("delete")}
-                  </Button>
-                )}
-              </div>
+              )}
+              {is_user_added_by_me && !familyMember?.is_active && (
+                <Button
+                  variant="destructive"
+                  className="flex items-center gap-2 rounded-full"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {t("delete")}
+                </Button>
+              )}
             </div>
-          )}
-        </Card>
-      </div>
+          </div>
+        )}
+      </Card>
+
       <DeleteConfirmationDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
