@@ -31,10 +31,10 @@ export default function FamilyMember() {
   const familyMemberSelected = familyTree?.find((member) => member?.id === +id);
 
   const handleShareCredentials = () => {
-    const credentials = t("credentials_format", {
-      username: familyMember?.username,
-      password: familyMember?.password,
-    });
+    const credentials = `
+      username: ${familyMember?.username},
+      password: ${familyMember?.password},
+    `;
     navigator.clipboard.writeText(credentials);
     toast.success(t("credentials_copied"));
   };

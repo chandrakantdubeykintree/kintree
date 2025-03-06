@@ -150,7 +150,7 @@ export default function KintreeMember() {
                   {capitalizeName(familyMember?.basic_info?.middle_name)}{" "}
                   {capitalizeName(familyMember?.basic_info?.last_name)}
                 </h1>
-                {/* <p className="text-gray-600">@{familyMember?.username}</p> */}
+                <p className="text-gray-600">@{familyMember?.username}</p>
                 <div className="flex gap-2 justify-center mt-2">
                   {familyMember?.relation ? (
                     <Badge
@@ -245,21 +245,24 @@ export default function KintreeMember() {
 
               {/* Basic Information */}
               <InfoSection title="Basic Information">
-                <InfoItem
+                {/* <InfoItem
                   label="User ID"
                   value={familyMember?.basic_info?.user_id}
-                />
+                /> */}
                 <InfoItem
                   label="First Name"
-                  value={familyMember?.basic_info?.first_name}
+                  value={capitalizeName(familyMember?.basic_info?.first_name)}
                 />
                 <InfoItem
                   label="Middle Name"
-                  value={familyMember?.basic_info?.middle_name || "--"}
+                  value={
+                    capitalizeName(familyMember?.basic_info?.middle_name) ||
+                    "--"
+                  }
                 />
                 <InfoItem
                   label="Last Name"
-                  value={familyMember?.basic_info?.last_name}
+                  value={capitalizeName(familyMember?.basic_info?.last_name)}
                 />
                 <InfoItem
                   label="Date of Birth"
