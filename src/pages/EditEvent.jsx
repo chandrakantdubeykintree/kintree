@@ -201,7 +201,7 @@ export default function EditEvent() {
                             placeholder={t("select_event_category")}
                           />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                           <SelectGroup>
                             <SelectLabel>{t("event_category")}</SelectLabel>
                             {eventCategories?.map((category) => (

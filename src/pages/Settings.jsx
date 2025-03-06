@@ -450,7 +450,7 @@ export default function Settings() {
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
                         <SelectValue placeholder={t("select_theme")} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                         <SelectItem value="light">{t("light")}</SelectItem>
                         <SelectItem value="dark">{t("dark")}</SelectItem>
                       </SelectContent>
@@ -473,7 +473,7 @@ export default function Settings() {
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
                         <SelectValue placeholder={t("select_language")} />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                         {Object.entries(LANGUAGES)?.map(([code, name]) => (
                           <SelectItem value={code} key={code}>
                             {name}
@@ -656,7 +656,7 @@ export default function Settings() {
                       <SelectTrigger className="bg-background text-foreground rounded-full h-10 lg:h-12">
                         <SelectValue placeholder={t("select_action")} />{" "}
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                         <SelectItem value="deactivate">
                           {t("deactivate_account")}
                         </SelectItem>

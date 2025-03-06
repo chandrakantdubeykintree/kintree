@@ -236,7 +236,7 @@ export default function Executor({ setStep, willId }) {
                     <SelectTrigger className="h-10 md:h-12 rounded-l-full rounded-r-full bg-background text-foreground">
                       <SelectValue placeholder={t("gender")} />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                       <SelectItem value="m">{t("male")}</SelectItem>
                       <SelectItem value="f">{t("female")}</SelectItem>
                     </SelectContent>

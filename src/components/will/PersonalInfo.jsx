@@ -260,7 +260,7 @@ export default function PersonalInfo({ setStep, willId }) {
                   <SelectTrigger className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground">
                     <SelectValue placeholder={t("martial_status")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                     <SelectGroup>
                       <SelectLabel>{t("select_martial_status")}</SelectLabel>
                       <SelectItem value="single">{"Single"}</SelectItem>
@@ -287,7 +287,7 @@ export default function PersonalInfo({ setStep, willId }) {
                   <SelectTrigger className="h-10 lg:h-12 rounded-l-full rounded-r-full bg-background text-foreground">
                     <SelectValue placeholder={t("occupation")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                     <SelectGroup>
                       <SelectLabel>{t("select_occupation")}</SelectLabel>
                       {occupations?.map((occupation) => (

@@ -136,7 +136,7 @@ export default function AddBeneficiaryForm({ willId, onSuccess }) {
                   <SelectTrigger className="rounded-full h-10 md:h-12">
                     <SelectValue placeholder={t("gender")} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                     <SelectItem value="m">{t("male")}</SelectItem>
                     <SelectItem value="f">{t("female")}</SelectItem>
                   </SelectContent>

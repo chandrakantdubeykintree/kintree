@@ -202,6 +202,34 @@ export default function KintreeMember() {
                 ) : null} */}
               </div>
 
+              {/* Statistics */}
+              <div className="grid grid-cols-3 gap-4 mb-8 text-center">
+                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-2xl font-bold">
+                    {familyMember?.post_count}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Posts
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-2xl font-bold">
+                    {familyMember?.event_count}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Events
+                  </p>
+                </div>
+                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-2xl font-bold">
+                    {familyMember?.attachments?.length || 0}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Attachments
+                  </p>
+                </div>
+              </div>
+
               {/* Basic Information */}
               <InfoSection title="Basic Information">
                 <InfoItem
@@ -239,34 +267,6 @@ export default function KintreeMember() {
                   value={familyMember?.basic_info?.username}
                 />
               </InfoSection>
-
-              {/* Statistics */}
-              <div className="grid grid-cols-3 gap-4 mb-8 text-center">
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.post_count}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Posts
-                  </p>
-                </div>
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.event_count}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Events
-                  </p>
-                </div>
-                <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-2xl font-bold">
-                    {familyMember?.attachments?.length || 0}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Attachments
-                  </p>
-                </div>
-              </div>
 
               {/* Additional Information */}
               <InfoSection title="Additional Information">

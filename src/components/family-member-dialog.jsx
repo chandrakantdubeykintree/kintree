@@ -255,7 +255,7 @@ export function FamilyMemberDialog({
                               />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                             <SelectItem value={1}>0-18</SelectItem>
                             <SelectItem value={2}>19-35</SelectItem>
                             <SelectItem value={3}>36-50</SelectItem>

@@ -367,7 +367,7 @@ export default function AddRelativeForm({
                         <SelectValue placeholder="Select age range" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                       {ageRanges?.map((ageRange) => (
                         <SelectItem
                           key={ageRange.id}

@@ -145,7 +145,7 @@ export default function MergeRequestForm({
                   }
                 />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl">
+              <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                 {mergeRelationType?.map((relation) => (
                   <SelectItem
                     key={relation.id}
@@ -177,7 +177,7 @@ export default function MergeRequestForm({
               <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
                 <SelectValue placeholder="Select family member" />
               </SelectTrigger>
-              <SelectContent className="rounded-2xl">
+              <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                 <CustomScrollArea maxHeight="200px">
                   {getFilteredFamilyMembers?.()?.map((member) => (
                     <SelectItem

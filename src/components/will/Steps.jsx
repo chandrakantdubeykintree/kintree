@@ -47,7 +47,7 @@ export function Steps({ steps, currentStep, willId }) {
                 className={cn(
                   "relative z-10 flex items-center justify-center w-8 h-8 rounded-full",
                   "cursor-auto",
-                  "border-2 transition-colors duration-200",
+                  "border-1 transition-colors duration-200",
                   isComplete
                     ? "bg-primary border-primary"
                     : isCurrent
