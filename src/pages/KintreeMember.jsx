@@ -18,6 +18,19 @@ import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 import { useMergeRelationTypes } from "@/hooks/useMasters";
 import { useAuth } from "@/context/AuthProvider";
 
+const formatDate = (dateString) => {
+  if (!dateString) return "--";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "--";
+  return date
+    .toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    })
+    .replace(/\//g, "-");
+};
+
 export default function KintreeMember() {
   const { id: encryptedId } = useParams();
   const [isMergeRequsetSent, setIsMergeRequestSent] = useState(false);
@@ -250,7 +263,7 @@ export default function KintreeMember() {
                 />
                 <InfoItem
                   label="Date of Birth"
-                  value={familyMember?.basic_info?.date_of_birth || "--"}
+                  value={formatDate(familyMember?.basic_info?.date_of_birth)}
                 />
                 <InfoItem
                   label="Gender"
