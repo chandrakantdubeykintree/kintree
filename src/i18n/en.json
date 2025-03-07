@@ -809,5 +809,6 @@
   "will_terms_conditions": "I have read and understood the terms and conditions.",
   "email_not_registered": "Email is not registered",
   "otp_verification_failed": "OTP Verification Failed",
-  "add_new_relative": "Add New Relative"
+  "add_new_relative": "Add New Relative",
+  "user_not_registered": "User not registered"
 }

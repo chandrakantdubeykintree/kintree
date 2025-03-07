@@ -33,11 +33,6 @@ const handleApiError = (error) => {
 };
 
 export const fetchProducts = async () => {
-  // const consumerKey = "ck_97d58331f790680929e55505b4d8e27f70075ee4";
-  // const consumerSecret = "cs_4b940025f049ef61ab8c9ba571be953743a6a30c";
-  // const url = "https://web.kintree.info/wp-json/wc/v3/products";
-  // const authString = btoa(`${consumerKey}:${consumerSecret}`);
-
   const myHeaders = new Headers();
   myHeaders.append(
     "Authorization",

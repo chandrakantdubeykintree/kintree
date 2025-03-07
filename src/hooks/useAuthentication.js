@@ -328,7 +328,7 @@ export const useAuthentication = () => {
       toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, t("email_not_registered"));
+      handleApiError(error, t("user_not_registered"));
     },
   });
 
