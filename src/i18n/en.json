@@ -806,5 +806,7 @@
   "selfie_instructions_3": "Please make sure your Government ID is clearly visible.",
   "selfie_instructions_4": "Make sure all the text on your ID card is clearly visible.",
   "will_consent": "I hereby declare that my property located in India/Abroad shall be distributed among the following individual(s).",
-  "will_terms_conditions": "I have read and understood the terms and conditions.."
+  "will_terms_conditions": "I have read and understood the terms and conditions.",
+  "email_not_registered": "Email is not registered",
+  "otp_verification_failed": "OTP Verification Failed"
 }

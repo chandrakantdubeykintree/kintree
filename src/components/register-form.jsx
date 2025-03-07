@@ -299,7 +299,7 @@ export function RegisterForm({ setOpenTerms }) {
               >
                 {resendOtp
                   ? t("resend_otp")
-                  : `${t("resend_otp")} - ${resendOTPIn}' ${t(
+                  : `${t("resend_otp")} - ${resendOTPIn} ${t(
                       "seconds"
                     ).toLocaleLowerCase()}`}
               </Button>

@@ -328,7 +328,7 @@ export const useAuthentication = () => {
       toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, t("error_sending_otp"));
+      handleApiError(error, t("email_not_registered"));
     },
   });
 
@@ -412,7 +412,7 @@ export const useAuthentication = () => {
       toast.success(t("otp_sent_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, t("error_sending_otp"));
+      handleApiError(error, t("email_not_registered"));
     },
   });
 
@@ -435,7 +435,7 @@ export const useAuthentication = () => {
       toast.success(t("otp_verified_successfully"));
     },
     onError: (error) => {
-      handleApiError(error, t("error_verifying_otp"));
+      handleApiError(error, t("otp_verification_failed"));
     },
   });
 

@@ -57,13 +57,13 @@ export default function RegisterStepForm({
     5: z.object({
       father_first_name: z.string().min(1, t("father_first_name_required")),
       father_last_name: z.string().min(1, t("father_last_name_required")),
-      grand_father_name: z.string().min(1, t("grandfather_name_required")),
+      grand_father_name: z.string().optional(), // Remove min() validation
     }),
 
     6: z.object({
       mother_first_name: z.string().min(1, t("mother_first_name_required")),
       mother_last_name: z.string().min(1, t("mother_last_name_required")),
-      grand_father_name: z.string().min(1, t("grandfather_name_required")),
+      grand_father_name: z.string().optional(), // Remove min() validation
     }),
   };
 
@@ -89,7 +89,14 @@ export default function RegisterStepForm({
   };
 
   const renderStepContent = () => {
-    const props = { register, errors, watch, setValue, gender };
+    const props = {
+      register,
+      errors,
+      watch,
+      setValue,
+      gender,
+      handleSubmit: () => handleSubmit(handleFormSubmit)(),
+    };
     switch (currentStep) {
       case 1:
         return <StepOne {...props} />;

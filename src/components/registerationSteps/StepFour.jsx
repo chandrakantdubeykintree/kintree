@@ -5,7 +5,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { profileImage } from "@/constants/presetAvatars";
 import { useTranslation } from "react-i18next";
 
-export function StepFour({ register, errors, setValue, watch, gender }) {
+export function StepFour({
+  register,
+  errors,
+  setValue,
+  watch,
+  gender,
+  handleSubmit,
+}) {
   const { t } = useTranslation();
   const [selectedPresetId, setSelectedPresetId] = useState(null);
   const watchedImage = watch("profile_image");
@@ -35,6 +42,7 @@ export function StepFour({ register, errors, setValue, watch, gender }) {
     setValue("skipped", 1);
     setValue("profile_image", null);
     setValue("preseted_profile_image_id", null);
+    handleSubmit();
   };
 
   // Get the current avatar URL based on selection type

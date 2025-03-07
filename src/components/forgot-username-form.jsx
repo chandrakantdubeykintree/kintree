@@ -97,8 +97,7 @@ export function ForgotUsernameForm({ setOpenTerms }) {
   });
 
   const isValidOtp = (otp) => {
-    const requiredLength = countryCode === "+91" ? 4 : 6;
-    return /^\d+$/.test(otp) && otp.length === requiredLength;
+    return /^\d+$/.test(otp) && otp.length === otpLength;
   };
 
   const watchedValues = watch();
@@ -108,36 +107,38 @@ export function ForgotUsernameForm({ setOpenTerms }) {
     if (loginType === "phone_no" || loginType === "email") {
       try {
         const response = await sendOTPForgotUsername({
-          [loginType]: data[loginType],
+          [loginType]:
+            loginType === "phone_no"
+              ? countryCode + data[loginType]
+              : data[loginType],
         });
         if (response.status) {
           setIsOtpSent(true);
           setResendOtp(false);
           setResendOTPIn(30);
           setLoginType("otp");
-          if (loginType === "phone_no") {
-            const currentPhoneNo = data.phone_no || "";
-            setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
-          }
+          setOtpLength(
+            loginType === "phone_no" && countryCode === "+91" ? 4 : 6
+          );
         }
       } catch (error) {
-        toast.error(error?.response?.data?.message || "Failed to send OTP");
+        console.log(error);
       }
     } else if (loginType === "otp") {
       try {
         const response = await verifyOTPForgotUsername({
           otp: data.otp,
           [watchedValues.phone_no ? "phone_no" : "email"]:
-            watchedValues[watchedValues.phone_no ? "phone_no" : "email"],
+            watchedValues.phone_no
+              ? `${countryCode}${watchedValues.phone_no}`
+              : watchedValues.email,
         });
         if (response.success) {
           setUsername(response.data.username);
           setShowUsernameDialog(true);
         }
       } catch (error) {
-        toast.error(
-          error?.response?.data?.message || "OTP verification failed"
-        );
+        console.log(error);
       }
     }
   };
@@ -254,9 +255,7 @@ export function ForgotUsernameForm({ setOpenTerms }) {
           <CardDescription className="space-y-4">
             {isOtpSent && (
               <div className="text-[16px] text-gray-400 text-center mb-2">
-                {(countryCode === "+91") & (loginType === "phone_no")
-                  ? t("enter_otp_4")
-                  : t("enter_otp_6")}
+                {otpLength === 4 ? t("enter_otp_4") : t("enter_otp_6")}
               </div>
             )}
             {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
@@ -340,7 +339,7 @@ export function ForgotUsernameForm({ setOpenTerms }) {
                 >
                   {resendOtp
                     ? t("resend_otp")
-                    : `${t("resend_otp")} - ${resendOTPIn}' ${t(
+                    : `${t("resend_otp")} - ${resendOTPIn} ${t(
                         "seconds"
                       ).toLocaleLowerCase()}`}
                 </Button>

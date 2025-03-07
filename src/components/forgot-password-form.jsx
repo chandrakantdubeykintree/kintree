@@ -122,8 +122,9 @@ export function ForgotPasswordForm({ setOpenTerms }) {
         setResendOTPIn(30);
         setLoginType("otp");
         if (loginType === "phone_no") {
-          const currentPhoneNo = data.phone_no || "";
-          setOtpLength(currentPhoneNo.startsWith("+91") ? 4 : 6);
+          setOtpLength(countryCode === "+91" ? 4 : 6);
+        } else {
+          setOtpLength(6);
         }
       }
     } else if (loginType === "otp") {
@@ -284,9 +285,7 @@ export function ForgotPasswordForm({ setOpenTerms }) {
         <CardDescription className="space-y-4">
           {isOtpSent && loginType === "otp" && (
             <div className="text-[16px] text-gray-400 text-center mb-2">
-              {(countryCode === "+91") & (loginType === "phone_no")
-                ? t("enter_otp_4")
-                : t("enter_otp_6")}
+              {otpLength === 4 ? t("enter_otp_4") : t("enter_otp_6")}
             </div>
           )}
           {(watchedValues.email || watchedValues.phone_no) && isOtpSent && (
@@ -369,7 +368,7 @@ export function ForgotPasswordForm({ setOpenTerms }) {
               >
                 {resendOtp
                   ? t("resend_otp")
-                  : `${t("resend_otp")} - ${resendOTPIn}' ${t(
+                  : `${t("resend_otp")} - ${resendOTPIn} ${t(
                       "seconds"
                     ).toLocaleLowerCase()}`}
               </Button>
