@@ -157,7 +157,6 @@ export default function Posts({ post, user }) {
                       {format(updated_at, "dd MMM yyyy 'at' h:mmaaa")}
                     </span>
                   )}
-                  <span>•</span>
                   <img
                     src={
                       PRIVACYDROPDOWN?.find((item) => item.id === privacy)?.icon
@@ -166,7 +165,6 @@ export default function Posts({ post, user }) {
                   />
                   {post_data?.feeling && (
                     <span className="text-sm font-medium flex items-center gap-1 text-primary">
-                      <span>•</span>
                       {t(post_data?.feeling.name)}
                       <img
                         src={post_data?.feeling.image_url}

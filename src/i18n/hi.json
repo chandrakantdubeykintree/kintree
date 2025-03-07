@@ -44,7 +44,7 @@
   "unauthorized_edit": "आप इस पोस्ट को संपादित करने के लिए अधिकृत नहीं हैं",
   "load_post_error": "पोस्ट लोड करने में विफल",
   "update_post_error": "पोस्ट अपडेट करने में विफल",
-  "credentials_format": "उपयोगकर्ता नाम: {{उपयोगकर्ता नाम}}पासवर्ड: {{पासवर्ड}}",
+  "credentials_format": "उपयोगकर्ता नाम: {{username}}पासवर्ड: {{password}}",
   "credentials_copied": "क्रेडेंशियल्स क्लिपबोर्ड पर कॉपी किए गए!",
   "alive": "जीवित",
   "deceased": "मृतक",
