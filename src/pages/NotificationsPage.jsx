@@ -214,6 +214,7 @@ export default function NotificationsPage() {
     isMarkingAsRead,
     isMarkingAsUnread,
     isDeleting,
+    unreadCount,
   } = useNotifications(10);
 
   const { ref, inView } = useInView();
@@ -272,10 +273,6 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("notifications");
   const { mutate: cancelMergeRequest, isLoading: isCancelling } =
     useCancelMergeRequest();
-
-  const getUnreadCount = () => {
-    return notifications.filter((n) => !n.readed_at).length;
-  };
 
   const getMergeRequestsCount = () => {
     return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
@@ -473,7 +470,7 @@ export default function NotificationsPage() {
             {
               label: t("notifications"),
               value: "notifications",
-              count: getUnreadCount(),
+              count: unreadCount,
             },
             {
               label: t("merge_requests"),

@@ -9,7 +9,7 @@ import Selfie from "@/components/will/Selfie";
 import { Steps } from "@/components/will/Steps";
 import UnsavedChangesDialog from "@/components/will/UnsavedChangesDialog";
 import { useWill } from "@/hooks/useWill";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function EditWill() {
@@ -44,8 +44,14 @@ export default function EditWill() {
         return <Notarize setStep={setStep} willId={willData?.data?.id} />;
     }
   }
+  useEffect(() => {
+    const scrollContainer = document.querySelector(".scroll-top");
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+    }
+  }, [step]);
   return (
-    <Card className="mx-auto p-0 py-4 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full">
+    <Card className="mx-auto p-0 py-4 bg-background rounded-2xl overflow-y-scroll no_scrollbar h-full scroll-top">
       <Card className="mx-auto p-2 py-4 md:p-4 lg:p-6 bg-background rounded-2xl border-0 shadow-none">
         {step !== "acknowledge" && (
           <div className="mb-8 flex justify-between items-center overflow-x-scroll no_scrollbar w-full">

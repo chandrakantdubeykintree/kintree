@@ -32,6 +32,7 @@ import { Map } from "./map";
 import ProfileImageUpload from "./profileImageUpload";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const addRelativeSchema = z.object({
   relation: z.string({
@@ -76,7 +77,7 @@ const addRelativeSchema = z.object({
     .number({
       required_error: "Age Group is required",
     })
-    .min(1, "Age Group is required"),
+    .optional(),
 
   native_place: z.string().optional(),
   profile_image: z.any().optional(),
@@ -95,6 +96,7 @@ export default function AddRelativeForm({
   const { mutateAsync: addMember, isLoading: isSubmitting } =
     useAddFamilyMember();
   const { data: ageRanges } = useAgeRanges();
+  const { t } = useTranslation();
 
   const form = useForm({
     resolver: zodResolver(addRelativeSchema),
@@ -229,261 +231,264 @@ export default function AddRelativeForm({
 
   return (
     <AsyncComponent>
-      <div
-        className="relative w-full h-[150px] md:h-[200px] bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${"/illustrations/illustration_bg.png"})`,
-        }}
-      >
-        <div className="text-center text-white pt-12">
-          <h2 className="text-xl font-semibold">Add New Relative</h2>
-        </div>
-        <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
-          <Link onClick={onCancel}>
-            <ArrowLeft className="w-5 h-5 text-primary-foreground" />
-          </Link>
-        </div>
-      </div>
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 p-2 md:p-4 lg:p-6 mt-16"
-        >
-          <FormField
-            control={form.control}
-            name="profile_image"
-            render={({ field }) => (
-              <FormItem className="absolute md:top-36 top-24 left-1/2 transform -translate-x-1/2 flex m-auto">
-                <FormControl>
-                  <ProfileImageUpload
-                    value={field.value}
-                    onChange={field.onChange}
-                    firstName={form.watch("first_name")}
-                    lastName={form.watch("last_name")}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="grid md:grid-cols-2 gap-4">
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div
+            className="relative w-full h-[150px] md:h-[200px] bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${"/illustrations/illustration_bg.png"})`,
+            }}
+          >
             <FormField
               control={form.control}
-              name="relation"
+              name="profile_image"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Relation*</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-10 rounded-full">
-                        <SelectValue placeholder="Select relation" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Relation</SelectLabel>
-                        {filteredRelativesDropDown?.map((relation) => (
-                          <SelectItem key={relation.id} value={relation.value}>
-                            {relation.label}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <FormControl>
-                <Input
-                  value={relationGender === "m" ? "Male" : "Female"}
-                  disabled
-                  className="rounded-full"
-                />
-              </FormControl>
-            </FormItem>
-
-            <FormField
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
+                <FormItem className="absolute md:top-36 top-24 left-1/2 transform -translate-x-1/2 flex m-auto">
                   <FormControl>
-                    <Input {...field} className="rounded-full" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="middle_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Middle Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="rounded-full" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} className="rounded-full" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="age_range"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Age Range</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(Number(value))}
-                    defaultValue={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="h-10 rounded-full">
-                        <SelectValue placeholder="Select age range" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
-                      {ageRanges?.map((ageRange) => (
-                        <SelectItem
-                          key={ageRange.id}
-                          value={ageRange.id.toString()}
-                        >
-                          {ageRange.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="email" className="rounded-full" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone_no"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      international
-                      countryCallingCodeEditable={false}
-                      defaultCountry="IN"
+                    <ProfileImageUpload
                       value={field.value}
                       onChange={field.onChange}
-                      limitMaxLength
-                      maxLength={15}
-                      className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                      firstName={form.watch("first_name")}
+                      lastName={form.watch("last_name")}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
+              <Link onClick={onCancel}>
+                <ArrowLeft className="w-5 h-5 text-primary-foreground" />
+              </Link>
+            </div>
+          </div>
 
-            <FormField
-              control={form.control}
-              name="native_place"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Native Place</FormLabel>
-                  <FormControl>
-                    <LocationSearchInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      onBlur={field.onBlur}
-                      name={field.name}
-                      placeholder="Search for native place..."
-                      error={form.formState.errors.native_place?.message}
-                      className="rounded-full"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <div className="text-center pt-12">
+            <h2 className="text-xl font-semibold">{t("add_new_relative")}</h2>
+          </div>
 
-            <div className="flex items-end">
+          <div className="space-y-6 p-2 md:p-4 lg:p-6">
+            <div className="grid md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="is_alive"
+                name="relation"
                 render={({ field }) => (
-                  <FormItem className="flex items-end gap-2">
-                    <FormLabel>Living Status</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value === 1}
-                        onCheckedChange={(checked) =>
-                          field.onChange(checked ? 1 : 0)
-                        }
-                        className="data-[state=checked]:bg-brandPrimary data-[state=checked]:border-brandPrimary data-[state=checked]:hover:bg-brandPrimary data-[state=checked]:hover:border-brandPrimary"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      {field.value === 1 ? "Alive" : "Deceased"}
-                    </FormDescription>
+                  <FormItem>
+                    <FormLabel>Relation*</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10 rounded-full">
+                          <SelectValue placeholder="Select relation" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Relation</SelectLabel>
+                          {filteredRelativesDropDown?.map((relation) => (
+                            <SelectItem
+                              key={relation.id}
+                              value={relation.value}
+                            >
+                              {relation.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-          </div>
 
-          <div className="flex justify-end gap-4 mt-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onCancel}
-              className="rounded-full"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="rounded-full bg-brandPrimary text-white"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Adding..." : "Add Member"}
-            </Button>
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <FormControl>
+                  <Input
+                    value={relationGender === "m" ? "Male" : "Female"}
+                    disabled
+                    className="rounded-full"
+                  />
+                </FormControl>
+              </FormItem>
+
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="rounded-full" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="middle_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Middle Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="rounded-full" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} className="rounded-full" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="age_range"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Age Range</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(Number(value))}
+                      defaultValue={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10 rounded-full">
+                          <SelectValue placeholder="Select age range" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
+                        {ageRanges?.map((ageRange) => (
+                          <SelectItem
+                            key={ageRange.id}
+                            value={ageRange.id.toString()}
+                          >
+                            {ageRange.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" className="rounded-full" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phone_no"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <PhoneInput
+                        international
+                        countryCallingCodeEditable={false}
+                        defaultCountry="IN"
+                        value={field.value}
+                        onChange={field.onChange}
+                        limitMaxLength
+                        maxLength={15}
+                        className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="native_place"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Native Place</FormLabel>
+                    <FormControl>
+                      <LocationSearchInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        placeholder="Search for native place..."
+                        error={form.formState.errors.native_place?.message}
+                        className="rounded-full"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-end">
+                <FormField
+                  control={form.control}
+                  name="is_alive"
+                  render={({ field }) => (
+                    <FormItem className="flex items-end gap-2">
+                      <FormLabel>Living Status</FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value === 1}
+                          onCheckedChange={(checked) =>
+                            field.onChange(checked ? 1 : 0)
+                          }
+                          className="data-[state=checked]:bg-brandPrimary data-[state=checked]:border-brandPrimary data-[state=checked]:hover:bg-brandPrimary data-[state=checked]:hover:border-brandPrimary"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value === 1 ? "Alive" : "Deceased"}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="rounded-full"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="rounded-full bg-brandPrimary text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Adding..." : "Add Member"}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

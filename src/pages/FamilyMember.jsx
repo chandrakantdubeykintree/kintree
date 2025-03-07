@@ -158,9 +158,14 @@ export default function FamilyMember() {
               </h1>
               <p className="text-gray-600">@{familyMember?.username}</p>
               <div className="flex gap-2 justify-center mt-2">
-                <Badge variant="outline" className="text-primary rounded-full">
-                  {t(familyMember?.relation)}
-                </Badge>
+                {familyMember?.relation ? (
+                  <Badge
+                    variant="outline"
+                    className="text-primary rounded-full"
+                  >
+                    {t(familyMember?.relation)}
+                  </Badge>
+                ) : null}
                 <Badge variant="outline" className="text-primary rounded-full">
                   {t(familyMember?.gender === "f" ? "female" : "male")}
                 </Badge>
@@ -379,13 +384,15 @@ export default function FamilyMember() {
         )}
       </Card>
 
-      <DeleteConfirmationDialog
-        isOpen={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        memberId={familyMember?.id}
-        onConfirm={handleConfirmDelete}
-        memberName={`${familyMember?.basic_info?.first_name} ${familyMember?.basic_info?.last_name}`}
-      />
+      {showDeleteDialog ? (
+        <DeleteConfirmationDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          memberId={familyMember?.id}
+          onConfirm={handleConfirmDelete}
+          memberName={`${familyMember?.basic_info?.first_name} ${familyMember?.basic_info?.last_name}`}
+        />
+      ) : null}
     </AsyncComponent>
   );
 }

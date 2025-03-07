@@ -22,6 +22,7 @@ import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
 import { useTranslation } from "react-i18next";
+import { format } from "date-fns";
 export default function Post({ post, user, onReactionUpdate }) {
   const { t } = useTranslation();
   const {
@@ -93,14 +94,15 @@ export default function Post({ post, user, onReactionUpdate }) {
                   </h3>
                 </div>
                 <div className="flex flex-wrap items-center space-x-2 text-sm">
-                  <span>{formatTimeAgo(created_at)}</span>
-                  {updated_at && created_at !== updated_at && (
-                    <>
-                      <span>•</span>
-                      <span>
-                        {t("edited")} {formatTimeAgo(updated_at)}
-                      </span>
-                    </>
+                  {created_at !== updated_at ? (
+                    <span>
+                      {format(created_at, "dd MMM yyyy 'at' h:mmaaa")}
+                    </span>
+                  ) : (
+                    <span>
+                      {t("edited")}{" "}
+                      {format(updated_at, "dd MMM yyyy 'at' h:mmaaa")}
+                    </span>
                   )}
                   <img
                     src={

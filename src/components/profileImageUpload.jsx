@@ -8,8 +8,9 @@ export default function ProfileImageUpload({
   onChange,
   firstName,
   lastName,
+  imgSrc,
 }) {
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState(() => imgSrc || null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];

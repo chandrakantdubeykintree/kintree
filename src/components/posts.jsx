@@ -147,15 +147,15 @@ export default function Posts({ post, user }) {
                   </h3>
                 </div>
                 <div className="flex flex-wrap items-center space-x-2 text-sm">
-                  {/* <span>{formatTimeAgo(created_at)}</span> */}
-                  <span>{format(created_at, "dd MMM yyyy 'at' h:mmaaa")}</span>
-                  {updated_at && created_at !== updated_at && (
-                    <>
-                      <span>•</span>
-                      <span>
-                        {t("edited")} {format(updated_at, "dd MMM yyyy")}
-                      </span>
-                    </>
+                  {created_at !== updated_at ? (
+                    <span>
+                      {format(created_at, "dd MMM yyyy 'at' h:mmaaa")}
+                    </span>
+                  ) : (
+                    <span>
+                      {t("edited")}{" "}
+                      {format(updated_at, "dd MMM yyyy 'at' h:mmaaa")}
+                    </span>
                   )}
                   <span>•</span>
                   <img

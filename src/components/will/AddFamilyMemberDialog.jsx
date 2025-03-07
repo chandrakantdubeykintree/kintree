@@ -13,6 +13,7 @@ export default function AddFamilyMemberDialog({
   willId,
   onSuccess,
   familyMembers,
+  onCancel,
 }) {
   const { t } = useTranslation();
   const { addMemberBeneficiaries, isAddingMemberBeneficiaries } = useWill();
@@ -102,7 +103,8 @@ export default function AddFamilyMemberDialog({
         <Button
           className="rounded-full h-10 lg:h-12 px-4 lg:px-6"
           variant="outline"
-          onClick={onSuccess}
+          onClick={onCancel}
+          type="button"
         >
           {t("cancel")}
         </Button>

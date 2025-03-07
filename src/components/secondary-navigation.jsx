@@ -13,7 +13,7 @@ export default function SecondaryNavigation() {
   const { data: unreadMessages } = useUnreadMessages();
   const unreadedMessageCount = unreadMessages?.data?.unreaded_message_count;
 
-  const { unreadCount } = useNotifications(5);
+  const { unreadCount } = useNotifications(10);
 
   return (
     <Card className="w-full max-w-sm mx-auto shadow-sm border-0 rounded-2xl overflow-hidden">

@@ -136,7 +136,7 @@ export default function CustomDateMonthYearPicker({
           {getDisplayText()}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-4" align="start">
+      <PopoverContent className="w-auto p-4 rounded-2xl" align="start">
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <Button
@@ -161,10 +161,10 @@ export default function CustomDateMonthYearPicker({
                 value={selectedDate.getMonth().toString()}
                 onValueChange={(value) => handleMonthChange(parseInt(value))}
               >
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="w-[80px]">
                   <SelectValue>{months[selectedDate.getMonth()]}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-2xl max-h-[200px] overflow-y-auto no_scrollbar">
                   {months.map((month, index) => (
                     <SelectItem key={index} value={index.toString()}>
                       {month}
@@ -177,10 +177,10 @@ export default function CustomDateMonthYearPicker({
                 value={selectedDate.getFullYear().toString()}
                 onValueChange={handleYearChange}
               >
-                <SelectTrigger className="w-[100px]">
+                <SelectTrigger className="w-[80px]">
                   <SelectValue>{selectedDate.getFullYear()}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="rounded-2xl max-h-[200px] overflow-y-auto no_scrollbar">
                   {years.map((year) => (
                     <SelectItem key={year} value={year.toString()}>
                       {year}

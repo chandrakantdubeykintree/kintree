@@ -87,7 +87,7 @@ export default function Beneficiaries({ setStep, willId }) {
                 {t("add_beneficiary_family_member")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[650px] overflow-y-auto no_scrollbar">
+            <DialogContent className="max-w-[90%] w-[650px] max-h-[90vh] h-[650px] overflow-y-auto no_scrollbar rounded-2xl sm:rounded-2xl">
               <DialogHeader className="space-y-4">
                 <DialogTitle className="text-xl font-semibold">
                   {t("add_beneficiary_family_member")}
@@ -118,6 +118,7 @@ export default function Beneficiaries({ setStep, willId }) {
                 willId={willId}
                 onSuccess={() => setIsAddFamilyMemberDialogOpen(false)}
                 familyMembers={filteredFamilyMembers}
+                onCancel={() => setIsAddFamilyMemberDialogOpen(false)}
               />
             </DialogContent>
           </Dialog>
@@ -134,7 +135,7 @@ export default function Beneficiaries({ setStep, willId }) {
                 {t("add_non_relative")}
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[90%] w-[650px] rounded-lg max-h-[90vh] overflow-y-scroll no_scrollbar">
+            <DialogContent className="max-w-[90%] max-h-[90vh] h-[650px] w-[650px]  overflow-y-scroll no_scrollbar rounded-2xl sm:rounded-2xl">
               <DialogHeader>
                 <DialogTitle>{t("add_new_beneficary")}</DialogTitle>
               </DialogHeader>

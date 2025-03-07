@@ -230,7 +230,6 @@ export const useUpdateFamilyMember = () => {
     mutationFn: updateFamilyMember,
     onSuccess: async (data, variables) => {
       toast.success("Member updated successfully");
-      console.log(data, variables);
 
       // Invalidate family tree data
       try {
