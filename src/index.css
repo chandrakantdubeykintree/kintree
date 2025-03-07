@@ -207,6 +207,7 @@ button[data-state="active"] {
 .bft-search {
   top: 15px !important;
   right: 15% !important;
+  max-width: 250px;
 }
 
 .bft-light .bft-input > input,
@@ -243,6 +244,32 @@ button[data-state="active"] {
   border-radius: 20px;
   padding: 10px;
   display: inline-flex;
+}
+
+@media (max-width: 1024px) {
+  .bft-search {
+    top: 15px !important;
+    left: 45% !important;
+  }
+}
+@media (max-width: 1324px) {
+  .bft-search {
+    top: 15px !important;
+    left: 45% !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .bft-search {
+    top: 75px !important;
+    left: 2.5% !important;
+    right: 2.5% !important;
+    min-width: 100vw !important;
+  }
+  .bft-toolbar-container {
+    top: 15px !important;
+    right: 0% !important;
+  }
 }
 
 .fab {

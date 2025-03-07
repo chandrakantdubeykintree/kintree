@@ -184,11 +184,11 @@ const Tree = ({ nodes, familyMembers }) => {
       nodeMouseClick: FamilyTree.action.none,
       mode: theme || "light",
       // scaleInitial: FamilyTree.match.boundary,
-      scaleInitial: 1,
+      scaleIntitial: FamilyTree.match.width,
+      // scaleInitial: 1,
       scaleMax: 2,
       enableSearch: true,
       searchFields: ["name"],
-
       orientation: FamilyTree.orientation[config.orientation],
       partnerChildrenSplitSeparation: 10,
       align: FamilyTree.ORIENTATION,
@@ -271,6 +271,20 @@ const Tree = ({ nodes, familyMembers }) => {
     );
   }, [nodes, theme, familyMembers, config]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (familyRef.current) {
+        familyRef.current.fit();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   const handleOrientationChange = (value) => {
     setConfig((prev) => ({ ...prev, orientation: value }));
   };
@@ -280,7 +294,7 @@ const Tree = ({ nodes, familyMembers }) => {
       <div className="w-full h-full relative">
         <div className="w-full flex gap-4 justify-start items-center p-4 bg-background border-b rounded-t-2xl">
           <Menu
-            className="w-6 h-6 cursor-pointer"
+            className="w-6 h-6 cursor-pointer hidden sm:block"
             onClick={() => toggleLeftSidebar()}
           />
           <div className="w-40">
@@ -315,7 +329,7 @@ const Tree = ({ nodes, familyMembers }) => {
         <div
           id="tree"
           ref={divRef}
-          className="w-full min-h-[500px] h-full !static rounded-b-2xl"
+          className="w-full min-h-[500px] h-full !static rounded-b-2xl pt-[40px] sm:pt-0"
         />
         {viewFamilyMemberDialog?.modalOpen && (
           <FamilyMemberDialog
