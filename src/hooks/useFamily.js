@@ -94,70 +94,33 @@ export const addFamilyMember = async (memberData) => {
 };
 
 export const updateFamilyMember = async (memberData) => {
-  const formData = new FormData();
+  // const formData = new FormData();
 
-  // // Essential fields that must be included
-  // const requiredFields = ["first_name", "last_name", "is_alive", "id"];
-  // const optionalFields = [
-  //   "middle_name",
-  //   "email",
-  //   "phone_no",
-  //   "age_range",
-  //   "native_place",
-  // ];
-
-  // // Handle profile image if provided and valid
-  // if (memberData.profile_image instanceof File) {
+  // if (memberData.profile_image && memberData.profile_image instanceof File) {
   //   formData.append("profile_image", memberData.profile_image);
   // }
 
-  // // First append all required fields
-  // requiredFields.forEach((field) => {
-  //   if (memberData[field] !== undefined) {
-  //     formData.append(field, memberData[field]);
-  //   }
-  // });
-
-  // // Then append optional fields if they exist
-  // optionalFields.forEach((field) => {
+  // // Append other member data, excluding null/undefined values
+  // Object.entries(memberData).forEach(([key, value]) => {
   //   if (
-  //     memberData[field] !== undefined &&
-  //     memberData[field] !== null &&
-  //     memberData[field] !== ""
+  //     key !== "profile_image" &&
+  //     value !== null &&
+  //     value !== undefined &&
+  //     value !== ""
   //   ) {
-  //     formData.append(field, memberData[field]);
+  //     formData.append(String(key), value);
   //   }
   // });
-
-  // // For debugging - log the FormData contents
-  // for (let pair of formData.entries()) {
-  //   console.log(pair[0] + ": " + pair[1]);
-  // }
-
-  if (memberData.profile_image && memberData.profile_image instanceof File) {
-    formData.append("profile_image", memberData.profile_image);
-  }
-
-  // Append other member data, excluding null/undefined values
-  Object.entries(memberData).forEach(([key, value]) => {
-    if (
-      key !== "profile_image" &&
-      value !== null &&
-      value !== undefined &&
-      value !== ""
-    ) {
-      formData.append(String(key), value);
-    }
-  });
 
   const response = await kintreeApi.put(
     `${api_family_tree_members}/${memberData.id}`,
-    formData,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    }
+    // formData
+    memberData
+    // {
+    //   headers: {
+    //     "Content-Type": "multipart/form-data",
+    //   },
+    // }
   );
 
   if (!response.data.success) {

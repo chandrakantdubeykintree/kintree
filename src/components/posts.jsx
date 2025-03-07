@@ -226,12 +226,12 @@ export default function Posts({ post, user }) {
                     : t("comment").toLowerCase()}
                 </span>
               </NavLink>
-              <button className="flex items-center gap-2  h-18 w-18">
+              {/* <button className="flex items-center gap-2  h-18 w-18">
                 <img
                   src={ICON_SHARE}
                   className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                 />
-              </button>
+              </button> */}
             </div>
           </div>
         </CardContent>

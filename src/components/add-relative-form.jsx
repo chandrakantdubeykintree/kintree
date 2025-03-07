@@ -77,7 +77,8 @@ const addRelativeSchema = z.object({
     .number({
       required_error: "Age Group is required",
     })
-    .optional(),
+    .optional()
+    .nullable(),
 
   native_place: z.string().optional(),
   profile_image: z.any().optional(),
@@ -112,6 +113,11 @@ export default function AddRelativeForm({
       gender: "",
       native_place: "",
     },
+  });
+
+  const isAlive = useWatch({
+    control: form.control,
+    name: "is_alive",
   });
 
   const calculateRelationData = (relation) => {

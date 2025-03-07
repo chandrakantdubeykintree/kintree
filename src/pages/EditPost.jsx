@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { decryptId } from "@/utils/encryption";
+import { ImagePlus, Loader2 } from "lucide-react";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -304,9 +305,9 @@ export default function EditPost() {
               {/* Existing Attachments */}
               {files.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  {/* <label className="block text-sm font-medium mb-2">
                     {t("current_attachments")}
-                  </label>
+                  </label> */}
                   <div className="grid grid-cols-2 gap-4">
                     {files.map((file, index) => (
                       <div key={file.id} className="relative group">
@@ -349,11 +350,11 @@ export default function EditPost() {
               )}
 
               {/* New Attachments */}
-              {mediaFiles.length > 0 && (
+              {files.length + mediaFiles.length < 10 && (
                 <div>
-                  <label className="block text-sm font-medium mb-2">
+                  {/* <label className="block text-sm font-medium mb-2">
                     {t("new_attachments")} {isUploading && t("uploading")}
-                  </label>
+                  </label> */}
                   <div className="grid grid-cols-2 gap-4">
                     {mediaFiles.map((file, index) => (
                       <div key={index} className="relative group">
@@ -391,27 +392,37 @@ export default function EditPost() {
                         </Button>
                       </div>
                     ))}
+                    <>
+                      <Input
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        accept="image/*,video/*"
+                        className="hidden"
+                        id="file-input"
+                      />
+
+                      <Button
+                        asChild
+                        htmlFor="file-input"
+                        variant="outline"
+                        className="h-32 w-32"
+                        disabled={isUploading}
+                      >
+                        <label>
+                          {isUploading ? (
+                            <Loader2 className="h-6 w-6 animate-spin" />
+                          ) : (
+                            <ImagePlus className="h-6 w-6" />
+                          )}
+                        </label>
+                      </Button>
+                    </>
                   </div>
                 </div>
               )}
 
               <div className="flex gap-4 justify-end">
-                <Input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  accept="image/*,video/*"
-                  className="hidden"
-                  id="file-input"
-                />
-                <Button
-                  asChild
-                  htmlFor="file-input"
-                  variant="outline"
-                  className="rounded-full h-10 md:h-12 px-4 md:px-6"
-                >
-                  <label>{t("add_files")}</label>
-                </Button>
                 <Button
                   type="submit"
                   disabled={editPostMutation.isPending}

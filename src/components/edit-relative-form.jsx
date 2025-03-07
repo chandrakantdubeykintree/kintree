@@ -107,7 +107,7 @@ export default function EditRelativeForm({
       is_alive: is_alive ? 1 : 0,
       age_range: age_range_id || 1,
       native_place: "",
-      profile_image: null,
+      // profile_image: null,
     },
   });
 
@@ -149,7 +149,7 @@ export default function EditRelativeForm({
                 <ArrowLeft className="w-5 h-5 text-primary-foreground" />
               </Link>
             </div>
-            <FormField
+            {/* <FormField
               control={form.control}
               name="profile_image"
               render={({ field }) => (
@@ -166,7 +166,7 @@ export default function EditRelativeForm({
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
           </div>
 
           <div className="text-center pt-12">
