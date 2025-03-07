@@ -462,7 +462,7 @@ export default function Settings() {
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  {/* <div className="space-y-2">
                     <Select
                       onValueChange={(value) =>
                         setLanguageValue("language", value)
@@ -486,7 +486,7 @@ export default function Settings() {
                         {languageErrors.language.message}
                       </p>
                     )}
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-end gap-2">
                     <Button
