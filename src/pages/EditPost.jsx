@@ -178,6 +178,7 @@ export default function EditPost() {
       toast.error(t("upload_failed"));
     } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
 

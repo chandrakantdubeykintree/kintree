@@ -146,8 +146,11 @@ export default function CreatePost() {
       toast.error(t("upload_failed"));
     } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
+
+  console.log(mediaFiles);
 
   const removeFile = async (index) => {
     const attachmentToDelete = uploadedAttachments[index];
