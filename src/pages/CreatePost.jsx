@@ -284,7 +284,7 @@ export default function CreatePost() {
                 />
 
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-2 gap-4">
                     {mediaFiles.map((file, index) => (
                       <div key={index} className="relative">
                         {file.type.startsWith("image/") ? (
@@ -296,7 +296,7 @@ export default function CreatePost() {
                         ) : (
                           <video
                             src={URL.createObjectURL(file)}
-                            className="w-full h-32 object-cover rounded-lg"
+                            className="w-full h-32 object-contain rounded-lg"
                             controls
                           />
                         )}

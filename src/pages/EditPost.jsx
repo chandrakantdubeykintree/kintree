@@ -316,12 +316,12 @@ export default function EditPost() {
                           <img
                             src={file.url}
                             alt=""
-                            className="w-full h-40 object-cover rounded-lg"
+                            className="w-full h-32 object-cover rounded-lg"
                           />
                         ) : (
                           <video
                             src={file.url}
-                            className="w-full h-40 object-cover rounded-lg"
+                            className="w-full h-32 object-contain rounded-lg"
                             controls
                           />
                         )}
@@ -363,12 +363,12 @@ export default function EditPost() {
                           <img
                             src={URL.createObjectURL(file)}
                             alt=""
-                            className="w-full h-40 object-cover rounded-lg"
+                            className="w-full h-32 object-cover rounded-lg"
                           />
                         ) : (
                           <video
                             src={URL.createObjectURL(file)}
-                            className="w-full h-40 object-cover rounded-lg"
+                            className="w-full h-32 object-contain rounded-lg"
                             controls
                           />
                         )}
@@ -407,7 +407,7 @@ export default function EditPost() {
                         asChild
                         htmlFor="file-input"
                         variant="outline"
-                        className="h-32 w-32"
+                        className="h-32 w-full"
                         disabled={isUploading}
                       >
                         <label>
@@ -426,7 +426,7 @@ export default function EditPost() {
               <div className="flex gap-4 justify-end">
                 <Button
                   type="submit"
-                  disabled={editPostMutation.isPending}
+                  disabled={editPostMutation.isPending || isUploading}
                   className="rounded-full h-10 md:h-12 px-4 md:px-6"
                 >
                   {editPostMutation.isPending ? t("saving") : t("save_changes")}
