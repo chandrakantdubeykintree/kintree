@@ -5,6 +5,7 @@ import {
 import { kintreeApi } from "@/services/kintreeApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 
 export const QUERY_KEYS = {
@@ -130,6 +131,8 @@ export const updateFamilyMember = async (memberData) => {
 };
 
 export const useFamily = () => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.FAMILY],
     queryFn: () => fetchFamily(1),
@@ -137,24 +140,28 @@ export const useFamily = () => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch family. Please try again later.");
+      toast.error(t("failed_fetch_family"));
     },
   });
 };
 
 export const useFamilyMembers = () => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.FAMILY_MEMBERS],
     queryFn: () => fetchFamilyMembers(),
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch family members. Please try again later.");
+      toast.error(t("failed_fetch_family_members"));
     },
   });
 };
 
 export const useMember = (memberId) => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.MEMBER, memberId],
     queryFn: () => fetchMemberById(memberId),
@@ -162,17 +169,19 @@ export const useMember = (memberId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch member details.");
+      toast.error(t("failed_fetch_member"));
     },
   });
 };
 
 export const useAddFamilyMember = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
   return useMutation({
     mutationFn: addFamilyMember,
     onSuccess: () => {
-      toast.success("Family member added successfully");
+      toast.success(t("member_added_success"));
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.FAMILY],
         refetchType: "all",
@@ -189,10 +198,12 @@ export const useAddFamilyMember = () => {
 
 export const useUpdateFamilyMember = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
   return useMutation({
     mutationFn: updateFamilyMember,
     onSuccess: async (data, variables) => {
-      toast.success("Member updated successfully");
+      toast.success(t("member_updated_success"));
 
       // Invalidate family tree data
       try {
@@ -227,10 +238,12 @@ export const useUpdateFamilyMember = () => {
 export const useDeleteMember = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
   return useMutation({
     mutationFn: deleteMember,
     onSuccess: () => {
-      toast.success("Family member deleted successfully");
+      toast.success(t("member_deleted_success"));
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.FAMILY],
         refetchType: "all",
@@ -244,7 +257,7 @@ export const useDeleteMember = () => {
       navigate("/familytree");
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to delete member");
+      toast.error(error?.response?.data?.message || t("failed_delete_member"));
     },
   });
 };

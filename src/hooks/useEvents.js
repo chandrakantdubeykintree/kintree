@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   EVENTS: "events",
@@ -80,6 +81,8 @@ export const deleteEvent = async (eventId) => {
 };
 
 export const useEvents = (filter = "upcoming") => {
+  const { t } = useTranslation();
+
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.EVENTS, filter],
     queryFn: ({ pageParam = 1 }) =>
@@ -98,12 +101,14 @@ export const useEvents = (filter = "upcoming") => {
     refetchInterval: 60000,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch events. Please try again later.");
+      toast.error(t("failed_fetch_events"));
     },
   });
 };
 
 export const useEvent = (eventId) => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.EVENT, eventId],
     queryFn: () => fetchEvent(eventId),
@@ -111,24 +116,21 @@ export const useEvent = (eventId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch event details.");
+      toast.error(t("failed_fetch_event_details"));
     },
   });
 };
 
 export const useCreateEvent = () => {
   const queryClient = useQueryClient();
-
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: createEvent,
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to create event. Please try again."
-      );
+      toast.error(error.response?.data?.message || t("failed_create_event"));
     },
     onSuccess: (data) => {
-      toast.success("Event created successfully!");
+      toast.success(t("event_created_success"));
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
   });
@@ -136,6 +138,7 @@ export const useCreateEvent = () => {
 
 export const useEditEvent = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: ({ eventId, updatedEvent }) => editEvent(eventId, updatedEvent),
@@ -145,13 +148,15 @@ export const useEditEvent = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENT, eventId] });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update event");
+      toast.error(error.response?.data?.message || t("failed_update_event"));
     },
   });
 };
 
 export const useDeleteEvent = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
   return useMutation({
     mutationFn: ({ eventId }) => deleteEvent(eventId),
     onSuccess: (_, { eventId }) => {
@@ -159,10 +164,7 @@ export const useDeleteEvent = () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.EVENTS] });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to delete event. Please try again."
-      );
+      toast.error(error.response?.data?.message || t("failed_delete_event"));
     },
   });
 };

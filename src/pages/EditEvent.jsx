@@ -172,7 +172,7 @@ export default function EditEvent() {
         );
       },
       onError: () => {
-        toast.error("Failed to delete attachment");
+        toast.error(t("failed_to_delete_attachment"));
       },
     });
   };

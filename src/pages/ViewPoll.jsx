@@ -4,21 +4,20 @@ import AsyncComponent from "@/components/async-component";
 import Post from "@/components/post";
 import { getInitials } from "@/utils/stringFormat";
 import { useAuth } from "@/context/AuthProvider";
-import { usePoll, usePost } from "@/hooks/usePosts";
+import { usePost } from "@/hooks/usePosts";
 import ComponentLoading from "@/components/component-loading";
 import PostComments from "@/components/post-comments";
 import toast from "react-hot-toast";
-import { useEffect } from "react";
-import { checkPostAccess } from "@/services/privacyChecks";
 import { decryptId } from "@/utils/encryption";
+import { useTranslation } from "react-i18next";
 
 export default function ViewPost() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const { pollId: encryptedId } = useParams();
   const pollId = decryptId(encryptedId);
   const navigate = useNavigate();
   const { data, isLoading, refetch, error } = usePost(pollId);
-  const { data: pollData } = usePoll(data?.post_data?.id);
 
   // useEffect(() => {
   //   if (!isLoading && data) {
@@ -41,7 +40,7 @@ export default function ViewPost() {
 
   if (isLoading) return <ComponentLoading />;
   if (error) {
-    toast.error("Failed to load poll");
+    toast.error(t("failed_to_load_poll"));
     navigate("/foreroom");
     return null;
   }
@@ -69,7 +68,7 @@ export default function ViewPost() {
                 />
               </svg>
             </span>
-            Back to Foreroom
+            {t("back_to_foreroom")}
           </NavLink>
         </div>
         <div className="flex flex-col gap-4 h-full">

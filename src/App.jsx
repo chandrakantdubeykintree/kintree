@@ -27,7 +27,6 @@ import {
   route_view_poll,
   route_family_tree,
   route_family_member,
-  route_family_tree_view_member,
   route_chats,
   route_events,
   route_events_create_event,

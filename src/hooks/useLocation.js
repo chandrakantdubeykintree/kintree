@@ -6,6 +6,7 @@ import { useEffect } from "react";
 export const useLocation = (searchTerm, delay = 500) => {
   const queryClient = useQueryClient();
   const debouncedSearchTerm = useDebounce(searchTerm, delay);
+  const { t } = useTranslation();
 
   const {
     data: suggestions = [],

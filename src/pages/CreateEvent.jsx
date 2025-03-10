@@ -200,7 +200,7 @@ export default function CreateEvent() {
                     {t("create_new_event")}
                   </div>
                   <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold mb-4">
-                    You will earn {coinEarnable} kincoins&nbsp;
+                    {t("you_will_earn")} {coinEarnable} {t("kincoins")}&nbsp;
                     <img
                       src="/kincoinsImg/kintree_coin.svg"
                       className="w-[18px] h-[18px]"
@@ -224,7 +224,9 @@ export default function CreateEvent() {
                               </SelectTrigger>
                               <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
                                 <SelectGroup>
-                                  <SelectLabel>Event Category</SelectLabel>
+                                  <SelectLabel>
+                                    {t("event_category")}
+                                  </SelectLabel>
                                   {eventCategories?.map((category) => (
                                     <SelectItem
                                       key={category.id}

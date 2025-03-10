@@ -182,7 +182,7 @@ export default function CreatePoll() {
 
             <CardContent className="space-y-4">
               <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold">
-                You will earn {coinEarnable} kincoins&nbsp;
+                {t("you_will_earn")} {coinEarnable} {t("kincoins")}&nbsp;
                 <img
                   src="/kincoinsImg/kintree_coin.svg"
                   className="w-[18px] h-[18px]"

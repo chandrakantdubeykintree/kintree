@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { kintreeApi } from "../services/kintreeApi";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   CHANNELS: "channels",
@@ -103,6 +104,7 @@ export const useChannel = (channelId) => {
 
 export const useCreateChannel = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: createChannel,
@@ -122,9 +124,7 @@ export const useCreateChannel = () => {
       }
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message || "Failed to create chat channel"
-      );
+      toast.error(error.response?.data?.message || t("failed_create_channel"));
     },
     onSettled: () => {
       // Always refetch channels list after mutation settles
@@ -138,6 +138,7 @@ export const useCreateChannel = () => {
 
 export const useUpdateChannel = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: updateChannel,
@@ -155,7 +156,7 @@ export const useUpdateChannel = () => {
       }
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update channel");
+      toast.error(error.response?.data?.message || t("failed_update_channel"));
     },
     onSettled: () => {
       queryClient.invalidateQueries({
@@ -168,6 +169,7 @@ export const useUpdateChannel = () => {
 
 export const useDeleteChannel = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: deleteChannel,
@@ -185,7 +187,7 @@ export const useDeleteChannel = () => {
       });
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to delete channel");
+      toast.error(error.response?.data?.message || t("failed_delete_channel"));
     },
   });
 };

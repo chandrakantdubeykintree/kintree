@@ -230,7 +230,7 @@ export default function CreatePost() {
                 <div className="text-xl font-bold">
                   {t("create_post")}
                   <div className="flex items-center py-2 text-primary max-w-56 rounded-lg text-sm font-semibold">
-                    You will earn {coinEarnable} kincoins&nbsp;
+                    {t("you_will_earn")} {coinEarnable} {t("kincoins")}&nbsp;
                     <img
                       src="/kincoinsImg/kintree_coin.svg"
                       className="w-[18px] h-[18px]"

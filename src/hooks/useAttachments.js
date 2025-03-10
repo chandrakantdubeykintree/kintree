@@ -1,6 +1,7 @@
 import { kintreeApi } from "@/services/kintreeApi";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const QUERY_KEYS = {
   ATTACHMENTS: "attachments",
@@ -27,7 +28,7 @@ const deleteAttachment = async (attachmentId) => {
     return response.data;
   } catch (error) {
     const message =
-      error.response?.data?.message || "Failed to delete attachment";
+      error.response?.data?.message || "failed_to_delete_attachment";
     toast.error(message);
     return Promise.reject(error);
   }
@@ -74,11 +75,12 @@ export const useUploadAttachment = () => {
 
 export const useDeleteAttachment = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   return useMutation({
     mutationFn: deleteAttachment,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ATTACHMENTS] });
-      toast.success("Attachment deleted successfully");
+      toast.success(t("attachment_deleted_success"));
     },
   });
 };

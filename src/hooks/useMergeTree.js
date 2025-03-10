@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   MERGE_REQUESTS: "merge-requests",
@@ -105,11 +106,12 @@ export const cancelMergeRequest = async (requestId) => {
 // Add this new hook for canceling merge requests
 export const useCancelMergeRequest = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: cancelMergeRequest,
     onSuccess: (data, requestId) => {
-      toast.success("Merge request cancelled successfully!");
+      toast.success(t("merge_request_cancelled"));
 
       // Invalidate merge requests list
       queryClient.invalidateQueries({
@@ -122,16 +124,15 @@ export const useCancelMergeRequest = () => {
       });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to cancel merge request. Please try again."
-      );
+      toast.error(error.response?.data?.message || t("failed_cancel_merge"));
     },
   });
 };
 
 // Hook for fetching merge requests
 export const useMergeRequests = (limit = 12) => {
+  const { t } = useTranslation();
+
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.MERGE_REQUESTS, limit],
     queryFn: ({ pageParam = 1 }) => fetchMergeRequests({ pageParam, limit }),
@@ -144,13 +145,15 @@ export const useMergeRequests = (limit = 12) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch merge requests. Please try again later.");
+      toast.error(t("failed_fetch_merge_requests"));
     },
   });
 };
 
 // Hook for fetching single merge request
 export const useMergeRequest = (requestId, options = {}) => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.MERGE_REQUEST, requestId],
     queryFn: () => fetchMergeRequest(requestId),
@@ -158,7 +161,7 @@ export const useMergeRequest = (requestId, options = {}) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch merge request details.");
+      toast.error(t("failed_fetch_merge_details"));
     },
   });
 };
@@ -166,10 +169,12 @@ export const useMergeRequest = (requestId, options = {}) => {
 // Hook for creating merge request
 export const useCreateMergeRequest = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: createMergeRequest,
     onSuccess: (data, variables) => {
+      toast.success(t("merge_request_created"));
       // Invalidate merge requests list
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MERGE_REQUESTS],
@@ -178,7 +183,7 @@ export const useCreateMergeRequest = () => {
       return data;
     },
     onError: (error) => {
-      console.error("Merge request creation failed:", error);
+      toast.error(error.response?.data?.message || t("failed_create_merge"));
       throw error;
     },
   });
@@ -188,11 +193,12 @@ export const useCreateMergeRequest = () => {
 export const useRespondToMergeRequest = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationFn: respondToMergeRequest,
     onSuccess: (data) => {
-      toast.success("Response submitted successfully!");
+      toast.success(t("response_submitted"));
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.MERGE_REQUESTS],
       });
@@ -202,10 +208,7 @@ export const useRespondToMergeRequest = () => {
       navigate(route_family_tree, { replace: true });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to respond to merge request. Please try again."
-      );
+      toast.error(error.response?.data?.message || t("failed_respond_merge"));
     },
   });
 };

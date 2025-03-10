@@ -17,6 +17,7 @@ import MergeRequestForm from "@/components/merge-request-form";
 import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 import { useMergeRelationTypes } from "@/hooks/useMasters";
 import { useAuth } from "@/context/AuthProvider";
+import { useTranslation } from "react-i18next";
 
 const formatDate = (dateString) => {
   if (!dateString) return "--";
@@ -32,6 +33,7 @@ const formatDate = (dateString) => {
 };
 
 export default function KintreeMember() {
+  const { t } = useTranslation();
   const { id: encryptedId } = useParams();
   const [isMergeRequsetSent, setIsMergeRequestSent] = useState(false);
   const navigate = useNavigate();
@@ -165,7 +167,7 @@ export default function KintreeMember() {
                       variant="outline"
                       className="text-primary rounded-full"
                     >
-                      {familyMember?.gender === "f" ? "Female" : "Male"}
+                      {familyMember?.gender === "f" ? t("female") : t("male")}
                     </Badge>
                   ) : null}
                   <Badge
@@ -176,7 +178,7 @@ export default function KintreeMember() {
                         : "text-red-600 rounded-full"
                     }
                   >
-                    {familyMember?.is_alive ? "Alive" : "Deceased"}
+                    {familyMember?.is_alive ? t("alive") : t("deceased")}
                   </Badge>
                 </div>
                 {familyMember?.basic_info?.bio && (
@@ -195,7 +197,7 @@ export default function KintreeMember() {
                     onClick={() => setIsMergeModalOpen(true)}
                     className="flex items-center gap-2 rounded-full"
                   >
-                    Request Tree Merge
+                    {t("request_merge")}
                   </Button>
                 ) : null}
                 {/* {!familyMember?.is_relative &&
@@ -222,7 +224,7 @@ export default function KintreeMember() {
                     {familyMember?.post_count}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Posts
+                    {t("posts")}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -230,7 +232,7 @@ export default function KintreeMember() {
                     {familyMember?.event_count}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Events
+                    {t("events")}
                   </p>
                 </div>
                 <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -238,85 +240,81 @@ export default function KintreeMember() {
                     {familyMember?.attachments?.length || 0}
                   </p>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Attachments
+                    {t("attachments")}
                   </p>
                 </div>
               </div>
 
               {/* Basic Information */}
-              <InfoSection title="Basic Information">
-                {/* <InfoItem
-                  label="User ID"
-                  value={familyMember?.basic_info?.user_id}
-                /> */}
+              <InfoSection title={t("basic_info")}>
                 <InfoItem
-                  label="First Name"
+                  label={t("first_name")}
                   value={capitalizeName(familyMember?.basic_info?.first_name)}
                 />
                 <InfoItem
-                  label="Middle Name"
+                  label={t("middle_name")}
                   value={
                     capitalizeName(familyMember?.basic_info?.middle_name) ||
                     "--"
                   }
                 />
                 <InfoItem
-                  label="Last Name"
+                  label={t("last_name")}
                   value={capitalizeName(familyMember?.basic_info?.last_name)}
                 />
                 <InfoItem
-                  label="Date of Birth"
+                  label={t("date_of_birth")}
                   value={formatDate(familyMember?.basic_info?.date_of_birth)}
                 />
                 <InfoItem
-                  label="Gender"
-                  value={
-                    familyMember?.basic_info?.gender === "m" ? "Male" : "Female"
-                  }
+                  label={t("gender")}
+                  value={t(
+                    familyMember?.basic_info?.gender === "m" ? "male" : "female"
+                  )}
                 />
                 <InfoItem
-                  label="Nickname"
+                  label={t("nickname")}
                   value={familyMember?.basic_info?.nickname || "--"}
                 />
                 <InfoItem
-                  label="Username"
+                  label={t("username")}
                   value={familyMember?.basic_info?.username}
                 />
               </InfoSection>
 
               {/* Additional Information */}
-              <InfoSection title="Additional Information">
+              <InfoSection title={t("additional_info")}>
                 <InfoItem
-                  label="Birth Place"
+                  label={t("birth_place")}
                   value={familyMember?.additional_info?.birth_place}
                 />
                 <InfoItem
-                  label="Native Place"
+                  label={t("native_place")}
                   value={familyMember?.additional_info?.native_place}
                 />
                 <InfoItem
-                  label="Current City"
+                  label={t("current_city")}
                   value={familyMember?.additional_info?.current_city}
                 />
                 <InfoItem
-                  label="Blood Group"
+                  label={t("blood_group")}
                   value={familyMember?.additional_info?.blood_group}
                 />
                 <InfoItem
-                  label="Occupation"
+                  label={t("occupation")}
                   value={familyMember?.additional_info?.occupation}
                 />
                 <InfoItem
-                  label="Relationship Status"
+                  label={t("relationship_status")}
                   value={familyMember?.additional_info?.relationship_status}
                 />
                 <InfoItem
-                  label="Mother Tongue"
+                  label={t("mother_tongue")}
                   value={familyMember?.additional_info?.mother_tongue}
                 />
                 {familyMember?.additional_info?.known_languages?.length > 0 && (
                   <InfoItem
-                    label="Known Languages"
+                    label={t("known_languages")}
                     value={familyMember.additional_info.known_languages
                       .map((lang) => lang.name)
                       .join(", ")}

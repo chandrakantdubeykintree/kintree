@@ -1,6 +1,7 @@
 import { kintreeApi } from "@/services/kintreeApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 const apiRequest = async (method, url, data = null) => {
   const response = await kintreeApi({
@@ -15,6 +16,7 @@ const fetchData = async ({ infoType }) => apiRequest("GET", `${infoType}`);
 
 export const useProfile = (infoType) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["profile", infoType],
@@ -34,12 +36,14 @@ export const useProfile = (infoType) => {
     onSuccess: (response) => {
       queryClient.invalidateQueries(["profile", infoType]);
       if (response?.data?.success) {
-        toast.success(response.data.message);
+        toast.success(t("profile_updated"));
       } else {
         toast.error(Object.values(response.data.errors).toString());
       }
     },
-    onError: (error) => console.error("Error updating profile:", error),
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || t("failed_update_profile"));
+    },
   });
 
   const deleteEducationMutation = useMutation({
@@ -52,11 +56,11 @@ export const useProfile = (infoType) => {
     },
     onSuccess: (response) => {
       queryClient.invalidateQueries(["profile", infoType]);
-      toast.success(response.data.message);
+      toast.success(t("education_deleted"));
     },
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message || "Failed to delete education"
+        error?.response?.data?.message || t("failed_delete_education")
       );
     },
   });
@@ -74,16 +78,16 @@ export const useProfile = (infoType) => {
       return response.data;
     },
     onSuccess: (data, variables) => {
-      // Invalidate multiple related queries
-      queryClient.invalidateQueries({ queryKey: ["profile"] }); // Invalidate all profile-related queries
-      queryClient.invalidateQueries({ queryKey: ["user"] }); // If you have user-related queries
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
 
-      // Show success message
-      const imageType = variables.url.includes("cover") ? "Cover" : "Profile";
-      toast.success(`${imageType} image updated successfully`);
+      const messageKey = variables.url.includes("cover")
+        ? "cover_image_updated"
+        : "profile_image_updated";
+      toast.success(t(messageKey));
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update image");
+      toast.error(error?.response?.data?.message || t("failed_update_image"));
     },
   });
 
@@ -99,11 +103,11 @@ export const useProfile = (infoType) => {
     onSuccess: (response) => {
       queryClient.invalidateQueries(["interests"]);
       queryClient.invalidateQueries(["profile", "/user/interests"]);
-      toast.success(response.data.message);
+      toast.success(t("interests_updated"));
     },
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message || "Failed to update interests"
+        error?.response?.data?.message || t("failed_update_interests")
       );
     },
   });
@@ -124,6 +128,7 @@ export const useProfile = (infoType) => {
 
 export const useInterestsMutation = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const { mutate: createInterest, isPending } = useMutation({
     mutationFn: async (data) => {
@@ -135,14 +140,13 @@ export const useInterestsMutation = () => {
       return response;
     },
     onSuccess: (response) => {
-      // Only invalidate necessary queries
       queryClient.invalidateQueries(["interests"]);
       queryClient.invalidateQueries(["profile", "/user/interests"]);
-      toast.success(response.data.message);
+      toast.success(t("interest_created"));
     },
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message || "Failed to create interest"
+        error?.response?.data?.message || t("failed_create_interest")
       );
     },
   });

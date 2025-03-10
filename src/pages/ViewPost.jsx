@@ -24,7 +24,7 @@ export default function ViewPost() {
 
   if (isLoading) return <ComponentLoading />;
   if (error) {
-    toast.error("Failed to load post");
+    toast.error(t("failed_to_load_post"));
     navigate("/foreroom");
     return null;
   }

@@ -32,51 +32,51 @@ import { ArrowLeft } from "lucide-react";
 import ProfileImageUpload from "./profileImageUpload";
 import { LocationSearchInput } from "./location-search-input";
 
-const editRelativeSchema = z.object({
-  first_name: z
-    .string({
-      required_error: "First Name is required",
-    })
-    .max(20, "Must be 20 characters or less"),
+// const editRelativeSchema = z.object({
+//   first_name: z
+//     .string({
+//       required_error: "First Name is required",
+//     })
+//     .max(20, "Must be 20 characters or less"),
 
-  middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
+//   middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
 
-  last_name: z
-    .string({
-      required_error: "Last Name is required",
-    })
-    .max(20, "Must be 20 characters or less"),
+//   last_name: z
+//     .string({
+//       required_error: "Last Name is required",
+//     })
+//     .max(20, "Must be 20 characters or less"),
 
-  email: z
-    .string()
-    .email("Invalid email address")
-    .max(254, "Email must be less than 255 characters")
-    .transform((val) => (val === "" ? null : val))
-    .nullable()
-    .optional(),
+//   email: z
+//     .string()
+//     .email("Invalid email address")
+//     .max(254, "Email must be less than 255 characters")
+//     .transform((val) => (val === "" ? null : val))
+//     .nullable()
+//     .optional(),
 
-  phone_no: z
-    .string()
-    .refine((val) => {
-      if (!val) return true; // Optional
-      return (
-        /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
-      );
-    }, "Phone number must be valid")
-    .transform((val) => (val === "" ? null : val))
-    .nullable()
-    .optional(),
+//   phone_no: z
+//     .string()
+//     .refine((val) => {
+//       if (!val) return true; // Optional
+//       return (
+//         /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
+//       );
+//     }, "Phone number must be valid")
+//     .transform((val) => (val === "" ? null : val))
+//     .nullable()
+//     .optional(),
 
-  age_range: z
-    .number({
-      required_error: "Age Group is required",
-    })
-    .min(1, "Age Group is required"),
-  native_place: z.string().optional(),
+//   age_range: z
+//     .number({
+//       required_error: "Age Group is required",
+//     })
+//     .min(1, "Age Group is required"),
+//   native_place: z.string().optional(),
 
-  profile_image: z.any().optional(),
-  is_alive: z.number().min(0).max(1),
-});
+//   profile_image: z.any().optional(),
+//   is_alive: z.number().min(0).max(1),
+// });
 
 export default function EditRelativeForm({
   id,
@@ -95,6 +95,52 @@ export default function EditRelativeForm({
     useUpdateFamilyMember();
   const { t } = useTranslation();
   const { data: ageRanges } = useAgeRanges();
+
+  const editRelativeSchema = z.object({
+    first_name: z
+      .string({
+        required_error: t("first_name_required"),
+      })
+      .max(20, t("first_name_max")),
+
+    middle_name: z.string().max(20, t("middle_name_max")).optional(),
+
+    last_name: z
+      .string({
+        required_error: t("last_name_required"),
+      })
+      .max(20, t("last_name_max")),
+
+    email: z
+      .string()
+      .email(t("invalid_email"))
+      .max(254, t("email_max_length"))
+      .transform((val) => (val === "" ? null : val))
+      .nullable()
+      .optional(),
+
+    phone_no: z
+      .string()
+      .refine((val) => {
+        if (!val) return true;
+        return (
+          /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
+        );
+      }, t("invalid_phone"))
+      .transform((val) => (val === "" ? null : val))
+      .nullable()
+      .optional(),
+
+    age_range: z
+      .number({
+        required_error: t("age_range_required"),
+      })
+      .min(1, t("age_range_required")),
+    native_place: z.string().optional(),
+
+    profile_image: z.any().optional(),
+    is_alive: z.number().min(0).max(1),
+  });
 
   const form = useForm({
     resolver: zodResolver(editRelativeSchema),
@@ -237,7 +283,7 @@ export default function EditRelativeForm({
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         name={field.name}
-                        placeholder="Search for native place..."
+                        placeholder={t("native_place_placeholder")}
                         error={form.formState.errors.native_place?.message}
                         className="rounded-full"
                       />

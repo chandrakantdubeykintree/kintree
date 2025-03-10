@@ -127,22 +127,22 @@ export default function ViewEvent() {
 
   const getEventStatus = (startAt, endAt) => {
     if (!startAt || !endAt)
-      return { text: "Unknown", className: "bg-gray-100 text-gray-600" };
+      return { text: t("unknown"), className: "bg-gray-100 text-gray-600" };
 
     const startDate = new Date(startAt);
     const endDate = new Date(endAt);
     const currentDate = new Date();
 
     if (isAfter(currentDate, endDate)) {
-      return { text: "Event Ended", className: "bg-red-100 text-red-600" };
+      return { text: t("event_ended"), className: "bg-red-100 text-red-600" };
     } else if (isAfter(currentDate, startDate)) {
       return {
-        text: "Event Ongoing",
+        text: t("event_ongoing"),
         className: "bg-green-100 text-green-600",
       };
     } else {
       return {
-        text: "Upcoming Event",
+        text: t("upcoming_event"),
         className: "bg-yellow-100 text-yellow-600",
       };
     }

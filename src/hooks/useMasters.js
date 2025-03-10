@@ -1,6 +1,7 @@
 import { kintreeApi } from "@/services/kintreeApi";
 import { useQuery } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   FEELINGS: "feelings",
@@ -176,42 +177,6 @@ export const fetchKincoinRewardEvents = async () => {
   return response.data.data;
 };
 
-export const useFetchProducts = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.PRODUCTS],
-    queryFn: fetchProducts,
-    refetchOnWindowFocus: false,
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch products");
-    },
-  });
-};
-
-export const useFeelings = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.FEELINGS],
-    queryFn: fetchFeelings,
-    refetchOnWindowFocus: false,
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch feelings");
-    },
-  });
-};
-
-export const useMergeRelationTypes = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.MERGE_RELATION_TYPES],
-    queryFn: getMergeRelationTypes,
-    refetchOnWindowFocus: false,
-    retry: 2,
-    onError: (error) => {
-      toast.error("Failed to fetch relationship types");
-    },
-  });
-};
-
 export const fetchSubCastes = async (religionId, casteId) => {
   const response = await kintreeApi.get(`/religions/${religionId}/castes`, {
     params: { caste_id: casteId },
@@ -220,19 +185,63 @@ export const fetchSubCastes = async (religionId, casteId) => {
   return response.data.data;
 };
 
+export const useFetchProducts = () => {
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.PRODUCTS],
+    queryFn: fetchProducts,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("failed_fetch_products"));
+    },
+  });
+};
+
+export const useFeelings = () => {
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.FEELINGS],
+    queryFn: fetchFeelings,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("failed_fetch_feelings"));
+    },
+  });
+};
+
+export const useMergeRelationTypes = () => {
+  const { t } = useTranslation();
+
+  return useQuery({
+    queryKey: [QUERY_KEYS.MERGE_RELATION_TYPES],
+    queryFn: getMergeRelationTypes,
+    refetchOnWindowFocus: false,
+    retry: 2,
+    onError: (error) => {
+      toast.error(t("failed_fetch_religions"));
+    },
+  });
+};
+
 export const useEventCategories = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.EVENT_CATEGORIES],
     queryFn: fetchEventCategories,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch event categories");
+      toast.error(t("failed_fetch_event_categories"));
     },
   });
 };
 
 export const usePresetProfileImages = (gender) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.PRESET_PROFILE_IMAGES, gender],
     queryFn: () => fetchPresetProfileImages(gender),
@@ -240,36 +249,39 @@ export const usePresetProfileImages = (gender) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch profile images");
+      toast.error(t("failed_fetch_profile_images"));
     },
   });
 };
 
 export const useReligions = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.RELIGIONS],
     queryFn: fetchReligions,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch religions");
+      toast.error(t("failed_fetch_religions"));
     },
   });
 };
 
 export const useReligionsAllInOne = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.RELIGIONS_ALL_IN_ONE],
     queryFn: fetchReligionsAllInOne,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch religions data");
+      toast.error(t("failed_fetch_religions_data"));
     },
   });
 };
 
 export const useCastes = (religionId) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.CASTES, religionId],
     queryFn: () => fetchCastes(religionId),
@@ -277,12 +289,13 @@ export const useCastes = (religionId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch castes");
+      toast.error(t("failed_fetch_castes"));
     },
   });
 };
 
 export const useGotras = (religionId) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.GOTRAS, religionId],
     queryFn: () => fetchGotras(religionId),
@@ -290,12 +303,13 @@ export const useGotras = (religionId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch gotras");
+      toast.error(t("failed_fetch_gotras"));
     },
   });
 };
 
 export const useSects = (religionId) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.SECTS, religionId],
     queryFn: () => fetchSects(religionId),
@@ -303,120 +317,130 @@ export const useSects = (religionId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch sects");
+      toast.error(t("failed_fetch_sects"));
     },
   });
 };
 
 export const useRelationshipTypes = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.RELATIONSHIP_TYPES],
     queryFn: fetchRelationshipTypes,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch relationship types");
+      toast.error(t("failed_fetch_relationship_types"));
     },
   });
 };
 
 export const useOccupations = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.OCCUPATIONS],
     queryFn: fetchOccupations,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch occupations");
+      toast.error(t("failed_fetch_occupations"));
     },
   });
 };
 
 export const useReactionTypes = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.REACTION_TYPES],
     queryFn: fetchReactionTypes,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch reaction types");
+      toast.error(t("failed_fetch_reaction_types"));
     },
   });
 };
 
 export const useBloodGroups = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.BLOOD_GROUPS],
     queryFn: fetchBloodGroups,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch blood groups");
+      toast.error(t("failed_fetch_blood_groups"));
     },
   });
 };
 
 export const useEducationTypes = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.EDUCATION_TYPES],
     queryFn: fetchEducationTypes,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch education types");
+      toast.error(t("failed_fetch_education_types"));
     },
   });
 };
 
 export const useInterests = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.INTERESTS],
     queryFn: fetchInterests,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch interests");
+      toast.error(t("failed_fetch_interests"));
     },
   });
 };
 
 export const useCountries = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.COUNTRIES],
     queryFn: fetchCountries,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch countries");
+      toast.error(t("failed_fetch_countries"));
     },
   });
 };
 
 export const useLanguages = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.LANGUAGES],
     queryFn: fetchLanguages,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch languages");
+      toast.error(t("failed_fetch_languages"));
     },
   });
 };
 
 export const useAgeRanges = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.AGE_RANGES],
     queryFn: fetchAgeRanges,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch age ranges");
+      toast.error(t("failed_fetch_age_ranges"));
     },
   });
 };
 
 export const useSubCastes = (religionId, casteId) => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.CASTES, religionId, casteId],
     queryFn: () => fetchSubCastes(religionId, casteId),
@@ -424,19 +448,20 @@ export const useSubCastes = (religionId, casteId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch sub-castes");
+      toast.error(t("failed_fetch_sub_castes"));
     },
   });
 };
 
 export const useKincoinRewardEvents = () => {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: [QUERY_KEYS.KINCOIN_REWARD_EVENTS],
     queryFn: fetchKincoinRewardEvents,
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch kincoin reward events");
+      toast.error(t("failed_fetch_kincoin_events"));
     },
   });
 };

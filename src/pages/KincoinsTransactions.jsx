@@ -56,9 +56,9 @@ export default function KincoinsTransactions() {
     <div className="space-y-4 md:p-4 w-full">
       {/* <div className="text-sm text-muted-foreground flex items-center justify-between">
         <h1 className="text-lg md:text-xl font-semibold text-foreground">
-          Transaction History
+          {t("transaction_history")}
         </h1>
-        <span>Total: {totalRecords}</span>
+        <span>{t("total_transactions", { count: totalRecords })}</span>
       </div> */}
 
       <div className="space-y-2 md:space-y-3">
@@ -113,7 +113,7 @@ export default function KincoinsTransactions() {
             <ComponentLoading />
           ) : (
             <span className="text-sm text-muted-foreground animate-pulse">
-              Scroll to load more
+              {t("scroll_to_load_more")}
             </span>
           )}
         </div>

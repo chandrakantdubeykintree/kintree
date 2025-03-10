@@ -26,7 +26,6 @@ import { useCancelMergeRequest } from "@/hooks/useMergeTree";
 import { useNavigate } from "react-router";
 import { route_tree_merge_request } from "@/constants/routeEnpoints";
 import { encryptId } from "@/utils/encryption";
-import { useMergeRelationTypes } from "@/hooks/useMasters";
 
 const formatDate = (dateString) => {
   const [datePart, timePart] = dateString.split(" ");
@@ -55,6 +54,7 @@ const calculateMembersRelativesCount = (mergeRequest) => {
 };
 
 const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
+  const { t } = useTranslation();
   const { data: mergeRequest, isLoading } = useMergeRequest(requestId, {
     enabled: isOpen,
   });
@@ -97,7 +97,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[90%] sm:max-w-sm rounded-2xl sm:rounded-2xl">
         <DialogHeader>
-          <DialogTitle>Merge Request Details</DialogTitle>
+          <DialogTitle>{t("merge_request_details")}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -115,22 +115,28 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <p className="font-medium">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                   {mergeRequest.is_request_sent ? (
                     <>
-                      You requested to merge family tree with{" "}
-                      {capitalizeName(mergeRequest.requested_to?.first_name)}{" "}
-                      {capitalizeName(mergeRequest.requested_to?.last_name)}
+                      {t("you_requested_merge")}{" "}
+                      <span>
+                        {capitalizeName(mergeRequest.requested_to?.first_name)}
+                        &nbsp;
+                        {capitalizeName(mergeRequest.requested_to?.last_name)}
+                      </span>
                     </>
                   ) : (
                     <>
                       {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
                       {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
-                      wants to merge
                     </>
                   )}
-                  &nbsp;as{" "}
-                  <span className="text-primary">
+                  <span className="font-normal">
+                    {mergeRequest.is_request_sent
+                      ? t("as")
+                      : t("wants_to_merge")}
+                  </span>
+                  <span className="text-primary font-semibold">
                     {mergeRequest.type?.name}
                   </span>
                 </p>
@@ -139,25 +145,25 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
 
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Their Tree Members:</span>
+                <span>{t("their_tree_members")}:</span>
                 <span className="font-medium">
                   {calculateMembersRelativesCount(mergeRequest) || 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Your Tree Members:</span>
+                <span>{t("your_tree_members")}:</span>
                 <span className="font-medium">
                   {calculateMyRelativesCount(mergeRequest) || 0}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span>Status:</span>
+                <span>{t("status")}:</span>
                 <span className="font-medium">
                   {mergeRequest.is_accepted === null
-                    ? "Pending"
+                    ? t("pending")
                     : mergeRequest.is_accepted
-                    ? "Accepted"
-                    : "Declined"}
+                    ? t("accepted")
+                    : t("declined")}
                 </span>
               </div>
             </div>
@@ -174,7 +180,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                     {isCancelling ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     ) : null}
-                    Decline
+                    {t("decline")}
                   </Button>
                   {mergeRequest?.is_request_received ? (
                     <Button
@@ -186,7 +192,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                       {isResponding ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      View Detailed Request
+                      {"view_detailed_request"}{" "}
                     </Button>
                   ) : null}
                 </div>
@@ -232,7 +238,7 @@ export default function NotificationsPage() {
     if (!notification.readed_at) {
       markAsRead(notification.id, {
         onError: () => {
-          toast.error("error marking notification read");
+          toast.error(t("failed_to_mark_read"));
         },
       });
     }
@@ -287,7 +293,7 @@ export default function NotificationsPage() {
       e.stopPropagation();
       cancelRequest(mergeRequest.id, {
         onSuccess: () => {
-          toast.success("Merge request declined successfully");
+          toast.success(t("merge_request_declined_success"));
         },
       });
     };
@@ -319,7 +325,7 @@ export default function NotificationsPage() {
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {mergeRequest.is_request_sent ? (
                   <>
-                    You requested to merge your family tree with{" "}
+                    {t("you_requested_merge")}{" "}
                     <span>
                       {capitalizeName(mergeRequest.requested_to?.first_name)}
                       &nbsp;
@@ -333,9 +339,7 @@ export default function NotificationsPage() {
                   </>
                 )}
                 <span className="font-normal">
-                  {mergeRequest.is_request_sent
-                    ? " as "
-                    : "wants to merge their family tree as "}
+                  {mergeRequest.is_request_sent ? t("as") : t("wants_to_merge")}
                 </span>
                 <span className="text-primary font-semibold">
                   {mergeRequest.type?.name}
@@ -366,7 +370,7 @@ export default function NotificationsPage() {
                     setIsViewModalOpen(true);
                   }}
                 >
-                  View Request
+                  {t("view_request")}
                 </Button>
                 <Button
                   variant="outline"
@@ -378,7 +382,7 @@ export default function NotificationsPage() {
                   {isCancelling ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
-                  Cancel Request
+                  {t("cancel_request")}
                 </Button>
               </>
             ) : (
@@ -391,7 +395,7 @@ export default function NotificationsPage() {
                     setIsViewModalOpen(true);
                   }}
                 >
-                  View Request
+                  {t("view_request")}
                 </Button>
                 <Button
                   variant="outline"
@@ -403,7 +407,7 @@ export default function NotificationsPage() {
                   {isCancelling ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
-                  Decline
+                  {t("decline")}
                 </Button>
               </>
             )}

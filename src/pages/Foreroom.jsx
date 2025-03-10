@@ -95,7 +95,7 @@ export default function Foreroom() {
               {isFetchingNextPage ? (
                 <ComponentLoading />
               ) : (
-                <span>Scroll to load more</span>
+                <span>{t("scroll_to_load_more")}</span>
               )}
             </div>
           )}

@@ -15,11 +15,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatDate } from "@/utils/formatDate";
 import CustomScrollArea from "@/components/ui/custom-scroll-area";
 import { route_family_tree } from "@/constants/routeEnpoints";
+import { useTranslation } from "react-i18next";
 
 export default function ViewTreeMergeRequest() {
   let { requestId } = useParams();
   requestId = decryptId(requestId);
-
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { data: mergeRequest, isLoading } = useMergeRequest(requestId);
   const { mutate: respondToRequest, isLoading: isResponding } =
@@ -132,10 +133,10 @@ export default function ViewTreeMergeRequest() {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <h1 className="text-xl font-bold">Merge Request</h1>
+            <h1 className="text-xl font-bold">{t("merge_request")}</h1>
             <p className="text-sm text-gray-500">
-              From {mergeRequest?.requested_by?.first_name}{" "}
-              {mergeRequest?.requested_by?.last_name} as{" "}
+              {t("from")} {mergeRequest?.requested_by?.first_name}{" "}
+              {mergeRequest?.requested_by?.last_name} {t("as")}{" "}
               {mergeRequest?.type?.name}
             </p>
             <p className="text-xs text-gray-400 mt-1">
@@ -147,13 +148,13 @@ export default function ViewTreeMergeRequest() {
         {/* Tree Members Count */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-sm font-medium">Their Tree Members</p>
+            <p className="text-sm font-medium">{t("their_tree_members")}</p>
             <p className="text-2xl font-bold">
               {mergeRequest?.sender_relatives_count}
             </p>
           </div>
           <div className="p-4 rounded-lg bg-gray-50">
-            <p className="text-sm font-medium">Your Tree Members</p>
+            <p className="text-sm font-medium">{t("your_tree_members")}</p>
             <p className="text-2xl font-bold">
               {mergeRequest?.receiver_relatives_count}
             </p>
@@ -161,7 +162,9 @@ export default function ViewTreeMergeRequest() {
         </div>
 
         <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-4">Members to be merged</h2>
+          <h2 className="text-lg font-semibold mb-4">
+            {t("members_to_merge")}
+          </h2>
           <CustomScrollArea
             className="rounded-2xl border no_scrollbar"
             maxHeight="400px"
@@ -189,18 +192,15 @@ export default function ViewTreeMergeRequest() {
                         DOB: {formatDate(relative.date_of_birth)}
                       </p>
                     )} */}
-                    {relative.relation && (
-                      <p className="text-xs text-gray-500">
-                        Relation: {relative.relation}
-                      </p>
-                    )}
+                    {relative.relation &&
+                      t("relation", { type: relative.relation })}
                   </div>
                   {/* Indicate if this member is part of a duplicate pair */}
                   {duplicateMembers.some(
                     (dup) => dup.sender.id === relative.id
                   ) && (
                     <span className="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">
-                      Duplicate Found
+                      {t("duplicate_found")}
                     </span>
                   )}
                 </div>
@@ -214,10 +214,12 @@ export default function ViewTreeMergeRequest() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-lg font-semibold">
-                  Potential Duplicate Members ({duplicateMembers.length})
+                  {t("potential_duplicates", {
+                    count: duplicateMembers.length,
+                  })}
                 </h2>
                 <p className="text-sm text-gray-500 mt-1">
-                  Review and confirm if these members are the same person
+                  {t("review_duplicates")}
                 </p>
               </div>
             </div>
@@ -247,7 +249,9 @@ export default function ViewTreeMergeRequest() {
                             <p className="text-sm font-medium">
                               {dup.receiver.first_name} {dup.receiver.last_name}
                             </p>
-                            <p className="text-xs text-gray-500">Your tree</p>
+                            <p className="text-xs text-gray-500">
+                              {t("your_tree")}
+                            </p>
                             {dup.receiver.date_of_birth && (
                               <p className="text-xs text-gray-500">
                                 DOB: {formatDate(dup.receiver.date_of_birth)}
@@ -266,8 +270,8 @@ export default function ViewTreeMergeRequest() {
                           }
                           className="h-5 w-5"
                         />
-                        <p className="text-xs text-gray-500 mt-2">
-                          Same person
+                        <p className="text-xs text-gray-500">
+                          {t("same_person")}
                         </p>
                       </div>
 
@@ -278,7 +282,9 @@ export default function ViewTreeMergeRequest() {
                             <p className="text-sm font-medium">
                               {dup.sender.first_name} {dup.sender.last_name}
                             </p>
-                            <p className="text-xs text-gray-500">Their tree</p>
+                            <p className="text-xs text-gray-500">
+                              {t("their_tree")}
+                            </p>
                             {dup.sender.date_of_birth && (
                               <p className="text-xs text-gray-500">
                                 DOB: {formatDate(dup.sender.date_of_birth)}
@@ -308,7 +314,7 @@ export default function ViewTreeMergeRequest() {
                   id="noDuplicates"
                 />
                 <label htmlFor="noDuplicates" className="text-sm text-gray-600">
-                  These are different people despite same names
+                  {t("different_people")}
                 </label>
               </div>
             }
@@ -326,7 +332,7 @@ export default function ViewTreeMergeRequest() {
             {isCancelling ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : null}
-            Decline
+            {t("decline")}
           </Button>
           <Button
             onClick={handleAccept}
@@ -336,7 +342,7 @@ export default function ViewTreeMergeRequest() {
             {isResponding ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
             ) : null}
-            Accept & Merge
+            {t("accept_merge")}
           </Button>
         </div>
       </Card>

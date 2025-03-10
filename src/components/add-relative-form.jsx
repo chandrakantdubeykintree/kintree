@@ -34,56 +34,56 @@ import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-const addRelativeSchema = z.object({
-  relation: z.string({
-    required_error: "Relation is required",
-  }),
+// const addRelativeSchema = z.object({
+//   relation: z.string({
+//     required_error: "Relation is required",
+//   }),
 
-  first_name: z
-    .string({
-      required_error: "First Name is required",
-    })
-    .max(20, "Must be 20 characters or less"),
+//   first_name: z
+//     .string({
+//       required_error: "First Name is required",
+//     })
+//     .max(20, "Must be 20 characters or less"),
 
-  middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
+//   middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
 
-  last_name: z
-    .string({
-      required_error: "Last Name is required",
-    })
-    .max(20, "Must be 20 characters or less"),
+//   last_name: z
+//     .string({
+//       required_error: "Last Name is required",
+//     })
+//     .max(20, "Must be 20 characters or less"),
 
-  email: z
-    .string()
-    .email("Invalid email address")
-    .max(254, "Email must be less than 255 characters")
-    .transform((val) => (val === "" ? null : val))
-    .nullable()
-    .optional(),
+//   email: z
+//     .string()
+//     .email("Invalid email address")
+//     .max(254, "Email must be less than 255 characters")
+//     .transform((val) => (val === "" ? null : val))
+//     .nullable()
+//     .optional(),
 
-  phone_no: z
-    .string()
-    .refine((val) => {
-      if (!val) return true; // Optional
-      return (
-        /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
-      );
-    }, "Phone number must be valid")
-    .transform((val) => (val === "" ? null : val))
-    .nullable()
-    .optional(),
+//   phone_no: z
+//     .string()
+//     .refine((val) => {
+//       if (!val) return true; // Optional
+//       return (
+//         /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
+//       );
+//     }, "Phone number must be valid")
+//     .transform((val) => (val === "" ? null : val))
+//     .nullable()
+//     .optional(),
 
-  age_range: z
-    .number({
-      required_error: "Age Group is required",
-    })
-    .optional()
-    .nullable(),
+//   age_range: z
+//     .number({
+//       required_error: "Age Group is required",
+//     })
+//     .optional()
+//     .nullable(),
 
-  native_place: z.string().optional(),
-  profile_image: z.any().optional(),
-  is_alive: z.number().min(0).max(1).default(1),
-});
+//   native_place: z.string().optional(),
+//   profile_image: z.any().optional(),
+//   is_alive: z.number().min(0).max(1).default(1),
+// });
 
 export default function AddRelativeForm({
   id,
@@ -98,6 +98,57 @@ export default function AddRelativeForm({
     useAddFamilyMember();
   const { data: ageRanges } = useAgeRanges();
   const { t } = useTranslation();
+
+  const addRelativeSchema = z.object({
+    relation: z.string({
+      required_error: t("relation_required"),
+    }),
+
+    first_name: z
+      .string({
+        required_error: t("first_name_required"),
+      })
+      .max(20, t("first_name_max")),
+
+    middle_name: z.string().max(20, t("middle_name_max")).optional(),
+
+    last_name: z
+      .string({
+        required_error: t("last_name_required"),
+      })
+      .max(20, t("last_name_max")),
+
+    email: z
+      .string()
+      .email(t("invalid_email"))
+      .max(254, t("email_max_length"))
+      .transform((val) => (val === "" ? null : val))
+      .nullable()
+      .optional(),
+
+    phone_no: z
+      .string()
+      .refine((val) => {
+        if (!val) return true;
+        return (
+          /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
+        );
+      }, t("invalid_phone"))
+      .transform((val) => (val === "" ? null : val))
+      .nullable()
+      .optional(),
+
+    age_range: z
+      .number({
+        required_error: t("age_range_required"),
+      })
+      .optional()
+      .nullable(),
+
+    native_place: z.string().optional(),
+    profile_image: z.any().optional(),
+    is_alive: z.number().min(0).max(1).default(1),
+  });
 
   const form = useForm({
     resolver: zodResolver(addRelativeSchema),
@@ -280,7 +331,6 @@ export default function AddRelativeForm({
                 name="relation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Relation*</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -292,7 +342,7 @@ export default function AddRelativeForm({
                       </FormControl>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel>Relation</SelectLabel>
+                          <SelectLabel>{t("relation")}</SelectLabel>
                           {filteredRelativesDropDown?.map((relation) => (
                             <SelectItem
                               key={relation.id}
@@ -310,12 +360,12 @@ export default function AddRelativeForm({
               />
 
               <FormItem>
-                <FormLabel>Gender</FormLabel>
                 <FormControl>
                   <Input
-                    value={relationGender === "m" ? "Male" : "Female"}
+                    value={relationGender === "m" ? t("male") : t("female")}
                     disabled
                     className="rounded-full"
+                    placeholder={t("gender")}
                   />
                 </FormControl>
               </FormItem>
@@ -325,9 +375,12 @@ export default function AddRelativeForm({
                 name="first_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input {...field} className="rounded-full" />
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("first_name")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -339,9 +392,12 @@ export default function AddRelativeForm({
                 name="middle_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Middle Name</FormLabel>
                     <FormControl>
-                      <Input {...field} className="rounded-full" />
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("middle_name")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -353,9 +409,12 @@ export default function AddRelativeForm({
                 name="last_name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input {...field} className="rounded-full" />
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("last_name")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -367,14 +426,13 @@ export default function AddRelativeForm({
                 name="age_range"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Age Range</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       defaultValue={field.value?.toString()}
                     >
                       <FormControl>
                         <SelectTrigger className="h-10 rounded-full">
-                          <SelectValue placeholder="Select age range" />
+                          <SelectValue placeholder={t("select_age_range")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
@@ -398,9 +456,13 @@ export default function AddRelativeForm({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input {...field} type="email" className="rounded-full" />
+                      <Input
+                        {...field}
+                        type="email"
+                        className="rounded-full"
+                        placeholder={t("email")}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -412,7 +474,6 @@ export default function AddRelativeForm({
                 name="phone_no"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
                     <FormControl>
                       <PhoneInput
                         international
@@ -435,14 +496,13 @@ export default function AddRelativeForm({
                 name="native_place"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Native Place</FormLabel>
                     <FormControl>
                       <LocationSearchInput
                         value={field.value}
                         onChange={field.onChange}
                         onBlur={field.onBlur}
                         name={field.name}
-                        placeholder="Search for native place..."
+                        placeholder={t("native_place_placeholder")}
                         error={form.formState.errors.native_place?.message}
                         className="rounded-full"
                       />
@@ -458,7 +518,7 @@ export default function AddRelativeForm({
                   name="is_alive"
                   render={({ field }) => (
                     <FormItem className="flex items-end gap-2">
-                      <FormLabel>Living Status</FormLabel>
+                      <FormLabel>{t("living_status")}</FormLabel>
                       <FormControl>
                         <Switch
                           checked={field.value === 1}
@@ -469,7 +529,7 @@ export default function AddRelativeForm({
                         />
                       </FormControl>
                       <FormDescription>
-                        {field.value === 1 ? "Alive" : "Deceased"}
+                        {field.value === 1 ? t("alive") : t("deceased")}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -485,14 +545,14 @@ export default function AddRelativeForm({
                 onClick={onCancel}
                 className="rounded-full"
               >
-                Cancel
+                {t("cancel")}
               </Button>
               <Button
                 type="submit"
                 className="rounded-full bg-brandPrimary text-white"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Adding..." : "Add Member"}
+                {isSubmitting ? t("adding_member") : t("add_member")}
               </Button>
             </div>
           </div>

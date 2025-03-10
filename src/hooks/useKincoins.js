@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslation } from "react-i18next";
 
 export const QUERY_KEYS = {
   KINCOINS_TRANSACTIONS: "kincoins-transactions",
@@ -73,6 +74,8 @@ export const redeemKincoins = async ({ coins, amount }) => {
 };
 
 export const useKincoinsTransactions = (limit = 12) => {
+  const { t } = useTranslation();
+
   return useInfiniteQuery({
     queryKey: [QUERY_KEYS.KINCOINS_TRANSACTIONS, limit],
     queryFn: ({ pageParam = 1 }) => fetchTransactions({ pageParam, limit }),
@@ -88,12 +91,14 @@ export const useKincoinsTransactions = (limit = 12) => {
     refetchInterval: 60000, // Refresh every minute
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch transactions. Please try again later.");
+      toast.error(t("failed_fetch_transactions"));
     },
   });
 };
 
 export const useKincoinTransaction = (transactionId) => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: [QUERY_KEYS.KINCOIN_TRANSACTION, transactionId],
     queryFn: () => fetchTransaction(transactionId),
@@ -101,28 +106,26 @@ export const useKincoinTransaction = (transactionId) => {
     refetchOnWindowFocus: false,
     retry: 2,
     onError: (error) => {
-      toast.error("Failed to fetch transaction details.");
+      toast.error(t("failed_fetch_transaction_details"));
     },
   });
 };
 
 export const useRedeemKincoins = () => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   return useMutation({
     mutationKey: ["redeem-kincoins"],
     mutationFn: redeemKincoins,
     onSuccess: (data) => {
-      toast.success("Kincoins redeemed successfully!");
+      toast.success(t("kincoins_redeemed_success"));
       queryClient.invalidateQueries({
         queryKey: ["kincoins-balance"],
       });
     },
     onError: (error) => {
-      toast.error(
-        error.response?.data?.message ||
-          "Failed to redeem Kincoins. Please try again."
-      );
+      toast.error(error.response?.data?.message || t("failed_redeem_kincoins"));
     },
   });
 };
@@ -132,6 +135,8 @@ export const useIsRedeeming = () => {
 };
 
 export const useKincoinsBalance = () => {
+  const { t } = useTranslation();
+
   return useQuery({
     queryKey: ["kincoins-balance"],
     queryFn: fetchCoinsBalance,
@@ -141,7 +146,7 @@ export const useKincoinsBalance = () => {
     staleTime: 0, // Add this to consider data always stale
     cacheTime: 0, // Add this to disable caching
     onError: (error) => {
-      toast.error("Failed to fetch Kincoins balance. Please try again.");
+      toast.error(t("failed_fetch_balance"));
     },
   });
 };

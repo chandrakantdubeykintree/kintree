@@ -2,16 +2,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { kintreeApi } from "../services/kintreeApi";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { useTranslation } from "react-i18next";
 
 export function useWill() {
-  const queryClient = useQueryClient(); // Get the queryClient instance
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   // Fetch existing will
   const { data: willData, isLoading: isWillLoading } = useQuery({
     queryKey: ["will"],
     queryFn: async () => {
-      const response = await kintreeApi.get("/will");
-      return response.data;
+      try {
+        const response = await kintreeApi.get("/will");
+        return response.data;
+      } catch (error) {
+        toast.error(t("failed_fetch_will"));
+        throw error;
+      }
     },
   });
 
@@ -22,6 +30,7 @@ export function useWill() {
       return response.data;
     },
     onSuccess: (data) => {
+      toast.success(t("will_created"));
       queryClient.invalidateQueries(["will"]);
       return data;
     },
@@ -46,8 +55,15 @@ export function useWill() {
     useQuery({
       queryKey: ["beneficiaries", willId],
       queryFn: async () => {
-        const response = await kintreeApi.get(`/will/${willId}/beneficiaries`);
-        return response.data;
+        try {
+          const response = await kintreeApi.get(
+            `/will/${willId}/beneficiaries`
+          );
+          return response.data;
+        } catch (error) {
+          toast.error(t("failed_fetch_beneficiaries"));
+          throw error;
+        }
       },
       enabled: !!willId, // Only run query if willId exists
     });
@@ -63,7 +79,10 @@ export function useWill() {
     },
     onSuccess: (_, { willId }) => {
       queryClient.invalidateQueries(["beneficiaries", willId]);
-      toast.success("Beneficiary added successfully");
+      toast.success(t("beneficiary_added"));
+    },
+    onError: () => {
+      toast.error(t("failed_add_beneficiary"));
     },
   });
 
@@ -78,6 +97,10 @@ export function useWill() {
     },
     onSuccess: (_, { willId }) => {
       queryClient.invalidateQueries(["beneficiaries", willId]);
+      toast.success(t("member_beneficiaries_added"));
+    },
+    onError: () => {
+      toast.error(t("failed_add_member_beneficiaries"));
     },
   });
 
@@ -92,6 +115,10 @@ export function useWill() {
     },
     onSuccess: (_, { willId }) => {
       queryClient.invalidateQueries(["beneficiaries", willId]);
+      toast.success(t("allocations_saved"));
+    },
+    onError: () => {
+      toast.error(t("failed_save_allocations"));
     },
   });
 
@@ -112,6 +139,10 @@ export function useWill() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["will"]);
+      toast.success(t("selfie_uploaded"));
+    },
+    onError: () => {
+      toast.error(t("failed_upload_selfie"));
     },
   });
 
@@ -123,6 +154,10 @@ export function useWill() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["will"]);
+      toast.success(t("will_generated"));
+    },
+    onError: () => {
+      toast.error(t("failed_generate_will"));
     },
   });
 
@@ -134,6 +169,10 @@ export function useWill() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["will"]);
+      toast.success(t("will_notarized"));
+    },
+    onError: () => {
+      toast.error(t("failed_notarize_will"));
     },
   });
 
@@ -147,6 +186,10 @@ export function useWill() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(["will"]);
+      toast.success(t("executor_added"));
+    },
+    onError: () => {
+      toast.error(t("failed_add_executor"));
     },
   });
 
@@ -158,9 +201,10 @@ export function useWill() {
     onSuccess: () => {
       queryClient.invalidateQueries(["will"]);
       navigate("/will/create-will");
+      toast.success(t("will_deleted"));
     },
-    onError: (error) => {
-      toast.error("Error deleting will:", error);
+    onError: () => {
+      toast.error(t("failed_delete_will"));
     },
   });
 

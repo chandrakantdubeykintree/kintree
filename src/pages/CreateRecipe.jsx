@@ -32,7 +32,7 @@ export default function CreateRecipe() {
             {t("back_to_foreroom")}
           </NavLink>
         </div>
-        <Card className="w-full">Create Recipe</Card>
+        <Card className="w-full">{t("create_recipe")}</Card>
       </div>
     </AsyncComponent>
   );

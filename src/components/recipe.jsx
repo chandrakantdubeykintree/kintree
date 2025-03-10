@@ -22,6 +22,7 @@ import { route_view_poll, route_view_post } from "@/constants/routeEnpoints";
 import { usePostReactions } from "@/hooks/usePosts";
 import { PRIVACYDROPDOWN } from "@/constants/dropDownConstants";
 import { useTranslation } from "react-i18next";
+import Recipepost from "./recipepost";
 
 export default function Recipe({ post, user, onReactionUpdate }) {
   const { t } = useTranslation();
@@ -62,7 +63,7 @@ export default function Recipe({ post, user, onReactionUpdate }) {
   };
 
   const renderPost = (post) => {
-    return <RecipePost post={post} key={id} />;
+    return <Recipepost post={post} key={id} />;
   };
   return (
     <AsyncComponent>
