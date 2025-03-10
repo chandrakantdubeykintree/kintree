@@ -295,9 +295,9 @@ export default function NotificationsPage() {
     const handleCancelRequest = (e) => {
       e.stopPropagation();
       cancelMergeRequest(mergeRequest.id, {
-        onSuccess: () => {
-          toast.success("Merge request cancelled successfully");
-        },
+        // onSuccess: () => {
+        //   toast.success("Merge request cancelled successfully");
+        // },
       });
     };
     return (
