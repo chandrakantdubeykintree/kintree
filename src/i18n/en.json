@@ -31,7 +31,7 @@
   "invalid_email": "Invalid email",
   "invalid_username": "Invalid username",
   "invalid_password": "Invalid password",
-  "invalid_phone": "Invalid phone",
+  "invalid_phone": "Invalid phone number",
   "invalid_otp": "Invalid OTP",
   "invalid_username_password": "Invalid username or password",
   "invalid_email_password": "Invalid email or password",
