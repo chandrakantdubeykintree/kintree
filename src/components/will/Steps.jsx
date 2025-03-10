@@ -27,9 +27,9 @@ export function Steps({ steps, currentStep, willId }) {
   return (
     <div
       ref={stepsContainerRef}
-      className="relative w-full overflow-x-auto no_scrollbar pb-4"
+      className="w-full overflow-x-auto no_scrollbar pb-4"
     >
-      <div className="relative flex justify-between gap-1 min-w-max px-4">
+      <div className="flex justify-between gap-1 min-w-max px-4">
         {steps.map((step, index) => {
           const isComplete =
             steps.findIndex((s) => s.id === currentStep) > index;
@@ -72,7 +72,7 @@ export function Steps({ steps, currentStep, willId }) {
                 <div
                   className={cn(
                     "absolute top-4 left-[50%] h-[2px]",
-                    "bg-gray-200 w-[calc(120px+1rem)]",
+                    "bg-gray-200 w-[calc(120px+1rem)] z-0",
                     isComplete &&
                       "before:absolute before:inset-0 before:bg-primary"
                   )}
