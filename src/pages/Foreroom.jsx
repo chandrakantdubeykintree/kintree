@@ -80,7 +80,7 @@ export default function Foreroom() {
                       getInitials(user?.basic_info?.first_name) +
                       " " +
                       getInitials(user?.basic_info?.last_name),
-                    id: user.id,
+                    id: user?.id,
                   }}
                 />
               ))}

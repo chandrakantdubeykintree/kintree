@@ -321,6 +321,8 @@ export default function Settings() {
     }
   }, [profile, resetLanguageForm]);
 
+  console.log(profile);
+
   return (
     <AsyncComponent isLoading={isProfileLoading}>
       <Card className="w-full shadow-sm border-0 rounded-2xl h-full overflow-y-scroll no_scrollbar">

@@ -11,11 +11,12 @@ import { ICON_LANGUAGES } from "@/constants/iconUrls";
 import { useThemeLanguage } from "@/context/ThemeLanguageProvider";
 import { LANGUAGE_METADATA, LANGUAGES } from "@/constants/languages";
 import { useTranslation } from "react-i18next";
+import { useProfile } from "@/hooks/useProfile";
 
 export default function LanguagesDropDown() {
-  const { language, setLanguage } = useThemeLanguage();
-
   const { t } = useTranslation();
+  const { language, setLanguage } = useThemeLanguage();
+  const { profile: configurations } = useProfile("user/configurations");
 
   const handleLanguageChange = (languageCode) => {
     setLanguage(languageCode);
@@ -35,7 +36,7 @@ export default function LanguagesDropDown() {
               {LANGUAGE_METADATA[code].name}
             </span>
           </div>
-          {language === code && <span className="ml-2">✓</span>}
+          {configurations.language === code && <span className="ml-2">✓</span>}
         </div>
       </div>
     </DropdownMenuItem>
@@ -45,7 +46,9 @@ export default function LanguagesDropDown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-1 md:gap-2">
-          <span className="text-sm">{LANGUAGES[language] || ""}</span>
+          <span className="text-sm">
+            {LANGUAGES[configurations.language] || ""}
+          </span>
           <img
             src={ICON_LANGUAGES}
             className="w-6 h-6 cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-125"
