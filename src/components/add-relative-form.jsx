@@ -67,16 +67,20 @@ export default function AddRelativeForm({
         .max(20, t("last_name_max")),
       email: z
         .string()
-        .email(t("invalid_email"))
-        .max(254, t("email_max_length"))
-        .optional(),
+        .refine(
+          (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+          t("invalid_email")
+        )
+        .optional()
+        .nullable(),
       phone_no: z
         .string()
         .refine(
           (val) => !val || /^\+?[1-9]\d{0,14}$/.test(val),
           t("invalid_phone")
         )
-        .optional(),
+        .optional()
+        .nullable(),
       age_range: z.number().optional().nullable(),
       native_place: z.string().optional(),
       profile_image: z.any().optional(),
@@ -249,8 +253,6 @@ export default function AddRelativeForm({
   });
 
   const onSubmit = async (values) => {
-    console.log(values);
-
     try {
       const relationData = calculateRelationData(values.relation);
       if (!relationData) return;
@@ -302,15 +304,6 @@ export default function AddRelativeForm({
   // Should show contact fields if alive and age is between 20-60
   const shouldShowContactFields =
     isAlive === 1 && minAge !== null && minAge >= 20 && minAge < 60;
-
-  // Update the console.log to show more detailed information
-  console.log({
-    isAlive,
-    shouldShowContactFields,
-    ageRangeId,
-    selectedAgeRange,
-    minAge,
-  });
 
   useEffect(() => {
     if (isAlive === 1) {

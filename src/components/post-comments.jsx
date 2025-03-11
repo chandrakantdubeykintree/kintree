@@ -213,10 +213,6 @@ const CommentItem = ({
   canReply = true,
   postId,
 }) => {
-  // const { postId: id } = useParams();
-  // const postId = decryptId(id);
-  console.log(postId);
-
   const { t } = useTranslation();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();
