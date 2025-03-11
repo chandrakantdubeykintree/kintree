@@ -6,7 +6,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { X } from "lucide-react";
 import { capitalizeName } from "@/utils/stringFormat";

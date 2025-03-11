@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ShareInviteDialog } from "@/components/share-invite-dialog";
 import { useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
+import { encryptId } from "@/utils/encryption";
 const MemberCard = ({ active, member }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -75,7 +76,9 @@ const MemberCard = ({ active, member }) => {
                 <Button
                   variant="outline"
                   className="border border-brandPrimary rounded-l-full rounded-r-full text-brandPrimary"
-                  onClick={() => navigate(`/family-member/${member?.id}`)}
+                  onClick={() =>
+                    navigate(`/family-member/${encryptId(member?.id)}`)
+                  }
                   // disabled
                 >
                   {t("view_profile")}

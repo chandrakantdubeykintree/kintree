@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { decryptId } from "@/utils/encryption";
 import { ImagePlus, Loader2 } from "lucide-react";
+import FeelingsDropDown from "@/components/feelings-dropdown";
+import { FEELINGSDROPDOWN } from "@/constants/dropDownConstants";
 
 const SUPPORTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -30,6 +32,8 @@ export default function EditPost() {
   const { t } = useTranslation();
   const [deletedAttachmentIds, setDeletedAttachmentIds] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
+  const [feeling, setFeeling] = useState(null);
+
   const [uploadedAttachments, setUploadedAttachments] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
   const { user } = useAuth();
@@ -76,6 +80,10 @@ export default function EditPost() {
     if (postData?.post_data && !isInitialized) {
       setEditedContent(postData.post_data.body || "");
       setFiles(postData.post_data.attachments || []);
+      const initialFeeling = FEELINGSDROPDOWN.find(
+        (item) => item.id === postData.post_data.feeling_id
+      );
+      setFeeling(initialFeeling || null);
       // Set initial privacy from post data
       if (postData.post_data.privacy) {
         const privacyLevel = postData.post_data.privacy;
@@ -198,6 +206,8 @@ export default function EditPost() {
 
     const updatedPost = {
       body: editedContent,
+      feeling_id: feeling,
+
       privacy: privacy.id,
       attachment_ids: [
         ...uploadedAttachments.map((att) => att.id),
@@ -423,7 +433,11 @@ export default function EditPost() {
                 </div>
               )}
 
-              <div className="flex gap-4 justify-end">
+              <div className="flex justify-between items-center w-full">
+                <FeelingsDropDown
+                  selectedFeeling={feeling}
+                  setSelectedFeeling={(value) => setFeeling(value?.id || null)}
+                />
                 <Button
                   type="submit"
                   disabled={editPostMutation.isPending || isUploading}

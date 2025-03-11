@@ -123,6 +123,7 @@ export default function PostComments({ postId, onCommentUpdate }) {
                       comment={comment}
                       onReply={handleReplyClick}
                       onReaction={handleCommentReaction}
+                      postId={postId}
                     />
                     {comment.replied_comments &&
                       comment.replied_comments.length > 0 && (
@@ -205,9 +206,17 @@ export default function PostComments({ postId, onCommentUpdate }) {
   );
 }
 
-const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
-  const { postId: id } = useParams();
-  const postId = decryptId(id);
+const CommentItem = ({
+  comment,
+  onReply,
+  onReaction,
+  canReply = true,
+  postId,
+}) => {
+  // const { postId: id } = useParams();
+  // const postId = decryptId(id);
+  console.log(postId);
+
   const { t } = useTranslation();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();

@@ -73,6 +73,8 @@ export default function FamilyMember() {
 
   const InfoItem = ({ label, value }) => {
     // if (!value) return null;
+    console.log(label, value);
+
     return (
       <div className="flex flex-col">
         <span className="text-sm text-gray-800 dark:text-gray-400">
@@ -119,8 +121,8 @@ export default function FamilyMember() {
 
         {isEditing ? (
           <EditRelativeForm
-            id={familyMember.id}
-            first_name={familyMember.basic_info.first_name}
+            id={familyMember?.id}
+            first_name={familyMember?.basic_info?.first_name}
             middle_name={familyMember.basic_info.middle_name}
             last_name={familyMember.basic_info.last_name}
             email={familyMember.email}
@@ -148,9 +150,9 @@ export default function FamilyMember() {
           />
         ) : (
           /* Existing profile view JSX */
-          <div className="mt-16 p-2 md:p-4 lg:p-6">
+          <div className="mt-8 p-2 md:p-4 lg:p-6">
             {/* Basic Info Header */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-4">
               <h1 className="text-2xl font-bold">
                 {capitalizeName(familyMember?.basic_info?.first_name)}{" "}
                 {capitalizeName(familyMember?.basic_info?.middle_name)}{" "}
@@ -185,6 +187,17 @@ export default function FamilyMember() {
                   {familyMember.basic_info.bio}
                 </p>
               )}
+            </div>
+
+            <div className="flex justify-center mb-4">
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 rounded-full"
+                onClick={handleAddRelative}
+              >
+                <UserPlus className="w-4 h-4" />
+                {t("add_relative")}
+              </Button>
             </div>
 
             {/* Statistics */}
@@ -236,7 +249,7 @@ export default function FamilyMember() {
               />
               <InfoItem
                 label={t("blood_group")}
-                value={familyMember?.additional_info?.blood_group}
+                value={familyMember?.additional_info?.blood_group?.toUpperCase()}
               />
               <InfoItem
                 label={t("occupation")}
@@ -253,9 +266,9 @@ export default function FamilyMember() {
               {familyMember?.additional_info?.known_languages?.length > 0 && (
                 <InfoItem
                   label={t("known_languages")}
-                  value={familyMember.additional_info.known_languages.join(
-                    ", "
-                  )}
+                  value={familyMember.additional_info.known_languages
+                    .map((lang) => lang.name)
+                    .join(", ")}
                 />
               )}
             </InfoSection>
@@ -264,23 +277,29 @@ export default function FamilyMember() {
             <InfoSection title={t("regional_information")}>
               <InfoItem
                 label={t("religion")}
-                value={familyMember?.regional_info?.religion}
+                value={familyMember?.regional_info?.religion?.name}
               />
               <InfoItem
                 label={t("caste")}
-                value={familyMember?.regional_info?.caste}
+                value={familyMember?.regional_info?.caste?.name}
               />
               <InfoItem
                 label={t("sub_caste")}
-                value={familyMember?.regional_info?.sub_caste}
+                value={familyMember?.regional_info?.sub_caste?.name}
               />
               <InfoItem
                 label={t("gotra")}
-                value={familyMember?.regional_info?.gotra}
+                value={
+                  familyMember?.regional_info?.gotra?.name ||
+                  familyMember?.regional_info?.gotra
+                }
               />
               <InfoItem
                 label={t("sect")}
-                value={familyMember?.regional_info?.sect}
+                value={
+                  familyMember?.regional_info?.sect?.name ||
+                  familyMember?.regional_info?.sect
+                }
               />
             </InfoSection>
 
@@ -351,14 +370,6 @@ export default function FamilyMember() {
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-8 justify-end">
-              <Button
-                variant="outline"
-                className="flex items-center gap-2 rounded-full"
-                onClick={handleAddRelative}
-              >
-                <UserPlus className="w-4 h-4" />
-                {t("add_relative")}
-              </Button>
               {is_user_added_by_me && !familyMember?.is_active && (
                 <Button
                   variant="outline"

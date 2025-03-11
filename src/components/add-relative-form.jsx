@@ -33,57 +33,7 @@ import ProfileImageUpload from "./profileImageUpload";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-// const addRelativeSchema = z.object({
-//   relation: z.string({
-//     required_error: "Relation is required",
-//   }),
-
-//   first_name: z
-//     .string({
-//       required_error: "First Name is required",
-//     })
-//     .max(20, "Must be 20 characters or less"),
-
-//   middle_name: z.string().max(20, "Must be 20 characters or less").optional(),
-
-//   last_name: z
-//     .string({
-//       required_error: "Last Name is required",
-//     })
-//     .max(20, "Must be 20 characters or less"),
-
-//   email: z
-//     .string()
-//     .email("Invalid email address")
-//     .max(254, "Email must be less than 255 characters")
-//     .transform((val) => (val === "" ? null : val))
-//     .nullable()
-//     .optional(),
-
-//   phone_no: z
-//     .string()
-//     .refine((val) => {
-//       if (!val) return true; // Optional
-//       return (
-//         /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
-//       );
-//     }, "Phone number must be valid")
-//     .transform((val) => (val === "" ? null : val))
-//     .nullable()
-//     .optional(),
-
-//   age_range: z
-//     .number({
-//       required_error: "Age Group is required",
-//     })
-//     .optional()
-//     .nullable(),
-
-//   native_place: z.string().optional(),
-//   profile_image: z.any().optional(),
-//   is_alive: z.number().min(0).max(1).default(1),
-// });
+import { useEffect } from "react";
 
 export default function AddRelativeForm({
   id,
@@ -99,56 +49,93 @@ export default function AddRelativeForm({
   const { data: ageRanges } = useAgeRanges();
   const { t } = useTranslation();
 
-  const addRelativeSchema = z.object({
-    relation: z.string({
-      required_error: t("relation_required"),
-    }),
+  const addRelativeSchema = z
+    .object({
+      relation: z.string({
+        required_error: t("relation_required"),
+      }),
+      first_name: z
+        .string({
+          required_error: t("first_name_required"),
+        })
+        .max(20, t("first_name_max")),
+      middle_name: z.string().max(20, t("middle_name_max")).optional(),
+      last_name: z
+        .string({
+          required_error: t("last_name_required"),
+        })
+        .max(20, t("last_name_max")),
+      email: z
+        .string()
+        .email(t("invalid_email"))
+        .max(254, t("email_max_length"))
+        .optional(),
+      phone_no: z
+        .string()
+        .refine(
+          (val) => !val || /^\+?[1-9]\d{0,14}$/.test(val),
+          t("invalid_phone")
+        )
+        .optional(),
+      age_range: z.number().optional().nullable(),
+      native_place: z.string().optional(),
+      profile_image: z.any().optional(),
+      is_alive: z.number().min(0).max(1).default(1),
+    })
+    .superRefine((data, ctx) => {
+      if (data.is_alive === 1) {
+        // For living people
+        if (!data.age_range) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("age_range_required"),
+            path: ["age_range"],
+          });
+        }
 
-    first_name: z
-      .string({
-        required_error: t("first_name_required"),
-      })
-      .max(20, t("first_name_max")),
-
-    middle_name: z.string().max(20, t("middle_name_max")).optional(),
-
-    last_name: z
-      .string({
-        required_error: t("last_name_required"),
-      })
-      .max(20, t("last_name_max")),
-
-    email: z
-      .string()
-      .email(t("invalid_email"))
-      .max(254, t("email_max_length"))
-      .transform((val) => (val === "" ? null : val))
-      .nullable()
-      .optional(),
-
-    phone_no: z
-      .string()
-      .refine((val) => {
-        if (!val) return true;
-        return (
-          /^\+?[1-9]\d{0,14}$/.test(val) && val.replace(/\D/g, "").length >= 10
-        );
-      }, t("invalid_phone"))
-      .transform((val) => (val === "" ? null : val))
-      .nullable()
-      .optional(),
-
-    age_range: z
-      .number({
-        required_error: t("age_range_required"),
-      })
-      .optional()
-      .nullable(),
-
-    native_place: z.string().optional(),
-    profile_image: z.any().optional(),
-    is_alive: z.number().min(0).max(1).default(1),
-  });
+        // Only require contact info for ages 20-60
+        if (data.age_range >= 4 && data.age_range <= 6) {
+          // IDs 4-6 correspond to 21-30, 31-40, 41-50
+          if (!data.phone_no) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("phone_required"),
+              path: ["phone_no"],
+            });
+          }
+          if (!data.email) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("email_required"),
+              path: ["email"],
+            });
+          }
+        }
+      } else {
+        // For deceased people
+        if (data.age_range) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("age_not_allowed_for_deceased"),
+            path: ["age_range"],
+          });
+        }
+        if (data.phone_no) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("phone_not_allowed_for_deceased"),
+            path: ["phone_no"],
+          });
+        }
+        if (data.email) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("email_not_allowed_for_deceased"),
+            path: ["email"],
+          });
+        }
+      }
+    });
 
   const form = useForm({
     resolver: zodResolver(addRelativeSchema),
@@ -164,11 +151,6 @@ export default function AddRelativeForm({
       gender: "",
       native_place: "",
     },
-  });
-
-  const isAlive = useWatch({
-    control: form.control,
-    name: "is_alive",
   });
 
   const calculateRelationData = (relation) => {
@@ -267,6 +249,8 @@ export default function AddRelativeForm({
   });
 
   const onSubmit = async (values) => {
+    console.log(values);
+
     try {
       const relationData = calculateRelationData(values.relation);
       if (!relationData) return;
@@ -274,8 +258,11 @@ export default function AddRelativeForm({
       const memberData = {
         ...values,
         ...relationData,
+        // Clear email and phone for deceased
         email: values.is_alive ? values.email : null,
         phone_no: values.is_alive ? values.phone_no : null,
+        // Clear age range for deceased
+        age_range: values.is_alive ? values.age_range : null,
         is_alive: values.is_alive ? 1 : 0,
       };
 
@@ -285,6 +272,60 @@ export default function AddRelativeForm({
       console.log("Error adding member", error);
     }
   };
+
+  const ageRangeId = useWatch({
+    control: form.control,
+    name: "age_range",
+  });
+
+  // Find the selected age range object
+  const selectedAgeRange = ageRanges?.find((range) => range.id === ageRangeId);
+
+  // Extract the numeric values from the age range name
+  const getAgeRangeNumbers = (ageRangeName) => {
+    if (!ageRangeName) return null;
+    const numbers = ageRangeName.match(/\d+/g);
+    if (!numbers) return null;
+    return numbers.map(Number);
+  };
+
+  const isAlive = useWatch({
+    control: form.control,
+    name: "is_alive",
+  });
+
+  // Get the minimum age from the range
+  const minAge = selectedAgeRange
+    ? getAgeRangeNumbers(selectedAgeRange.name)?.[0]
+    : null;
+
+  // Should show contact fields if alive and age is between 20-60
+  const shouldShowContactFields =
+    isAlive === 1 && minAge !== null && minAge >= 20 && minAge < 60;
+
+  // Update the console.log to show more detailed information
+  console.log({
+    isAlive,
+    shouldShowContactFields,
+    ageRangeId,
+    selectedAgeRange,
+    minAge,
+  });
+
+  useEffect(() => {
+    if (isAlive === 1) {
+      // When switching to alive, clear any deceased-related errors
+      form.clearErrors("age_range");
+      form.clearErrors("phone_no");
+      form.clearErrors("email");
+    } else {
+      // When switching to deceased, clear the age range value
+      form.setValue("age_range", null);
+      form.setValue("phone_no", "");
+      form.setValue("email", "");
+      form.clearErrors("age_range");
+    }
+  }, [isAlive, form]);
 
   return (
     <AsyncComponent>
@@ -337,10 +378,10 @@ export default function AddRelativeForm({
                     >
                       <FormControl>
                         <SelectTrigger className="h-10 rounded-full">
-                          <SelectValue placeholder="Select relation" />
+                          <SelectValue placeholder={t("select_relation")} />
                         </SelectTrigger>
                       </FormControl>
-                      <SelectContent>
+                      <SelectContent className="rounded-2xl max-h-[150px]">
                         <SelectGroup>
                           <SelectLabel>{t("relation")}</SelectLabel>
                           {filteredRelativesDropDown?.map((relation) => (
@@ -421,75 +462,91 @@ export default function AddRelativeForm({
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="age_range"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
-                      defaultValue={field.value?.toString()}
-                    >
+              {isAlive === 1 && (
+                <FormField
+                  control={form.control}
+                  name="age_range"
+                  render={({ field }) => {
+                    // Clear age range when switching to deceased
+                    if (isAlive === 0 && field.value) {
+                      field.onChange(null);
+                    }
+                    return (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-10 rounded-full">
+                              <SelectValue
+                                placeholder={t("select_age_range")}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
+                            {ageRanges?.map((ageRange) => (
+                              <SelectItem
+                                key={ageRange.id}
+                                value={ageRange.id.toString()}
+                              >
+                                {ageRange.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              )}
+
+              {shouldShowContactFields && (
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
                       <FormControl>
-                        <SelectTrigger className="h-10 rounded-full">
-                          <SelectValue placeholder={t("select_age_range")} />
-                        </SelectTrigger>
+                        <Input
+                          {...field}
+                          type="email"
+                          className="rounded-full"
+                          placeholder={t("email")}
+                        />
                       </FormControl>
-                      <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
-                        {ageRanges?.map((ageRange) => (
-                          <SelectItem
-                            key={ageRange.id}
-                            value={ageRange.id.toString()}
-                          >
-                            {ageRange.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="email"
-                        className="rounded-full"
-                        placeholder={t("email")}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone_no"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <PhoneInput
-                        international
-                        countryCallingCodeEditable={false}
-                        defaultCountry="IN"
-                        value={field.value}
-                        onChange={field.onChange}
-                        limitMaxLength
-                        maxLength={15}
-                        className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {shouldShowContactFields && (
+                <FormField
+                  control={form.control}
+                  name="phone_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <PhoneInput
+                          international
+                          countryCallingCodeEditable={false}
+                          defaultCountry="IN"
+                          value={field.value}
+                          onChange={field.onChange}
+                          limitMaxLength
+                          maxLength={15}
+                          className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -522,9 +579,11 @@ export default function AddRelativeForm({
                       <FormControl>
                         <Switch
                           checked={field.value === 1}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked ? 1 : 0)
-                          }
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked ? 1 : 0);
+                            // Trigger validation after change
+                            form.trigger(["age_range", "phone_no", "email"]);
+                          }}
                           className="data-[state=checked]:bg-brandPrimary data-[state=checked]:border-brandPrimary data-[state=checked]:hover:bg-brandPrimary data-[state=checked]:hover:border-brandPrimary"
                         />
                       </FormControl>

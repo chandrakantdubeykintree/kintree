@@ -65,9 +65,9 @@ export default function CreatePoll() {
         z
           .string()
           .min(1, t("option_required"))
-          .max(30, t("option_max_length"))
+          .max(50, t("option_max_length"))
           .refine(
-            (value) => value.trim().split(/\s+/).length <= 30,
+            (value) => value.trim().split(/\s+/).length <= 50,
             t("option_max_words")
           )
       )
@@ -206,11 +206,22 @@ export default function CreatePoll() {
                 <Label>{t("options")}</Label>
                 {pollOptions.map((_, index) => (
                   <div key={index} className="flex gap-2">
-                    <Input
-                      {...register(`pollOptions.${index}`)}
-                      placeholder={t("option") + " " + (index + 1)}
-                      className="rounded-full h-10 md:h-12 px-4 md:px-6"
-                    />
+                    <div className="flex-1 relative">
+                      <Input
+                        {...register(`pollOptions.${index}`)}
+                        placeholder={t("option") + " " + (index + 1)}
+                        className="rounded-full h-10 md:h-12 px-4 md:px-6"
+                        maxLength={50}
+                        onChange={(e) => {
+                          if (e.target.value.length <= 50) {
+                            setValue(`pollOptions.${index}`, e.target.value);
+                          }
+                        }}
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                        {watch(`pollOptions.${index}`)?.length || 0}/50
+                      </span>
+                    </div>
                     {pollOptions.length > 2 && (
                       <Button
                         type="button"

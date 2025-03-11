@@ -1,232 +1,626 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
+import { useAddFamilyMember } from "@/hooks/useFamily";
+import { useAgeRanges } from "@/hooks/useMasters";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, useWatch } from "react-hook-form";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { useCreateMergeRequest } from "@/hooks/useMergeTree";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { getInitials } from "@/utils/stringFormat";
-import CustomScrollArea from "./ui/custom-scroll-area";
-import toast from "react-hot-toast";
+} from "@/components/ui/select";
+import PhoneInput from "react-phone-number-input";
+import { relationshipTypes } from "@/constants/dropDownConstants";
+import { SelectLabel } from "@/components/ui/select";
+import { LocationSearchInput } from "./location-search-input";
+import AsyncComponent from "./async-component";
+import { Map } from "./map";
+import ProfileImageUpload from "./profileImageUpload";
+import { Link } from "react-router";
+import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useEffect } from "react";
 
-export default function MergeRequestForm({
-  isOpen,
-  onClose,
-  userId,
-  familyMembers,
-  mergeRelationType,
-  setIsMergeRequestSent,
-  currentUser,
-  requesterData,
+export default function AddRelativeForm({
+  id,
+  fid,
+  mid,
+  pid,
+  onCancel,
+  onSuccess,
+  gender,
 }) {
-  const { mutate: createRequest, isLoading } = useCreateMergeRequest();
+  const { mutateAsync: addMember, isLoading: isSubmitting } =
+    useAddFamilyMember();
+  const { data: ageRanges } = useAgeRanges();
+  const { t } = useTranslation();
 
-  const getRelationLabel = (value) => {
-    const relations = {
-      1: "Parent",
-      2: "Partner",
-      3: "Sibling",
-      4: "Children",
-    };
-    return relations[value] || "";
-  };
-  const [formData, setFormData] = useState({
-    user_id: userId,
-    requestor_id_on_receiver_tree: null,
-    relation_type: "",
+  const addRelativeSchema = z
+    .object({
+      relation: z.string({
+        required_error: t("relation_required"),
+      }),
+      first_name: z
+        .string({
+          required_error: t("first_name_required"),
+        })
+        .max(20, t("first_name_max")),
+      middle_name: z.string().max(20, t("middle_name_max")).optional(),
+      last_name: z
+        .string({
+          required_error: t("last_name_required"),
+        })
+        .max(20, t("last_name_max")),
+      email: z
+        .string()
+        .email(t("invalid_email"))
+        .max(254, t("email_max_length"))
+        .optional(),
+      phone_no: z
+        .string()
+        .refine(
+          (val) => !val || /^\+?[1-9]\d{0,14}$/.test(val),
+          t("invalid_phone")
+        )
+        .optional(),
+      age_range: z.number().optional().nullable(),
+      native_place: z.string().optional(),
+      profile_image: z.any().optional(),
+      is_alive: z.number().min(0).max(1).default(1),
+    })
+    .superRefine((data, ctx) => {
+      if (data.is_alive === 1) {
+        // For living people
+        if (!data.age_range) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("age_range_required"),
+            path: ["age_range"],
+          });
+        }
+
+        if (data.age_range >= 20 && data.age_range < 60) {
+          if (!data.phone_no) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("phone_required"),
+              path: ["phone_no"],
+            });
+          }
+          if (!data.email) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: t("email_required"),
+              path: ["email"],
+            });
+          }
+        }
+      } else {
+        // For deceased people
+        if (data.age_range) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("age_not_allowed_for_deceased"),
+            path: ["age_range"],
+          });
+        }
+        if (data.phone_no) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("phone_not_allowed_for_deceased"),
+            path: ["phone_no"],
+          });
+        }
+        if (data.email) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t("email_not_allowed_for_deceased"),
+            path: ["email"],
+          });
+        }
+      }
+    });
+
+  const form = useForm({
+    resolver: zodResolver(addRelativeSchema),
+    defaultValues: {
+      relation: "",
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      email: "",
+      phone_no: "",
+      age_range: "",
+      is_alive: 1,
+      gender: "",
+      native_place: "",
+    },
   });
 
-  const getFilteredFamilyMembers = () => {
-    if (!familyMembers || !formData.relation_type || !currentUser) return [];
+  const calculateRelationData = (relation) => {
+    const data = {
+      father_id: null,
+      mother_id: null,
+      partner_id: null,
+      children_id: null,
+      gender: null,
+    };
 
-    switch (formData.relation_type) {
-      case 1: // Parent
-        // Show members who have the current user as their father or mother
-        return familyMembers.filter(
-          (member) =>
-            member.fid === currentUser.id || member.mid === currentUser.id
-        );
+    switch (relation) {
+      case "father":
+        data.children_id = id;
+        data.gender = "m";
+        break;
+      case "mother":
+        data.children_id = id;
+        data.gender = "f";
+        break;
+      case "son":
+        if (gender === "m") {
+          data.father_id = id;
+          data.mother_id = pid;
+        } else {
+          data.father_id = pid;
+          data.mother_id = id;
+        }
+        data.gender = "m";
+        break;
+      case "daughter":
+        if (gender === "m") {
+          data.father_id = id;
+          data.mother_id = pid;
+        } else {
+          data.father_id = pid;
+          data.mother_id = id;
+        }
+        data.gender = "f";
+        break;
+      case "spouse":
+        data.partner_id = id;
+        data.gender = gender === "m" ? "f" : "m";
+        break;
+      case "brother":
+        data.father_id = fid;
+        data.mother_id = mid;
+        data.gender = "m";
+        break;
+      case "sister":
+        data.father_id = fid;
+        data.mother_id = mid;
+        data.gender = "f";
+        break;
+    }
 
-      case 2: // Partner
-        // If user has no pid, return empty array
-        if (!currentUser.pid || currentUser.pid.length === 0) return [];
-        // Otherwise show only the pid member
-        return familyMembers.filter((member) =>
-          currentUser.pid.includes(member.id)
-        );
+    return data;
+  };
 
-      case 3: // Sibling
-        // Show members with same pid and mid as current user
-        return familyMembers.filter(
-          (member) =>
-            member.id !== currentUser.id && // Exclude self
-            member.fid === currentUser.fid &&
-            member.mid === currentUser.mid
-        );
+  const selectedRelation = useWatch({
+    control: form.control,
+    name: "relation",
+  });
 
-      case 4: // Children
-        // Show people who have the same parents as the current user
-        return familyMembers.filter(
-          (member) =>
-            member.fid === currentUser.fid && member.mid === currentUser.mid
-        );
-
+  // Determine gender based on relation
+  const getGenderForRelation = (relation) => {
+    switch (relation) {
+      case "father":
+      case "son":
+      case "brother":
+        return "m";
+      case "mother":
+      case "daughter":
+      case "sister":
+        return "f";
+      case "spouse":
+        return gender === "m" ? "f" : "m";
       default:
-        return [];
+        return null;
     }
   };
-  const isPartnerSelectionDisabled =
-    formData.relation_type === 2 &&
-    (!currentUser?.pid || currentUser.pid.length === 0);
 
-  // Update the relation type Select to disable partner option if needed
-  const handleRelationTypeChange = (value) => {
-    const numValue = Number(value);
-    if (numValue === 2 && isPartnerSelectionDisabled) {
-      toast.error("You don't have a partner in the receiver's tree");
-      return;
+  const relationGender = getGenderForRelation(selectedRelation);
+
+  const filteredRelativesDropDown = relationshipTypes?.filter((relation) => {
+    switch (relation.value) {
+      case "father":
+        return !fid;
+      case "mother":
+        return !mid;
+      case "spouse":
+        return !pid;
+      default:
+        return true;
     }
-    setFormData({
-      ...formData,
-      relation_type: numValue,
-      requestor_id_on_receiver_tree: null,
-    });
+  });
+
+  const onSubmit = async (values) => {
+    console.log(values);
+
+    try {
+      const relationData = calculateRelationData(values.relation);
+      if (!relationData) return;
+
+      const memberData = {
+        ...values,
+        ...relationData,
+        // Clear email and phone for deceased
+        email: values.is_alive ? values.email : null,
+        phone_no: values.is_alive ? values.phone_no : null,
+        // Clear age range for deceased
+        age_range: values.is_alive ? values.age_range : null,
+        is_alive: values.is_alive ? 1 : 0,
+      };
+
+      await addMember(memberData);
+      onSuccess?.();
+    } catch (error) {
+      console.log("Error adding member", error);
+    }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.relation_type) {
-      toast.error("Please select a relation type");
-      return;
-    }
+  const ageRangeId = useWatch({
+    control: form.control,
+    name: "age_range",
+  });
 
-    createRequest(formData, {
-      onSuccess: () => {
-        setIsMergeRequestSent(true);
-        toast.success("Merge request created successfully!");
-        onClose();
-      },
-      onError: (error) => {
-        console.error("Form submission failed:", error);
-        toast.error(
-          error?.response?.data?.message || "Failed to send merge request"
-        );
-      },
-    });
+  // Find the selected age range object
+  const selectedAgeRange = ageRanges?.find((range) => range.id === ageRangeId);
+
+  // Extract the numeric values from the age range name
+  const getAgeRangeNumbers = (ageRangeName) => {
+    if (!ageRangeName) return null;
+    const numbers = ageRangeName.match(/\d+/g);
+    if (!numbers) return null;
+    return numbers.map(Number);
   };
 
-  const isFormValid = Boolean(formData.relation_type);
+  const isAlive = useWatch({
+    control: form.control,
+    name: "is_alive",
+  });
+
+  // Get the minimum age from the range
+  const minAge = selectedAgeRange
+    ? getAgeRangeNumbers(selectedAgeRange.name)?.[0]
+    : null;
+
+  // Should show contact fields if alive and age is between 20-60
+  const shouldShowContactFields =
+    isAlive === 1 && minAge !== null && minAge >= 20 && minAge < 60;
+
+  // Update the console.log to show more detailed information
+  console.log({
+    isAlive,
+    shouldShowContactFields,
+    ageRangeId,
+    selectedAgeRange,
+    minAge,
+  });
+
+  useEffect(() => {
+    if (isAlive === 1) {
+      // When switching to alive, clear any deceased-related errors
+      form.clearErrors("age_range");
+      form.clearErrors("phone_no");
+      form.clearErrors("email");
+    } else {
+      // When switching to deceased, clear the age range value
+      form.setValue("age_range", null);
+      form.setValue("phone_no", "");
+      form.setValue("email", "");
+      form.clearErrors("age_range");
+    }
+  }, [isAlive, form]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90%] w-[425px] rounded-2xl sm:rounded-2xl">
-        <DialogHeader>
-          <DialogTitle>Send Tree Merge Request</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="relation_type">Relation Type</Label>
-            <Select
-              value={formData.relation_type?.toString()}
-              onValueChange={handleRelationTypeChange}
-            >
-              <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
-                <SelectValue
-                  placeholder={
-                    formData.relation_type
-                      ? getRelationLabel(formData.relation_type)
-                      : "Select relation type"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                {mergeRelationType?.map((relation) => (
-                  <SelectItem
-                    key={relation.id}
-                    value={relation.id.toString()}
-                    className="h-10 rounded-2xl cursor-pointer"
-                    disabled={relation.id === 2 && isPartnerSelectionDisabled}
-                  >
-                    {relation.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Are you in reciever's family tree?</Label>
-            <Select
-              value={formData.requestor_id_on_receiver_tree?.toString()}
-              onValueChange={(value) =>
-                setFormData({
-                  ...formData,
-                  requestor_id_on_receiver_tree: Number(value),
-                })
-              }
-              disabled={!formData.relation_type} // Add this line
-            >
-              <SelectTrigger className="w-full h-10 md:h-12 rounded-full">
-                <SelectValue placeholder="Select family member" />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                <CustomScrollArea maxHeight="200px">
-                  {getFilteredFamilyMembers?.()?.map((member) => (
-                    <SelectItem
-                      key={member.id}
-                      value={member.id.toString()}
-                      className="h-16 rounded-2xl cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage
-                            src={member.profile_pic_url}
-                            alt={member.first_name}
-                          />
-                          <AvatarFallback>
-                            {getInitials(member.first_name, member.last_name)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                          <span className="font-medium">
-                            {member.first_name}&nbsp;{member.last_name}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {member.relation}
-                          </span>
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </CustomScrollArea>
-              </SelectContent>
-            </Select>
+    <AsyncComponent>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div
+            className="relative w-full h-[150px] md:h-[200px] bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${"/illustrations/illustration_bg.png"})`,
+            }}
+          >
+            <FormField
+              control={form.control}
+              name="profile_image"
+              render={({ field }) => (
+                <FormItem className="absolute md:top-36 top-24 left-1/2 transform -translate-x-1/2 flex m-auto">
+                  <FormControl>
+                    <ProfileImageUpload
+                      value={field.value}
+                      onChange={field.onChange}
+                      firstName={form.watch("first_name")}
+                      lastName={form.watch("last_name")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="absolute top-4 left-4 h-4 w-4 flex items-center justify-center cursor-pointer rounded-full p-3 bg-primary border border-primary-foreground">
+              <Link onClick={onCancel}>
+                <ArrowLeft className="w-5 h-5 text-primary-foreground" />
+              </Link>
+            </div>
           </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="rounded-full"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || !isFormValid}
-              className="rounded-full"
-            >
-              {isLoading ? "Sending..." : "Send Request"}
-            </Button>
+          <div className="text-center pt-12">
+            <h2 className="text-xl font-semibold">{t("add_new_relative")}</h2>
+          </div>
+
+          <div className="space-y-6 p-2 md:p-4 lg:p-6">
+            <div className="grid md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="relation"
+                render={({ field }) => (
+                  <FormItem>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="h-10 rounded-full">
+                          <SelectValue placeholder={t("select_relation")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-2xl max-h-[150px]">
+                        <SelectGroup>
+                          <SelectLabel>{t("relation")}</SelectLabel>
+                          {filteredRelativesDropDown?.map((relation) => (
+                            <SelectItem
+                              key={relation.id}
+                              value={relation.value}
+                            >
+                              {relation.label}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormItem>
+                <FormControl>
+                  <Input
+                    value={relationGender === "m" ? t("male") : t("female")}
+                    disabled
+                    className="rounded-full"
+                    placeholder={t("gender")}
+                  />
+                </FormControl>
+              </FormItem>
+
+              <FormField
+                control={form.control}
+                name="first_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("first_name")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="middle_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("middle_name")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="last_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        className="rounded-full"
+                        placeholder={t("last_name")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {isAlive === 1 && (
+                <FormField
+                  control={form.control}
+                  name="age_range"
+                  render={({ field }) => {
+                    // Clear age range when switching to deceased
+                    if (isAlive === 0 && field.value) {
+                      field.onChange(null);
+                    }
+                    return (
+                      <FormItem>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(Number(value))
+                          }
+                          value={field.value?.toString()}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="h-10 rounded-full">
+                              <SelectValue
+                                placeholder={t("select_age_range")}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-[150px] overflow-y-auto no_scrollbar rounded-2xl">
+                            {ageRanges?.map((ageRange) => (
+                              <SelectItem
+                                key={ageRange.id}
+                                value={ageRange.id.toString()}
+                              >
+                                {ageRange.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              )}
+
+              {shouldShowContactFields && (
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          className="rounded-full"
+                          placeholder={t("email")}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {shouldShowContactFields && (
+                <FormField
+                  control={form.control}
+                  name="phone_no"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <PhoneInput
+                          international
+                          countryCallingCodeEditable={false}
+                          defaultCountry="IN"
+                          value={field.value}
+                          onChange={field.onChange}
+                          limitMaxLength
+                          maxLength={15}
+                          className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              <FormField
+                control={form.control}
+                name="native_place"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <LocationSearchInput
+                        value={field.value}
+                        onChange={field.onChange}
+                        onBlur={field.onBlur}
+                        name={field.name}
+                        placeholder={t("native_place_placeholder")}
+                        error={form.formState.errors.native_place?.message}
+                        className="rounded-full"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex items-end">
+                <FormField
+                  control={form.control}
+                  name="is_alive"
+                  render={({ field }) => (
+                    <FormItem className="flex items-end gap-2">
+                      <FormLabel>{t("living_status")}</FormLabel>
+                      <FormControl>
+                        <Switch
+                          checked={field.value === 1}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked ? 1 : 0);
+                            // Trigger validation after change
+                            form.trigger(["age_range", "phone_no", "email"]);
+                          }}
+                          className="data-[state=checked]:bg-brandPrimary data-[state=checked]:border-brandPrimary data-[state=checked]:hover:bg-brandPrimary data-[state=checked]:hover:border-brandPrimary"
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {field.value === 1 ? t("alive") : t("deceased")}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 mt-6">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onCancel}
+                className="rounded-full"
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                type="submit"
+                className="rounded-full bg-brandPrimary text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? t("adding_member") : t("add_member")}
+              </Button>
+            </div>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </Form>
+      <div className="my-4 px-2 md:px-4 lg:px-6">
+        <Map
+          place={form.getValues("native_place")}
+          className="w-full rounded-lg shadow-md"
+        />
+      </div>
+    </AsyncComponent>
   );
 }
