@@ -69,6 +69,7 @@ const MemberCard = ({ active, member }) => {
                       },
                     }))
                   }
+                  disabled={member?.is_alive === 0}
                 >
                   {t("share_invite")}
                 </Button>
@@ -79,7 +80,6 @@ const MemberCard = ({ active, member }) => {
                   onClick={() =>
                     navigate(`/family-member/${encryptId(member?.id)}`)
                   }
-                  // disabled
                 >
                   {t("view_profile")}
                 </Button>
