@@ -112,6 +112,8 @@ export const useAuthentication = () => {
     },
     onSuccess: () => {
       queryClient.clear();
+      localStorage.removeItem("i18nextLng");
+      localStorage.removeItem("kintree-language");
       toast.success(t("logged_out_successfully"));
       window.location.reload();
     },
