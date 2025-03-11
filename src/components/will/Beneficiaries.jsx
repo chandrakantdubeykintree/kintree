@@ -150,7 +150,7 @@ export default function Beneficiaries({ setStep, willId }) {
 
       <div className="w-full flex justify-start h-[54px] gap-2 border-b border-gray-200 relative">
         <div
-          className={`text-sm flex items-center cursor-pointer hover:bg-gray-100 px-4 ${
+          className={`text-sm flex items-center cursor-pointer hover:bg-primary hover:text-white  px-4 ${
             activeTab === "family"
               ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
               : ""
@@ -162,7 +162,7 @@ export default function Beneficiaries({ setStep, willId }) {
           {t("family")} ({memberBeneficiariesCount?.length})
         </div>
         <div
-          className={`text-sm flex items-center cursor-pointer hover:bg-gray-100 px-4 ${
+          className={`text-sm flex items-center cursor-pointer hover:bg-primary hover:text-white px-4 ${
             activeTab === "non-relative"
               ? "font-bold text-brandPrimary border-b-2 border-brandPrimary"
               : ""
