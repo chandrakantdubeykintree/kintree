@@ -43,8 +43,8 @@ export default function EditPost() {
   const postId = decryptId(encryptedId);
   const [privacy, setPrivacy] = useState({
     id: 1,
-    title: "Global",
-    desc: "Anyone on Kintree",
+    title: "global",
+    desc: "global_desc",
     icon: "/privacy/web.svg",
   });
   const {
