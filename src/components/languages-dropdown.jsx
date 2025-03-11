@@ -14,6 +14,7 @@ import { useTranslation } from "react-i18next";
 
 export default function LanguagesDropDown() {
   const { language, setLanguage } = useThemeLanguage();
+
   const { t } = useTranslation();
 
   const handleLanguageChange = (languageCode) => {
@@ -44,7 +45,7 @@ export default function LanguagesDropDown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-1 md:gap-2">
-          <span className="text-sm">{LANGUAGES[language] || "English"}</span>
+          <span className="text-sm">{LANGUAGES[language] || ""}</span>
           <img
             src={ICON_LANGUAGES}
             className="w-6 h-6 cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-125"

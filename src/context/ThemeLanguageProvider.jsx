@@ -34,11 +34,7 @@ export function ThemeLanguageProvider({
 
   const [language, setLanguageState] = useState(() => {
     const savedLanguage = localStorage.getItem(languageStorageKey);
-    return (
-      (savedLanguage && LANGUAGES[savedLanguage]) ||
-      (configurations?.language && LANGUAGES[configurations.language]) ||
-      defaultLanguage
-    );
+    return savedLanguage || configurations?.language || defaultLanguage;
   });
 
   // Initialize theme and language once when configurations are loaded

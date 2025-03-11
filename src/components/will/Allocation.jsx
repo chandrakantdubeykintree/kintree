@@ -232,7 +232,7 @@ export default function Allocation({ setStep, willId }) {
           isOpen={termsPrivacyModalOpen}
           onClose={() => setTermsPrivacyModalOpen(false)}
           type="terms"
-          url="https://kintree.com/terms-and-condition/"
+          url="https://kintree.com/terms-and-condition-webview/"
         />
       )}
     </AsyncComponent>
