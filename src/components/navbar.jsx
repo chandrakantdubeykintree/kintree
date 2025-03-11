@@ -177,7 +177,7 @@ export default function Navbar() {
             className="w-[60px] h-12 transform transition-transform duration-300 ease-in-out hover:scale-105"
           />
         </NavLink>
-        <div className="hidden sm:block max-w-sm px-4 relative" ref={searchRef}>
+        <div className="hidden sm:block max-w-sm px-4 relative">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -229,7 +229,10 @@ export default function Navbar() {
 
               {/* Mobile Search Results */}
               {debouncedSearchQuery.trim() && (
-                <div className="mt-2 bg-background border rounded-lg shadow-lg">
+                <div
+                  className="mt-2 bg-background border rounded-lg shadow-lg"
+                  ref={searchRef}
+                >
                   {renderSearchResults()}
                 </div>
               )}
