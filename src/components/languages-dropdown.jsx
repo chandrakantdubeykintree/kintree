@@ -15,7 +15,7 @@ import { useProfile } from "@/hooks/useProfile";
 
 export default function LanguagesDropDown() {
   const { t } = useTranslation();
-  const { language, setLanguage } = useThemeLanguage();
+  const { setLanguage } = useThemeLanguage();
   const { profile: configurations } = useProfile("user/configurations");
 
   const handleLanguageChange = (languageCode) => {
@@ -36,7 +36,7 @@ export default function LanguagesDropDown() {
               {LANGUAGE_METADATA[code].name}
             </span>
           </div>
-          {configurations.language === code && <span className="ml-2">✓</span>}
+          {configurations?.language === code && <span className="ml-2">✓</span>}
         </div>
       </div>
     </DropdownMenuItem>
@@ -47,7 +47,7 @@ export default function LanguagesDropDown() {
       <DropdownMenuTrigger asChild>
         <div className="flex items-center gap-1 md:gap-2">
           <span className="text-sm">
-            {LANGUAGES[configurations.language] || ""}
+            {LANGUAGES[configurations?.language] || ""}
           </span>
           <img
             src={ICON_LANGUAGES}
