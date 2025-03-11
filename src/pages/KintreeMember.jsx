@@ -57,8 +57,8 @@ export default function KintreeMember() {
 
   const { data: familyTree } = useFamily();
 
-  // const { mutate: cancelMergeRequest, isLoading: isCancelling } =
-  //   useCancelMergeRequest();
+  const { mutate: cancelMergeRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
 
   const familyMemberSelected = familyTree?.find((member) => member?.id === +id);
 
@@ -189,7 +189,7 @@ export default function KintreeMember() {
               </div>
               {/* merge tree hidden for now */}
               <div className="flex justify-center mb-8">
-                {/* {!familyMember?.is_relative &&
+                {!familyMember?.is_relative &&
                 !familyMember?.is_request_sent &&
                 !familyMember?.is_request_received &&
                 !isMergeRequsetSent ? (
@@ -199,7 +199,7 @@ export default function KintreeMember() {
                   >
                     {t("request_merge")}
                   </Button>
-                ) : null} */}
+                ) : null}
                 {/* {!familyMember?.is_relative &&
                 familyMember?.is_request_received ? (
                   <Button
