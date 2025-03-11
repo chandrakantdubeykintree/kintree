@@ -157,8 +157,6 @@ export default function EditRelativeForm({
     },
   });
 
-  console.log(profile_pic_url);
-
   const onSubmit = async (values) => {
     try {
       await updateMember({

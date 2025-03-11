@@ -583,7 +583,12 @@ export default function NotificationsPage() {
                   variant="outline"
                   onClick={handleToggleRead}
                   disabled={isMarkingAsRead || isMarkingAsUnread}
-                  className="rounded-full"
+                  title={
+                    selectedNotification.readed_at
+                      ? t("mark_as_unread")
+                      : t("mark_as_read")
+                  }
+                  className="rounded-full max-w-[125px] text-ellipsis whitespace-nowrap overflow-hidden justify-start"
                 >
                   {isMarkingAsRead || isMarkingAsUnread ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -598,6 +603,7 @@ export default function NotificationsPage() {
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className="rounded-full"
+                  title={t("delete")}
                 >
                   {isDeleting ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

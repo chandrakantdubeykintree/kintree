@@ -311,7 +311,7 @@ export default function FamilyMember() {
             ) : null}
 
             {/* Credentials Section */}
-            {familyMember?.password ? (
+            {familyMember?.password && !familyMember?.is_active ? (
               <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-primary">

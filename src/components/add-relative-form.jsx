@@ -194,7 +194,7 @@ export default function AddRelativeForm({
           data.father_id = id;
           data.mother_id = pid;
         } else {
-          data.father_id = fid;
+          data.father_id = pid;
           data.mother_id = id;
         }
         data.gender = "m";
@@ -204,7 +204,7 @@ export default function AddRelativeForm({
           data.father_id = id;
           data.mother_id = pid;
         } else {
-          data.father_id = fid;
+          data.father_id = pid;
           data.mother_id = id;
         }
         data.gender = "f";

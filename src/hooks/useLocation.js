@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { searchLocation } from "@/services/locationApi";
 import { useDebounce } from "./useDebounce";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export const useLocation = (searchTerm, delay = 500) => {
   const queryClient = useQueryClient();

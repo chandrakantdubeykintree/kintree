@@ -30,6 +30,7 @@ import { useAuth } from "@/context/AuthProvider";
 import { useRef } from "react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { decryptId } from "@/utils/encryption";
 
 export default function PostComments({ postId, onCommentUpdate }) {
   const { t } = useTranslation();
@@ -205,7 +206,8 @@ export default function PostComments({ postId, onCommentUpdate }) {
 }
 
 const CommentItem = ({ comment, onReply, onReaction, canReply = true }) => {
-  const { postId } = useParams();
+  const { postId: id } = useParams();
+  const postId = decryptId(id);
   const { t } = useTranslation();
   const updateCommentMutation = useUpdateComment();
   const deleteCommentMutation = useDeleteComment();

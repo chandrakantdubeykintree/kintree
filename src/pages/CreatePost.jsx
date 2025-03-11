@@ -150,8 +150,6 @@ export default function CreatePost() {
     }
   };
 
-  console.log(mediaFiles);
-
   const removeFile = async (index) => {
     const attachmentToDelete = uploadedAttachments[index];
 

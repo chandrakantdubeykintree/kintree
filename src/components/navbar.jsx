@@ -21,6 +21,7 @@ import { useInView } from "react-intersection-observer";
 import { encryptId } from "@/utils/encryption";
 import { useTranslation } from "react-i18next";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useClickOutside } from "@/hooks/useClickOutside";
 
 export default function Navbar() {
   const [showSearch, setShowSearch] = useState(false);
@@ -161,6 +162,11 @@ export default function Navbar() {
     );
   };
 
+  const searchRef = useClickOutside(() => {
+    setShowSearch(false);
+    setSearchQuery("");
+  });
+
   return (
     <AsyncComponent isLoading={isProfileLoading}>
       <div className="h-[84px] flex justify-between items-center">
@@ -171,7 +177,7 @@ export default function Navbar() {
             className="w-[60px] h-12 transform transition-transform duration-300 ease-in-out hover:scale-105"
           />
         </NavLink>
-        <div className="hidden sm:block max-w-sm px-4 relative">
+        <div className="hidden sm:block max-w-sm px-4 relative" ref={searchRef}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -182,6 +188,7 @@ export default function Navbar() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   handleSearch(searchQuery);
+                  e.target.blur();
                 }
               }}
             />

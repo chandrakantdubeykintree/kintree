@@ -257,7 +257,7 @@ export const useDeleteMember = () => {
       navigate("/familytree");
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || t("failed_delete_member"));
+      toast.error(error?.data?.message || t("failed_delete_member"));
     },
   });
 };

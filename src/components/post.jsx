@@ -136,7 +136,10 @@ export default function Post({ post, user, onReactionUpdate }) {
                   alt="Like"
                 />
                 <span className="text-sm">
-                  {formatCounts("like", getReactionCount("like"), width)}
+                  {reactions?.["like"]?.count || 0} &nbsp;
+                  {reactions?.["like"]?.count > 1
+                    ? t("likes")?.toLocaleLowerCase()
+                    : t("like")?.toLocaleLowerCase()}
                 </span>
               </button>
 
@@ -147,7 +150,11 @@ export default function Post({ post, user, onReactionUpdate }) {
                     className="w-5 h-5 transform transition-transform duration-300 ease-in-out hover:scale-125 cursor-pointer"
                   />
                   <span className="text-sm">
-                    {formatCounts("comment", comment_counts || 0, width)}
+                    {/* {formatCounts("comment", comment_counts || 0, width)} */}
+                    {comment_counts || 0} &nbsp;
+                    {comment_counts > 1
+                      ? t("comments").toLowerCase()
+                      : t("comment").toLowerCase()}
                   </span>
                 </div>
               ) : (
