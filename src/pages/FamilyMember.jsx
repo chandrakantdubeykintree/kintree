@@ -73,7 +73,6 @@ export default function FamilyMember() {
 
   const InfoItem = ({ label, value }) => {
     // if (!value) return null;
-    console.log(label, value);
 
     return (
       <div className="flex flex-col">

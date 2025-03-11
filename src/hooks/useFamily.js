@@ -15,8 +15,8 @@ export const QUERY_KEYS = {
 };
 
 const handleApiError = (error) => {
-  const message = error.response?.data?.message || "Something went wrong";
-  toast.error(message);
+  // const message = error.response?.data?.message || "Something went wrong";
+  // toast.error(message);
   return Promise.reject(error);
 };
 

@@ -37,6 +37,7 @@ export default function Profile() {
         return <ProfileAbout />;
     }
   }
+
   return (
     <AsyncComponent>
       <Card className="w-full shadow-sm border-0 rounded-2xl h-full overflow-y-scroll no_scrollbar">
