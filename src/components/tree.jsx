@@ -334,7 +334,7 @@ const Tree = ({ nodes, familyMembers }) => {
             <Play />
           </Button>
         </div>
-        <Button className="absolute rounded-full godfather-button h-12 w-12 sm:w-[175px] sm:h-[48px]">
+        {/* <Button className="absolute rounded-full godfather-button h-12 w-12 sm:w-[175px] sm:h-[48px]">
           <span className="rounded-full sm:bg-white w-8 h-8 flex items-center justify-center">
             <img
               src="/add-godfather.svg"
@@ -343,7 +343,7 @@ const Tree = ({ nodes, familyMembers }) => {
             />
           </span>
           <span className="hidden sm:block">Add Godfather</span>
-        </Button>
+        </Button> */}
         <div
           id="tree"
           ref={divRef}
