@@ -18,7 +18,7 @@ import { NavLink, useLocation, useNavigate } from "react-router";
 import { capitalizeName, getInitials } from "@/utils/stringFormat";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useProfile } from "@/hooks/useProfile";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api_user_profile } from "@/constants/apiEndpoints";
 import { useAuthentication } from "@/hooks/useAuthentication";
 import { useTranslation } from "react-i18next";
@@ -43,6 +43,10 @@ export default function ProfileDropDown() {
     logout();
     navigate("/login");
   }
+
+  useEffect(() => {
+    setHoveredPath(null);
+  }, [location.pathname]);
 
   return width > 768 ? (
     <DropdownMenu className="hidden md:block">
