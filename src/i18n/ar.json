@@ -640,7 +640,7 @@
   "date_of_birth": "تاريخ الميلاد",
   "gender": "جنس",
   "native_place": "المكان الأصلي",
-  "relation": "العلاقة",
+  "relation": "العلاقة {{relation}}",
   "father_name": "اسم الأب",
   "mother_name": "اسم الأم",
   "grandfather_name": "اسم الجد",

@@ -640,7 +640,7 @@
   "date_of_birth": "تاریخ پیدائش",
   "gender": "جنس",
   "native_place": "آبائی جگہ",
-  "relation": "رشتہ",
+  "relation": "رشتہ {{relation}}",
   "father_name": "والد کا نام",
   "mother_name": "ماں کا نام",
   "grandfather_name": "دادا کا نام",

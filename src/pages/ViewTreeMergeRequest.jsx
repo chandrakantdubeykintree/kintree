@@ -187,13 +187,17 @@ export default function ViewTreeMergeRequest() {
                       {relative.first_name} {relative.middle_name}{" "}
                       {relative.last_name}
                     </p>
-                    {/* {relative.date_of_birth && (
+                    {relative.date_of_birth ? (
                       <p className="text-xs text-gray-500">
                         DOB: {formatDate(relative.date_of_birth)}
                       </p>
-                    )} */}
-                    {relative.relation &&
-                      t("relation", { type: relative.relation })}
+                    ) : null}
+                    {relative.relation ? (
+                      <p className="text-xs font-semibold">
+                        {" "}
+                        {t("relation", { relation: relative.relation })}
+                      </p>
+                    ) : null}
                   </div>
                   {/* Indicate if this member is part of a duplicate pair */}
                   {duplicateMembers.some(

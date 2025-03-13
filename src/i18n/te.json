@@ -640,7 +640,7 @@
   "date_of_birth": "పుట్టిన తేదీ",
   "gender": "లింగం",
   "native_place": "స్వస్థలం",
-  "relation": "సంబంధం",
+  "relation": "సంబంధం {{relation}}",
   "father_name": "తండ్రి పేరు",
   "mother_name": "తల్లి పేరు",
   "grandfather_name": "తాతగారి పేరు",

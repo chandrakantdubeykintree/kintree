@@ -339,9 +339,9 @@ export default function NotificationsPage() {
                   </>
                 )}
                 <span className="font-normal">
-                  {mergeRequest.is_request_sent
-                    ? t(" as ")
-                    : t("wants_to_merge")}
+                  &nbsp;
+                  {mergeRequest.is_request_sent ? t("as") : t("wants_to_merge")}
+                  &nbsp;
                 </span>
                 <span className="text-primary font-semibold">
                   {mergeRequest.type?.name}

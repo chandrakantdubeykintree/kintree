@@ -640,7 +640,7 @@
   "date_of_birth": "জন্ম তারিখ",
   "gender": "লিঙ্গ",
   "native_place": "জন্মস্থান",
-  "relation": "সম্পর্ক",
+  "relation": "সম্পর্ক {{relation}}",
   "father_name": "পিতার নাম",
   "mother_name": "মাতার নাম",
   "grandfather_name": "দাদুর নাম",

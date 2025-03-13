@@ -267,7 +267,11 @@ button[data-state="active"] {
     min-width: 100vw !important;
   }
   .bft-toolbar-container {
-    top: 15px !important;
+    /* top: 15px !important; */
+    top: revert !important;
+    bottom: 64px;
+    flex-direction: column;
+    gap: 0.5rem;
     right: 0% !important;
   }
 }
@@ -275,6 +279,11 @@ button[data-state="active"] {
 .fab {
   margin-left: 5px;
   margin-right: 5px;
+}
+
+.godfather-button {
+  bottom: 0.5rem;
+  right: 0.5rem;
 }
 
 @keyframes scaleAndFade {
@@ -335,6 +344,6 @@ button[data-state="active"] {
   }
 }
 
-.rtl {
+/* .rtl {
   direction: rtl;
-}
+} */
