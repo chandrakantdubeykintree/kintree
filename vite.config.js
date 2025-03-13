@@ -40,10 +40,8 @@ export default defineConfig(({ command, mode }) => {
                 return;
               }
 
-              // Decode the URL and handle special characters
               const decodedUrl = decodeURIComponent(urlParam);
 
-              // Validate URL format
               try {
                 new URL(decodedUrl);
               } catch (e) {
@@ -54,25 +52,36 @@ export default defineConfig(({ command, mode }) => {
               }
 
               const metadata = await getLinkPreview(decodedUrl, {
-                timeout: 5000, // Increased timeout
+                timeout: 5000,
                 followRedirects: "follow",
                 headers: {
                   "user-agent":
-                    "Googlebot/2.1 (+http://www.google.com/bot.html)",
+                    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
                   Accept:
                     "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                   "Accept-Language": "en-US,en;q=0.5",
                 },
-                handleRedirects: (baseURL, forwardedURL) => {
-                  return forwardedURL;
-                },
+                handleRedirects: (baseURL, forwardedURL) => forwardedURL,
+                imagesPropertyType: "og", // Prioritize OpenGraph images
               });
 
-              // Handle case where metadata might be incomplete
+              // Process and validate image URLs
+              let imageUrl = "";
+              if (metadata.images && metadata.images.length > 0) {
+                imageUrl = metadata.images[0];
+                // Ensure image URL is absolute
+                try {
+                  imageUrl = new URL(imageUrl, decodedUrl).toString();
+                } catch (e) {
+                  console.warn("Invalid image URL:", imageUrl);
+                  imageUrl = "";
+                }
+              }
+
               const response = {
                 title: metadata.title || "No title available",
                 description: metadata.description || "",
-                image: metadata.images?.[0] || "",
+                image: imageUrl,
                 url: decodedUrl,
                 siteName: metadata.siteName || new URL(decodedUrl).hostname,
               };
@@ -81,8 +90,6 @@ export default defineConfig(({ command, mode }) => {
               res.end(JSON.stringify(response));
             } catch (error) {
               console.error("Link preview error:", error);
-
-              // Send a more detailed error response
               res.statusCode = 500;
               res.setHeader("Content-Type", "application/json");
               res.end(
@@ -108,6 +115,17 @@ export default defineConfig(({ command, mode }) => {
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/google-places/, ""),
+          configure: (proxy, _options) => {
+            proxy.on("error", (err, _req, _res) => {
+              console.log("proxy error", err);
+            });
+            proxy.on("proxyRes", (proxyRes, req, _res) => {
+              // Add CORS headers
+              proxyRes.headers["Access-Control-Allow-Origin"] = "*";
+              proxyRes.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS";
+              proxyRes.headers["Access-Control-Allow-Headers"] = "Content-Type";
+            });
+          },
         },
         "/uploads": {
           target: env.VITE_KINTREE_BASE_URL || "https://api.kintree.com",
@@ -145,6 +163,18 @@ export default defineConfig(({ command, mode }) => {
           secure: true,
           rewrite: (path) =>
             path.replace(/^\/api\/link-preview/, "/link-preview"),
+        },
+        "/image-proxy": {
+          target: "http://localhost:3000",
+          changeOrigin: true,
+          configure: (proxy, _options) => {
+            proxy.on("proxyReq", (proxyReq, req, res) => {
+              // Add CORS headers
+              res.setHeader("Access-Control-Allow-Origin", "*");
+              res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+              res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+            });
+          },
         },
       },
     },

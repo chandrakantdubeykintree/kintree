@@ -19,6 +19,8 @@ export default function LanguagesDropDown() {
   const { profile: configurations } = useProfile("user/configurations");
 
   const handleLanguageChange = (languageCode) => {
+    console.log("Changing language to:", languageCode);
+
     setLanguage(languageCode);
   };
 

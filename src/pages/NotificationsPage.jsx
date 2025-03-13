@@ -192,7 +192,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                       {isResponding ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      {"view_detailed_request"}{" "}
+                      {t("view_detailed_request")}{" "}
                     </Button>
                   ) : null}
                 </div>
