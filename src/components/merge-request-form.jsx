@@ -26,6 +26,8 @@ export default function MergeRequestForm({
   requesterData,
   profile,
 }) {
+  console.log(currentUser, profile);
+
   const { mutate: createRequest, isLoading } = useCreateMergeRequest();
 
   const getRelationLabel = (value) => {
@@ -56,14 +58,25 @@ export default function MergeRequestForm({
 
       case 2: // Partner
         // If user has no pid, return empty array
-        if (!currentUser.pids || currentUser.pids.length === 0) return [];
-        // Otherwise show only the pid member
-        return familyMembers.filter((member) =>
-          currentUser.pids.includes(member.id)
-        );
+        // if (!currentUser.pids || currentUser.pids.length === 0) return [];
+        // // Otherwise show only the pid member
+        // return familyMembers.filter((member) =>
+        //   currentUser.pids.includes(member.id)
+        // );
+        if (
+          profile?.basic_info?.gender &&
+          currentUser?.basic_info?.gender &&
+          profile?.basic_info?.gender !== currentUser.basic_info?.gender &&
+          (!currentUser.pids || currentUser.pids.length === 0)
+        ) {
+          return familyMembers.filter((member) =>
+            currentUser.pids.includes(member.id)
+          );
+        }
+        return [];
 
       case 3: // Sibling
-        // Show members with same pid and mid as current user
+        // Show members with same fid and mid as current user
         return familyMembers.filter(
           (member) =>
             member.id !== currentUser.id && // Exclude self
@@ -83,14 +96,31 @@ export default function MergeRequestForm({
   };
   const isPartnerSelectionDisabled =
     formData.relation_type === 2 &&
-    (!currentUser?.pids || currentUser.pids.length === 0);
+    // Disable if either user has no gender specified
+    (!profile?.basic_info?.gender ||
+      !currentUser?.basic_info?.gender ||
+      // Disable if genders are the same
+      profile?.basic_info?.gender === currentUser?.basic_info?.gender ||
+      // Disable if target user already has a partner
+      (currentUser?.pids && currentUser.pids.length > 0));
 
   // Update the relation type Select to disable partner option if needed
   const handleRelationTypeChange = (value) => {
+    console.log(profile?.basic_info?.gender, currentUser?.basic_info?.gender);
     const numValue = Number(value);
-    if (numValue === 2 && isPartnerSelectionDisabled) {
-      toast.error("You don't have a partner in the receiver's tree");
-      return;
+    if (numValue === 2) {
+      if (!profile?.basic_info?.gender || !currentUser?.basic_info?.gender) {
+        toast.error("Both users must have gender specified");
+        return;
+      }
+      if (profile?.basic_info?.gender === currentUser?.basic_info?.gender) {
+        toast.error("Partner requests can only be sent to opposite gender");
+        return;
+      }
+      // if (currentUser?.pids && currentUser.pids.length > 0) {
+      //   toast.error("This person already has a partner");
+      //   return;
+      // }
     }
     setFormData({
       ...formData,
