@@ -55,7 +55,9 @@ const MemberCard = ({ active, member }) => {
               </p>
             </div>
             <div className="flex justify-start items-end mt-6">
-              {member?.is_user_added_by_me && member?.is_active !== 1 ? (
+              {member?.is_user_added_by_me &&
+              member?.is_active !== 1 &&
+              member?.is_alive === 1 ? (
                 <Button
                   variant="outline"
                   className="border border-brandPrimary rounded-l-full rounded-r-full text-brandPrimary"
@@ -79,7 +81,6 @@ const MemberCard = ({ active, member }) => {
                   onClick={() =>
                     navigate(`/family-member/${encryptId(member?.id)}`)
                   }
-                  // disabled
                 >
                   {t("view_profile")}
                 </Button>
@@ -89,7 +90,13 @@ const MemberCard = ({ active, member }) => {
         </Card>
         <div className="absolute bottom-4 -right-[11px]">
           <img
-            src={member?.is_active === 1 ? "/active.png" : "/inactive.png"}
+            src={
+              member?.is_active === 1 && member?.is_alive
+                ? "/active.png"
+                : member?.is_alive === 0
+                ? "/deceased.png"
+                : "/inactive.png"
+            }
           />
         </div>
       </div>

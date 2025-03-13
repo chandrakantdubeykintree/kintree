@@ -15,8 +15,8 @@ export const QUERY_KEYS = {
 };
 
 const handleApiError = (error) => {
-  const message = error.response?.data?.message || "Something went wrong";
-  toast.error(message);
+  // const message = error.response?.data?.message || "Something went wrong";
+  // toast.error(message);
   return Promise.reject(error);
 };
 
@@ -95,33 +95,35 @@ export const addFamilyMember = async (memberData) => {
 };
 
 export const updateFamilyMember = async (memberData) => {
-  // const formData = new FormData();
+  const formData = new FormData();
 
-  // if (memberData.profile_image && memberData.profile_image instanceof File) {
-  //   formData.append("profile_image", memberData.profile_image);
-  // }
+  // Handle profile image if provided and valid
+  if (memberData.profile_image && memberData.profile_image instanceof File) {
+    formData.append("profile_image", memberData.profile_image);
+  }
 
-  // // Append other member data, excluding null/undefined values
-  // Object.entries(memberData).forEach(([key, value]) => {
-  //   if (
-  //     key !== "profile_image" &&
-  //     value !== null &&
-  //     value !== undefined &&
-  //     value !== ""
-  //   ) {
-  //     formData.append(String(key), value);
-  //   }
-  // });
+  // Append other member data, excluding null/undefined values
+  Object.entries(memberData).forEach(([key, value]) => {
+    if (
+      key !== "profile_image" &&
+      value !== null &&
+      value !== undefined &&
+      value !== ""
+    ) {
+      formData.append(key, value);
+    }
+  });
 
-  const response = await kintreeApi.put(
+  formData.append("_method", "PUT");
+
+  const response = await kintreeApi.post(
     `${api_family_tree_members}/${memberData.id}`,
-    // formData
-    memberData
-    // {
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //   },
-    // }
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
   );
 
   if (!response.data.success) {

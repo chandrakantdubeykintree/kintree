@@ -50,6 +50,8 @@ const Tree = ({ nodes, familyMembers }) => {
       '<div class="ft-plus-icon p-2 border-2 border-brandSecondary rounded-lg bg-brandSecondary"><img src="/icons/zoom-in.svg" class="w-4 h-4 text-center"></div>';
     FamilyTree.toolbarUI.fullScreen =
       '<div class="ft-icon p-2 border-2 border-brandSecondary rounded-lg bg-brandSecondary"><img src="/icons/zoom-in.svg" class="w-4 h-4 text-center"></div>';
+    FamilyTree.toolbarUI.fullScreen =
+      '<div class="ft-icon p-2 border-2 border-brandSecondary rounded-lg bg-brandSecondary"><img src="/icons/zoom-in.svg" class="w-4 h-4 text-center"></div>';
 
     FamilyTree.templates.kintree = Object.assign({}, FamilyTree.templates.base);
     FamilyTree.templates.kintree.field_0 =
@@ -224,6 +226,13 @@ const Tree = ({ nodes, familyMembers }) => {
         },
         img_0: "photo",
       },
+      // menu: {
+      //   pdf: { text: "Export PDF" },
+      //   png: { text: "Export PNG" },
+      //   svg: { text: "Export SVG" },
+      //   xml: { text: "Export XML" },
+      //   json: { text: "Export JSON" },
+      // },
       tags: {
         kintree: {
           template: "kintree",
@@ -325,7 +334,16 @@ const Tree = ({ nodes, familyMembers }) => {
             <Play />
           </Button>
         </div>
-
+        <Button className="absolute rounded-full godfather-button h-12 w-12 sm:w-[175px] sm:h-[48px]">
+          <span className="rounded-full sm:bg-white w-8 h-8 flex items-center justify-center">
+            <img
+              src="/add-godfather.svg"
+              alt="Add GodFather"
+              className="w-6 h-6"
+            />
+          </span>
+          <span className="hidden sm:block">Add Godfather</span>
+        </Button>
         <div
           id="tree"
           ref={divRef}

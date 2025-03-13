@@ -348,7 +348,7 @@ export function RegisterForm({ setOpenTerms }) {
               setOpenTerms({
                 isOpen: true,
                 type: "terms",
-                url: "https://kintree.com/terms-and-condition/",
+                url: "https://kintree.com/terms-and-condition-webview/",
               })
             }
           >

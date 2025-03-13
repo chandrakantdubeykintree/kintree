@@ -33,7 +33,9 @@ import ProfileImageUpload from "./profileImageUpload";
 import { Link } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { CustomPhoneInput } from "@/components/custom-ui/custom_phone_input";
+import { countriesList } from "@/constants/countriesList";
 
 export default function AddRelativeForm({
   id,
@@ -48,6 +50,7 @@ export default function AddRelativeForm({
     useAddFamilyMember();
   const { data: ageRanges } = useAgeRanges();
   const { t } = useTranslation();
+  const [countryCode, setCountryCode] = useState("");
 
   const addRelativeSchema = z
     .object({
@@ -67,16 +70,20 @@ export default function AddRelativeForm({
         .max(20, t("last_name_max")),
       email: z
         .string()
-        .email(t("invalid_email"))
-        .max(254, t("email_max_length"))
-        .optional(),
+        .refine(
+          (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val),
+          t("invalid_email")
+        )
+        .optional()
+        .nullable(),
       phone_no: z
         .string()
         .refine(
           (val) => !val || /^\+?[1-9]\d{0,14}$/.test(val),
           t("invalid_phone")
         )
-        .optional(),
+        .optional()
+        .nullable(),
       age_range: z.number().optional().nullable(),
       native_place: z.string().optional(),
       profile_image: z.any().optional(),
@@ -249,8 +256,6 @@ export default function AddRelativeForm({
   });
 
   const onSubmit = async (values) => {
-    console.log(values);
-
     try {
       const relationData = calculateRelationData(values.relation);
       if (!relationData) return;
@@ -260,7 +265,11 @@ export default function AddRelativeForm({
         ...relationData,
         // Clear email and phone for deceased
         email: values.is_alive ? values.email : null,
-        phone_no: values.is_alive ? values.phone_no : null,
+        phone_no: values.is_alive
+          ? values.phone_no
+            ? `${countryCode}${values.phone_no}`
+            : null
+          : null,
         // Clear age range for deceased
         age_range: values.is_alive ? values.age_range : null,
         is_alive: values.is_alive ? 1 : 0,
@@ -302,15 +311,6 @@ export default function AddRelativeForm({
   // Should show contact fields if alive and age is between 20-60
   const shouldShowContactFields =
     isAlive === 1 && minAge !== null && minAge >= 20 && minAge < 60;
-
-  // Update the console.log to show more detailed information
-  console.log({
-    isAlive,
-    shouldShowContactFields,
-    ageRangeId,
-    selectedAgeRange,
-    minAge,
-  });
 
   useEffect(() => {
     if (isAlive === 1) {
@@ -377,7 +377,7 @@ export default function AddRelativeForm({
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger className="h-10 rounded-full">
+                        <SelectTrigger className="h-10 rounded-full focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary">
                           <SelectValue placeholder={t("select_relation")} />
                         </SelectTrigger>
                       </FormControl>
@@ -405,7 +405,7 @@ export default function AddRelativeForm({
                   <Input
                     value={relationGender === "m" ? t("male") : t("female")}
                     disabled
-                    className="rounded-full"
+                    className="h-10 rounded-full focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                     placeholder={t("gender")}
                   />
                 </FormControl>
@@ -419,7 +419,7 @@ export default function AddRelativeForm({
                     <FormControl>
                       <Input
                         {...field}
-                        className="rounded-full"
+                        className="rounded-full h-10 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                         placeholder={t("first_name")}
                       />
                     </FormControl>
@@ -436,7 +436,7 @@ export default function AddRelativeForm({
                     <FormControl>
                       <Input
                         {...field}
-                        className="rounded-full"
+                        className="rounded-full h-10 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                         placeholder={t("middle_name")}
                       />
                     </FormControl>
@@ -453,7 +453,7 @@ export default function AddRelativeForm({
                     <FormControl>
                       <Input
                         {...field}
-                        className="rounded-full"
+                        className="rounded-full h-10 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                         placeholder={t("last_name")}
                       />
                     </FormControl>
@@ -480,7 +480,7 @@ export default function AddRelativeForm({
                           value={field.value?.toString()}
                         >
                           <FormControl>
-                            <SelectTrigger className="h-10 rounded-full">
+                            <SelectTrigger className="h-10 rounded-full focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary">
                               <SelectValue
                                 placeholder={t("select_age_range")}
                               />
@@ -514,7 +514,7 @@ export default function AddRelativeForm({
                         <Input
                           {...field}
                           type="email"
-                          className="rounded-full"
+                          className="rounded-full h-10 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                           placeholder={t("email")}
                         />
                       </FormControl>
@@ -531,15 +531,12 @@ export default function AddRelativeForm({
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
-                        <PhoneInput
-                          international
-                          countryCallingCodeEditable={false}
-                          defaultCountry="IN"
-                          value={field.value}
-                          onChange={field.onChange}
-                          limitMaxLength
-                          maxLength={15}
-                          className="border rounded-r-full rounded-l-full md:h-10 px-4 bg-background"
+                        <CustomPhoneInput
+                          {...field}
+                          countries={countriesList}
+                          error={form.formState.errors.phone_no?.message}
+                          placeholder={t("enter_phone")}
+                          className="rounded-full"
                         />
                       </FormControl>
                       <FormMessage />
@@ -561,7 +558,7 @@ export default function AddRelativeForm({
                         name={field.name}
                         placeholder={t("native_place_placeholder")}
                         error={form.formState.errors.native_place?.message}
-                        className="rounded-full"
+                        className="rounded-full h-10 focus:outline-none focus:ring-1 focus:ring-primary focus:ring-offset-0 focus:border-primary border border-primary"
                       />
                     </FormControl>
                     <FormMessage />

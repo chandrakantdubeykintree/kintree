@@ -57,8 +57,8 @@ export default function KintreeMember() {
 
   const { data: familyTree } = useFamily();
 
-  // const { mutate: cancelMergeRequest, isLoading: isCancelling } =
-  //   useCancelMergeRequest();
+  const { mutate: cancelMergeRequest, isLoading: isCancelling } =
+    useCancelMergeRequest();
 
   const familyMemberSelected = familyTree?.find((member) => member?.id === +id);
 
@@ -325,7 +325,7 @@ export default function KintreeMember() {
           )}
         </Card>
       </div>
-      {isMergeModalOpen ? (
+      {/* {isMergeModalOpen ? (
         <MergeRequestForm
           isOpen={isMergeModalOpen}
           onClose={() => setIsMergeModalOpen(false)}
@@ -336,7 +336,7 @@ export default function KintreeMember() {
           currentUser={familyMember}
           profile={profile}
         />
-      ) : null}
+      ) : null} */}
     </AsyncComponent>
   );
 }

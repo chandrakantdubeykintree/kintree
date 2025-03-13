@@ -4,9 +4,9 @@ export const LANGUAGES = {
   hi: "हिंदी", // Hindi
   es: "Español", // Spanish
   fr: "Français", // French
-  ar: "العربية", // Arabic
+  // ar: "العربية", // Arabic
   bn: "বাংলা", // Bengali
-  ur: "اردو", // Urdu
+  // ur: "اردو", // Urdu
   mr: "मराठी", // Marathi
   gu: "ગુજરાતી", // Gujarati
   te: "తెలుగు", // Telugu
@@ -22,9 +22,9 @@ export const LANGUAGE_METADATA = {
   hi: { name: "Hindi", dir: "ltr" },
   es: { name: "Spanish", dir: "ltr" },
   fr: { name: "French", dir: "ltr" },
-  ar: { name: "Arabic", dir: "ltr" },
+  // ar: { name: "Arabic", dir: "ltr" },
   bn: { name: "Bengali", dir: "ltr" },
-  ur: { name: "Urdu", dir: "ltr" },
+  // ur: { name: "Urdu", dir: "ltr" },
   mr: { name: "Marathi", dir: "ltr" },
   gu: { name: "Gujarati", dir: "ltr" },
   te: { name: "Telugu", dir: "ltr" },

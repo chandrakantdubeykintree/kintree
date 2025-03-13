@@ -249,7 +249,7 @@ export default function Navbar() {
           )}
         </div>
         <div className="flex items-center gap-3 md:gap-3 lg:gap-4 mr-2 lg:mr-4">
-          {/* <LanguagesDropDown /> */}
+          <LanguagesDropDown />
           <ThemeToggle />
           <NotificationDropDown />
           {width > 768 ? (

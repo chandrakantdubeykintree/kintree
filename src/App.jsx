@@ -53,6 +53,7 @@ import FAQS from "./pages/FAQS";
 import AuthLayout from "./layouts/AuthLayout";
 import FlutterChat from "./pages/FlutterChat";
 import ViewTreeMergeRequest from "./pages/ViewTreeMergeRequest";
+import Horoscope from "./pages/Horoscope";
 
 const {
   RootLayout,
@@ -259,6 +260,10 @@ export default function App() {
                               <Route
                                 path={route_will_view_will}
                                 element={<ViewWill />}
+                              />
+                              <Route
+                                path={"/horoscope"}
+                                element={<Horoscope />}
                               />
                               <Route
                                 path={route_will_edit_will}

@@ -73,7 +73,6 @@ export default function FamilyMember() {
 
   const InfoItem = ({ label, value }) => {
     // if (!value) return null;
-    console.log(label, value);
 
     return (
       <div className="flex flex-col">
@@ -330,7 +329,9 @@ export default function FamilyMember() {
             ) : null}
 
             {/* Credentials Section */}
-            {familyMember?.password && !familyMember?.is_active ? (
+            {familyMember?.password &&
+            !familyMember?.is_active &&
+            familyMember?.is_alive ? (
               <div className="mb-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-lg font-semibold text-primary">

@@ -26,19 +26,18 @@ export function ThemeLanguageProvider({
   languageStorageKey = "kintree-language",
   ...props
 }) {
-  const { configurations, updateProfile } = useProfile("user/configurations");
+  const { profile: configurations, updateProfile } = useProfile(
+    "user/configurations"
+  );
+
   const [theme, setThemeState] = useState(() => {
     const savedTheme = localStorage.getItem(storageKey);
     return savedTheme || configurations?.theme || defaultTheme;
   });
 
   const [language, setLanguageState] = useState(() => {
-    const savedLanguage = localStorage.getItem(languageStorageKey);
-    return (
-      (savedLanguage && LANGUAGES[savedLanguage]) ||
-      (configurations?.language && LANGUAGES[configurations.language]) ||
-      defaultLanguage
-    );
+    // const savedLanguage = localStorage.getItem(languageStorageKey);
+    return configurations?.language || defaultLanguage;
   });
 
   // Initialize theme and language once when configurations are loaded

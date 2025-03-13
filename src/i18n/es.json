@@ -640,7 +640,7 @@
   "date_of_birth": "Fecha de nacimiento",
   "gender": "Género",
   "native_place": "Lugar de origen",
-  "relation": "Relación",
+  "relation": "Relación {{relation}}",
   "father_name": "Nombre del padre",
   "mother_name": "Nombre de la madre",
   "grandfather_name": "Nombre del abuelo",
