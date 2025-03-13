@@ -27,182 +27,182 @@ import { useNavigate } from "react-router";
 import { route_tree_merge_request } from "@/constants/routeEnpoints";
 import { encryptId } from "@/utils/encryption";
 
-const formatDate = (dateString) => {
-  const [datePart, timePart] = dateString.split(" ");
-  const [day, month, year] = datePart.split("-");
-  return new Date(`${year}-${month}-${day}T${timePart}`).toLocaleString(
-    "en-US",
-    {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }
-  );
-};
+// const formatDate = (dateString) => {
+//   const [datePart, timePart] = dateString.split(" ");
+//   const [day, month, year] = datePart.split("-");
+//   return new Date(`${year}-${month}-${day}T${timePart}`).toLocaleString(
+//     "en-US",
+//     {
+//       day: "numeric",
+//       month: "short",
+//       year: "numeric",
+//     }
+//   );
+// };
 
-const calculateMyRelativesCount = (mergeRequest) => {
-  if (mergeRequest?.is_request_sent)
-    return mergeRequest?.sender_relatives_count || 0;
-  if (mergeRequest?.is_request_received)
-    return mergeRequest?.receiver_relatives_count || 0;
-};
-const calculateMembersRelativesCount = (mergeRequest) => {
-  if (mergeRequest?.is_request_sent)
-    return mergeRequest?.receiver_relatives_count || 0;
-  if (mergeRequest?.is_request_received)
-    return mergeRequest?.sender_relatives_count || 0;
-};
+// const calculateMyRelativesCount = (mergeRequest) => {
+//   if (mergeRequest?.is_request_sent)
+//     return mergeRequest?.sender_relatives_count || 0;
+//   if (mergeRequest?.is_request_received)
+//     return mergeRequest?.receiver_relatives_count || 0;
+// };
+// const calculateMembersRelativesCount = (mergeRequest) => {
+//   if (mergeRequest?.is_request_sent)
+//     return mergeRequest?.receiver_relatives_count || 0;
+//   if (mergeRequest?.is_request_received)
+//     return mergeRequest?.sender_relatives_count || 0;
+// };
 
-const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
-  const { t } = useTranslation();
-  const { data: mergeRequest, isLoading } = useMergeRequest(requestId, {
-    enabled: isOpen,
-  });
-  const navigate = useNavigate();
+// const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
+//   const { t } = useTranslation();
+//   const { data: mergeRequest, isLoading } = useMergeRequest(requestId, {
+//     enabled: isOpen,
+//   });
+//   const navigate = useNavigate();
 
-  const { mutate: respondToRequest, isLoading: isResponding } =
-    useRespondToMergeRequest();
+//   const { mutate: respondToRequest, isLoading: isResponding } =
+//     useRespondToMergeRequest();
 
-  const handleAccept = () => {
-    respondToRequest(
-      {
-        requestId,
-        is_accepted: true,
-        same_persons: [],
-      },
-      {
-        onSuccess: () => {
-          onClose();
-        },
-      }
-    );
-  };
-  const { mutate: cancelRequest, isLoading: isCancelling } =
-    useCancelMergeRequest();
+//   const handleAccept = () => {
+//     respondToRequest(
+//       {
+//         requestId,
+//         is_accepted: true,
+//         same_persons: [],
+//       },
+//       {
+//         onSuccess: () => {
+//           onClose();
+//         },
+//       }
+//     );
+//   };
+//   const { mutate: cancelRequest, isLoading: isCancelling } =
+//     useCancelMergeRequest();
 
-  const handleDecline = () => {
-    cancelRequest(requestId, {
-      onSuccess: () => {
-        onClose();
-      },
-    });
-  };
-  const handleViewDetailRequest = (requestId) => {
-    onClose();
-    const id = encryptId(requestId);
-    navigate(`${route_tree_merge_request}/${id}`);
-  };
+//   const handleDecline = () => {
+//     cancelRequest(requestId, {
+//       onSuccess: () => {
+//         onClose();
+//       },
+//     });
+//   };
+//   const handleViewDetailRequest = (requestId) => {
+//     onClose();
+//     const id = encryptId(requestId);
+//     navigate(`${route_tree_merge_request}/${id}`);
+//   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90%] sm:max-w-sm rounded-2xl sm:rounded-2xl">
-        <DialogHeader>
-          <DialogTitle>{t("merge_request")}</DialogTitle>
-        </DialogHeader>
+//   return (
+//     <Dialog open={isOpen} onOpenChange={onClose}>
+//       <DialogContent className="max-w-[90%] sm:max-w-sm rounded-2xl sm:rounded-2xl">
+//         <DialogHeader>
+//           <DialogTitle>{t("merge_request")}</DialogTitle>
+//         </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex justify-center p-4">
-            <Loader2 className="h-6 w-6 animate-spin" />
-          </div>
-        ) : mergeRequest ? (
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <Avatar className="h-12 w-12">
-                <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
-                <AvatarFallback>
-                  {mergeRequest.requested_by?.first_name?.charAt(0)}
-                  {mergeRequest.requested_by?.last_name?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  {mergeRequest.is_request_sent ? (
-                    <>
-                      {t("you_requested_merge")}{" "}
-                      <span>
-                        {capitalizeName(mergeRequest.requested_to?.first_name)}
-                        &nbsp;
-                        {capitalizeName(mergeRequest.requested_to?.last_name)}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
-                      {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
-                    </>
-                  )}
-                  <span className="font-normal">
-                    {mergeRequest.is_request_sent
-                      ? t(" as ")
-                      : t("wants_to_merge")}
-                  </span>
-                  <span className="text-primary font-semibold">
-                    {mergeRequest.type?.name}
-                  </span>
-                </p>
-              </div>
-            </div>
+//         {isLoading ? (
+//           <div className="flex justify-center p-4">
+//             <Loader2 className="h-6 w-6 animate-spin" />
+//           </div>
+//         ) : mergeRequest ? (
+//           <div className="space-y-4">
+//             <div className="flex items-start gap-4">
+//               <Avatar className="h-12 w-12">
+//                 <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
+//                 <AvatarFallback>
+//                   {mergeRequest.requested_by?.first_name?.charAt(0)}
+//                   {mergeRequest.requested_by?.last_name?.charAt(0)}
+//                 </AvatarFallback>
+//               </Avatar>
+//               <div className="flex-1">
+//                 <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+//                   {mergeRequest.is_request_sent ? (
+//                     <>
+//                       {t("you_requested_merge")}{" "}
+//                       <span>
+//                         {capitalizeName(mergeRequest.requested_to?.first_name)}
+//                         &nbsp;
+//                         {capitalizeName(mergeRequest.requested_to?.last_name)}
+//                       </span>
+//                     </>
+//                   ) : (
+//                     <>
+//                       {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
+//                       {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
+//                     </>
+//                   )}
+//                   <span className="font-normal">
+//                     {mergeRequest.is_request_sent
+//                       ? t(" as ")
+//                       : t("wants_to_merge")}
+//                   </span>
+//                   <span className="text-primary font-semibold">
+//                     {mergeRequest.type?.name}
+//                   </span>
+//                 </p>
+//               </div>
+//             </div>
 
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>{t("their_tree_members")}:</span>
-                <span className="font-medium">
-                  {calculateMembersRelativesCount(mergeRequest) || 0}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t("your_tree_members")}:</span>
-                <span className="font-medium">
-                  {calculateMyRelativesCount(mergeRequest) || 0}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>{t("status")}:</span>
-                <span className="font-medium">
-                  {mergeRequest.is_accepted === null
-                    ? t("pending")
-                    : mergeRequest.is_accepted
-                    ? t("accepted")
-                    : t("declined")}
-                </span>
-              </div>
-            </div>
+//             <div className="space-y-2 text-sm">
+//               <div className="flex justify-between">
+//                 <span>{t("their_tree_members")}:</span>
+//                 <span className="font-medium">
+//                   {calculateMembersRelativesCount(mergeRequest) || 0}
+//                 </span>
+//               </div>
+//               <div className="flex justify-between">
+//                 <span>{t("your_tree_members")}:</span>
+//                 <span className="font-medium">
+//                   {calculateMyRelativesCount(mergeRequest) || 0}
+//                 </span>
+//               </div>
+//               <div className="flex justify-between">
+//                 <span>{t("status")}:</span>
+//                 <span className="font-medium">
+//                   {mergeRequest.is_accepted === null
+//                     ? t("pending")
+//                     : mergeRequest.is_accepted
+//                     ? t("accepted")
+//                     : t("declined")}
+//                 </span>
+//               </div>
+//             </div>
 
-            {!mergeRequest.is_request_sent &&
-              mergeRequest.is_accepted === null && (
-                <div className="flex justify-end gap-2 mt-4">
-                  <Button
-                    variant="destructive"
-                    onClick={handleDecline}
-                    disabled={isCancelling}
-                    className="rounded-full"
-                  >
-                    {isCancelling ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    {t("decline")}
-                  </Button>
-                  {mergeRequest?.is_request_received ? (
-                    <Button
-                      // onClick={handleAccept}
-                      onClick={() => handleViewDetailRequest(requestId)}
-                      disabled={isResponding}
-                      className="rounded-full"
-                    >
-                      {isResponding ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : null}
-                      {t("view_detailed_request")}{" "}
-                    </Button>
-                  ) : null}
-                </div>
-              )}
-          </div>
-        ) : null}
-      </DialogContent>
-    </Dialog>
-  );
-};
+//             {!mergeRequest.is_request_sent &&
+//               mergeRequest.is_accepted === null && (
+//                 <div className="flex justify-end gap-2 mt-4">
+//                   <Button
+//                     variant="destructive"
+//                     onClick={handleDecline}
+//                     disabled={isCancelling}
+//                     className="rounded-full"
+//                   >
+//                     {isCancelling ? (
+//                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
+//                     ) : null}
+//                     {t("decline")}
+//                   </Button>
+//                   {mergeRequest?.is_request_received ? (
+//                     <Button
+//                       // onClick={handleAccept}
+//                       onClick={() => handleViewDetailRequest(requestId)}
+//                       disabled={isResponding}
+//                       className="rounded-full"
+//                     >
+//                       {isResponding ? (
+//                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
+//                       ) : null}
+//                       {t("view_detailed_request")}{" "}
+//                     </Button>
+//                   ) : null}
+//                 </div>
+//               )}
+//           </div>
+//         ) : null}
+//       </DialogContent>
+//     </Dialog>
+//   );
+// };
 
 export default function NotificationsPage() {
   const { t } = useTranslation();
@@ -224,8 +224,8 @@ export default function NotificationsPage() {
   } = useNotifications(10);
 
   const { ref, inView } = useInView();
-  const { data: mergeRequests, isLoading: isMergeRequestsLoading } =
-    useMergeRequests();
+  // const { data: mergeRequests, isLoading: isMergeRequestsLoading } =
+  //   useMergeRequests();
 
   useEffect(() => {
     if (inView && hasNextPage) {
@@ -277,153 +277,153 @@ export default function NotificationsPage() {
   };
 
   const [activeTab, setActiveTab] = useState("notifications");
-  const { mutate: cancelMergeRequest, isLoading: isCancelling } =
-    useCancelMergeRequest();
+  // const { mutate: cancelMergeRequest, isLoading: isCancelling } =
+  //   useCancelMergeRequest();
 
-  const getMergeRequestsCount = () => {
-    return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
-  };
+  // const getMergeRequestsCount = () => {
+  //   return mergeRequests?.pages?.[0]?.data?.requests?.length || 0;
+  // };
 
-  const MergeRequestCard = ({ mergeRequest }) => {
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const { mutate: cancelRequest, isLoading: isCancelling } =
-      useCancelMergeRequest();
+  // const MergeRequestCard = ({ mergeRequest }) => {
+  //   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  //   const { mutate: cancelRequest, isLoading: isCancelling } =
+  //     useCancelMergeRequest();
 
-    const handleDecline = (e) => {
-      e.stopPropagation();
-      cancelRequest(mergeRequest.id, {
-        onSuccess: () => {
-          toast.success(t("merge_request_declined_success"));
-        },
-      });
-    };
+  //   const handleDecline = (e) => {
+  //     e.stopPropagation();
+  //     cancelRequest(mergeRequest.id, {
+  //       onSuccess: () => {
+  //         toast.success(t("merge_request_declined_success"));
+  //       },
+  //     });
+  //   };
 
-    const handleCancelRequest = (e) => {
-      e.stopPropagation();
-      cancelMergeRequest(mergeRequest.id, {
-        // onSuccess: () => {
-        //   toast.success("Merge request cancelled successfully");
-        // },
-      });
-    };
-    return (
-      <AsyncComponent>
-        <div className="p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-[#121212] shadow-md">
-          {/* Main Content */}
-          <div className="flex gap-4">
-            {/* Avatar */}
-            <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
-              <AvatarFallback>
-                {mergeRequest.requested_by?.first_name?.charAt(0) || "U"}
-                {mergeRequest.requested_by?.last_name?.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+  //   const handleCancelRequest = (e) => {
+  //     e.stopPropagation();
+  //     cancelMergeRequest(mergeRequest.id, {
+  //       // onSuccess: () => {
+  //       //   toast.success("Merge request cancelled successfully");
+  //       // },
+  //     });
+  //   };
+  //   return (
+  //     <AsyncComponent>
+  //       <div className="p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-[#121212] shadow-md">
+  //         {/* Main Content */}
+  //         <div className="flex gap-4">
+  //           {/* Avatar */}
+  //           <Avatar className="h-10 w-10 flex-shrink-0">
+  //             <AvatarImage src={mergeRequest.requested_by?.profile_pic_url} />
+  //             <AvatarFallback>
+  //               {mergeRequest.requested_by?.first_name?.charAt(0) || "U"}
+  //               {mergeRequest.requested_by?.last_name?.charAt(0)}
+  //             </AvatarFallback>
+  //           </Avatar>
 
-            {/* Text Content */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {mergeRequest.is_request_sent ? (
-                  <>
-                    {t("you_requested_merge")}{" "}
-                    <span>
-                      {capitalizeName(mergeRequest.requested_to?.first_name)}
-                      &nbsp;
-                      {capitalizeName(mergeRequest.requested_to?.last_name)}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
-                    {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
-                  </>
-                )}
-                <span className="font-normal">
-                  &nbsp;
-                  {mergeRequest.is_request_sent ? t("as") : t("wants_to_merge")}
-                  &nbsp;
-                </span>
-                <span className="text-primary font-semibold">
-                  {mergeRequest.type?.name}
-                </span>
-              </p>
+  //           {/* Text Content */}
+  //           <div className="flex-1 min-w-0">
+  //             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+  //               {mergeRequest.is_request_sent ? (
+  //                 <>
+  //                   {t("you_requested_merge")}{" "}
+  //                   <span>
+  //                     {capitalizeName(mergeRequest.requested_to?.first_name)}
+  //                     &nbsp;
+  //                     {capitalizeName(mergeRequest.requested_to?.last_name)}
+  //                   </span>
+  //                 </>
+  //               ) : (
+  //                 <>
+  //                   {capitalizeName(mergeRequest.requested_by?.first_name)}{" "}
+  //                   {capitalizeName(mergeRequest.requested_by?.last_name)}{" "}
+  //                 </>
+  //               )}
+  //               <span className="font-normal">
+  //                 &nbsp;
+  //                 {mergeRequest.is_request_sent ? t("as") : t("wants_to_merge")}
+  //                 &nbsp;
+  //               </span>
+  //               <span className="text-primary font-semibold">
+  //                 {mergeRequest.type?.name}
+  //               </span>
+  //             </p>
 
-              {/* Date - Desktop */}
-              <div className="hidden md:block text-xs text-gray-500 dark:text-gray-400 mt-1">
-                {formatDate(mergeRequest.created_at)}
-              </div>
-            </div>
-          </div>
+  //             {/* Date - Desktop */}
+  //             <div className="hidden md:block text-xs text-gray-500 dark:text-gray-400 mt-1">
+  //               {formatDate(mergeRequest.created_at)}
+  //             </div>
+  //           </div>
+  //         </div>
 
-          {/* Date - Mobile */}
-          <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-3">
-            {formatDate(mergeRequest.created_at)}
-          </div>
+  //         {/* Date - Mobile */}
+  //         <div className="md:hidden text-xs text-gray-500 dark:text-gray-400 mt-3">
+  //           {formatDate(mergeRequest.created_at)}
+  //         </div>
 
-          {/* Actions */}
-          <div className="flex justify-end flex-wrap gap-3 mt-1">
-            {mergeRequest.is_request_sent ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
-                  onClick={handleCancelRequest}
-                  disabled={isCancelling}
-                >
-                  {isCancelling ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  {t("cancel_request")}
-                </Button>
-                <Button
-                  size="sm"
-                  className="rounded-full h-8 md:h-10 px-4 text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsViewModalOpen(true);
-                  }}
-                >
-                  {t("view_request")}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
-                  onClick={handleCancelRequest}
-                  disabled={isCancelling}
-                >
-                  {isCancelling ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  {t("decline")}
-                </Button>
-                <Button
-                  size="sm"
-                  className="rounded-full h-8 md:h-10 px-4 text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsViewModalOpen(true);
-                  }}
-                >
-                  {t("view_request")}
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+  //         {/* Actions */}
+  //         <div className="flex justify-end flex-wrap gap-3 mt-1">
+  //           {mergeRequest.is_request_sent ? (
+  //             <>
+  //               <Button
+  //                 variant="outline"
+  //                 size="sm"
+  //                 className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
+  //                 onClick={handleCancelRequest}
+  //                 disabled={isCancelling}
+  //               >
+  //                 {isCancelling ? (
+  //                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
+  //                 ) : null}
+  //                 {t("cancel_request")}
+  //               </Button>
+  //               <Button
+  //                 size="sm"
+  //                 className="rounded-full h-8 md:h-10 px-4 text-sm"
+  //                 onClick={(e) => {
+  //                   e.stopPropagation();
+  //                   setIsViewModalOpen(true);
+  //                 }}
+  //               >
+  //                 {t("view_request")}
+  //               </Button>
+  //             </>
+  //           ) : (
+  //             <>
+  //               <Button
+  //                 variant="outline"
+  //                 size="sm"
+  //                 className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
+  //                 onClick={handleCancelRequest}
+  //                 disabled={isCancelling}
+  //               >
+  //                 {isCancelling ? (
+  //                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
+  //                 ) : null}
+  //                 {t("decline")}
+  //               </Button>
+  //               <Button
+  //                 size="sm"
+  //                 className="rounded-full h-8 md:h-10 px-4 text-sm"
+  //                 onClick={(e) => {
+  //                   e.stopPropagation();
+  //                   setIsViewModalOpen(true);
+  //                 }}
+  //               >
+  //                 {t("view_request")}
+  //               </Button>
+  //             </>
+  //           )}
+  //         </div>
+  //       </div>
 
-        <MergeRequestDialog
-          isOpen={isViewModalOpen}
-          onClose={() => setIsViewModalOpen(false)}
-          requestId={mergeRequest.id}
-        />
-      </AsyncComponent>
-    );
-  };
+  //       <MergeRequestDialog
+  //         isOpen={isViewModalOpen}
+  //         onClose={() => setIsViewModalOpen(false)}
+  //         requestId={mergeRequest.id}
+  //       />
+  //     </AsyncComponent>
+  //   );
+  // };
 
   const NotificationCard = ({ notification }) => {
     const { notification_data, readed_at, type } = notification;
@@ -478,11 +478,11 @@ export default function NotificationsPage() {
               value: "notifications",
               count: unreadCount,
             },
-            {
-              label: t("merge_requests"),
-              value: "merge-requests",
-              count: getMergeRequestsCount(),
-            },
+            // {
+            //   label: t("merge_requests"),
+            //   value: "merge-requests",
+            //   count: getMergeRequestsCount(),
+            // },
           ]}
           activeTab={activeTab}
           onChange={setActiveTab}
@@ -517,7 +517,7 @@ export default function NotificationsPage() {
           </div>
         </CustomTabPanel>
 
-        <CustomTabPanel value="merge-requests" activeTab={activeTab}>
+        {/* <CustomTabPanel value="merge-requests" activeTab={activeTab}>
           <div className="space-y-2">
             {!isMergeRequestsLoading &&
             mergeRequests?.pages?.[0]?.data?.requests?.length > 0 ? (
@@ -536,7 +536,7 @@ export default function NotificationsPage() {
               </div>
             )}
           </div>
-        </CustomTabPanel>
+        </CustomTabPanel> */}
       </Card>
       <Dialog
         open={!!selectedNotification}

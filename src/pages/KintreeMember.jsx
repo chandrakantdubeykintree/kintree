@@ -189,7 +189,7 @@ export default function KintreeMember() {
               </div>
               {/* merge tree hidden for now */}
               <div className="flex justify-center mb-8">
-                {!familyMember?.is_relative &&
+                {/* {!familyMember?.is_relative &&
                 !familyMember?.is_request_sent &&
                 !familyMember?.is_request_received &&
                 !isMergeRequsetSent ? (
@@ -199,7 +199,7 @@ export default function KintreeMember() {
                   >
                     {t("request_merge")}
                   </Button>
-                ) : null}
+                ) : null} */}
                 {/* {!familyMember?.is_relative &&
                 familyMember?.is_request_received ? (
                   <Button
@@ -325,7 +325,7 @@ export default function KintreeMember() {
           )}
         </Card>
       </div>
-      {isMergeModalOpen ? (
+      {/* {isMergeModalOpen ? (
         <MergeRequestForm
           isOpen={isMergeModalOpen}
           onClose={() => setIsMergeModalOpen(false)}
@@ -336,7 +336,7 @@ export default function KintreeMember() {
           currentUser={familyMember}
           profile={profile}
         />
-      ) : null}
+      ) : null} */}
     </AsyncComponent>
   );
 }

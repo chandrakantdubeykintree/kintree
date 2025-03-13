@@ -8,9 +8,9 @@ import zh from "./zh.json";
 import hi from "./hi.json";
 import es from "./es.json";
 import fr from "./fr.json";
-import ar from "./ar.json";
+// import ar from "./ar.json";
 import bn from "./bn.json";
-import ur from "./ur.json";
+// import ur from "./ur.json";
 import mr from "./mr.json";
 import gu from "./gu.json";
 import te from "./te.json";
@@ -26,9 +26,9 @@ const resources = {
   hi: { translation: hi },
   es: { translation: es },
   fr: { translation: fr },
-  ar: { translation: ar },
+  // ar: { translation: ar },
   bn: { translation: bn },
-  ur: { translation: ur },
+  // ur: { translation: ur },
   mr: { translation: mr },
   gu: { translation: gu },
   te: { translation: te },
