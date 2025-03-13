@@ -34,7 +34,7 @@ export default function Selfie({ setStep, willId }) {
       }
 
       await uploadSelfie({ willId, selfieFile });
-      toast.success(t("selfie_uploaded_successfully"));
+      // toast.success(t("selfie_uploaded_successfully"));
       setStep("notarize");
     } catch (error) {
       toast.error(t("error_failed_to_upload_selfie"));

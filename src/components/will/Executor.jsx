@@ -91,7 +91,7 @@ export default function Executor({ setStep, willId }) {
           date_of_birth: format(data.date_of_birth, "yyyy-MM-dd"),
         },
       });
-      toast.success(t("executor_info_saved_successfully"));
+      // toast.success(t("executor_info_saved_successfully"));
       setStep("review");
     } catch (error) {
       toast.error(t("error_saving_executor_info"));

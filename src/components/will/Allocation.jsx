@@ -71,7 +71,7 @@ export default function Allocation({ setStep, willId }) {
           percentage,
         })),
       });
-      toast.success(t("allocations_saved_successfully"));
+      // toast.success(t("allocations_saved_successfully"));
       setStep("executor");
     } catch (error) {
       toast.error(t("error_saving_allocations"));
