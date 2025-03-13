@@ -97,7 +97,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[90%] sm:max-w-sm rounded-2xl sm:rounded-2xl">
         <DialogHeader>
-          <DialogTitle>{t("merge_request_details")}</DialogTitle>
+          <DialogTitle>{t("merge_request")}</DialogTitle>
         </DialogHeader>
 
         {isLoading ? (
@@ -133,7 +133,7 @@ const MergeRequestDialog = ({ isOpen, onClose, requestId }) => {
                   )}
                   <span className="font-normal">
                     {mergeRequest.is_request_sent
-                      ? t("as")
+                      ? t(" as ")
                       : t("wants_to_merge")}
                   </span>
                   <span className="text-primary font-semibold">
@@ -308,7 +308,7 @@ export default function NotificationsPage() {
     };
     return (
       <AsyncComponent>
-        <div className="p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-orange-900/20">
+        <div className="p-4 rounded-lg cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-800 bg-orange-50/80 dark:bg-[#121212] shadow-md">
           {/* Main Content */}
           <div className="flex gap-4">
             {/* Avatar */}
@@ -339,7 +339,9 @@ export default function NotificationsPage() {
                   </>
                 )}
                 <span className="font-normal">
-                  {mergeRequest.is_request_sent ? t("as") : t("wants_to_merge")}
+                  {mergeRequest.is_request_sent
+                    ? t(" as ")
+                    : t("wants_to_merge")}
                 </span>
                 <span className="text-primary font-semibold">
                   {mergeRequest.type?.name}
@@ -359,23 +361,13 @@ export default function NotificationsPage() {
           </div>
 
           {/* Actions */}
-          <div className="flex flex-wrap gap-3 mt-4">
+          <div className="flex justify-end flex-wrap gap-3 mt-1">
             {mergeRequest.is_request_sent ? (
               <>
                 <Button
-                  size="sm"
-                  className="rounded-full h-8 px-4 text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsViewModalOpen(true);
-                  }}
-                >
-                  {t("view_request")}
-                </Button>
-                <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full h-8 px-4 text-sm text-primary"
+                  className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
                   onClick={handleCancelRequest}
                   disabled={isCancelling}
                 >
@@ -384,12 +376,9 @@ export default function NotificationsPage() {
                   ) : null}
                   {t("cancel_request")}
                 </Button>
-              </>
-            ) : (
-              <>
                 <Button
                   size="sm"
-                  className="rounded-full h-8 px-4 text-sm"
+                  className="rounded-full h-8 md:h-10 px-4 text-sm"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsViewModalOpen(true);
@@ -397,10 +386,13 @@ export default function NotificationsPage() {
                 >
                   {t("view_request")}
                 </Button>
+              </>
+            ) : (
+              <>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="rounded-full h-8 px-4 text-sm text-primary"
+                  className="rounded-full h-8 md:h-10 px-4 text-sm text-primary"
                   onClick={handleCancelRequest}
                   disabled={isCancelling}
                 >
@@ -408,6 +400,16 @@ export default function NotificationsPage() {
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
                   ) : null}
                   {t("decline")}
+                </Button>
+                <Button
+                  size="sm"
+                  className="rounded-full h-8 md:h-10 px-4 text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsViewModalOpen(true);
+                  }}
+                >
+                  {t("view_request")}
                 </Button>
               </>
             )}

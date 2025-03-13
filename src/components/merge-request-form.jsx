@@ -109,7 +109,7 @@ export default function MergeRequestForm({
     createRequest(formData, {
       onSuccess: () => {
         setIsMergeRequestSent(true);
-        toast.success("Merge request created successfully!");
+        // toast.success("Merge request created successfully!");
         onClose();
       },
       onError: (error) => {
