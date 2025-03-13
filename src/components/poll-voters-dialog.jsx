@@ -20,7 +20,7 @@ export default function PollVotersDialog({ isOpen, onClose, pollId }) {
     if (!voters || voters.length === 0) {
       return (
         <div className="text-center py-4 flex justify-center items-center">
-          <img src="/no_votes.svg" />
+          <img src="/no_vote.svg" className="h-16 w-16" />
         </div>
       );
     }
