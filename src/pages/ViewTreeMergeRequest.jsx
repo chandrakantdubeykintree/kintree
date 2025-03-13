@@ -195,7 +195,7 @@ export default function ViewTreeMergeRequest() {
                     {relative.relation ? (
                       <p className="text-xs font-semibold">
                         {" "}
-                        {t("relation", { relation: relative.relation })}
+                        {t("relation_type", { relation: relative.relation })}
                       </p>
                     ) : null}
                   </div>
